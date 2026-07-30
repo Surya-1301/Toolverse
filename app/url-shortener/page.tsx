@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Clock,} from "lucide-react";
+import { HowToUse } from "@/components/HowToUse";
 import {
   BarChart3,
   Check,
@@ -175,12 +177,14 @@ function UrlShortenerContent() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <PageHeader
-        icon={<Link2 className="h-7 w-7" />}
-        title="URL Shortener"
-        description="Turn long URLs into short, clean, shareable links."
-        badge="Week 2 tool"
-      />
+      <div className="mx-auto max-w-3xl text-center">
+  <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+    URL Shortener
+  </h1>
+  <p className="mt-4 text-base leading-7 text-slate-400">
+    Turn long URLs into short, clean, shareable links.
+  </p>
+</div>
 
       <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
         <div className="space-y-5">
@@ -362,16 +366,41 @@ function UrlShortenerContent() {
         </div>
       </div>
 
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">How to use</h2>
-
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-slate-400">
-          <li>Paste a long URL into the input box.</li>
-          <li>Add a custom alias and expiry if needed.</li>
-          <li>Click Shorten URL.</li>
-          <li>Copy the short link or create a QR code for it.</li>
-        </ol>
-      </section>
+      <HowToUse
+  subtitle=""
+  steps={[
+    {
+      title: "Paste long URL",
+      description: "Enter a full URL that starts with http:// or https://.",
+      icon: <Link2 className="h-5 w-5" />,
+    },
+    {
+      title: "Add alias",
+      description: "Optionally create a custom short slug for the link.",
+      icon: <Send className="h-5 w-5" />,
+    },
+    {
+      title: "Set expiry",
+      description: "Choose when the short URL should stop working.",
+      icon: <Clock className="h-5 w-5" />,
+    },
+    {
+      title: "Copy short link",
+      description: "Copy the generated link and share it anywhere.",
+      icon: <Copy className="h-5 w-5" />,
+    },
+    {
+      title: "Create QR",
+      description: "Open the QR Generator with your short link prefilled.",
+      icon: <QrCode className="h-5 w-5" />,
+    },
+    {
+      title: "Refresh stats",
+      description: "Update the analytics for your short link.",
+      icon: <BarChart3 className="h-5 w-5" />,
+    },
+  ]}
+/>
     </Container>
   );
 }

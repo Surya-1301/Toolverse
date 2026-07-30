@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import QRCode from "qrcode";
 import {
@@ -8,12 +8,16 @@ import {
   Copy,
   Download,
   Eraser,
-  Link2,
+  FileUp,
   Loader2,
   QrCode,
-  Type,
+  Upload,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
+import { formatFileSize } from "@/lib/formatFileSize";
+
+const uploadExpiry = "never";
 
 export default function QrGeneratorPage() {
   return (
@@ -38,13 +42,19 @@ function QrGeneratorLoading() {
 
 function QrGeneratorContent() {
   const searchParams = useSearchParams();
-  const initialText = searchParams.get("text") || "https://toolverse.dev";
+  const initialText = searchParams.get("text") || "";
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [text, setText] = useState(initialText);
   const [qrPng, setQrPng] = useState("");
   const [qrSvg, setQrSvg] = useState("");
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+
+  const [selectedFileName, setSelectedFileName] = useState("");
+  const [selectedFileSize, setSelectedFileSize] = useState<number | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   async function generateQr(value: string) {
     try {
@@ -87,6 +97,54 @@ function QrGeneratorContent() {
   useEffect(() => {
     generateQr(text);
   }, [text]);
+
+  function openFilePicker() {
+    fileInputRef.current?.click();
+  }
+
+  async function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    try {
+      setError("");
+
+      const file = event.target.files?.[0];
+
+      if (!file) return;
+
+      setSelectedFileName(file.name);
+      setSelectedFileSize(file.size);
+      setIsUploading(true);
+
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("expiry", uploadExpiry);
+
+      const isImage = file.type.startsWith("image/");
+      const endpoint = isImage ? "/api/image/upload" : "/api/file/upload";
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Could not upload this file.");
+        return;
+      }
+
+      const fullUrl = `${window.location.origin}${data.url}`;
+      setText(fullUrl);
+    } catch {
+      setError("Could not upload this file. Please try again.");
+    } finally {
+      setIsUploading(false);
+
+      if (event.target) {
+        event.target.value = "";
+      }
+    }
+  }
 
   async function copyText() {
     if (!text.trim()) return;
@@ -131,42 +189,63 @@ function QrGeneratorContent() {
     setQrSvg("");
     setError("");
     setCopied(false);
-  }
-
-  function useExampleUrl() {
-    setText("https://toolverse.dev");
+    setSelectedFileName("");
+    setSelectedFileSize(null);
+    setIsUploading(false);
   }
 
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300">
-          <QrCode className="h-7 w-7" />
-        </div>
-
+      
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           QR Generator
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Create clean QR codes for URLs, text, contact info, Wi-Fi details, and
-          more. Download your QR code as PNG or SVG.
+          Create QR codes for URLs, text, PDFs, images, and files. Upload a file
+          to generate a QR code for its shareable link.
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <label className="mb-2 block text-sm font-medium text-slate-300">
-            Text or URL
+            Text, URL, PDF, image, or file
           </label>
 
           <textarea
             value={text}
             onChange={(event) => setText(event.target.value)}
-            placeholder="Enter text or URL to generate QR code..."
+            placeholder="Enter text or URL, or upload a file to generate QR code..."
             spellCheck={false}
             className="min-h-[220px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
           />
+
+          <input
+            ref={fileInputRef}
+            type="file"
+            onChange={handleFileUpload}
+            className="hidden"
+          />
+
+          {selectedFileName ? (
+            <div className="mt-4 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300">
+              <div className="flex items-start gap-2">
+                <FileUp className="mt-0.5 h-4 w-4 text-violet-300" />
+                <div className="min-w-0">
+                  <p className="break-all font-medium text-white">
+                    {selectedFileName}
+                  </p>
+                  {selectedFileSize !== null ? (
+                    <p className="mt-1 text-xs text-slate-500">
+                      {formatFileSize(selectedFileSize)}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            </div>
+          ) : null}
 
           {error ? (
             <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
@@ -189,19 +268,16 @@ function QrGeneratorContent() {
             </button>
 
             <button
-              onClick={useExampleUrl}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+              onClick={openFilePicker}
+              disabled={isUploading}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
-              <Link2 className="h-4 w-4" />
-              Example URL
-            </button>
-
-            <button
-              onClick={() => setText("Toolverse QR Generator")}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              <Type className="h-4 w-4" />
-              Example text
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Upload className="h-4 w-4" />
+              )}
+              {isUploading ? "Uploading..." : "Upload file"}
             </button>
 
             <button
@@ -232,7 +308,7 @@ function QrGeneratorContent() {
               />
             ) : (
               <p className="text-center text-sm text-slate-500">
-                Enter text to generate a QR code.
+                Enter text or upload a file to generate a QR code.
               </p>
             )}
           </div>
@@ -259,45 +335,31 @@ function QrGeneratorContent() {
         </div>
       </div>
 
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">How to use</h2>
-
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-slate-400">
-          <li>Enter a URL, text, or message in the input box.</li>
-          <li>The QR code will generate automatically.</li>
-          <li>Check the live preview on the right side.</li>
-          <li>Download your QR code as PNG or SVG.</li>
-        </ol>
-      </section>
-
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">FAQ</h2>
-
-        <div className="mt-4 space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Is this QR generator free?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              Yes. You can create and download QR codes for free.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Can I generate QR codes for URLs?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              Yes. Paste any URL and Toolverse will generate a scannable QR code
-              instantly.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Is my text uploaded?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              No. The QR code is generated in your browser and your text is not
-              uploaded to a server.
-            </p>
-          </div>
-        </div>
-      </section>
+      <HowToUse
+        subtitle=""
+        steps={[
+          {
+            title: "Enter content",
+            description: "Type or paste a URL, message, email, or phone number.",
+            icon: <QrCode className="h-5 w-5" />,
+          },
+          {
+            title: "Upload file",
+            description: "Choose a PDF, image, or file to create a QR link.",
+            icon: <Upload className="h-5 w-5" />,
+          },
+          {
+            title: "Generate QR",
+            description: "The QR code updates automatically after upload or typing.",
+            icon: <QrCode className="h-5 w-5" />,
+          },
+          {
+            title: "Download file",
+            description: "Save the QR code as PNG or SVG for sharing.",
+            icon: <Download className="h-5 w-5" />,
+          },
+        ]}
+      />
     </Container>
   );
 }

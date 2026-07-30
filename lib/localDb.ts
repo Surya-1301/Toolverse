@@ -20,6 +20,30 @@ export type LinkRecord = {
   clicks: number;
 };
 
+export type ImageRecord = {
+  id: string;
+  originalName: string;
+  storedName: string;
+  mimeType: string;
+  size: number;
+  width: number | null;
+  height: number | null;
+  createdAt: string;
+  expiresAt: string | null;
+  views: number;
+};
+
+export type FileRecord = {
+  id: string;
+  originalName: string;
+  storedName: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+  expiresAt: string | null;
+  downloads: number;
+};
+
 async function ensureDataDir() {
   await fs.mkdir(dataDir, { recursive: true });
 }
@@ -59,4 +83,20 @@ export async function getLinks() {
 
 export async function saveLinks(links: LinkRecord[]) {
   return writeJsonFile("links.json", links);
+}
+
+export async function getImages() {
+  return readJsonFile<ImageRecord[]>("images.json", []);
+}
+
+export async function saveImages(images: ImageRecord[]) {
+  return writeJsonFile("images.json", images);
+}
+
+export async function getFiles() {
+  return readJsonFile<FileRecord[]>("files.json", []);
+}
+
+export async function saveFiles(files: FileRecord[]) {
+  return writeJsonFile("files.json", files);
 }

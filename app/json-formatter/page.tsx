@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Eraser, FileJson, Minimize2, Wand2 } from "lucide-react";
+import { Check, Copy, Eraser, FileJson, Minimize2, Share2, Wand2 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { Braces, CheckCircle2, } from "lucide-react";
+import { HowToUse } from "@/components/HowToUse";
 
 export default function JsonFormatterPage() {
   const [input, setInput] = useState("");
@@ -89,9 +91,6 @@ export default function JsonFormatterPage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300">
-          <FileJson className="h-7 w-7" />
-        </div>
 
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           JSON Formatter
@@ -182,47 +181,41 @@ export default function JsonFormatterPage() {
         </div>
       </div>
 
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">How to use</h2>
-
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-slate-400">
-          <li>Paste your JSON into the input box.</li>
-          <li>Click Format to make it readable.</li>
-          <li>Click Minify to remove spaces and line breaks.</li>
-          <li>Click Validate to check if your JSON is correct.</li>
-          <li>Use Copy to copy the result.</li>
-        </ol>
-      </section>
-
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">FAQ</h2>
-
-        <div className="mt-4 space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Is my JSON uploaded?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              No. This JSON formatter runs in your browser, so your JSON stays
-              on your device.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Can I minify JSON?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              Yes. Click the Minify button to remove unnecessary whitespace from
-              valid JSON.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Does it validate JSON?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              Yes. If your JSON has a syntax error, the tool will show an
-              invalid JSON message.
-            </p>
-          </div>
-        </div>
-      </section>
+     <HowToUse
+       subtitle=""
+  steps={[
+    {
+      title: "Paste JSON",
+      description: "Add your JSON into the input editor on the left.",
+      icon: <Braces className="h-5 w-5" />,
+    },
+    {
+      title: "Format it",
+      description: "Click Format to make compressed JSON readable.",
+      icon: <Wand2 className="h-5 w-5" />,
+    },
+    {
+      title: "Validate syntax",
+      description: "Check whether your JSON is valid before using it.",
+      icon: <CheckCircle2 className="h-5 w-5" />,
+    },
+    {
+      title: "Minify output",
+      description: "Remove spaces and line breaks for compact JSON.",
+      icon: <Minimize2 className="h-5 w-5" />,
+    },
+    {
+      title: "Copy result",
+      description: "Copy the formatted or minified JSON instantly.",
+      icon: <Copy className="h-5 w-5" />,
+    },
+    {
+      title: "Share Anywhere",
+      description: "Share the formatted or minified JSON with others.",
+      icon: <Share2 className="h-5 w-5" />,
+    },
+  ]}
+/>
     </Container>
   );
 }

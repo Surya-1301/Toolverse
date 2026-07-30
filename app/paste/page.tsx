@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
+import { Clock, Code2, } from "lucide-react";
+import { HowToUse } from "@/components/HowToUse";
 
 const languages = [
   { label: "Plain text", value: "plain_text" },
@@ -110,12 +112,16 @@ export default function PastePage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <PageHeader
-        icon={<FileText className="h-7 w-7" />}
-        title="Paste"
-        description="Share text and code snippets with quick, clean links."
-        badge="Week 2 tool"
-      />
+      
+      <div className="mx-auto max-w-3xl text-center">
+  <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+    Paste
+  </h1>
+
+  <p className="mt-4 text-base leading-7 text-slate-400">
+      Share text and code snippets with quick, clean links.
+  </p>
+</div>
 
       <div className="mx-auto mt-10 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
         <div className="mb-4 grid gap-4 sm:grid-cols-[1fr_220px]">
@@ -165,20 +171,6 @@ export default function PastePage() {
               ))}
             </select>
 
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
-              <p className="text-sm font-medium text-white">Limit</p>
-              <p className="mt-1 text-sm leading-6 text-slate-400">
-                Max 100,000 characters for local development.
-              </p>
-            </div>
-
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
-              <p className="text-sm font-medium text-white">Privacy</p>
-              <p className="mt-1 text-sm leading-6 text-slate-400">
-                Pastes are stored locally during development. Production storage
-                will be added later.
-              </p>
-            </div>
           </div>
         </div>
 
@@ -261,6 +253,36 @@ export default function PastePage() {
           </button>
         </div>
       </div>
+      <HowToUse
+  subtitle=""
+  steps={[
+    {
+      title: "Paste content",
+      description: "Add your text, notes, or code into the paste editor.",
+      icon: <FileText className="h-5 w-5" />,
+    },
+    {
+      title: "Choose language",
+      description: "Select a language to label the pasted content.",
+      icon: <Code2 className="h-5 w-5" />,
+    },
+    {
+      title: "Set expiry",
+      description: "Choose when the paste should expire or keep it forever.",
+      icon: <Clock className="h-5 w-5" />,
+    },
+    {
+      title: "Create paste",
+      description: "Generate a clean link that you can share instantly.",
+      icon: <Send className="h-5 w-5" />,
+    },
+    {
+      title: "Copy link",
+      description: "Copy the paste link or open the raw text view.",
+      icon: <Copy className="h-5 w-5" />,
+    },
+  ]}
+/>
     </Container>
   );
 }

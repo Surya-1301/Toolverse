@@ -24,3 +24,22 @@ Before public production launch, move storage to one of:
 - Upstash Redis
 
 ## Run locally
+
+## Production storage note
+
+This project currently uses local JSON files and local upload folders for development:
+
+- `data/*.json`
+- `uploads/images`
+- `uploads/files`
+
+This is not production-safe on serverless hosting such as Vercel because local file writes and uploads may not persist.
+
+Before public launch, move storage to:
+
+- Cloudflare D1 for metadata
+- Cloudflare R2 for uploaded images/files
+
+Alternative:
+
+- Supabase Database + Supabase Storage

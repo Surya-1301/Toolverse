@@ -8,10 +8,12 @@ import {
   ImageDown,
   ImageIcon,
   Loader2,
+  SlidersHorizontal,
   Upload,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { HowToUse } from "@/components/HowToUse";
 
 export default function ImageCompressorPage() {
   const [originalFile, setOriginalFile] = useState<File | null>(null);
@@ -111,10 +113,7 @@ export default function ImageCompressorPage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300">
-          <ImageDown className="h-7 w-7" />
-        </div>
-
+      
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Compressor
         </h1>
@@ -294,45 +293,31 @@ export default function ImageCompressorPage() {
         </div>
       </div>
 
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">How to use</h2>
-
-        <ol className="mt-4 list-decimal space-y-2 pl-5 text-slate-400">
-          <li>Upload a JPG, PNG, or WebP image.</li>
-          <li>Adjust the quality slider if needed.</li>
-          <li>Click Compress to reduce image size.</li>
-          <li>Preview the compressed image and download it.</li>
-        </ol>
-      </section>
-
-      <section className="mx-auto mt-12 max-w-3xl">
-        <h2 className="text-2xl font-bold">FAQ</h2>
-
-        <div className="mt-4 space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Are my images uploaded?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              No. Image compression happens directly in your browser, so your
-              image stays on your device.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">Which image formats are supported?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              JPG, PNG, and WebP images are supported by most modern browsers.
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <h3 className="font-semibold">What quality should I use?</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-400">
-              70% is a good balance between quality and file size. Use a lower
-              value for smaller files.
-            </p>
-          </div>
-        </div>
-      </section>
+      <HowToUse
+  subtitle=""
+  steps={[
+    {
+      title: "Upload image",
+      description: "Choose a JPG, PNG, or WebP image from your device.",
+      icon: <Upload className="h-5 w-5" />,
+    },
+    {
+      title: "Set quality",
+      description: "Adjust the quality slider to control compression.",
+      icon: <SlidersHorizontal className="h-5 w-5" />,
+    },
+    {
+      title: "Compress",
+      description: "Click Compress to reduce the image file size.",
+      icon: <ImageDown className="h-5 w-5" />,
+    },
+    {
+      title: "Download",
+      description: "Preview and download the compressed image.",
+      icon: <Download className="h-5 w-5" />,
+    },
+  ]}
+/>
     </Container>
   );
 }

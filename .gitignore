@@ -42,3 +42,13 @@ next-env.d.ts
 
 # Local dev database
 data/*.json
+
+# Local uploaded files
+uploads/images/*
+uploads/files/*
+!uploads/images/.gitkeep
+!uploads/files/.gitkeep
+
+# Local upload metadata
+data/images.json
+data/files.jsonx

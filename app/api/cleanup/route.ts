@@ -1,23 +1,29 @@
 import { NextResponse } from "next/server";
-import { isExpired } from "@/lib/expiry";
-import { getLinks, getPastes, saveLinks, savePastes } from "@/lib/localDb";
+import { cleanupExpiredItems } from "@/lib/cleanup";
 
-export async function POST() {
+export async function POST(request: Request) {
   try {
-    const pastes = await getPastes();
-    const links = await getLinks();
+    const cleanupSecret = process.env.CLEANUP_SECRET;
 
-    const activePastes = pastes.filter((paste) => !isExpired(paste.expiresAt));
-    const activeLinks = links.filter((link) => !isExpired(link.expiresAt));
+    if (cleanupSecret) {
+      const authHeader = request.headers.get("authorization");
+      const token = authHeader?.replace("Bearer ", "");
 
-    await savePastes(activePastes);
-    await saveLinks(activeLinks);
+      if (token !== cleanupSecret) {
+        return NextResponse.json(
+          { error: "Unauthorized." },
+          { status: 401 }
+        );
+      }
+    }
 
-    return NextResponse.json({
-      removedPastes: pastes.length - activePastes.length,
-      removedLinks: links.length - activeLinks.length,
-      activePastes: activePastes.length,
-      activeLinks: activeLinks.length,
+    const result = await cleanupExpiredItems();
+
+    return NextResponse.json(result, {
+      headers: {
+        "Cache-Control": "no-store",
+        "X-Robots-Tag": "noindex, nofollow",
+      },
     });
   } catch {
     return NextResponse.json(

@@ -1,0 +1,98 @@
+import {
+  Braces,
+  FileUp,
+  Image,
+  ImageDown,
+  Link2,
+  QrCode,
+  ScanText,
+  Text,
+} from "lucide-react";
+import { Container } from "@/components/Container";
+import { ToolCard } from "@/components/ToolCard";
+
+const tools = [
+  {
+    title: "JSON Formatter",
+    description: "Format, validate, and minify JSON instantly in your browser.",
+    href: "/json-formatter",
+    icon: <Braces className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "QR Generator",
+    description: "Create downloadable QR codes for links, text, and files.",
+    href: "/qr-generator",
+    icon: <QrCode className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "Image Compressor",
+    description: "Compress images locally and reduce file size quickly.",
+    href: "/image-compressor",
+    icon: <ImageDown className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "Paste",
+    description: "Share text and code snippets with quick, clean links.",
+    href: "/paste",
+    icon: <Text className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "Image Host",
+    description: "Upload images and get direct shareable links.",
+    href: "/image-host",
+    icon: <Image className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "URL Shortener",
+    description: "Turn long URLs into short, memorable links.",
+    href: "/url-shortener",
+    icon: <Link2 className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "File Share",
+    description: "Upload files and share temporary download links.",
+    href: "/file-share",
+    icon: <FileUp className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "OCR",
+    description: "Extract text from screenshots, photos, and scanned images.",
+    href: "/ocr",
+    icon: <ScanText className="h-6 w-6" />,
+    status: "soon" as const,
+  },
+];
+
+export default function ToolsPage() {
+  return (
+    <Container className="py-12 sm:py-16">
+      <div className="mx-auto max-w-3xl text-center">
+        <p className="mb-4 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-sm text-violet-200">
+          ToolverseX utilities
+        </p>
+
+        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+          Explore all tools
+        </h1>
+
+        <p className="mt-4 text-base leading-7 text-slate-400">
+          Browse all available ToolverseX tools for formatting, generating,
+          compressing, hosting, sharing, and shortening.
+        </p>
+      </div>
+
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {tools.map((tool) => (
+          <ToolCard key={tool.title} {...tool} />
+        ))}
+      </div>
+    </Container>
+  );
+}

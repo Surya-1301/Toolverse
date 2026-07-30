@@ -7,7 +7,7 @@ export function Footer() {
       <Container className="flex flex-col gap-4 py-8 text-sm text-slate-400 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="font-medium text-slate-300">
-            © {new Date().getFullYear()} Toolverse
+            © {new Date().getFullYear()} ToolverseX
           </p>
           <p className="mt-1 text-xs">
             Fast, free, privacy-friendly online tools.
@@ -24,6 +24,9 @@ export function Footer() {
           <Link href="/contact" className="hover:text-white">
             Contact
           </Link>
+          <Link href="/report-abuse" className="hover:text-white">
+          Report abuse
+           </Link>
         </div>
       </Container>
     </footer>
