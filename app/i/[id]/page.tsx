@@ -44,6 +44,10 @@ export default function HostedImagePage({ params }: PageProps) {
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+  }, []);
+
+  useEffect(() => {
     async function loadParams() {
       const resolvedParams = await params;
       setImageId(resolvedParams.id);
@@ -126,14 +130,8 @@ export default function HostedImagePage({ params }: PageProps) {
 
     let value = "";
 
-    if (type === "page") {
-      value = pageUrl;
-    }
-
-    if (type === "markdown") {
-      value = `![${image.originalName}](${imageUrl})`;
-    }
-
+    if (type === "page") value = pageUrl;
+    if (type === "markdown") value = `![${image.originalName}](${imageUrl})`;
     if (type === "html") {
       value = `<img src="${imageUrl}" alt="${image.originalName}" />`;
     }

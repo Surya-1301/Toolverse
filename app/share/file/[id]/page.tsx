@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Download, FileText, FileUp, Loader2 } from "lucide-react";
+import { Download, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
 
@@ -27,6 +27,10 @@ export default function SharedFilePage({ params }: PageProps) {
   const [file, setFile] = useState<FileRecord | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+  }, []);
 
   useEffect(() => {
     async function loadParams() {

@@ -41,6 +41,10 @@ export default function HostedFilePage({ params }: PageProps) {
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+  }, []);
+
+  useEffect(() => {
     async function loadParams() {
       const resolvedParams = await params;
       setFileId(resolvedParams.id);
@@ -69,6 +73,7 @@ export default function HostedFilePage({ params }: PageProps) {
       }
 
       setFile(data);
+      document.title = "ToolverseX - Your All-in-One Utility Hub.";
     } catch {
       setError("Could not load file.");
       setFile(null);
@@ -119,13 +124,8 @@ export default function HostedFilePage({ params }: PageProps) {
 
     let value = "";
 
-    if (type === "page") {
-      value = getPageUrl();
-    }
-
-    if (type === "download") {
-      value = getDownloadUrl();
-    }
+    if (type === "page") value = getPageUrl();
+    if (type === "download") value = getDownloadUrl();
 
     if (!value) return;
 
