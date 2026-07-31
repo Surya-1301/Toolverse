@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import { NextResponse } from "next/server";
 import { isExpired } from "@/lib/expiry";
-import { deleteUploadedFile, getUploadedFilePath } from "@/lib/upload";
 import { getFiles, saveFiles } from "@/lib/localDb";
 
 type RouteContext = {
@@ -10,8 +9,14 @@ type RouteContext = {
   }>;
 };
 
-function encodeFileName(fileName: string) {
-  return encodeURIComponent(fileName).replace(/['()]/g, escape);
+async function removeStoredFile(filePath?: string) {
+  if (!filePath) return;
+
+  try {
+    await fs.unlink(filePath);
+  } catch {
+    // Ignore missing file cleanup errors
+  }
 }
 
 export async function GET(_request: Request, context: RouteContext) {
@@ -27,33 +32,28 @@ export async function GET(_request: Request, context: RouteContext) {
   if (isExpired(fileRecord.expiresAt)) {
     const activeFiles = files.filter((item) => item.id !== id);
     await saveFiles(activeFiles);
-    await deleteUploadedFile("files", fileRecord.storedName);
+    await removeStoredFile(fileRecord.filePath);
 
     return NextResponse.json({ error: "File has expired." }, { status: 410 });
   }
 
-  try {
-    const filePath = getUploadedFilePath("files", fileRecord.storedName);
-    const file = await fs.readFile(filePath);
-
-    fileRecord.downloads += 1;
-    await saveFiles(files);
-
-    return new Response(file, {
+  return NextResponse.json(
+    {
+      id: fileRecord.id,
+      originalName: fileRecord.originalName,
+      mimeType: fileRecord.mimeType,
+      size: fileRecord.size,
+      createdAt: fileRecord.createdAt,
+      expiresAt: fileRecord.expiresAt,
+      downloads: fileRecord.downloads,
+      downloadUrl:
+        fileRecord.downloadUrl || `/api/file/${fileRecord.id}/download`,
+    },
+    {
       headers: {
-        "Content-Type": fileRecord.mimeType || "application/octet-stream",
-        "Content-Length": String(fileRecord.size),
-        "Content-Disposition": `attachment; filename*=UTF-8''${encodeFileName(
-          fileRecord.originalName
-        )}`,
-        "Cache-Control": "private, no-store",
+        "Cache-Control": "no-store",
         "X-Robots-Tag": "noindex, nofollow",
       },
-    });
-  } catch {
-    return NextResponse.json(
-      { error: "File is missing." },
-      { status: 404 }
-    );
-  }
+    }
+  );
 }
