@@ -225,8 +225,7 @@ export default function ImageCompressorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Compress images in your browser and PDFs with the Ghostscript
-          compression backend.
+          Compress images in your browser and PDFs.
         </p>
       </div>
 
