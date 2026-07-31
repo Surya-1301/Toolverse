@@ -9,6 +9,7 @@
     "dev": "node server.js"
   },
   "dependencies": {
+    "browser-image-compression": "^2.0.2",
     "cors": "^2.8.5",
     "express": "^4.19.2",
     "multer": "^1.4.5-lts.1"
