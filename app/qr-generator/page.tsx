@@ -127,20 +127,48 @@ function QrGeneratorContent() {
         body: formData,
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+
+      let data: {
+        id?: string;
+        error?: string;
+      } | null = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
 
       if (!response.ok) {
-        setError(data.error || "Could not upload this file.");
+        setError(
+          data?.error ||
+            responseText ||
+            `Could not upload this file. Backend returned ${response.status}.`,
+        );
+        return;
+      }
+
+      if (!data?.id) {
+        setError("Upload succeeded but no file ID was returned.");
         return;
       }
 
       const frontendOrigin = window.location.origin;
+
       const fullUrl = isImage
-        ? `${frontendOrigin}/share/image/${data.id}`
-        : `${frontendOrigin}/share/file/${data.id}`;
+        ? `${frontendOrigin}/share-image?id=${data.id}`
+        : `${frontendOrigin}/share-file?id=${data.id}`;
+
       setText(fullUrl);
-    } catch {
-      setError("Could not upload this file. Please try again.");
+    } catch (caughtError) {
+      console.error(caughtError);
+
+      setError(
+        caughtError instanceof Error
+          ? `Could not upload this file: ${caughtError.message}`
+          : "Could not upload this file. Please check your backend Worker URL.",
+      );
     } finally {
       setIsUploading(false);
 
@@ -166,8 +194,10 @@ function QrGeneratorContent() {
 
     const link = document.createElement("a");
     link.href = qrPng;
-    link.download = "Toolverse-qr-code.png";
+    link.download = "ToolverseX-qr-code.png";
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
   }
 
   function downloadSvg() {
@@ -181,8 +211,10 @@ function QrGeneratorContent() {
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "Toolverse-qr-code.svg";
+    link.download = "ToolverseX-qr-code.svg";
+    document.body.appendChild(link);
     link.click();
+    document.body.removeChild(link);
 
     URL.revokeObjectURL(url);
   }
@@ -294,29 +326,30 @@ function QrGeneratorContent() {
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between">
             <h2 className="font-semibold">Preview</h2>
             <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
               Live
             </span>
           </div>
 
-          <div className="mt-5 flex min-h-[320px] items-center justify-center rounded-2xl border border-white/10 bg-white p-6">
+          <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl bg-white p-4">
             {qrPng ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={qrPng}
                 alt="Generated QR code"
-                className="h-auto w-full max-w-[16rem]"
+                className="h-64 w-64"
               />
             ) : (
-              <p className="text-center text-sm text-slate-500">
+              <div className="text-center text-sm text-slate-500">
+                <QrCode className="mx-auto mb-3 h-10 w-10" />
                 Enter text or upload a file to generate a QR code.
-              </p>
+              </div>
             )}
           </div>
 
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <button
               onClick={downloadPng}
               disabled={!qrPng}
@@ -339,28 +372,37 @@ function QrGeneratorContent() {
       </div>
 
       <HowToUse
+        title="How to use QR Generator"
         subtitle=""
         steps={[
           {
-            title: "Enter content",
-            description:
-              "Type or paste a URL, message, email, or phone number.",
+            title: "Enter text",
+            description: "Type any text, URL, or upload a file.",
             icon: <QrCode className="h-5 w-5" />,
           },
           {
             title: "Upload file",
-            description: "Choose a PDF, image, or file to create a QR link.",
+            description: "Upload an image, PDF, or file to create a share QR.",
             icon: <Upload className="h-5 w-5" />,
           },
           {
             title: "Generate QR",
-            description:
-              "The QR code updates automatically after upload or typing.",
+            description: "The QR code updates automatically.",
             icon: <QrCode className="h-5 w-5" />,
           },
           {
-            title: "Download file",
-            description: "Save the QR code as PNG or SVG for sharing.",
+            title: "Copy text",
+            description: "Copy the encoded text or share link.",
+            icon: <Copy className="h-5 w-5" />,
+          },
+          {
+            title: "Download PNG",
+            description: "Save the QR code as a PNG image.",
+            icon: <Download className="h-5 w-5" />,
+          },
+          {
+            title: "Download SVG",
+            description: "Save the QR code as a scalable SVG.",
             icon: <Download className="h-5 w-5" />,
           },
         ]}

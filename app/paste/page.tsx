@@ -61,6 +61,13 @@ export default function PastePage() {
   const [isCheckingAlias, setIsCheckingAlias] = useState(false);
   const [copied, setCopied] = useState<CopyType>("");
 
+  function resetResultState() {
+    setResult(null);
+    setPasteUrl("");
+    setRawUrl("");
+    setCopied("");
+  }
+
   function validateAlias(alias: string) {
     if (!alias) {
       return "Enter an alias first.";
@@ -84,10 +91,7 @@ export default function PastePage() {
   async function openAlias() {
     try {
       setError("");
-      setResult(null);
-      setPasteUrl("");
-      setRawUrl("");
-      setCopied("");
+      resetResultState();
 
       const alias = customAlias.trim().toLowerCase();
       const aliasError = validateAlias(alias);
@@ -109,6 +113,16 @@ export default function PastePage() {
         return;
       }
 
+      const responseText = await response.text();
+
+      let data: { error?: string } | null = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
+
       if (response.status === 404) {
         setError(
           "No paste found with this alias. Add content below and click Create paste to create it.",
@@ -123,10 +137,19 @@ export default function PastePage() {
         return;
       }
 
-      const data = await response.json().catch(() => null);
-      setError(data?.error || "Could not check this alias.");
-    } catch {
-      setError("Could not check this alias. Please try again.");
+      setError(
+        data?.error ||
+          responseText ||
+          `Could not check this alias. Backend returned ${response.status}.`,
+      );
+    } catch (caughtError) {
+      console.error(caughtError);
+
+      setError(
+        caughtError instanceof Error
+          ? `Could not check this alias: ${caughtError.message}`
+          : "Could not check this alias. Please check your backend Worker URL.",
+      );
     } finally {
       setIsCheckingAlias(false);
     }
@@ -135,10 +158,7 @@ export default function PastePage() {
   async function createPaste() {
     try {
       setError("");
-      setResult(null);
-      setPasteUrl("");
-      setRawUrl("");
-      setCopied("");
+      resetResultState();
 
       if (!content.trim()) {
         setError("Paste content is required.");
@@ -156,25 +176,54 @@ export default function PastePage() {
           content,
           language,
           expiry,
-          customAlias,
+          customAlias: customAlias.trim().toLowerCase(),
         }),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+
+      let data: PasteResult & { error?: string };
+
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        data = {
+          id: "",
+          url: "",
+          rawUrl: "",
+          expiresAt: null,
+          error: responseText,
+        };
+      }
 
       if (!response.ok) {
-        setError(data.error || "Could not create paste.");
+        setError(
+          data?.error ||
+            responseText ||
+            `Could not create paste. Backend returned ${response.status}.`,
+        );
         return;
       }
 
-     const fullPasteUrl = `${window.location.origin}/paste-view?id=${data.id}`;
-     const fullRawUrl = apiUrl(`/raw/${data.id}`);
+      if (!data?.id) {
+        setError("Paste created but no paste ID was returned.");
+        return;
+      }
+
+      const fullPasteUrl = `${window.location.origin}/paste-view?id=${data.id}`;
+      const fullRawUrl = apiUrl(`/raw/${data.id}`);
 
       setResult(data);
       setPasteUrl(fullPasteUrl);
       setRawUrl(fullRawUrl);
-    } catch {
-      setError("Could not create paste. Please try again.");
+    } catch (caughtError) {
+      console.error(caughtError);
+
+      setError(
+        caughtError instanceof Error
+          ? `Could not create paste: ${caughtError.message}`
+          : "Could not create paste. Please check your backend Worker URL.",
+      );
     } finally {
       setIsCreating(false);
     }
@@ -317,16 +366,17 @@ export default function PastePage() {
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+          <div className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
             {error}
           </div>
         ) : null}
 
         <div className="mt-5 flex flex-wrap gap-3">
           <button
+            type="button"
             onClick={createPaste}
             disabled={isCreating}
-            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -337,8 +387,9 @@ export default function PastePage() {
           </button>
 
           <button
+            type="button"
             onClick={clearAll}
-            className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
           >
             <Eraser className="h-4 w-4" />
             Clear
@@ -347,113 +398,122 @@ export default function PastePage() {
 
         {result ? (
           <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <p className="text-sm font-semibold text-emerald-200">
+              Paste created successfully
+            </p>
+
+            <div className="mt-3 grid gap-3">
               <div>
-                <p className="text-sm font-semibold text-emerald-200">
-                  Paste created successfully
-                </p>
-
-                <p className="mt-1 text-xs text-emerald-100/80">
-                  ID: {result.id}
-                </p>
-
-                <p className="mt-1 text-xs text-emerald-100/80">
-                  Expires: {formatExpiry(result.expiresAt)}
-                </p>
+                <label className="mb-1 block text-xs text-slate-400">
+                  Paste page
+                </label>
+                <input
+                  value={pasteUrl}
+                  readOnly
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                />
               </div>
 
-              <div className="flex flex-wrap gap-3">
-                <button
-                  onClick={() => copyValue("page")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/20 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/10"
-                >
-                  {copied === "page" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                  {copied === "page" ? "Copied" : "Copy paste"}
-                </button>
-
-                <button
-                  onClick={() => copyValue("raw")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-400/20 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/10"
-                >
-                  {copied === "raw" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                  {copied === "raw" ? "Copied" : "Copy raw"}
-                </button>
-
-                <a
-                  href={pasteUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30"
-                >
-                  Open paste
-                  <ExternalLink className="h-4 w-4" />
-                </a>
-
-                <a
-                  href={rawUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-500/20 px-4 py-2.5 text-sm font-semibold text-emerald-100 transition hover:bg-emerald-500/30"
-                >
-                  Open raw
-                  <ExternalLink className="h-4 w-4" />
-                </a>
+              <div>
+                <label className="mb-1 block text-xs text-slate-400">
+                  Raw text
+                </label>
+                <input
+                  value={rawUrl}
+                  readOnly
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                />
               </div>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              <input
-                value={pasteUrl}
-                readOnly
-                className="w-full rounded-xl border border-emerald-400/20 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
-              />
+            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+              <a
+                href={pasteUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Open
+                <ExternalLink className="h-4 w-4" />
+              </a>
 
-              <input
-                value={rawUrl}
-                readOnly
-                className="w-full rounded-xl border border-emerald-400/20 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
-              />
+              <a
+                href={rawUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+              >
+                Raw
+                <ExternalLink className="h-4 w-4" />
+              </a>
+
+              <button
+                type="button"
+                onClick={() => copyValue("page")}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              >
+                {copied === "page" ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+                {copied === "page" ? "Copied" : "Copy page"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => copyValue("raw")}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              >
+                {copied === "raw" ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+                {copied === "raw" ? "Copied" : "Copy raw"}
+              </button>
             </div>
+
+            <p className="mt-3 text-xs text-emerald-100/80">
+              Expires: {formatExpiry(result.expiresAt)}
+            </p>
           </div>
         ) : null}
       </div>
 
       <HowToUse
+        title="How to use Paste"
         subtitle=""
         steps={[
           {
-            title: "Enter alias",
-            description: "Type a new alias or an old one you already created.",
-            icon: <Link2 className="h-5 w-5" />,
-          },
-          {
-            title: "Open old notes",
-            description: "Click Go to open the paste if the alias exists.",
-            icon: <ExternalLink className="h-5 w-5" />,
-          },
-          {
-            title: "Create notes",
-            description:
-              "If the alias does not exist, add content and create it.",
+            title: "Write content",
+            description: "Paste your text, notes, or code.",
             icon: <FileText className="h-5 w-5" />,
           },
           {
-            title: "Choose settings",
-            description: "Set language and expiry for the paste.",
+            title: "Pick language",
+            description: "Select a language label for your paste.",
+            icon: <Code2 className="h-5 w-5" />,
+          },
+          {
+            title: "Set expiry",
+            description: "Choose when the paste should expire.",
             icon: <Clock className="h-5 w-5" />,
           },
           {
-            title: "Share link",
-            description: "Copy or open the generated paste link.",
+            title: "Create paste",
+            description: "Generate a shareable paste link.",
             icon: <Send className="h-5 w-5" />,
+          },
+          {
+            title: "Copy link",
+            description: "Copy the paste page or raw text URL.",
+            icon: <Copy className="h-5 w-5" />,
+          },
+          {
+            title: "Open alias",
+            description: "Use an alias to reopen existing notes.",
+            icon: <Link2 className="h-5 w-5" />,
           },
         ]}
       />
