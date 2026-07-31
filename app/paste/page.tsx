@@ -427,7 +427,7 @@ export default function PastePage() {
       </div>
 
       <HowToUse
-        subtitle="Create or open notes with a readable paste alias."
+        subtitle=""
         steps={[
           {
             title: "Enter alias",

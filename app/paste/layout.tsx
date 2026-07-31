@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Paste",
+  title: "Paste - View a shared text or code snippet",
   description: "View a shared text or code snippet on Toolverse.",
   robots: {
     index: false,
