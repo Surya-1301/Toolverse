@@ -69,7 +69,9 @@ function getExpiresAt(expiry: string | null | undefined) {
 
   const now = Date.now();
 
-  if (value === "1h") return new Date(now + 60 * 60 * 1000).toISOString();
+  if (value === "1h") {
+    return new Date(now + 60 * 60 * 1000).toISOString();
+  }
 
   if (value === "1d") {
     return new Date(now + 24 * 60 * 60 * 1000).toISOString();
@@ -144,7 +146,7 @@ async function route(request: Request, env: Env) {
   }
 
   /**
-   * PASTE
+   * PASTE CREATE
    */
 
   if (pathname === "/api/paste/create" && request.method === "POST") {
@@ -213,6 +215,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * PASTE GET + AUTOSAVE UPDATE
+   */
+
   const pasteMatch = pathname.match(/^\/api\/paste\/([^/]+)$/);
 
   if (pasteMatch && request.method === "GET") {
@@ -268,7 +274,11 @@ async function route(request: Request, env: Env) {
     const language = String(body.language || "plain_text");
 
     const existing = await env.DB.prepare(
-      "SELECT id, expires_at FROM pastes WHERE id = ?",
+      `
+      SELECT id, expires_at
+      FROM pastes
+      WHERE id = ?
+      `,
     )
       .bind(id)
       .first<{
@@ -303,6 +313,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * RAW PASTE
+   */
+
   const rawMatch = pathname.match(/^\/raw\/([^/]+)$/);
 
   if (rawMatch && request.method === "GET") {
@@ -330,7 +344,7 @@ async function route(request: Request, env: Env) {
   }
 
   /**
-   * URL SHORTENER
+   * URL SHORTENER CREATE
    */
 
   if (pathname === "/api/shorten" && request.method === "POST") {
@@ -400,6 +414,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * URL SHORTENER STATS
+   */
+
   const linkStatsMatch = pathname.match(/^\/api\/shorten\/([^/]+)$/);
 
   if (linkStatsMatch && request.method === "GET") {
@@ -441,6 +459,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * WORKER SHORTLINK REDIRECT
+   */
+
   const redirectMatch = pathname.match(/^\/s\/([^/]+)$/);
 
   if (redirectMatch && request.method === "GET") {
@@ -475,7 +497,7 @@ async function route(request: Request, env: Env) {
   }
 
   /**
-   * IMAGE UPLOAD / DIRECT / META
+   * IMAGE UPLOAD
    */
 
   if (pathname === "/api/image/upload" && request.method === "POST") {
@@ -555,6 +577,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * IMAGE META
+   */
+
   const imageMetaMatch = pathname.match(/^\/api\/image\/([^/]+)\/meta$/);
 
   if (imageMetaMatch && request.method === "GET") {
@@ -604,6 +630,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * IMAGE DIRECT
+   */
+
   const imageDirectMatch = pathname.match(/^\/api\/image\/([^/]+)\/direct$/);
 
   if (imageDirectMatch && request.method === "GET") {
@@ -647,7 +677,7 @@ async function route(request: Request, env: Env) {
   }
 
   /**
-   * FILE UPLOAD / DOWNLOAD / META
+   * FILE UPLOAD
    */
 
   if (pathname === "/api/file/upload" && request.method === "POST") {
@@ -721,6 +751,10 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  /**
+   * FILE META
+   */
+
   const fileMetaMatch = pathname.match(/^\/api\/file\/([^/]+)\/meta$/);
 
   if (fileMetaMatch && request.method === "GET") {
@@ -765,6 +799,10 @@ async function route(request: Request, env: Env) {
       downloadUrl: `/api/file/${id}/download`,
     });
   }
+
+  /**
+   * FILE DOWNLOAD
+   */
 
   const fileDownloadMatch = pathname.match(/^\/api\/file\/([^/]+)\/download$/);
 
