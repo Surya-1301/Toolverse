@@ -144,11 +144,13 @@ export default function FileSharePage() {
       const frontendOrigin = window.location.origin;
       const backendOrigin = getApiBaseUrl();
 
-      const ownerPath = kind === "image" ? `/i/${data.id}` : `/f/${data.id}`;
-      const userPath =
-        kind === "image"
-          ? `/share/image/${data.id}`
-          : `/share/file/${data.id}`;
+      const ownerPath =
+  kind === "image" ? `/image?id=${data.id}` : `/file?id=${data.id}`;
+
+const userPath =
+  kind === "image"
+    ? `/share-image?id=${data.id}`
+    : `/share-file?id=${data.id}`;
 
       const directPath =
         kind === "image"
