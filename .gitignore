@@ -57,4 +57,4 @@ data/files.jsonx
 .open-next
 node_modules
 out
-.vercel
+.DS_Store
