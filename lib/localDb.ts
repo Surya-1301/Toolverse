@@ -39,7 +39,20 @@ export type FileRecord = {
   filePath?: string;
 };
 
-type CollectionName = "pastes" | "images" | "files";
+export type LinkRecord = {
+  id?: string;
+  slug: string;
+  url?: string;
+  originalUrl?: string;
+  destinationUrl?: string;
+  createdAt: string;
+  expiresAt: string | null;
+  clicks?: number;
+  visits?: number;
+  [key: string]: unknown;
+};
+
+type CollectionName = "pastes" | "images" | "files" | "links";
 
 async function ensureDataDir() {
   await fs.mkdir(dataDir, {
@@ -106,4 +119,12 @@ export async function getFiles() {
 
 export async function saveFiles(files: FileRecord[]) {
   return writeCollection("files", files);
+}
+
+export async function getLinks() {
+  return readCollection<LinkRecord>("links");
+}
+
+export async function saveLinks(links: LinkRecord[]) {
+  return writeCollection("links", links);
 }
