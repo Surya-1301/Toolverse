@@ -53,9 +53,8 @@ uploads/files/*
 data/images.json
 data/files.jsonx
 
+.next
 .open-next
-.next
-node_modules.open-next
-.next
 node_modules
 out
+.vercel
