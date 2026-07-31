@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import imageCompression from "browser-image-compression";
-import { PDFDocument } from "pdf-lib";
 import {
   Download,
   Eraser,
@@ -17,6 +16,11 @@ import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 
 type Mode = "image" | "pdf";
+
+const PDF_API_BASE_URL = (
+  process.env.NEXT_PUBLIC_PDF_API_BASE_URL ||
+  "https://toolversex-pdf-api.onrender.com"
+).replace(/\/$/, "");
 
 export default function ImageCompressorPage() {
   const [mode, setMode] = useState<Mode>("image");
@@ -83,20 +87,34 @@ export default function ImageCompressorPage() {
     return imageCompression(file, options);
   }
 
-  async function compressPdfClientSide(file: File) {
-    const arrayBuffer = await file.arrayBuffer();
+  async function compressPdf(file: File) {
+    const formData = new FormData();
 
-    const pdfDoc = await PDFDocument.load(arrayBuffer, {
-      ignoreEncryption: true,
+    formData.append("file", file);
+    formData.append("quality", String(quality));
+
+    const response = await fetch(`${PDF_API_BASE_URL}/api/pdf/compress`, {
+      method: "POST",
+      body: formData,
     });
 
-    const compressedBytes = await pdfDoc.save({
-      useObjectStreams: true,
-      addDefaultPage: false,
-    });
+    if (!response.ok) {
+      const data = await response.json().catch(() => null);
+
+      throw new Error(
+        data?.error ||
+          "Could not compress PDF. Please check the PDF compression backend.",
+      );
+    }
+
+    const blob = await response.blob();
+
+    if (!blob.size) {
+      throw new Error("Compressed PDF is empty. Please try another PDF.");
+    }
 
     return new File(
-      [compressedBytes as BlobPart],
+      [blob],
       file.name.replace(/\.pdf$/i, "") + "-compressed.pdf",
       {
         type: "application/pdf",
@@ -121,7 +139,7 @@ export default function ImageCompressorPage() {
       const compressed =
         mode === "image"
           ? await compressImage(originalFile)
-          : await compressPdfClientSide(originalFile);
+          : await compressPdf(originalFile);
 
       setCompressedFile(compressed);
 
@@ -134,7 +152,7 @@ export default function ImageCompressorPage() {
       if (compressed.size >= originalFile.size) {
         setError(
           mode === "pdf"
-            ? "This PDF could not be reduced much. Some PDFs are already optimized or contain scanned images that cannot be compressed further in the browser."
+            ? "This PDF could not be reduced much. It may already be optimized, or the backend returned the original because compression would increase file size."
             : "This image could not be reduced much. Try lowering the quality.",
         );
       }
@@ -146,6 +164,7 @@ export default function ImageCompressorPage() {
             ? "Could not compress this image. Please try another image."
             : "Could not compress this PDF. Please try another PDF.",
       );
+
       setCompressedFile(null);
       setCompressedPreview("");
     } finally {
@@ -161,6 +180,7 @@ export default function ImageCompressorPage() {
 
     const originalName =
       originalFile?.name || (mode === "image" ? "image" : "document");
+
     const baseName = originalName.replace(/\.[^/.]+$/, "");
 
     let extension = "jpg";
@@ -205,13 +225,14 @@ export default function ImageCompressorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Compress images and PDF files directly in your browser with simple
-          quality controls.
+          Compress images in your browser and PDFs with the Ghostscript
+          compression backend.
         </p>
       </div>
 
       <div className="mx-auto mt-8 flex max-w-md rounded-2xl border border-white/10 bg-white/[0.03] p-1">
         <button
+          type="button"
           onClick={() => switchMode("image")}
           className={`w-1/2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
             mode === "image"
@@ -223,6 +244,7 @@ export default function ImageCompressorPage() {
         </button>
 
         <button
+          type="button"
           onClick={() => switchMode("pdf")}
           className={`w-1/2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
             mode === "pdf"
@@ -300,9 +322,9 @@ export default function ImageCompressorPage() {
               />
 
               <p className="mt-2 text-xs leading-5 text-slate-500">
-                Lower quality usually creates a smaller file. For PDFs, browser
-                compression rewrites and optimizes the PDF structure, but
-                scanned/image-heavy PDFs may not shrink much.
+                Lower quality usually creates a smaller file. PDF compression
+                is handled by the Ghostscript backend, which works better for
+                scanned or image-heavy PDFs.
               </p>
             </div>
 
@@ -320,6 +342,7 @@ export default function ImageCompressorPage() {
 
             <div className="mt-5 flex flex-wrap gap-3">
               <button
+                type="button"
                 onClick={compressFile}
                 disabled={!originalFile || isCompressing}
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
@@ -338,6 +361,7 @@ export default function ImageCompressorPage() {
               </button>
 
               <button
+                type="button"
                 onClick={clearAll}
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
               >
@@ -347,6 +371,7 @@ export default function ImageCompressorPage() {
 
               {compressedFile ? (
                 <button
+                  type="button"
                   onClick={downloadCompressedFile}
                   className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
                 >
@@ -384,6 +409,7 @@ export default function ImageCompressorPage() {
                     ) : (
                       <ImageIcon className="mx-auto mb-2 h-8 w-8" />
                     )}
+
                     {originalFile.name}
                   </div>
                 ) : (
@@ -445,8 +471,9 @@ export default function ImageCompressorPage() {
 
                 {mode === "pdf" && reductionPercentage === 0 ? (
                   <p className="mt-2 text-xs leading-5 text-emerald-100/70">
-                    This PDF may already be optimized. Browser PDF compression
-                    cannot strongly compress scanned/image-heavy PDFs.
+                    This PDF may already be optimized. Try a lower quality
+                    value, or test with a scanned/image-heavy PDF for stronger
+                    compression.
                   </p>
                 ) : null}
               </div>
@@ -476,7 +503,8 @@ export default function ImageCompressorPage() {
           },
           {
             title: "Compress",
-            description: "Run compression directly in your browser.",
+            description:
+              "Images compress in-browser. PDFs compress through the Ghostscript backend.",
             icon: <Loader2 className="h-5 w-5" />,
           },
           {
