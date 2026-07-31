@@ -29,23 +29,13 @@ type UploadKind = "image" | "pdf" | "file";
 
 type UploadResult = {
   id: string;
-<<<<<<< HEAD
   url?: string;
   expiresAt: string | null;
-=======
-  url: string;
-  expiresAt: string | null;
-
->>>>>>> dd890f8 (Fix frontend tool API integrations)
   downloadUrl?: string;
   originalName?: string;
   mimeType?: string;
   size?: number;
   downloads?: number;
-<<<<<<< HEAD
-=======
-
->>>>>>> dd890f8 (Fix frontend tool API integrations)
   directUrl?: string;
   width?: number | null;
   height?: number | null;
@@ -78,47 +68,19 @@ export default function FileSharePage() {
     return "File";
   }
 
-<<<<<<< HEAD
   function resetResultState() {
     setResult(null);
     setOwnerUrl("");
     setUserUrl("");
     setDirectUrl("");
     setCopied(false);
-=======
-  function getResultTitle() {
-    if (!result) return "Share link";
-    if (uploadKind === "image") return "Image shared";
-    if (uploadKind === "pdf") return "PDF shared";
-    return "File shared";
-  }
-
-  function getSelectedIcon() {
-    if (uploadKind === "image") {
-      return <ImageIcon className="h-10 w-10 text-violet-300" />;
-    }
-
-    if (uploadKind === "pdf") {
-      return <FileText className="h-10 w-10 text-violet-300" />;
-    }
-
-    return <FileUp className="h-10 w-10 text-violet-300" />;
->>>>>>> dd890f8 (Fix frontend tool API integrations)
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
 
     setError("");
-<<<<<<< HEAD
     resetResultState();
-=======
-    setResult(null);
-    setOwnerUrl("");
-    setUserUrl("");
-    setDirectUrl("");
-    setCopied(false);
->>>>>>> dd890f8 (Fix frontend tool API integrations)
 
     if (!selectedFile) return;
 
@@ -129,15 +91,7 @@ export default function FileSharePage() {
   async function uploadSelectedFile() {
     try {
       setError("");
-<<<<<<< HEAD
       resetResultState();
-=======
-      setResult(null);
-      setOwnerUrl("");
-      setUserUrl("");
-      setDirectUrl("");
-      setCopied(false);
->>>>>>> dd890f8 (Fix frontend tool API integrations)
 
       if (!file) {
         setError("Please choose an image, PDF, or file first.");
@@ -159,12 +113,20 @@ export default function FileSharePage() {
         body: formData,
       });
 
-<<<<<<< HEAD
-      const data = await response.json().catch(() => null);
+      const responseText = await response.text();
+
+      let data: (UploadResult & { error?: string }) | null = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
 
       if (!response.ok) {
         setError(
           data?.error ||
+            responseText ||
             `Could not upload file. Backend returned ${response.status}.`,
         );
         return;
@@ -172,12 +134,6 @@ export default function FileSharePage() {
 
       if (!data?.id) {
         setError("Upload succeeded but no file ID was returned.");
-=======
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Could not upload file.");
->>>>>>> dd890f8 (Fix frontend tool API integrations)
         return;
       }
 
@@ -185,21 +141,12 @@ export default function FileSharePage() {
       const backendOrigin = getApiBaseUrl();
 
       const ownerPath =
-<<<<<<< HEAD
         kind === "image" ? `/image?id=${data.id}` : `/file?id=${data.id}`;
 
       const userPath =
         kind === "image"
           ? `/share-image?id=${data.id}`
           : `/share-file?id=${data.id}`;
-=======
-  kind === "image" ? `/image?id=${data.id}` : `/file?id=${data.id}`;
-
-const userPath =
-  kind === "image"
-    ? `/share-image?id=${data.id}`
-    : `/share-file?id=${data.id}`;
->>>>>>> dd890f8 (Fix frontend tool API integrations)
 
       const directPath =
         kind === "image"
@@ -209,25 +156,16 @@ const userPath =
       setUploadKind(kind);
       setResult(data);
 
-<<<<<<< HEAD
       setOwnerUrl(`${frontendOrigin}${ownerPath}`);
       setUserUrl(`${frontendOrigin}${userPath}`);
       setDirectUrl(`${backendOrigin}${directPath}`);
     } catch (caughtError) {
       console.error(caughtError);
       setError(
-        "Could not upload file. Check that the backend Worker URL is correct.",
+        caughtError instanceof Error
+          ? `Could not upload file: ${caughtError.message}`
+          : "Could not upload file. Check that the backend Worker URL is correct.",
       );
-=======
-      // These stay on pages.dev so users mostly see your frontend domain.
-      setOwnerUrl(`${frontendOrigin}${ownerPath}`);
-      setUserUrl(`${frontendOrigin}${userPath}`);
-
-      // Direct file/image serving goes to the backend Worker.
-      setDirectUrl(`${backendOrigin}${directPath}`);
-    } catch {
-      setError("Could not upload file. Please try again.");
->>>>>>> dd890f8 (Fix frontend tool API integrations)
     } finally {
       setIsUploading(false);
     }
@@ -359,10 +297,7 @@ const userPath =
 
           <div className="mt-5 flex flex-wrap gap-3">
             <button
-<<<<<<< HEAD
               type="button"
-=======
->>>>>>> dd890f8 (Fix frontend tool API integrations)
               onClick={uploadSelectedFile}
               disabled={!file || isUploading}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
@@ -376,10 +311,7 @@ const userPath =
             </button>
 
             <button
-<<<<<<< HEAD
               type="button"
-=======
->>>>>>> dd890f8 (Fix frontend tool API integrations)
               onClick={clearAll}
               className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
@@ -391,13 +323,9 @@ const userPath =
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
-<<<<<<< HEAD
             <h2 className="font-semibold">
               {result ? "Share links ready" : "Share link"}
             </h2>
-=======
-            <h2 className="font-semibold">{getResultTitle()}</h2>
->>>>>>> dd890f8 (Fix frontend tool API integrations)
 
             {result ? (
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
@@ -411,7 +339,6 @@ const userPath =
           </div>
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-5">
-<<<<<<< HEAD
             {uploadKind === "image" ? (
               <ImageIcon className="h-10 w-10 text-violet-300" />
             ) : uploadKind === "pdf" ? (
@@ -419,9 +346,6 @@ const userPath =
             ) : (
               <FileUp className="h-10 w-10 text-violet-300" />
             )}
-=======
-            {getSelectedIcon()}
->>>>>>> dd890f8 (Fix frontend tool API integrations)
 
             <h3 className="mt-4 break-all font-semibold text-white">
               {file ? file.name : "No file selected"}
@@ -435,14 +359,11 @@ const userPath =
                 : "Choose an image, PDF, or file to generate shareable links."}
             </p>
 
-<<<<<<< HEAD
             <p className="mt-4 text-xs leading-5 text-slate-500">
               Owner link and user link stay on your Pages domain. Direct
               file/image delivery uses the backend Worker.
             </p>
 
-=======
->>>>>>> dd890f8 (Fix frontend tool API integrations)
             {result ? (
               <div className="mt-4 grid gap-2 text-xs text-slate-400 sm:grid-cols-2">
                 <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
@@ -472,27 +393,8 @@ const userPath =
                     {formatExpiry(result.expiresAt)}
                   </p>
                 </div>
-<<<<<<< HEAD
               </div>
             ) : null}
-=======
-
-                {uploadKind === "image" && result.width && result.height ? (
-                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:col-span-2">
-                    <p className="text-slate-500">Dimensions</p>
-                    <p className="mt-1 text-slate-200">
-                      {result.width} × {result.height}
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            <p className="mt-4 text-xs leading-5 text-slate-500">
-              Owner link and user link stay on your Pages domain. Direct
-              file/image delivery uses the backend Worker.
-            </p>
->>>>>>> dd890f8 (Fix frontend tool API integrations)
           </div>
 
           {result ? (
@@ -554,10 +456,7 @@ const userPath =
                 </a>
 
                 <button
-<<<<<<< HEAD
                   type="button"
-=======
->>>>>>> dd890f8 (Fix frontend tool API integrations)
                   onClick={copyUserUrl}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
@@ -612,8 +511,4 @@ const userPath =
       />
     </Container>
   );
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> dd890f8 (Fix frontend tool API integrations)
