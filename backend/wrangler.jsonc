@@ -1,0 +1,21 @@
+{
+  "name": "toolversex-api",
+  "main": "src/worker.ts",
+  "compatibility_date": "2026-07-31",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "toolversex-db",
+      "database_id": "132c4026-f24c-4cdb-8245-8ed929376a16"
+    }
+  ],
+
+  "r2_buckets": [
+    {
+      "binding": "FILES_BUCKET",
+      "bucket_name": "toolversex-assets"
+    }
+  ]
+}
