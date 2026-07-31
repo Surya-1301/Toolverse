@@ -5,11 +5,11 @@ export interface Env {
 
 type ExpiryValue = "never" | "1h" | "1d" | "7d" | "30d";
 
-const FRONTEND_ORIGIN = "https://Toolverse.pages.dev";
+const FRONTEND_ORIGIN = "https://toolversex.pages.dev";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": FRONTEND_ORIGIN,
-  "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
@@ -70,10 +70,15 @@ function getExpiresAt(expiry: string | null | undefined) {
   const now = Date.now();
 
   if (value === "1h") return new Date(now + 60 * 60 * 1000).toISOString();
-  if (value === "1d") return new Date(now + 24 * 60 * 60 * 1000).toISOString();
+
+  if (value === "1d") {
+    return new Date(now + 24 * 60 * 60 * 1000).toISOString();
+  }
+
   if (value === "7d") {
     return new Date(now + 7 * 24 * 60 * 60 * 1000).toISOString();
   }
+
   if (value === "30d") {
     return new Date(now + 30 * 24 * 60 * 60 * 1000).toISOString();
   }
@@ -107,7 +112,9 @@ function validateUrl(value: string) {
 
 function getExtensionFromName(name: string) {
   const index = name.lastIndexOf(".");
+
   if (index === -1) return "";
+
   return name.slice(index).toLowerCase().slice(0, 20);
 }
 
@@ -131,7 +138,7 @@ async function route(request: Request, env: Env) {
 
   if (pathname === "/") {
     return json({
-      name: "Toolverse API",
+      name: "ToolverseX API",
       status: "ok",
     });
   }
@@ -162,12 +169,12 @@ async function route(request: Request, env: Env) {
     if (id) {
       if (!/^[a-z0-9-]{3,40}$/.test(id)) {
         return error(
-          "Alias must be 3-40 characters and use lowercase letters, numbers, or hyphens."
+          "Alias must be 3-40 characters and use lowercase letters, numbers, or hyphens.",
         );
       }
 
       const existing = await env.DB.prepare(
-        "SELECT id FROM pastes WHERE id = ?"
+        "SELECT id FROM pastes WHERE id = ?",
       )
         .bind(id)
         .first<{ id: string }>();
@@ -193,7 +200,7 @@ async function route(request: Request, env: Env) {
       `
       INSERT INTO pastes (id, content, language, created_at, expires_at, views)
       VALUES (?, ?, ?, ?, ?, 0)
-      `
+      `,
     )
       .bind(id, content, language, createdAt, expiresAt)
       .run();
@@ -216,7 +223,7 @@ async function route(request: Request, env: Env) {
       SELECT id, content, language, created_at, expires_at, views
       FROM pastes
       WHERE id = ?
-      `
+      `,
     )
       .bind(id)
       .first<{
@@ -249,13 +256,60 @@ async function route(request: Request, env: Env) {
     });
   }
 
+  if (pasteMatch && request.method === "PUT") {
+    const id = pasteMatch[1];
+
+    const body = await request.json<{
+      content?: string;
+      language?: string;
+    }>();
+
+    const content = String(body.content ?? "");
+    const language = String(body.language || "plain_text");
+
+    const existing = await env.DB.prepare(
+      "SELECT id, expires_at FROM pastes WHERE id = ?",
+    )
+      .bind(id)
+      .first<{
+        id: string;
+        expires_at: string | null;
+      }>();
+
+    if (!existing) {
+      return notFound("Paste not found.");
+    }
+
+    if (isExpired(existing.expires_at)) {
+      await env.DB.prepare("DELETE FROM pastes WHERE id = ?").bind(id).run();
+      return gone("This paste has expired.");
+    }
+
+    await env.DB.prepare(
+      `
+      UPDATE pastes
+      SET content = ?, language = ?
+      WHERE id = ?
+      `,
+    )
+      .bind(content, language, id)
+      .run();
+
+    return json({
+      id,
+      content,
+      language,
+      saved: true,
+    });
+  }
+
   const rawMatch = pathname.match(/^\/raw\/([^/]+)$/);
 
   if (rawMatch && request.method === "GET") {
     const id = rawMatch[1];
 
     const paste = await env.DB.prepare(
-      "SELECT content, expires_at FROM pastes WHERE id = ?"
+      "SELECT content, expires_at FROM pastes WHERE id = ?",
     )
       .bind(id)
       .first<{ content: string; expires_at: string | null }>();
@@ -300,12 +354,12 @@ async function route(request: Request, env: Env) {
     if (slug) {
       if (!/^[a-z0-9-]{3,40}$/.test(slug)) {
         return error(
-          "Custom alias must be 3-40 characters and use lowercase letters, numbers, or hyphens."
+          "Custom alias must be 3-40 characters and use lowercase letters, numbers, or hyphens.",
         );
       }
 
       const existing = await env.DB.prepare(
-        "SELECT slug FROM links WHERE slug = ?"
+        "SELECT slug FROM links WHERE slug = ?",
       )
         .bind(slug)
         .first();
@@ -331,7 +385,7 @@ async function route(request: Request, env: Env) {
       `
       INSERT INTO links (slug, original_url, created_at, expires_at, clicks)
       VALUES (?, ?, ?, ?, 0)
-      `
+      `,
     )
       .bind(slug, originalUrl, createdAt, expiresAt)
       .run();
@@ -356,7 +410,7 @@ async function route(request: Request, env: Env) {
       SELECT slug, original_url, created_at, expires_at, clicks
       FROM links
       WHERE slug = ?
-      `
+      `,
     )
       .bind(slug)
       .first<{
@@ -393,7 +447,7 @@ async function route(request: Request, env: Env) {
     const slug = redirectMatch[1];
 
     const link = await env.DB.prepare(
-      "SELECT original_url, expires_at FROM links WHERE slug = ?"
+      "SELECT original_url, expires_at FROM links WHERE slug = ?",
     )
       .bind(slug)
       .first<{ original_url: string; expires_at: string | null }>();
@@ -407,7 +461,10 @@ async function route(request: Request, env: Env) {
         .bind(slug)
         .run();
 
-      return Response.redirect(`${FRONTEND_ORIGIN}/url-shortener?error=expired`, 302);
+      return Response.redirect(
+        `${FRONTEND_ORIGIN}/url-shortener?error=expired`,
+        302,
+      );
     }
 
     await env.DB.prepare("UPDATE links SET clicks = clicks + 1 WHERE slug = ?")
@@ -471,7 +528,7 @@ async function route(request: Request, env: Env) {
         created_at, expires_at, views, r2_key
       )
       VALUES (?, ?, ?, ?, NULL, NULL, ?, ?, 0, ?)
-      `
+      `,
     )
       .bind(
         id,
@@ -480,7 +537,7 @@ async function route(request: Request, env: Env) {
         file.size,
         createdAt,
         expiresAt,
-        key
+        key,
       )
       .run();
 
@@ -509,7 +566,7 @@ async function route(request: Request, env: Env) {
              created_at, expires_at, views, r2_key
       FROM images
       WHERE id = ?
-      `
+      `,
     )
       .bind(id)
       .first<{
@@ -557,7 +614,7 @@ async function route(request: Request, env: Env) {
       SELECT mime_type, expires_at, r2_key
       FROM images
       WHERE id = ?
-      `
+      `,
     )
       .bind(id)
       .first<{
@@ -639,7 +696,7 @@ async function route(request: Request, env: Env) {
         created_at, expires_at, downloads, r2_key
       )
       VALUES (?, ?, ?, ?, ?, ?, 0, ?)
-      `
+      `,
     )
       .bind(
         id,
@@ -648,7 +705,7 @@ async function route(request: Request, env: Env) {
         file.size,
         createdAt,
         expiresAt,
-        key
+        key,
       )
       .run();
 
@@ -675,7 +732,7 @@ async function route(request: Request, env: Env) {
              created_at, expires_at, downloads, r2_key
       FROM files
       WHERE id = ?
-      `
+      `,
     )
       .bind(id)
       .first<{
@@ -719,7 +776,7 @@ async function route(request: Request, env: Env) {
       SELECT original_name, mime_type, expires_at, r2_key
       FROM files
       WHERE id = ?
-      `
+      `,
     )
       .bind(id)
       .first<{
@@ -743,7 +800,9 @@ async function route(request: Request, env: Env) {
       return notFound("File missing.");
     }
 
-    await env.DB.prepare("UPDATE files SET downloads = downloads + 1 WHERE id = ?")
+    await env.DB.prepare(
+      "UPDATE files SET downloads = downloads + 1 WHERE id = ?",
+    )
       .bind(id)
       .run();
 
@@ -752,7 +811,7 @@ async function route(request: Request, env: Env) {
         "Content-Type": file.mime_type || "application/octet-stream",
         "Content-Disposition": `attachment; filename="${file.original_name.replace(
           /"/g,
-          ""
+          "",
         )}"`,
         "Cache-Control": "private, max-age=0, no-store",
       }),
@@ -766,7 +825,7 @@ async function route(request: Request, env: Env) {
   if (pathname === "/api/pdf/compress" && request.method === "POST") {
     return error(
       "PDF compression is not enabled on the Cloudflare Worker backend yet. Use client-side compression or a Node/WASM-compatible compressor.",
-      501
+      501,
     );
   }
 
@@ -786,7 +845,7 @@ export default {
         },
         {
           status: 500,
-        }
+        },
       );
     }
   },
