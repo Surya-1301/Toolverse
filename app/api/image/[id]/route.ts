@@ -1,7 +1,6 @@
 import fs from "fs/promises";
 import { NextResponse } from "next/server";
 import { isExpired } from "@/lib/expiry";
-import { deleteUploadedFile, getUploadedFilePath } from "@/lib/upload";
 import { getImages, saveImages } from "@/lib/localDb";
 
 type RouteContext = {
@@ -9,6 +8,16 @@ type RouteContext = {
     id: string;
   }>;
 };
+
+async function removeStoredImage(filePath?: string) {
+  if (!filePath) return;
+
+  try {
+    await fs.unlink(filePath);
+  } catch {
+    // Ignore cleanup errors for missing files
+  }
+}
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
@@ -23,29 +32,29 @@ export async function GET(_request: Request, context: RouteContext) {
   if (isExpired(image.expiresAt)) {
     const activeImages = images.filter((item) => item.id !== id);
     await saveImages(activeImages);
-    await deleteUploadedFile("images", image.storedName);
+    await removeStoredImage(image.filePath);
 
     return NextResponse.json({ error: "Image has expired." }, { status: 410 });
   }
 
-  try {
-    const filePath = getUploadedFilePath("images", image.storedName);
-    const file = await fs.readFile(filePath);
-
-    image.views += 1;
-    await saveImages(images);
-
-    return new Response(file, {
+  return NextResponse.json(
+    {
+      id: image.id,
+      originalName: image.originalName,
+      mimeType: image.mimeType,
+      size: image.size,
+      width: image.width,
+      height: image.height,
+      createdAt: image.createdAt,
+      expiresAt: image.expiresAt,
+      views: image.views,
+      directUrl: image.directUrl || `/api/image/${image.id}/direct`,
+    },
+    {
       headers: {
-        "Content-Type": image.mimeType,
-        "Cache-Control": "private, no-store",
+        "Cache-Control": "no-store",
         "X-Robots-Tag": "noindex, nofollow",
       },
-    });
-  } catch {
-    return NextResponse.json(
-      { error: "Image file is missing." },
-      { status: 404 }
-    );
-  }
+    }
+  );
 }
