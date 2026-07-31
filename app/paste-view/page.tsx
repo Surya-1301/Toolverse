@@ -1,15 +1,8 @@
 "use client";
 
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  Check,
-  Copy,
-  ExternalLink,
-  FileText,
-  Loader2,
-  Plus,
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { apiUrl } from "@/lib/apiBase";
 
@@ -22,20 +15,20 @@ type PasteRecord = {
   views: number;
 };
 
-type CopyType = "content" | "page" | "raw" | "";
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 export default function PasteViewPage() {
   return (
-    <Suspense fallback={<PasteViewLoading />}>
-      <PasteViewContent />
+    <Suspense fallback={<PasteLoading />}>
+      <PasteEditor />
     </Suspense>
   );
 }
 
-function PasteViewLoading() {
+function PasteLoading() {
   return (
-    <Container className="py-12 sm:py-16">
-      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
+    <Container className="py-6 sm:py-8">
+      <div className="flex min-h-[70vh] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
         <div className="flex items-center gap-3 text-slate-400">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading paste...
@@ -45,14 +38,22 @@ function PasteViewLoading() {
   );
 }
 
-function PasteViewContent() {
+function PasteEditor() {
   const searchParams = useSearchParams();
   const pasteId = searchParams.get("id") || "";
 
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestContentRef = useRef("");
+
   const [paste, setPaste] = useState<PasteRecord | null>(null);
+  const [content, setContent] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [copied, setCopied] = useState<CopyType>("");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+
+  useEffect(() => {
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+  }, []);
 
   useEffect(() => {
     async function loadPaste() {
@@ -79,6 +80,9 @@ function PasteViewContent() {
         }
 
         setPaste(data);
+        setContent(data.content || "");
+        latestContentRef.current = data.content || "";
+        setSaveStatus("saved");
       } catch {
         setError("Could not load paste.");
         setPaste(null);
@@ -88,133 +92,114 @@ function PasteViewContent() {
     }
 
     loadPaste();
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
   }, [pasteId]);
 
-  function formatDate(value: string) {
-    return new Intl.DateTimeFormat("en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  async function savePaste(nextContent: string) {
+    if (!pasteId) return;
+
+    try {
+      setSaveStatus("saving");
+
+      const response = await fetch(apiUrl(`/api/paste/${pasteId}`), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: nextContent,
+          language: paste?.language || "plain_text",
+        }),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setError(data?.error || "Could not save paste.");
+        setSaveStatus("error");
+        return;
+      }
+
+      setError("");
+      setSaveStatus("saved");
+      latestContentRef.current = nextContent;
+    } catch {
+      setError("Could not save paste.");
+      setSaveStatus("error");
+    }
   }
 
-  function formatExpiry(value: string | null) {
-    if (!value) return "Never";
-    return formatDate(value);
+  function handleContentChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    const nextContent = event.target.value;
+
+    setContent(nextContent);
+    setSaveStatus("idle");
+
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      savePaste(nextContent);
+    }, 700);
   }
 
-  function getPageUrl() {
-    if (typeof window === "undefined") return "";
-    return window.location.href;
-  }
-
-  function getRawUrl() {
-    if (!pasteId) return "";
-    return apiUrl(`/raw/${pasteId}`);
-  }
-
-  async function copyValue(type: CopyType) {
-    if (!paste) return;
-
-    let value = "";
-
-    if (type === "content") value = paste.content;
-    if (type === "page") value = getPageUrl();
-    if (type === "raw") value = getRawUrl();
-
-    if (!value) return;
-
-    await navigator.clipboard.writeText(value);
-    setCopied(type);
-
-    setTimeout(() => {
-      setCopied("");
-    }, 1500);
+  function getSaveLabel() {
+    if (saveStatus === "saving") return "Saving...";
+    if (saveStatus === "saved") return "Saved";
+    if (saveStatus === "error") return "Save failed";
+    return "Unsaved";
   }
 
   return (
-    <Container className="py-12 sm:py-16">
+    <Container className="py-6 sm:py-8">
       <div className="mx-auto max-w-6xl">
         {isLoading ? (
-          <PasteViewLoading />
-        ) : error ? (
+          <PasteLoading />
+        ) : error && !paste ? (
           <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">
             {error}
           </div>
         ) : paste ? (
-          <>
-            <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div>
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                  Paste
-                </h1>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="truncate text-sm text-slate-500">
+                Paste ID: {paste.id}
+              </p>
 
-                <p className="mt-3 break-all text-sm text-slate-400">
-                  ID: {paste.id}
-                </p>
-              </div>
-
-              <div className="flex flex-wrap gap-3 lg:justify-end">
-                <a
-                  href="/paste"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  <Plus className="h-4 w-4" />
-                  New paste
-                </a>
-
-                <a
-                  href={getRawUrl()}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  Raw
-                </a>
-
-                <button
-                  onClick={() => copyValue("content")}
-                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-                >
-                  {copied === "content" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                  {copied === "content" ? "Copied" : "Copy content"}
-                </button>
+              <div
+                className={`shrink-0 rounded-full px-3 py-1 text-xs ${
+                  saveStatus === "error"
+                    ? "bg-red-500/10 text-red-300"
+                    : saveStatus === "saving"
+                      ? "bg-violet-500/10 text-violet-300"
+                      : "bg-emerald-500/10 text-emerald-300"
+                }`}
+              >
+                {getSaveLabel()}
               </div>
             </div>
 
-            <div className="mb-5 flex flex-wrap gap-3 text-sm">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {paste.language}
-              </span>
-
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Created: {formatDate(paste.createdAt)}
-              </span>
-
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Expires: {formatExpiry(paste.expiresAt)}
-              </span>
-
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {paste.views} views
-              </span>
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <div className="mb-3 flex items-center gap-2 text-sm text-slate-400">
-                <FileText className="h-4 w-4" />
-                Content
+            {error ? (
+              <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                {error}
               </div>
+            ) : null}
 
-              <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-black/30 p-4 font-mono text-sm leading-6 text-slate-100">
-                {paste.content}
-              </pre>
-            </div>
-          </>
+            <textarea
+              value={content}
+              onChange={handleContentChange}
+              spellCheck={false}
+              autoFocus
+              placeholder="Start typing..."
+              className="min-h-[75vh] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-5 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            />
+          </div>
         ) : null}
       </div>
     </Container>
