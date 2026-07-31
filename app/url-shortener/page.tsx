@@ -213,8 +213,8 @@ function UrlShortenerContent() {
                 <span className="font-normal text-slate-500">(optional)</span>
               </label>
 
-              <div className="flex items-center gap-3">
-                <span className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-400">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <span className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-400 sm:justify-start">
                   /s/
                 </span>
 

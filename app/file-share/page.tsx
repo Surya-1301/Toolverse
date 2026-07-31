@@ -307,7 +307,7 @@ export default function FileSharePage() {
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold">{getResultTitle()}</h2>
 
             {result ? (
@@ -425,7 +425,7 @@ export default function FileSharePage() {
                   href={ownerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Open owner
                   <ExternalLink className="h-4 w-4" />
@@ -435,7 +435,7 @@ export default function FileSharePage() {
                   href={userUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   Open user
                   <ExternalLink className="h-4 w-4" />
@@ -443,7 +443,7 @@ export default function FileSharePage() {
 
                 <button
                   onClick={copyUserUrl}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

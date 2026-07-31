@@ -267,7 +267,7 @@ export default function ImageHostPage() {
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold">Preview</h2>
             {result ? (
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
@@ -329,7 +329,7 @@ export default function ImageHostPage() {
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <button
                   onClick={() => copyValue("page")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   {copied === "page" ? (
                     <Check className="h-4 w-4" />
@@ -341,7 +341,7 @@ export default function ImageHostPage() {
 
                 <button
                   onClick={() => copyValue("direct")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   {copied === "direct" ? (
                     <Check className="h-4 w-4" />
@@ -353,7 +353,7 @@ export default function ImageHostPage() {
 
                 <button
                   onClick={() => copyValue("markdown")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   {copied === "markdown" ? (
                     <Check className="h-4 w-4" />
@@ -365,7 +365,7 @@ export default function ImageHostPage() {
 
                 <button
                   onClick={() => copyValue("html")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   {copied === "html" ? (
                     <Check className="h-4 w-4" />

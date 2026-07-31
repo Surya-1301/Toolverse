@@ -291,7 +291,7 @@ function QrGeneratorContent() {
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold">Preview</h2>
             <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
               Live
@@ -304,7 +304,7 @@ function QrGeneratorContent() {
               <img
                 src={qrPng}
                 alt="Generated QR code"
-                className="h-64 w-64"
+                className="h-auto w-full max-w-[16rem]"
               />
             ) : (
               <p className="text-center text-sm text-slate-500">

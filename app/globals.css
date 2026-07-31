@@ -11,6 +11,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -19,6 +20,7 @@ body {
     radial-gradient(circle at top, rgba(124, 58, 237, 0.18), transparent 35rem),
     #020617;
   color: var(--foreground);
+  overflow-x: hidden;
 }
 
 button,
@@ -39,6 +41,19 @@ button:disabled {
 textarea,
 input {
   color-scheme: dark;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+input,
+textarea,
+select {
+  min-width: 0;
 }
 
 ::selection {

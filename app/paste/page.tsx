@@ -233,7 +233,7 @@ export default function PastePage() {
             Paste alias
           </label>
 
-          <div className="flex gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
             <div className="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 focus-within:border-violet-500">
               <span className="flex items-center border-r border-white/10 bg-white/[0.03] px-4 py-3 text-base font-bold text-slate-200 sm:text-lg">
                 /paste/
@@ -253,7 +253,7 @@ export default function PastePage() {
               type="button"
               onClick={openAlias}
               disabled={isCheckingAlias}
-              className="shrink-0 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-base font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:text-lg"
+              className="w-full shrink-0 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-base font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-lg"
             >
               {isCheckingAlias ? "..." : "Go"}
             </button>
