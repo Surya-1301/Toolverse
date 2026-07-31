@@ -52,3 +52,10 @@ uploads/files/*
 # Local upload metadata
 data/images.json
 data/files.jsonx
+
+.open-next
+.next
+node_modules.open-next
+.next
+node_modules
+out
