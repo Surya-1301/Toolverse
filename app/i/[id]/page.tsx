@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
 
 type ImageRecord = {
   id: string;
@@ -64,7 +65,7 @@ export default function HostedImagePage({ params }: PageProps) {
       setIsLoading(true);
       setImageFailed(false);
 
-      const response = await fetch(`/api/image/${imageId}/meta`, {
+      const response = await fetch(apiUrl(`/api/image/${imageId}/meta`), {
         cache: "no-store",
       });
 
@@ -104,17 +105,12 @@ export default function HostedImagePage({ params }: PageProps) {
 
   function getDirectImagePath() {
     if (!imageId) return "";
-    return `/api/image/${imageId}/direct`;
+    return apiUrl(`/api/image/${imageId}/direct`);
   }
 
   function getDirectImageUrl() {
     if (!imageId) return "";
-
-    if (typeof window === "undefined") {
-      return getDirectImagePath();
-    }
-
-    return `${window.location.origin}${getDirectImagePath()}`;
+    return `${getApiBaseUrl()}/api/image/${imageId}/direct`;
   }
 
   function getPageUrl() {
@@ -267,9 +263,7 @@ export default function HostedImagePage({ params }: PageProps) {
               ) : (
                 <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
                   Could not display this image. Check that{" "}
-                  <span className="font-mono">
-                    /api/image/{imageId}/direct
-                  </span>{" "}
+                  <span className="font-mono">/api/image/{imageId}/direct</span>{" "}
                   exists and returns the image file.
                 </div>
               )}

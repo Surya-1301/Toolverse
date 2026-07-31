@@ -1,7 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
-
-const dataDir = path.join(process.cwd(), "data");
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export type PasteRecord = {
   id: string;
@@ -25,6 +22,7 @@ export type ImageRecord = {
   views: number;
   directUrl?: string;
   filePath?: string;
+  r2Key?: string;
 };
 
 export type FileRecord = {
@@ -37,12 +35,14 @@ export type FileRecord = {
   downloads: number;
   downloadUrl?: string;
   filePath?: string;
+  r2Key?: string;
 };
 
 export type LinkRecord = {
   id?: string;
   slug: string;
   url?: string;
+  longUrl?: string;
   originalUrl?: string;
   destinationUrl?: string;
   createdAt: string;
@@ -54,47 +54,77 @@ export type LinkRecord = {
 
 type CollectionName = "pastes" | "images" | "files" | "links";
 
-async function ensureDataDir() {
-  await fs.mkdir(dataDir, {
-    recursive: true,
-  });
-}
+type D1Row<T = unknown> = T | null;
 
-function getCollectionPath(name: CollectionName) {
-  return path.join(dataDir, `${name}.json`);
+type D1StatementBound = {
+  first<T = unknown>(): Promise<D1Row<T>>;
+  run(): Promise<unknown>;
+};
+
+type D1Statement = {
+  bind(...values: unknown[]): D1StatementBound;
+};
+
+type D1DatabaseLike = {
+  prepare(query: string): D1Statement;
+};
+
+type AppCloudflareEnv = {
+  DB: D1DatabaseLike;
+};
+
+function getDB(): D1DatabaseLike {
+  const { env } = getCloudflareContext();
+  const cfEnv = env as unknown as AppCloudflareEnv;
+
+  if (!cfEnv?.DB) {
+    throw new Error(
+      "Missing Cloudflare D1 binding 'DB'. Add DB to wrangler.jsonc."
+    );
+  }
+
+  return cfEnv.DB;
 }
 
 async function readCollection<T>(name: CollectionName): Promise<T[]> {
-  await ensureDataDir();
+  const db = getDB();
 
-  const filePath = getCollectionPath(name);
+  const row = await db
+    .prepare("SELECT value FROM app_state WHERE collection = ?")
+    .bind(name)
+    .first<{ value: string }>();
+
+  if (!row?.value) {
+    return [];
+  }
 
   try {
-    const raw = await fs.readFile(filePath, "utf8");
-    const parsed = JSON.parse(raw);
+    const parsed = JSON.parse(row.value);
 
     if (!Array.isArray(parsed)) {
       return [];
     }
 
     return parsed as T[];
-  } catch (error) {
-    const nodeError = error as NodeJS.ErrnoException;
-
-    if (nodeError.code === "ENOENT") {
-      return [];
-    }
-
-    throw error;
+  } catch {
+    return [];
   }
 }
 
 async function writeCollection<T>(name: CollectionName, items: T[]) {
-  await ensureDataDir();
+  const db = getDB();
 
-  const filePath = getCollectionPath(name);
-
-  await fs.writeFile(filePath, JSON.stringify(items, null, 2), "utf8");
+  await db
+    .prepare(`
+      INSERT INTO app_state (collection, value, updated_at)
+      VALUES (?, ?, datetime('now'))
+      ON CONFLICT(collection)
+      DO UPDATE SET
+        value = excluded.value,
+        updated_at = excluded.updated_at
+    `)
+    .bind(name, JSON.stringify(items))
+    .run();
 }
 
 export async function getPastes() {

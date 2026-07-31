@@ -13,8 +13,9 @@ import {
 import { Container } from "@/components/Container";
 import { PageHeader } from "@/components/PageHeader";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { Clock, Code2, } from "lucide-react";
+import { Clock, Code2 } from "lucide-react";
 import { HowToUse } from "@/components/HowToUse";
+import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -87,7 +88,7 @@ export default function ImageHostPage() {
       formData.append("file", file);
       formData.append("expiry", expiry);
 
-      const response = await fetch("/api/image/upload", {
+      const response = await fetch(apiUrl("/api/image/upload"), {
         method: "POST",
         body: formData,
       });
@@ -99,8 +100,11 @@ export default function ImageHostPage() {
         return;
       }
 
-      const fullPageUrl = `${window.location.origin}${data.url}`;
-      const fullDirectUrl = `${window.location.origin}${data.directUrl}`;
+      const frontendOrigin = window.location.origin;
+      const backendOrigin = getApiBaseUrl();
+
+      const fullPageUrl = `${frontendOrigin}/i/${data.id}`;
+      const fullDirectUrl = `${backendOrigin}/api/image/${data.id}/direct`;
 
       setResult(data);
       setPageUrl(fullPageUrl);
@@ -172,14 +176,14 @@ export default function ImageHostPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-       <div className="mx-auto max-w-3xl text-center">
-  <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-    Image Host
-  </h1>
-  <p className="mt-4 text-base leading-7 text-slate-400">
-    Upload images and get clean shareable links instantly.
-  </p>
-</div>
+      <div className="mx-auto max-w-3xl text-center">
+        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+          Image Host
+        </h1>
+        <p className="mt-4 text-base leading-7 text-slate-400">
+          Upload images and get clean shareable links instantly.
+        </p>
+      </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
@@ -415,40 +419,41 @@ export default function ImageHostPage() {
       </div>
 
       <HowToUse
-  subtitle=""
-  steps={[
-    {
-      title: "Choose image",
-      description: "Select a JPG, PNG, WebP, or GIF image from your device.",
-      icon: <Upload className="h-5 w-5" />,
-    },
-    {
-      title: "Set expiry",
-      description: "Choose when the hosted image should expire.",
-      icon: <Clock className="h-5 w-5" />,
-    },
-    {
-      title: "Upload image",
-      description: "Upload the image and generate shareable links.",
-      icon: <ImageIcon className="h-5 w-5" />,
-    },
-    {
-      title: "Copy links",
-      description: "Copy the image page link or direct image link.",
-      icon: <Copy className="h-5 w-5" />,
-    },
-    {
-      title: "Use embeds",
-      description: "Copy Markdown or HTML embed code for websites.",
-      icon: <Code2 className="h-5 w-5" />,
-    },
-    {
-      title: "Open preview",
-      description: "Open the hosted image page or direct image URL.",
-      icon: <ExternalLink className="h-5 w-5" />,
-    },
-  ]}
-/>
+        subtitle=""
+        steps={[
+          {
+            title: "Choose image",
+            description:
+              "Select a JPG, PNG, WebP, or GIF image from your device.",
+            icon: <Upload className="h-5 w-5" />,
+          },
+          {
+            title: "Set expiry",
+            description: "Choose when the hosted image should expire.",
+            icon: <Clock className="h-5 w-5" />,
+          },
+          {
+            title: "Upload image",
+            description: "Upload the image and generate shareable links.",
+            icon: <ImageIcon className="h-5 w-5" />,
+          },
+          {
+            title: "Copy links",
+            description: "Copy the image page link or direct image link.",
+            icon: <Copy className="h-5 w-5" />,
+          },
+          {
+            title: "Use embeds",
+            description: "Copy Markdown or HTML embed code for websites.",
+            icon: <Code2 className="h-5 w-5" />,
+          },
+          {
+            title: "Open preview",
+            description: "Open the hosted image page or direct image URL.",
+            icon: <ExternalLink className="h-5 w-5" />,
+          },
+        ]}
+      />
     </Container>
   );
 }

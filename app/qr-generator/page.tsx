@@ -16,6 +16,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { apiUrl } from "@/lib/apiBase";
 
 const uploadExpiry = "never";
 
@@ -121,7 +122,7 @@ function QrGeneratorContent() {
       const isImage = file.type.startsWith("image/");
       const endpoint = isImage ? "/api/image/upload" : "/api/file/upload";
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(apiUrl(endpoint), {
         method: "POST",
         body: formData,
       });
@@ -133,7 +134,10 @@ function QrGeneratorContent() {
         return;
       }
 
-      const fullUrl = `${window.location.origin}${data.url}`;
+      const frontendOrigin = window.location.origin;
+      const fullUrl = isImage
+        ? `${frontendOrigin}/share/image/${data.id}`
+        : `${frontendOrigin}/share/file/${data.id}`;
       setText(fullUrl);
     } catch {
       setError("Could not upload this file. Please try again.");
@@ -197,7 +201,6 @@ function QrGeneratorContent() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-      
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           QR Generator
         </h1>
@@ -340,7 +343,8 @@ function QrGeneratorContent() {
         steps={[
           {
             title: "Enter content",
-            description: "Type or paste a URL, message, email, or phone number.",
+            description:
+              "Type or paste a URL, message, email, or phone number.",
             icon: <QrCode className="h-5 w-5" />,
           },
           {
@@ -350,7 +354,8 @@ function QrGeneratorContent() {
           },
           {
             title: "Generate QR",
-            description: "The QR code updates automatically after upload or typing.",
+            description:
+              "The QR code updates automatically after upload or typing.",
             icon: <QrCode className="h-5 w-5" />,
           },
           {

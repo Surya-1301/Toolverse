@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { apiUrl } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -98,7 +99,7 @@ export default function PastePage() {
 
       setIsCheckingAlias(true);
 
-      const response = await fetch(`/api/paste/${alias}`, {
+      const response = await fetch(apiUrl(`/api/paste/${alias}`), {
         method: "GET",
         cache: "no-store",
       });
@@ -110,14 +111,14 @@ export default function PastePage() {
 
       if (response.status === 404) {
         setError(
-          "No paste found with this alias. Add content below and click Create paste to create it."
+          "No paste found with this alias. Add content below and click Create paste to create it.",
         );
         return;
       }
 
       if (response.status === 410) {
         setError(
-          "This paste has expired. Add content below and click Create paste to recreate it."
+          "This paste has expired. Add content below and click Create paste to recreate it.",
         );
         return;
       }
@@ -146,7 +147,7 @@ export default function PastePage() {
 
       setIsCreating(true);
 
-      const response = await fetch("/api/paste/create", {
+      const response = await fetch(apiUrl("/api/paste/create"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -166,8 +167,8 @@ export default function PastePage() {
         return;
       }
 
-      const fullPasteUrl = `${window.location.origin}${data.url}`;
-      const fullRawUrl = `${window.location.origin}${data.rawUrl}`;
+      const fullPasteUrl = `${window.location.origin}/paste/${data.id}`;
+      const fullRawUrl = apiUrl(`/raw/${data.id}`);
 
       setResult(data);
       setPasteUrl(fullPasteUrl);
@@ -218,9 +219,7 @@ export default function PastePage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-          Paste
-        </h1>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">Paste</h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
           Create or open quick shareable notes using a readable paste alias.
@@ -442,7 +441,8 @@ export default function PastePage() {
           },
           {
             title: "Create notes",
-            description: "If the alias does not exist, add content and create it.",
+            description:
+              "If the alias does not exist, add content and create it.",
             icon: <FileText className="h-5 w-5" />,
           },
           {

@@ -15,6 +15,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -128,7 +129,7 @@ export default function FileSharePage() {
       formData.append("file", file);
       formData.append("expiry", expiry);
 
-      const response = await fetch(endpoint, {
+      const response = await fetch(apiUrl(endpoint), {
         method: "POST",
         body: formData,
       });
@@ -140,17 +141,29 @@ export default function FileSharePage() {
         return;
       }
 
-      const ownerPath = data.url;
-      const userPath =
-        kind === "image" ? `/share/image/${data.id}` : `/share/file/${data.id}`;
+      const frontendOrigin = window.location.origin;
+      const backendOrigin = getApiBaseUrl();
 
-      const directPath = kind === "image" ? data.directUrl : data.downloadUrl;
+      const ownerPath = kind === "image" ? `/i/${data.id}` : `/f/${data.id}`;
+      const userPath =
+        kind === "image"
+          ? `/share/image/${data.id}`
+          : `/share/file/${data.id}`;
+
+      const directPath =
+        kind === "image"
+          ? `/api/image/${data.id}/direct`
+          : `/api/file/${data.id}/download`;
 
       setUploadKind(kind);
       setResult(data);
-      setOwnerUrl(`${window.location.origin}${ownerPath}`);
-      setUserUrl(`${window.location.origin}${userPath}`);
-      setDirectUrl(`${window.location.origin}${directPath}`);
+
+      // These stay on pages.dev so users mostly see your frontend domain.
+      setOwnerUrl(`${frontendOrigin}${ownerPath}`);
+      setUserUrl(`${frontendOrigin}${userPath}`);
+
+      // Direct file/image serving goes to the backend Worker.
+      setDirectUrl(`${backendOrigin}${directPath}`);
     } catch {
       setError("Could not upload file. Please try again.");
     } finally {
@@ -196,14 +209,14 @@ export default function FileSharePage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-  <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-    Upload & Share
-  </h1>
+        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+          Upload & Share
+        </h1>
 
-  <p className="mt-4 text-base leading-7 text-slate-400">
-    Upload images, PDFs, and files to create shareable pages.
-  </p>
-</div>
+        <p className="mt-4 text-base leading-7 text-slate-400">
+          Upload images, PDFs, and files to create shareable pages.
+        </p>
+      </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
@@ -286,7 +299,7 @@ export default function FileSharePage() {
             <button
               onClick={uploadSelectedFile}
               disabled={!file || isUploading}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -298,7 +311,7 @@ export default function FileSharePage() {
 
             <button
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -378,8 +391,8 @@ export default function FileSharePage() {
             ) : null}
 
             <p className="mt-4 text-xs leading-5 text-slate-500">
-              Owner link opens the management page. User link opens a clean
-              public page for sharing.
+              Owner link and user link stay on your Pages domain. Direct
+              file/image delivery uses the backend Worker.
             </p>
           </div>
 
@@ -459,32 +472,38 @@ export default function FileSharePage() {
       </div>
 
       <HowToUse
-        subtitle="Upload images, PDFs, and files to generate owner and user links."
+        title="How to use Upload & Share"
+        subtitle=""
         steps={[
           {
-            title: "Choose upload",
-            description: "Select an image, PDF, or file from your device.",
+            title: "Choose a file",
+            description: "Upload an image, PDF, or any supported file.",
             icon: <Upload className="h-5 w-5" />,
           },
           {
-            title: "Set expiry",
-            description: "Choose when the shared page should expire.",
-            icon: <FileUp className="h-5 w-5" />,
+            title: "Select expiry",
+            description: "Choose how long the shared page should stay active.",
+            icon: <FileText className="h-5 w-5" />,
           },
           {
             title: "Upload",
-            description: "Create owner and public user links.",
+            description: "Create owner and user share links instantly.",
             icon: <FileUp className="h-5 w-5" />,
           },
           {
-            title: "Open owner",
-            description: "Use the owner link for upload details and management.",
+            title: "Share user link",
+            description: "Send the clean user link to anyone who needs access.",
+            icon: <Copy className="h-5 w-5" />,
+          },
+          {
+            title: "Open owner page",
+            description: "Use the owner page to view details and stats.",
             icon: <ExternalLink className="h-5 w-5" />,
           },
           {
-            title: "Share user link",
-            description: "Send the clean public page link to others.",
-            icon: <Copy className="h-5 w-5" />,
+            title: "Download anytime",
+            description: "Users can open or download shared content.",
+            icon: <FileText className="h-5 w-5" />,
           },
         ]}
       />

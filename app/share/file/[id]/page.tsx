@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Download, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { apiUrl } from "@/lib/apiBase";
 
 type FileRecord = {
   id: string;
@@ -49,7 +50,7 @@ export default function SharedFilePage({ params }: PageProps) {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(`/api/file/${fileId}/meta`, {
+        const response = await fetch(apiUrl(`/api/file/${fileId}/meta`), {
           cache: "no-store",
         });
 
@@ -85,7 +86,7 @@ export default function SharedFilePage({ params }: PageProps) {
   }
 
   const isPdf = file?.mimeType === "application/pdf";
-  const downloadPath = fileId ? `/api/file/${fileId}/download` : "";
+  const downloadPath = fileId ? apiUrl(`/api/file/${fileId}/download`) : "";
 
   return (
     <Container className="py-12 sm:py-16">
@@ -107,9 +108,7 @@ export default function SharedFilePage({ params }: PageProps) {
               {isPdf ? "Shared PDF" : "Shared File"}
             </h1>
 
-            <p className="mt-3 break-all text-slate-400">
-              {file.originalName}
-            </p>
+            <p className="mt-3 break-all text-slate-400">{file.originalName}</p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">

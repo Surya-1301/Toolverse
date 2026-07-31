@@ -1,10 +1,25 @@
-import fs from "fs/promises";
-import path from "path";
 import sharp from "sharp";
 import { NextResponse } from "next/server";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { createId } from "@/lib/id";
 import { getExpiresAt } from "@/lib/expiry";
 import { getImages, saveImages, ImageRecord } from "@/lib/localDb";
+
+type R2BucketLike = {
+  put(
+    key: string,
+    value: ArrayBuffer | ArrayBufferView,
+    options?: {
+      httpMetadata?: {
+        contentType?: string;
+      };
+    }
+  ): Promise<unknown>;
+};
+
+type CloudflareEnvLike = {
+  FILES_BUCKET: R2BucketLike;
+};
 
 function getExtensionFromMimeType(mimeType: string) {
   if (mimeType === "image/png") return ".png";
@@ -18,6 +33,16 @@ function getExtensionFromMimeType(mimeType: string) {
 
 export async function POST(request: Request) {
   try {
+    const { env } = getCloudflareContext();
+    const cfEnv = env as unknown as CloudflareEnvLike;
+
+    if (!cfEnv?.FILES_BUCKET) {
+      return NextResponse.json(
+        { error: "Missing Cloudflare R2 binding 'FILES_BUCKET'." },
+        { status: 500 }
+      );
+    }
+
     const formData = await request.formData();
 
     const file = formData.get("file");
@@ -56,13 +81,13 @@ export async function POST(request: Request) {
     }
 
     const arrayBuffer = await file.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = new Uint8Array(arrayBuffer);
 
     let width: number | null = null;
     let height: number | null = null;
 
     try {
-      const metadata = await sharp(buffer).metadata();
+      const metadata = await sharp(Buffer.from(arrayBuffer)).metadata();
       width = metadata.width || null;
       height = metadata.height || null;
     } catch {
@@ -78,25 +103,14 @@ export async function POST(request: Request) {
       id = createId(8);
     }
 
-    const extension =
-      getExtensionFromMimeType(file.type) ||
-      path.extname(file.name).toLowerCase() ||
-      ".img";
+    const extension = getExtensionFromMimeType(file.type) || ".img";
+    const key = `images/${id}${extension}`;
 
-    const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "images"
-    );
-
-    await fs.mkdir(uploadDir, {
-      recursive: true,
+    await cfEnv.FILES_BUCKET.put(key, buffer, {
+      httpMetadata: {
+        contentType: file.type,
+      },
     });
-
-    const filePath = path.join(uploadDir, `${id}${extension}`);
-
-    await fs.writeFile(filePath, buffer);
 
     const image: ImageRecord = {
       id,
@@ -108,25 +122,32 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
       expiresAt: expiryResult.expiresAt,
       views: 0,
-      filePath,
       directUrl: `/api/image/${id}/direct`,
+      r2Key: key,
     };
 
     images.unshift(image);
-
     await saveImages(images);
 
-    return NextResponse.json({
-      id: image.id,
-      url: `/i/${image.id}`,
-      directUrl: image.directUrl,
-      originalName: image.originalName,
-      mimeType: image.mimeType,
-      size: image.size,
-      width: image.width,
-      height: image.height,
-      expiresAt: image.expiresAt,
-    });
+    return NextResponse.json(
+      {
+        id: image.id,
+        url: `/i/${image.id}`,
+        directUrl: image.directUrl,
+        originalName: image.originalName,
+        mimeType: image.mimeType,
+        size: image.size,
+        width: image.width,
+        height: image.height,
+        expiresAt: image.expiresAt,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, nofollow",
+        },
+      }
+    );
   } catch (error) {
     console.error(error);
 

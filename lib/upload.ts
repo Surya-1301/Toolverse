@@ -1,21 +1,46 @@
-import fs from "fs/promises";
-import path from "path";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-const uploadsDir = path.join(process.cwd(), "uploads");
+type R2BucketLike = {
+  put(
+    key: string,
+    value: ArrayBuffer | ArrayBufferView,
+    options?: {
+      httpMetadata?: {
+        contentType?: string;
+      };
+    }
+  ): Promise<unknown>;
+  delete(key: string): Promise<unknown>;
+};
+
+type CloudflareEnvLike = {
+  FILES_BUCKET: R2BucketLike;
+};
+
+function getBucket(): R2BucketLike {
+  const { env } = getCloudflareContext();
+  const cfEnv = env as unknown as CloudflareEnvLike;
+
+  if (!cfEnv?.FILES_BUCKET) {
+    throw new Error("Missing Cloudflare R2 binding 'FILES_BUCKET'.");
+  }
+
+  return cfEnv.FILES_BUCKET;
+}
 
 export function getFileExtension(fileName: string) {
-  const extension = path.extname(fileName).toLowerCase();
+  const lastDotIndex = fileName.lastIndexOf(".");
 
-  if (!extension) {
+  if (lastDotIndex === -1) {
     return "";
   }
 
-  return extension.slice(0, 20);
+  return fileName.slice(lastDotIndex).toLowerCase().slice(0, 20);
 }
 
 export function sanitizeFileName(fileName: string) {
   const extension = getFileExtension(fileName);
-  const baseName = path.basename(fileName, extension);
+  const baseName = extension ? fileName.slice(0, -extension.length) : fileName;
 
   const safeBaseName =
     baseName
@@ -33,23 +58,27 @@ export async function saveUploadedFile(
   folder: "images" | "files",
   id: string
 ) {
+  const bucket = getBucket();
+
   const safeName = sanitizeFileName(file.name);
   const extension = getFileExtension(safeName);
   const storedName = `${id}${extension}`;
-
-  const folderPath = path.join(uploadsDir, folder);
-  await fs.mkdir(folderPath, { recursive: true });
+  const key = `${folder}/${storedName}`;
 
   const arrayBuffer = await file.arrayBuffer();
-  const buffer = Buffer.from(arrayBuffer);
+  const buffer = new Uint8Array(arrayBuffer);
 
-  const filePath = path.join(folderPath, storedName);
-  await fs.writeFile(filePath, buffer);
+  await bucket.put(key, buffer, {
+    httpMetadata: {
+      contentType: file.type || "application/octet-stream",
+    },
+  });
 
   return {
     storedName,
     safeName,
-    filePath,
+    filePath: key,
+    r2Key: key,
   };
 }
 
@@ -57,7 +86,7 @@ export function getUploadedFilePath(
   folder: "images" | "files",
   storedName: string
 ) {
-  return path.join(uploadsDir, folder, storedName);
+  return `${folder}/${storedName}`;
 }
 
 export async function deleteUploadedFile(
@@ -65,9 +94,10 @@ export async function deleteUploadedFile(
   storedName: string
 ) {
   try {
-    const filePath = getUploadedFilePath(folder, storedName);
-    await fs.unlink(filePath);
+    const bucket = getBucket();
+    const key = getUploadedFilePath(folder, storedName);
+    await bucket.delete(key);
   } catch {
-    // Ignore missing files during cleanup.
+    // Ignore cleanup errors.
   }
 }

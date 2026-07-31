@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, Copy, Download, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
 
 type ImageRecord = {
   id: string;
@@ -57,7 +58,7 @@ export default function SharedImagePage({ params }: PageProps) {
         setImageFailed(false);
         setCopied("");
 
-        const response = await fetch(`/api/image/${imageId}/meta`, {
+        const response = await fetch(apiUrl(`/api/image/${imageId}/meta`), {
           cache: "no-store",
         });
 
@@ -95,12 +96,7 @@ export default function SharedImagePage({ params }: PageProps) {
 
   function getDirectImageUrl() {
     if (!imageId) return "";
-
-    if (typeof window === "undefined") {
-      return `/api/image/${imageId}/direct`;
-    }
-
-    return `${window.location.origin}/api/image/${imageId}/direct`;
+    return `${getApiBaseUrl()}/api/image/${imageId}/direct`;
   }
 
   async function copyValue(type: CopyType) {
@@ -132,14 +128,14 @@ export default function SharedImagePage({ params }: PageProps) {
     if (!image) return;
 
     const link = document.createElement("a");
-    link.href = `/api/image/${image.id}/direct`;
+    link.href = apiUrl(`/api/image/${image.id}/direct`);
     link.download = image.originalName || `${image.id}.png`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   }
 
-  const imageSrc = imageId ? `/api/image/${imageId}/direct` : "";
+  const imageSrc = imageId ? apiUrl(`/api/image/${imageId}/direct`) : "";
 
   return (
     <Container className="py-12 sm:py-16">
@@ -239,9 +235,7 @@ export default function SharedImagePage({ params }: PageProps) {
               ) : (
                 <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
                   Could not display this image. Check that{" "}
-                  <span className="font-mono">
-                    /api/image/{imageId}/direct
-                  </span>{" "}
+                  <span className="font-mono">/api/image/{imageId}/direct</span>{" "}
                   exists and returns the image file.
                 </div>
               )}

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
 
 type FileRecord = {
   id: string;
@@ -60,7 +61,7 @@ export default function HostedFilePage({ params }: PageProps) {
       setError("");
       setIsLoading(true);
 
-      const response = await fetch(`/api/file/${fileId}/meta`, {
+      const response = await fetch(apiUrl(`/api/file/${fileId}/meta`), {
         cache: "no-store",
       });
 
@@ -101,17 +102,12 @@ export default function HostedFilePage({ params }: PageProps) {
 
   function getDownloadPath() {
     if (!fileId) return "";
-    return `/api/file/${fileId}/download`;
+    return apiUrl(`/api/file/${fileId}/download`);
   }
 
   function getDownloadUrl() {
     if (!fileId) return "";
-
-    if (typeof window === "undefined") {
-      return getDownloadPath();
-    }
-
-    return `${window.location.origin}${getDownloadPath()}`;
+    return `${getApiBaseUrl()}/api/file/${fileId}/download`;
   }
 
   function getPageUrl() {
