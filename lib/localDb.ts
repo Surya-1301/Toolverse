@@ -10,20 +10,12 @@ export type PasteRecord = {
   createdAt: string;
   expiresAt: string | null;
   views: number;
-};
-
-export type LinkRecord = {
-  slug: string;
-  longUrl: string;
-  createdAt: string;
-  expiresAt: string | null;
-  clicks: number;
+  editPasswordHash?: string | null;
 };
 
 export type ImageRecord = {
   id: string;
   originalName: string;
-  storedName: string;
   mimeType: string;
   size: number;
   width: number | null;
@@ -31,72 +23,87 @@ export type ImageRecord = {
   createdAt: string;
   expiresAt: string | null;
   views: number;
+  directUrl?: string;
+  filePath?: string;
 };
 
 export type FileRecord = {
   id: string;
   originalName: string;
-  storedName: string;
   mimeType: string;
   size: number;
   createdAt: string;
   expiresAt: string | null;
   downloads: number;
+  downloadUrl?: string;
+  filePath?: string;
 };
 
+type CollectionName = "pastes" | "images" | "files";
+
 async function ensureDataDir() {
-  await fs.mkdir(dataDir, { recursive: true });
+  await fs.mkdir(dataDir, {
+    recursive: true,
+  });
 }
 
-async function readJsonFile<T>(fileName: string, fallback: T): Promise<T> {
+function getCollectionPath(name: CollectionName) {
+  return path.join(dataDir, `${name}.json`);
+}
+
+async function readCollection<T>(name: CollectionName): Promise<T[]> {
   await ensureDataDir();
 
-  const filePath = path.join(dataDir, fileName);
+  const filePath = getCollectionPath(name);
 
   try {
-    const content = await fs.readFile(filePath, "utf-8");
-    return JSON.parse(content) as T;
-  } catch {
-    await fs.writeFile(filePath, JSON.stringify(fallback, null, 2));
-    return fallback;
+    const raw = await fs.readFile(filePath, "utf8");
+    const parsed = JSON.parse(raw);
+
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed as T[];
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+
+    if (nodeError.code === "ENOENT") {
+      return [];
+    }
+
+    throw error;
   }
 }
 
-async function writeJsonFile<T>(fileName: string, data: T) {
+async function writeCollection<T>(name: CollectionName, items: T[]) {
   await ensureDataDir();
 
-  const filePath = path.join(dataDir, fileName);
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2));
+  const filePath = getCollectionPath(name);
+
+  await fs.writeFile(filePath, JSON.stringify(items, null, 2), "utf8");
 }
 
 export async function getPastes() {
-  return readJsonFile<PasteRecord[]>("pastes.json", []);
+  return readCollection<PasteRecord>("pastes");
 }
 
 export async function savePastes(pastes: PasteRecord[]) {
-  return writeJsonFile("pastes.json", pastes);
-}
-
-export async function getLinks() {
-  return readJsonFile<LinkRecord[]>("links.json", []);
-}
-
-export async function saveLinks(links: LinkRecord[]) {
-  return writeJsonFile("links.json", links);
+  return writeCollection("pastes", pastes);
 }
 
 export async function getImages() {
-  return readJsonFile<ImageRecord[]>("images.json", []);
+  return readCollection<ImageRecord>("images");
 }
 
 export async function saveImages(images: ImageRecord[]) {
-  return writeJsonFile("images.json", images);
+  return writeCollection("images", images);
 }
 
 export async function getFiles() {
-  return readJsonFile<FileRecord[]>("files.json", []);
+  return readCollection<FileRecord>("files");
 }
 
 export async function saveFiles(files: FileRecord[]) {
-  return writeJsonFile("files.json", files);
+  return writeCollection("files", files);
 }

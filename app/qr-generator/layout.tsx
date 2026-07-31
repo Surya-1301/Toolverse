@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "QR Generator - Create QR Codes Online",
   description:
-    "Create free QR codes for URLs, text, and more. Download your QR code as PNG or SVG with Toolverse.",
+    "Create free QR codes for URLs, text, and more. Download your QR code as PNG or SVG with ToolverseX.",
 };
 
 export default function QrGeneratorLayout({

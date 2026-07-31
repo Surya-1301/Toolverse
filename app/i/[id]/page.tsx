@@ -6,9 +6,8 @@ import {
   BarChart3,
   Check,
   Copy,
-  Eye,
+  Download,
   ExternalLink,
-  ImageIcon,
   Loader2,
   Plus,
 } from "lucide-react";
@@ -18,7 +17,6 @@ import { formatFileSize } from "@/lib/formatFileSize";
 type ImageRecord = {
   id: string;
   originalName: string;
-  storedName: string;
   mimeType: string;
   size: number;
   width: number | null;
@@ -26,6 +24,7 @@ type ImageRecord = {
   createdAt: string;
   expiresAt: string | null;
   views: number;
+  directUrl?: string;
 };
 
 type PageProps = {
@@ -34,14 +33,14 @@ type PageProps = {
   }>;
 };
 
-type CopyType = "page" | "direct" | "markdown" | "html" | "";
+type CopyType = "page" | "markdown" | "html" | "";
 
 export default function HostedImagePage({ params }: PageProps) {
   const [imageId, setImageId] = useState("");
   const [image, setImage] = useState<ImageRecord | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [imageFailed, setImageFailed] = useState(false);
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
@@ -53,23 +52,18 @@ export default function HostedImagePage({ params }: PageProps) {
     loadParams();
   }, [params]);
 
-  useEffect(() => {
+  async function loadImage() {
     if (!imageId) return;
-    loadImageMetadata();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [imageId]);
 
-  async function loadImageMetadata(refreshOnly = false) {
     try {
       setError("");
+      setIsLoading(true);
+      setImageFailed(false);
 
-      if (refreshOnly) {
-        setIsRefreshing(true);
-      } else {
-        setIsLoading(true);
-      }
+      const response = await fetch(`/api/image/${imageId}/meta`, {
+        cache: "no-store",
+      });
 
-      const response = await fetch(`/api/image/meta/${imageId}`);
       const data = await response.json();
 
       if (!response.ok) {
@@ -84,39 +78,13 @@ export default function HostedImagePage({ params }: PageProps) {
       setImage(null);
     } finally {
       setIsLoading(false);
-      setIsRefreshing(false);
     }
   }
 
-  async function copyValue(type: CopyType) {
-    const pageUrl = window.location.href;
-    const directUrl = `${window.location.origin}/api/image/${imageId}`;
-
-    let value = "";
-
-    if (type === "page") value = pageUrl;
-    if (type === "direct") value = directUrl;
-    if (type === "markdown") {
-      value = `![${image?.originalName || "Hosted image"}](${directUrl})`;
-    }
-    if (type === "html") {
-      const width = image?.width ? ` width="${image.width}"` : "";
-      const height = image?.height ? ` height="${image.height}"` : "";
-
-      value = `<img src="${directUrl}" alt="${
-        image?.originalName || "Hosted image"
-      }"${width}${height} />`;
-    }
-
-    if (!value) return;
-
-    await navigator.clipboard.writeText(value);
-    setCopied(type);
-
-    setTimeout(() => {
-      setCopied("");
-    }, 1500);
-  }
+  useEffect(() => {
+    loadImage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [imageId]);
 
   function formatDate(value: string) {
     return new Intl.DateTimeFormat("en", {
@@ -130,77 +98,72 @@ export default function HostedImagePage({ params }: PageProps) {
     return formatDate(value);
   }
 
-  const directUrl = imageId ? `/api/image/${imageId}` : "";
-  const dimensions =
-    image?.width && image?.height ? `${image.width} × ${image.height}` : null;
+  function getDirectImagePath() {
+    if (!imageId) return "";
+    return `/api/image/${imageId}/direct`;
+  }
+
+  function getDirectImageUrl() {
+    if (!imageId) return "";
+
+    if (typeof window === "undefined") {
+      return getDirectImagePath();
+    }
+
+    return `${window.location.origin}${getDirectImagePath()}`;
+  }
+
+  function getPageUrl() {
+    if (typeof window === "undefined") return "";
+    return window.location.href;
+  }
+
+  async function copyValue(type: CopyType) {
+    if (!image) return;
+
+    const imageUrl = getDirectImageUrl();
+    const pageUrl = getPageUrl();
+
+    let value = "";
+
+    if (type === "page") {
+      value = pageUrl;
+    }
+
+    if (type === "markdown") {
+      value = `![${image.originalName}](${imageUrl})`;
+    }
+
+    if (type === "html") {
+      value = `<img src="${imageUrl}" alt="${image.originalName}" />`;
+    }
+
+    if (!value) return;
+
+    await navigator.clipboard.writeText(value);
+    setCopied(type);
+
+    setTimeout(() => {
+      setCopied("");
+    }, 1500);
+  }
+
+  function downloadImage() {
+    if (!image) return;
+
+    const link = document.createElement("a");
+    link.href = getDirectImagePath();
+    link.download = image.originalName || `${image.id}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  const imageSrc = getDirectImagePath();
 
   return (
     <Container className="py-12 sm:py-16">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300 ring-1 ring-violet-400/20">
-              <ImageIcon className="h-7 w-7" />
-            </div>
-
-            <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-              Hosted Image
-            </h1>
-
-            <p className="mt-3 text-slate-400">
-              {imageId ? `ID: ${imageId}` : "Loading image..."}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/image-host"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              <Plus className="h-4 w-4" />
-              Upload new
-            </Link>
-
-            {directUrl ? (
-              <a
-                href={directUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Direct
-              </a>
-            ) : null}
-
-            <button
-              onClick={() => copyValue("page")}
-              disabled={!image}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {copied === "page" ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-              {copied === "page" ? "Copied" : "Copy page"}
-            </button>
-
-            <button
-              onClick={() => copyValue("direct")}
-              disabled={!image}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {copied === "direct" ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-              {copied === "direct" ? "Copied" : "Copy direct"}
-            </button>
-          </div>
-        </div>
-
+      <div className="mx-auto max-w-6xl">
         {isLoading ? (
           <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
             <div className="flex items-center gap-3 text-slate-400">
@@ -214,7 +177,59 @@ export default function HostedImagePage({ params }: PageProps) {
           </div>
         ) : image ? (
           <>
-            <div className="mb-4 flex flex-wrap gap-3 text-sm">
+            <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+              <div>
+                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+                  Hosted Image
+                </h1>
+
+                <p className="mt-3 break-all text-sm text-slate-400">
+                  ID: {image.id}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-3 lg:justify-end">
+                <Link
+                  href="/file-share"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  <Plus className="h-4 w-4" />
+                  Upload new
+                </Link>
+
+                <a
+                  href={getDirectImagePath()}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Direct
+                </a>
+
+                <button
+                  onClick={() => copyValue("page")}
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  {copied === "page" ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                  {copied === "page" ? "Copied" : "Copy page"}
+                </button>
+
+                <button
+                  onClick={downloadImage}
+                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                >
+                  <Download className="h-4 w-4" />
+                  Download image
+                </button>
+              </div>
+            </div>
+
+            <div className="mb-5 flex flex-wrap gap-3 text-sm">
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
                 {image.mimeType}
               </span>
@@ -223,9 +238,9 @@ export default function HostedImagePage({ params }: PageProps) {
                 {formatFileSize(image.size)}
               </span>
 
-              {dimensions ? (
+              {image.width && image.height ? (
                 <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                  {dimensions}
+                  {image.width} × {image.height}
                 </span>
               ) : null}
 
@@ -237,22 +252,32 @@ export default function HostedImagePage({ params }: PageProps) {
                 Expires: {formatExpiry(image.expiresAt)}
               </span>
 
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                <Eye className="h-4 w-4" />
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
                 {image.views} views
               </span>
             </div>
 
             <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950 p-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={directUrl}
-                alt={image.originalName}
-                className="mx-auto max-h-[720px] w-full object-contain"
-              />
+              {imageSrc && !imageFailed ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={imageSrc}
+                  alt={image.originalName}
+                  onError={() => setImageFailed(true)}
+                  className="mx-auto max-h-[75vh] max-w-full object-contain"
+                />
+              ) : (
+                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                  Could not display this image. Check that{" "}
+                  <span className="font-mono">
+                    /api/image/{imageId}/direct
+                  </span>{" "}
+                  exists and returns the image file.
+                </div>
+              )}
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3 md:grid-cols-3">
               <button
                 onClick={() => copyValue("markdown")}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -278,16 +303,11 @@ export default function HostedImagePage({ params }: PageProps) {
               </button>
 
               <button
-                onClick={() => loadImageMetadata(true)}
-                disabled={isRefreshing}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                onClick={loadImage}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
-                {isRefreshing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <BarChart3 className="h-4 w-4" />
-                )}
-                {isRefreshing ? "Refreshing..." : "Refresh stats"}
+                <BarChart3 className="h-4 w-4" />
+                Refresh stats
               </button>
             </div>
           </>

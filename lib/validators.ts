@@ -16,6 +16,7 @@ const reservedSlugs = new Set([
   "help",
   "home",
   "image-compressor",
+  "image-host",
   "json-formatter",
   "login",
   "logout",
@@ -24,6 +25,7 @@ const reservedSlugs = new Set([
   "qr-generator",
   "raw",
   "register",
+  "report-abuse",
   "robots.txt",
   "s",
   "settings",
@@ -31,6 +33,40 @@ const reservedSlugs = new Set([
   "signup",
   "sitemap.xml",
   "terms",
+  "tools",
+  "url-shortener",
+]);
+
+const reservedPasteAliases = new Set([
+  "api",
+  "admin",
+  "app",
+  "assets",
+  "auth",
+  "blog",
+  "contact",
+  "dashboard",
+  "help",
+  "home",
+  "image-compressor",
+  "image-host",
+  "json-formatter",
+  "login",
+  "logout",
+  "paste",
+  "privacy",
+  "qr-generator",
+  "raw",
+  "register",
+  "report-abuse",
+  "robots.txt",
+  "s",
+  "settings",
+  "shorten",
+  "signup",
+  "sitemap.xml",
+  "terms",
+  "tools",
   "url-shortener",
 ]);
 
@@ -85,6 +121,28 @@ export function validatePasteContent(value: string) {
 
   if (value.length > 100_000) {
     return "Paste is too large. Max 100,000 characters.";
+  }
+
+  return "";
+}
+
+export function validatePasteAlias(value: string) {
+  if (!value) return "";
+
+  if (!/^[a-z0-9-]{3,40}$/.test(value)) {
+    return "Alias must be 3-40 characters and use lowercase letters, numbers, or hyphens.";
+  }
+
+  if (value.startsWith("-") || value.endsWith("-")) {
+    return "Alias cannot start or end with a hyphen.";
+  }
+
+  if (value.includes("--")) {
+    return "Alias cannot contain consecutive hyphens.";
+  }
+
+  if (reservedPasteAliases.has(value)) {
+    return "This alias is reserved.";
   }
 
   return "";

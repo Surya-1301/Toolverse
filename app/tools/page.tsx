@@ -1,7 +1,6 @@
 import {
   Braces,
   FileUp,
-  Image,
   ImageDown,
   Link2,
   QrCode,
@@ -27,8 +26,8 @@ const tools = [
     status: "live" as const,
   },
   {
-    title: "Image Compressor",
-    description: "Compress images locally and reduce file size quickly.",
+    title: "Image & PDF Compressor",
+    description: "Compress images and PDF files with simple quality controls.",
     href: "/image-compressor",
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
@@ -41,12 +40,12 @@ const tools = [
     status: "live" as const,
   },
   {
-    title: "Image Host",
-    description: "Upload images and get direct shareable links.",
-    href: "/image-host",
-    icon: <Image className="h-6 w-6" />,
-    status: "live" as const,
-  },
+  title: "Upload & Share",
+  description: "Upload images or files and get temporary shareable links.",
+  href: "/file-share",
+  icon: <FileUp className="h-6 w-6" />,
+  status: "live" as const,
+},
   {
     title: "URL Shortener",
     description: "Turn long URLs into short, memorable links.",
@@ -54,13 +53,7 @@ const tools = [
     icon: <Link2 className="h-6 w-6" />,
     status: "live" as const,
   },
-  {
-    title: "File Share",
-    description: "Upload files and share temporary download links.",
-    href: "/file-share",
-    icon: <FileUp className="h-6 w-6" />,
-    status: "live" as const,
-  },
+ 
   {
     title: "OCR",
     description: "Extract text from screenshots, photos, and scanned images.",

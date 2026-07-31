@@ -1,103 +1,248 @@
 import type { Metadata } from "next";
+import {
+  AlertTriangle,
+  BarChart3,
+  Clock,
+  Database,
+  EyeOff,
+  FileText,
+  Globe,
+  LockKeyhole,
+  Mail,
+  Server,
+  ShieldCheck,
+  Trash2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy",
+  title: "Privacy Policy | ToolverseX",
   description:
-    "Read the Toolverse Privacy Policy and learn how our browser-first tools handle your data.",
+    "Read the ToolverseX Privacy Policy to understand how our browser-first tools, uploads, logs, and shared content are handled.",
 };
+
+const lastUpdated = "July 31, 2026";
+
+const highlights = [
+  {
+    title: "Browser-first by design",
+    description:
+      "Where possible, tools process your input locally in your browser instead of sending it to our servers.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "No account required",
+    description:
+      "Most tools can be used without creating an account or providing personal details.",
+    icon: LockKeyhole,
+  },
+  {
+    title: "Shared content is intentional",
+    description:
+      "Uploads, pastes, shortened links, and shared files may be stored only when needed to provide a shareable link.",
+    icon: Globe,
+  },
+];
+
+const sections = [
+  {
+    title: "1. Overview",
+    icon: FileText,
+    content: [
+      "ToolverseX provides lightweight online utilities for formatting, generating, compressing, uploading, sharing, and shortening content.",
+      "This Privacy Policy explains what information may be processed when you use ToolverseX, how that information is used, and the choices you have.",
+      "By using ToolverseX, you agree to the practices described in this policy.",
+    ],
+  },
+  {
+    title: "2. Browser-first tools",
+    icon: ShieldCheck,
+    content: [
+      "Many ToolverseX tools are designed to work directly in your browser. Examples may include JSON formatting, QR generation, image compression, and similar utilities.",
+      "When a tool runs locally, your input is processed on your device and is not uploaded to our servers for that processing.",
+      "Some features require server processing or storage to work, such as creating public links, hosting images, sharing files, saving pastes, or shortening URLs.",
+    ],
+  },
+  {
+    title: "3. Information you provide",
+    icon: Database,
+    content: [
+      "You may provide content when using features such as Paste, Upload & Share, Image Host, File Share, URL Shortener, or similar tools.",
+      "Depending on the feature, submitted content may include text, URLs, images, PDFs, files, metadata such as file names and file sizes, and related technical details.",
+      "We use this information only to provide the requested tool functionality, such as generating a shareable page, storing a temporary file, or serving a download link.",
+    ],
+  },
+  {
+    title: "4. Uploaded and shared content",
+    icon: Server,
+    content: [
+      "When you upload or share content, that content may be stored so ToolverseX can make it available through the generated link.",
+      "Anyone with a public share link may be able to view or download the content, depending on the tool used.",
+      "You should avoid uploading sensitive, confidential, private, or legally restricted content unless you are comfortable with the access model shown by the tool.",
+    ],
+  },
+  {
+    title: "5. Logs and analytics",
+    icon: BarChart3,
+    content: [
+      "We may collect basic technical information to operate, secure, and improve ToolverseX.",
+      "This may include browser type, device type, referring page, approximate location derived from network information, pages visited, timestamps, error logs, and performance data.",
+      "We use this information to monitor reliability, troubleshoot issues, understand usage patterns, prevent abuse, and improve the service.",
+    ],
+  },
+  {
+    title: "6. Cookies and local storage",
+    icon: EyeOff,
+    content: [
+      "ToolverseX may use cookies, local storage, or similar browser technologies to remember preferences, support tool functionality, improve performance, or maintain basic session behavior.",
+      "You can usually control cookies and local storage through your browser settings.",
+      "Disabling these technologies may affect how some tools work.",
+    ],
+  },
+  {
+    title: "7. Retention and expiry",
+    icon: Clock,
+    content: [
+      "Some shared content may include an expiry option. When content expires, ToolverseX may remove it or make it unavailable.",
+      "We may also delete inactive, expired, abusive, illegal, or unsupported content at any time.",
+      "Local browser-first tool inputs are generally not retained by us unless a feature explicitly requires upload, storage, or link generation.",
+    ],
+  },
+  {
+    title: "8. Security",
+    icon: LockKeyhole,
+    content: [
+      "We use reasonable technical and organizational measures to protect ToolverseX and the data needed to operate it.",
+      "No online service can guarantee absolute security, so you should use caution when uploading or sharing content.",
+      "If you believe you found a security issue or abusive content, please report it using the Report Abuse or Contact links.",
+    ],
+  },
+  {
+    title: "9. Abuse prevention",
+    icon: AlertTriangle,
+    content: [
+      "We may review, restrict, remove, or block content or activity that appears abusive, harmful, illegal, spammy, malicious, or in violation of our terms.",
+      "We may use technical signals, reports, and logs to investigate abuse and protect the service and its users.",
+      "Public sharing tools should not be used to distribute malware, phishing pages, illegal material, private data without permission, or harmful content.",
+    ],
+  },
+  {
+    title: "10. Your choices",
+    icon: Trash2,
+    content: [
+      "You can choose not to use tools that require uploading or storing content.",
+      "Where expiry settings are available, you can choose a shorter retention period.",
+      "If you need help with content removal or privacy-related questions, contact us using the contact information below.",
+    ],
+  },
+  {
+    title: "11. Changes to this policy",
+    icon: FileText,
+    content: [
+      "We may update this Privacy Policy from time to time to reflect changes in our tools, practices, legal requirements, or operational needs.",
+      "When we make changes, we will update the “Last updated” date on this page.",
+      "Your continued use of ToolverseX after changes are posted means you accept the updated policy.",
+    ],
+  },
+  {
+    title: "12. Contact",
+    icon: Mail,
+    content: [
+      "If you have questions about this Privacy Policy, want to report an issue, or need help with content removal, please contact ToolverseX through the Contact or Report Abuse pages.",
+    ],
+  },
+];
 
 export default function PrivacyPage() {
   return (
     <Container className="py-12 sm:py-16">
-      <div className="mx-auto max-w-3xl">
-        <p className="mb-4 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-sm text-violet-200">
-          Legal
-        </p>
+      <div className="mx-auto max-w-5xl">
+        <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+              <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
+                Legal
+              </p>
 
-        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-          Privacy Policy
-        </h1>
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+                Privacy Policy
+              </h1>
 
-        <p className="mt-4 text-slate-400">
-          Last updated: July 31, 2026
-        </p>
+              <p className="mt-4 text-base text-slate-400">
+                Last updated: {lastUpdated}
+              </p>
+            </div>
 
-        <div className="mt-10 space-y-8 text-slate-300">
-          <section>
-            <h2 className="text-xl font-semibold text-white">
-              1. Overview
-            </h2>
-            <p className="mt-3 leading-7">
-              Toolverse provides simple online tools for formatting, generating,
-              compressing, and converting content. We aim to keep our tools fast,
-              useful, and privacy-friendly.
-            </p>
-          </section>
+            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm">
+              ToolverseX is built around simple, fast, privacy-conscious tools.
+              This policy explains when data stays in your browser and when it
+              may be stored to power sharing features.
+            </div>
+          </div>
 
-          <section>
-            <h2 className="text-xl font-semibold text-white">
-              2. Browser-first tools
-            </h2>
-            <p className="mt-3 leading-7">
-              Some Toolverse tools run directly in your browser. For example,
-              JSON formatting, QR generation, and image compression can work
-              locally on your device. When a tool runs locally, your input is not
-              uploaded to our servers for that processing.
-            </p>
-          </section>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            {highlights.map((item) => {
+              const Icon = item.icon;
 
-          <section>
-            <h2 className="text-xl font-semibold text-white">
-              3. Information you provide
-            </h2>
-            <p className="mt-3 leading-7">
-              If you use future features such as paste sharing, image hosting,
-              file sharing, or URL shortening, the content you submit may need to
-              be stored so the service can work. These features will clearly
-              explain when content is stored or shared.
-            </p>
-          </section>
+              return (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"
+                >
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
+                    <Icon className="h-5 w-5" />
+                  </div>
 
-          <section>
-            <h2 className="text-xl font-semibold text-white">
-              4. Analytics and logs
-            </h2>
-            <p className="mt-3 leading-7">
-              We may use basic analytics or server logs to understand site
-              performance, fix errors, prevent abuse, and improve Toolverse.
-              These logs may include technical information such as browser type,
-              device type, referring page, approximate location, and pages
-              visited.
-            </p>
-          </section>
+                  <h2 className="text-sm font-semibold text-white">
+                    {item.title}
+                  </h2>
 
-          <section>
-            <h2 className="text-xl font-semibold text-white">
-              5. Cookies
-            </h2>
-            <p className="mt-3 leading-7">
-              Toolverse may use essential cookies or local storage for preferences
-              and basic functionality. If analytics or advertising cookies are
-              added in the future, this policy should be updated.
-            </p>
-          </section>
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                    {item.description}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-          <section>
-            <h2 className="text-xl font-semibold text-white">
-              6. Contact
-            </h2>
-            <p className="mt-3 leading-7">
-              If you have questions about this Privacy Policy, contact us at{" "}
-              <a
-                href="mailto:support@toolverse.dev"
-                className="text-violet-300 hover:text-violet-200"
+        <div className="mt-8 space-y-5">
+          {sections.map((section) => {
+            const Icon = section.icon;
+
+            return (
+              <section
+                key={section.title}
+                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7"
               >
-                support@toolverse.dev
-              </a>
-              .
-            </p>
-          </section>
+                <div className="mb-5 flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+                    <Icon className="h-5 w-5" />
+                  </div>
+
+                  <h2 className="text-xl font-semibold tracking-tight text-white">
+                    {section.title}
+                  </h2>
+                </div>
+
+                <div className="space-y-3 text-base leading-8 text-slate-300">
+                  {section.content.map((paragraph) => (
+                    <p key={paragraph}>{paragraph}</p>
+                  ))}
+                </div>
+              </section>
+            );
+          })}
+        </div>
+
+        <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
+          <p className="font-semibold text-white">Plain-language summary</p>
+          <p className="mt-2 text-violet-100/80">
+            We aim to keep ToolverseX simple and privacy-friendly. Many tools
+            run in your browser. When you create public links or upload files,
+            the content may be stored so those links can work. Do not share
+            sensitive content unless you understand who can access the link.
+          </p>
         </div>
       </div>
     </Container>

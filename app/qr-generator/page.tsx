@@ -162,7 +162,7 @@ function QrGeneratorContent() {
 
     const link = document.createElement("a");
     link.href = qrPng;
-    link.download = "toolverse-qr-code.png";
+    link.download = "ToolverseX-qr-code.png";
     link.click();
   }
 
@@ -177,7 +177,7 @@ function QrGeneratorContent() {
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = "toolverse-qr-code.svg";
+    link.download = "ToolverseX-qr-code.svg";
     link.click();
 
     URL.revokeObjectURL(url);

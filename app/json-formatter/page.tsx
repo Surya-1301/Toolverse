@@ -160,7 +160,7 @@ export default function JsonFormatterPage() {
             <textarea
               value={input}
               onChange={(event) => setInput(event.target.value)}
-              placeholder={`Paste JSON here...\n\nExample:\n{"name":"Toolverse","type":"tools"}`}
+              placeholder={`Paste JSON here...\n\nExample:\n{"name":"ToolverseX","type":"tools"}`}
               spellCheck={false}
               className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
             />

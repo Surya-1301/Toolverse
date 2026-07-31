@@ -1,10 +1,20 @@
+import fs from "fs/promises";
+import path from "path";
+import sharp from "sharp";
 import { NextResponse } from "next/server";
 import { createId } from "@/lib/id";
 import { getExpiresAt } from "@/lib/expiry";
-import { getImageDimensions } from "@/lib/imageMeta";
-import { saveUploadedFile } from "@/lib/upload";
-import { validateImageUpload } from "@/lib/uploadValidators";
-import { getImages, ImageRecord, saveImages } from "@/lib/localDb";
+import { getImages, saveImages, ImageRecord } from "@/lib/localDb";
+
+function getExtensionFromMimeType(mimeType: string) {
+  if (mimeType === "image/png") return ".png";
+  if (mimeType === "image/jpeg") return ".jpg";
+  if (mimeType === "image/jpg") return ".jpg";
+  if (mimeType === "image/webp") return ".webp";
+  if (mimeType === "image/gif") return ".gif";
+  if (mimeType === "image/svg+xml") return ".svg";
+  return "";
+}
 
 export async function POST(request: Request) {
   try {
@@ -20,10 +30,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const validationError = validateImageUpload(file);
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { error: "Please upload a valid image file." },
+        { status: 400 }
+      );
+    }
 
-    if (validationError) {
-      return NextResponse.json({ error: validationError }, { status: 400 });
+    const maxSize = 25 * 1024 * 1024;
+
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: "Image is too large. Max size is 25 MB." },
+        { status: 400 }
+      );
     }
 
     const expiryResult = getExpiresAt(expiry);
@@ -35,50 +55,81 @@ export async function POST(request: Request) {
       );
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    let width: number | null = null;
+    let height: number | null = null;
+
+    try {
+      const metadata = await sharp(buffer).metadata();
+      width = metadata.width || null;
+      height = metadata.height || null;
+    } catch {
+      width = null;
+      height = null;
+    }
+
     const images = await getImages();
 
     let id = createId(8);
 
-    while (images.some((image) => image.id === id)) {
+    while (images.some((item) => item.id === id)) {
       id = createId(8);
     }
 
-    const dimensions = await getImageDimensions(file);
-    const savedFile = await saveUploadedFile(file, "images", id);
+    const extension =
+      getExtensionFromMimeType(file.type) ||
+      path.extname(file.name).toLowerCase() ||
+      ".img";
+
+    const uploadDir = path.join(
+      process.cwd(),
+      "public",
+      "uploads",
+      "images"
+    );
+
+    await fs.mkdir(uploadDir, {
+      recursive: true,
+    });
+
+    const filePath = path.join(uploadDir, `${id}${extension}`);
+
+    await fs.writeFile(filePath, buffer);
 
     const image: ImageRecord = {
       id,
       originalName: file.name,
-      storedName: savedFile.storedName,
       mimeType: file.type,
       size: file.size,
-      width: dimensions.width,
-      height: dimensions.height,
+      width,
+      height,
       createdAt: new Date().toISOString(),
       expiresAt: expiryResult.expiresAt,
       views: 0,
+      filePath,
+      directUrl: `/api/image/${id}/direct`,
     };
 
     images.unshift(image);
+
     await saveImages(images);
 
-    return NextResponse.json(
-  {
-    id: image.id,
-    url: `/i/${image.id}`,
-    directUrl: `/api/image/${image.id}`,
-    expiresAt: image.expiresAt,
-    width: image.width,
-    height: image.height,
-  },
-  {
-    headers: {
-      "Cache-Control": "no-store",
-      "X-Robots-Tag": "noindex, nofollow",
-    },
-  }
-);
-  } catch {
+    return NextResponse.json({
+      id: image.id,
+      url: `/i/${image.id}`,
+      directUrl: image.directUrl,
+      originalName: image.originalName,
+      mimeType: image.mimeType,
+      size: image.size,
+      width: image.width,
+      height: image.height,
+      expiresAt: image.expiresAt,
+    });
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       { error: "Could not upload image." },
       { status: 500 }

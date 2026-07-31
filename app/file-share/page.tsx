@@ -4,18 +4,17 @@ import { useState } from "react";
 import {
   Check,
   Copy,
-  Download,
   Eraser,
   ExternalLink,
+  FileText,
   FileUp,
+  ImageIcon,
   Loader2,
   Upload,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { PageHeader } from "@/components/PageHeader";
-import { formatFileSize } from "@/lib/formatFileSize";
-import { Clock } from "lucide-react";
 import { HowToUse } from "@/components/HowToUse";
+import { formatFileSize } from "@/lib/formatFileSize";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -25,63 +24,111 @@ const expiryOptions = [
   { label: "30 days", value: "30d" },
 ];
 
+type UploadKind = "image" | "pdf" | "file";
+
 type UploadResult = {
   id: string;
   url: string;
-  downloadUrl: string;
-  originalName: string;
-  mimeType: string;
-  size: number;
-  downloads: number;
   expiresAt: string | null;
-};
 
-type CopyType = "page" | "download" | "";
+  downloadUrl?: string;
+  originalName?: string;
+  mimeType?: string;
+  size?: number;
+  downloads?: number;
+
+  directUrl?: string;
+  width?: number | null;
+  height?: number | null;
+};
 
 export default function FileSharePage() {
   const [file, setFile] = useState<File | null>(null);
   const [expiry, setExpiry] = useState("never");
   const [result, setResult] = useState<UploadResult | null>(null);
-  const [pageUrl, setPageUrl] = useState("");
-  const [downloadUrl, setDownloadUrl] = useState("");
+  const [uploadKind, setUploadKind] = useState<UploadKind>("file");
+
+  const [ownerUrl, setOwnerUrl] = useState("");
+  const [userUrl, setUserUrl] = useState("");
+  const [directUrl, setDirectUrl] = useState("");
+
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const [copied, setCopied] = useState<CopyType>("");
+  const [copied, setCopied] = useState(false);
+
+  function getUploadKind(selectedFile: File): UploadKind {
+    if (selectedFile.type.startsWith("image/")) return "image";
+    if (selectedFile.type === "application/pdf") return "pdf";
+    return "file";
+  }
+
+  function getSelectedKindLabel() {
+    if (!file) return "File";
+    if (uploadKind === "image") return "Image";
+    if (uploadKind === "pdf") return "PDF";
+    return "File";
+  }
+
+  function getResultTitle() {
+    if (!result) return "Share link";
+    if (uploadKind === "image") return "Image shared";
+    if (uploadKind === "pdf") return "PDF shared";
+    return "File shared";
+  }
+
+  function getSelectedIcon() {
+    if (uploadKind === "image") {
+      return <ImageIcon className="h-10 w-10 text-violet-300" />;
+    }
+
+    if (uploadKind === "pdf") {
+      return <FileText className="h-10 w-10 text-violet-300" />;
+    }
+
+    return <FileUp className="h-10 w-10 text-violet-300" />;
+  }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
 
     setError("");
     setResult(null);
-    setPageUrl("");
-    setDownloadUrl("");
-    setCopied("");
+    setOwnerUrl("");
+    setUserUrl("");
+    setDirectUrl("");
+    setCopied(false);
 
     if (!selectedFile) return;
 
     setFile(selectedFile);
+    setUploadKind(getUploadKind(selectedFile));
   }
 
-  async function uploadFile() {
+  async function uploadSelectedFile() {
     try {
       setError("");
       setResult(null);
-      setPageUrl("");
-      setDownloadUrl("");
-      setCopied("");
+      setOwnerUrl("");
+      setUserUrl("");
+      setDirectUrl("");
+      setCopied(false);
 
       if (!file) {
-        setError("Please choose a file first.");
+        setError("Please choose an image, PDF, or file first.");
         return;
       }
 
       setIsUploading(true);
 
+      const kind = getUploadKind(file);
+      const endpoint =
+        kind === "image" ? "/api/image/upload" : "/api/file/upload";
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("expiry", expiry);
 
-      const response = await fetch("/api/file/upload", {
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
@@ -93,12 +140,17 @@ export default function FileSharePage() {
         return;
       }
 
-      const fullPageUrl = `${window.location.origin}${data.url}`;
-      const fullDownloadUrl = `${window.location.origin}${data.downloadUrl}`;
+      const ownerPath = data.url;
+      const userPath =
+        kind === "image" ? `/share/image/${data.id}` : `/share/file/${data.id}`;
 
+      const directPath = kind === "image" ? data.directUrl : data.downloadUrl;
+
+      setUploadKind(kind);
       setResult(data);
-      setPageUrl(fullPageUrl);
-      setDownloadUrl(fullDownloadUrl);
+      setOwnerUrl(`${window.location.origin}${ownerPath}`);
+      setUserUrl(`${window.location.origin}${userPath}`);
+      setDirectUrl(`${window.location.origin}${directPath}`);
     } catch {
       setError("Could not upload file. Please try again.");
     } finally {
@@ -106,24 +158,14 @@ export default function FileSharePage() {
     }
   }
 
-  async function copyValue(type: CopyType) {
-    let value = "";
+  async function copyUserUrl() {
+    if (!userUrl) return;
 
-    if (type === "page") {
-      value = pageUrl;
-    }
-
-    if (type === "download") {
-      value = downloadUrl;
-    }
-
-    if (!value) return;
-
-    await navigator.clipboard.writeText(value);
-    setCopied(type);
+    await navigator.clipboard.writeText(userUrl);
+    setCopied(true);
 
     setTimeout(() => {
-      setCopied("");
+      setCopied(false);
     }, 1500);
   }
 
@@ -131,11 +173,13 @@ export default function FileSharePage() {
     setFile(null);
     setExpiry("never");
     setResult(null);
-    setPageUrl("");
-    setDownloadUrl("");
+    setUploadKind("file");
+    setOwnerUrl("");
+    setUserUrl("");
+    setDirectUrl("");
     setError("");
     setIsUploading(false);
-    setCopied("");
+    setCopied(false);
   }
 
   function formatExpiry(value: string | null) {
@@ -147,43 +191,70 @@ export default function FileSharePage() {
     }).format(new Date(value));
   }
 
+  const selectedKindLabel = getSelectedKindLabel();
+
   return (
     <Container className="py-12 sm:py-16">
- <div className="mx-auto max-w-3xl text-center">
+      <div className="mx-auto max-w-3xl text-center">
   <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-    File Share
+    Upload & Share
   </h1>
+
   <p className="mt-4 text-base leading-7 text-slate-400">
-    Upload files and create temporary shareable download links.
+    Upload images, PDFs, and files to create shareable pages.
   </p>
 </div>
+
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <label className="mb-2 block text-sm font-medium text-slate-300">
-            Upload file
+            Upload image, PDF, or file
           </label>
 
           <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
             <Upload className="mb-3 h-8 w-8 text-violet-300" />
-            <span className="font-medium text-white">Click to choose file</span>
-            <span className="mt-2 text-sm text-slate-500">
-              Max 50 MB. Executable and script files are blocked.
+
+            <span className="font-medium text-white">
+              Click to choose image, PDF, or file
             </span>
 
-            <input type="file" onChange={handleFileChange} className="hidden" />
+            <span className="mt-2 text-sm text-slate-500">
+              Images get image pages. PDFs and files get file pages.
+            </span>
+
+            <input
+              type="file"
+              accept="image/*,application/pdf,*/*"
+              onChange={handleFileChange}
+              className="hidden"
+            />
           </label>
 
           {file ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
-              <p className="break-all text-sm font-medium text-white">
-                {file.name}
-              </p>
-              <p className="mt-1 text-sm text-slate-400">
-                Size: {formatFileSize(file.size)}
-              </p>
-              <p className="mt-1 text-sm text-slate-400">
-                Type: {file.type || "Unknown"}
-              </p>
+              <div className="flex items-start gap-3">
+                {uploadKind === "image" ? (
+                  <ImageIcon className="mt-0.5 h-5 w-5 text-violet-300" />
+                ) : uploadKind === "pdf" ? (
+                  <FileText className="mt-0.5 h-5 w-5 text-violet-300" />
+                ) : (
+                  <FileUp className="mt-0.5 h-5 w-5 text-violet-300" />
+                )}
+
+                <div className="min-w-0">
+                  <p className="break-all text-sm font-medium text-white">
+                    {file.name}
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-400">
+                    {selectedKindLabel} · {formatFileSize(file.size)}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    Type: {file.type || "Unknown type"}
+                  </p>
+                </div>
+              </div>
             </div>
           ) : null}
 
@@ -213,7 +284,7 @@ export default function FileSharePage() {
 
           <div className="mt-5 flex flex-wrap gap-3">
             <button
-              onClick={uploadFile}
+              onClick={uploadSelectedFile}
               disabled={!file || isUploading}
               className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -222,7 +293,7 @@ export default function FileSharePage() {
               ) : (
                 <Upload className="h-4 w-4" />
               )}
-              {isUploading ? "Uploading..." : "Upload file"}
+              {isUploading ? "Uploading..." : "Upload & share"}
             </button>
 
             <button
@@ -237,10 +308,11 @@ export default function FileSharePage() {
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <div className="flex items-center justify-between gap-4">
-            <h2 className="font-semibold">Share link</h2>
+            <h2 className="font-semibold">{getResultTitle()}</h2>
+
             {result ? (
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
-                Uploaded
+                Ready
               </span>
             ) : (
               <span className="rounded-full bg-slate-500/10 px-2.5 py-1 text-xs text-slate-400">
@@ -250,7 +322,7 @@ export default function FileSharePage() {
           </div>
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-5">
-            <FileUp className="h-10 w-10 text-violet-300" />
+            {getSelectedIcon()}
 
             <h3 className="mt-4 break-all font-semibold text-white">
               {file ? file.name : "No file selected"}
@@ -258,28 +330,68 @@ export default function FileSharePage() {
 
             <p className="mt-2 text-sm leading-6 text-slate-400">
               {file
-                ? `${formatFileSize(file.size)} · ${file.type || "Unknown type"}`
-                : "Choose a file to generate a shareable download link."}
+                ? `${selectedKindLabel} · ${formatFileSize(file.size)} · ${
+                    file.type || "Unknown type"
+                  }`
+                : "Choose an image, PDF, or file to generate shareable links."}
             </p>
 
-            <p className="mt-3 text-xs leading-5 text-slate-500">
-              Always download files only from people or sources you trust.
+            {result ? (
+              <div className="mt-4 grid gap-2 text-xs text-slate-400 sm:grid-cols-2">
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <p className="text-slate-500">ID</p>
+                  <p className="mt-1 break-all text-slate-200">{result.id}</p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <p className="text-slate-500">Type</p>
+                  <p className="mt-1 text-slate-200">{selectedKindLabel}</p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <p className="text-slate-500">Size</p>
+                  <p className="mt-1 text-slate-200">
+                    {file
+                      ? formatFileSize(file.size)
+                      : typeof result.size === "number"
+                        ? formatFileSize(result.size)
+                        : "Unknown"}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
+                  <p className="text-slate-500">Expires</p>
+                  <p className="mt-1 text-slate-200">
+                    {formatExpiry(result.expiresAt)}
+                  </p>
+                </div>
+
+                {uploadKind === "image" && result.width && result.height ? (
+                  <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3 sm:col-span-2">
+                    <p className="text-slate-500">Dimensions</p>
+                    <p className="mt-1 text-slate-200">
+                      {result.width} × {result.height}
+                    </p>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+
+            <p className="mt-4 text-xs leading-5 text-slate-500">
+              Owner link opens the management page. User link opens a clean
+              public page for sharing.
             </p>
           </div>
 
           {result ? (
             <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-              <p className="text-sm font-semibold text-emerald-200">
-                File uploaded successfully
-              </p>
-
-              <div className="mt-3 grid gap-3">
+              <div className="grid gap-3">
                 <div>
                   <label className="mb-1 block text-xs text-slate-400">
-                    File page link
+                    Owner link
                   </label>
                   <input
-                    value={pageUrl}
+                    value={ownerUrl}
                     readOnly
                     className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
                   />
@@ -287,84 +399,59 @@ export default function FileSharePage() {
 
                 <div>
                   <label className="mb-1 block text-xs text-slate-400">
-                    Direct download link
+                    User share link
                   </label>
                   <input
-                    value={downloadUrl}
+                    value={userUrl}
+                    readOnly
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs text-slate-400">
+                    Direct file link
+                  </label>
+                  <input
+                    value={directUrl}
                     readOnly
                     className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
                   />
                 </div>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <button
-                  onClick={() => copyValue("page")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  {copied === "page" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                  {copied === "page" ? "Copied" : "Copy page"}
-                </button>
-
-                <button
-                  onClick={() => copyValue("download")}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  {copied === "download" ? (
-                    <Check className="h-4 w-4" />
-                  ) : (
-                    <Copy className="h-4 w-4" />
-                  )}
-                  {copied === "download" ? "Copied" : "Copy download"}
-                </button>
-              </div>
-
-              <div className="mt-4 flex flex-wrap gap-4 text-sm">
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
                 <a
-                  href={pageUrl}
+                  href={ownerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 font-medium text-violet-300 hover:text-violet-200"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Open file page
+                  Open owner
                   <ExternalLink className="h-4 w-4" />
                 </a>
 
                 <a
-                  href={downloadUrl}
+                  href={userUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 font-medium text-violet-300 hover:text-violet-200"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
-                  Download file
-                  <Download className="h-4 w-4" />
+                  Open user
+                  <ExternalLink className="h-4 w-4" />
                 </a>
-              </div>
 
-              <div className="mt-4 space-y-1">
-                <p className="break-all text-xs text-emerald-100/80">
-                  File: {result.originalName}
-                </p>
-
-                <p className="text-xs text-emerald-100/80">
-                  Size: {formatFileSize(result.size)}
-                </p>
-
-                <p className="text-xs text-emerald-100/80">
-                  Type: {result.mimeType || "Unknown"}
-                </p>
-
-                <p className="text-xs text-emerald-100/80">
-                  Downloads: {result.downloads}
-                </p>
-
-                <p className="text-xs text-emerald-100/80">
-                  Expires: {formatExpiry(result.expiresAt)}
-                </p>
+                <button
+                  onClick={copyUserUrl}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                  {copied ? "Copied" : "Copy user"}
+                </button>
               </div>
             </div>
           ) : null}
@@ -372,40 +459,35 @@ export default function FileSharePage() {
       </div>
 
       <HowToUse
-  subtitle=""
-  steps={[
-    {
-      title: "Choose file",
-      description: "Select a file from your device up to the upload limit.",
-      icon: <Upload className="h-5 w-5" />,
-    },
-    {
-      title: "Set expiry",
-      description: "Choose when the shared file link should expire.",
-      icon: <Clock className="h-5 w-5" />,
-    },
-    {
-      title: "Upload file",
-      description: "Upload the file and generate shareable links.",
-      icon: <FileUp className="h-5 w-5" />,
-    },
-    {
-      title: "Copy link",
-      description: "Copy the file page link or direct download link.",
-      icon: <Copy className="h-5 w-5" />,
-    },
-    {
-      title: "Open page",
-      description: "Open the shared file page to view file details.",
-      icon: <ExternalLink className="h-5 w-5" />,
-    },
-    {
-      title: "Download",
-      description: "Use the download button to save the shared file.",
-      icon: <Download className="h-5 w-5" />,
-    },
-  ]}
-/>
+        subtitle="Upload images, PDFs, and files to generate owner and user links."
+        steps={[
+          {
+            title: "Choose upload",
+            description: "Select an image, PDF, or file from your device.",
+            icon: <Upload className="h-5 w-5" />,
+          },
+          {
+            title: "Set expiry",
+            description: "Choose when the shared page should expire.",
+            icon: <FileUp className="h-5 w-5" />,
+          },
+          {
+            title: "Upload",
+            description: "Create owner and public user links.",
+            icon: <FileUp className="h-5 w-5" />,
+          },
+          {
+            title: "Open owner",
+            description: "Use the owner link for upload details and management.",
+            icon: <ExternalLink className="h-5 w-5" />,
+          },
+          {
+            title: "Share user link",
+            description: "Send the clean public page link to others.",
+            icon: <Copy className="h-5 w-5" />,
+          },
+        ]}
+      />
     </Container>
   );
 }

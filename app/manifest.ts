@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Toolverse",
-    short_name: "Toolverse",
+    name: "ToolverseX",
+    short_name: "ToolverseX",
     description:
       "Free online tools for developers, creators, and everyday users.",
     start_url: "/",

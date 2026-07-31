@@ -57,18 +57,11 @@ export function Header() {
           </Link>
 
           <Link
-            href="/image-host"
-            className="rounded-lg px-3 py-2 hover:bg-white/10 hover:text-white"
-          >
-            Images
-          </Link>
-
-          <Link
             href="/file-share"
-            className="rounded-lg px-3 py-2 hover:bg-white/10 hover:text-white"
+           className="rounded-lg px-3 py-2 hover:bg-white/10 hover:text-white"
           >
-            Files
-          </Link>
+         Upload
+        </Link>
         </nav>
 
         <nav className="flex items-center gap-1 text-xs text-slate-300 sm:hidden">

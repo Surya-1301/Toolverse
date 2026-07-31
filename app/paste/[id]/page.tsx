@@ -1,16 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import {
-  Check,
-  Copy,
-  Eye,
-  ExternalLink,
-  FileText,
-  Loader2,
-  Plus,
-} from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 
 type PasteRecord = {
@@ -20,6 +11,7 @@ type PasteRecord = {
   createdAt: string;
   expiresAt: string | null;
   views: number;
+  hasEditPassword?: boolean;
 };
 
 type PageProps = {
@@ -28,25 +20,21 @@ type PageProps = {
   }>;
 };
 
-const languageLabels: Record<string, string> = {
-  plain_text: "Plain text",
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  html: "HTML",
-  css: "CSS",
-  json: "JSON",
-  markdown: "Markdown",
-  python: "Python",
-  shell: "Shell",
-};
+type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 export default function PasteViewPage({ params }: PageProps) {
   const [pasteId, setPasteId] = useState("");
   const [paste, setPaste] = useState<PasteRecord | null>(null);
+  const [content, setContent] = useState("");
+  const [language, setLanguage] = useState("plain_text");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
-  const [copiedContent, setCopiedContent] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+
+  const latestContentRef = useRef("");
+  const latestLanguageRef = useRef("plain_text");
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isDirtyRef = useRef(false);
 
   useEffect(() => {
     async function loadParams() {
@@ -65,7 +53,10 @@ export default function PasteViewPage({ params }: PageProps) {
         setError("");
         setIsLoading(true);
 
-        const response = await fetch(`/api/paste/${pasteId}`);
+        const response = await fetch(`/api/paste/${pasteId}`, {
+          cache: "no-store",
+        });
+
         const data = await response.json();
 
         if (!response.ok) {
@@ -75,6 +66,13 @@ export default function PasteViewPage({ params }: PageProps) {
         }
 
         setPaste(data);
+        setContent(data.content);
+        setLanguage(data.language || "plain_text");
+
+        latestContentRef.current = data.content;
+        latestLanguageRef.current = data.language || "plain_text";
+        isDirtyRef.current = false;
+        setSaveStatus("saved");
       } catch {
         setError("Could not load paste.");
         setPaste(null);
@@ -86,142 +84,173 @@ export default function PasteViewPage({ params }: PageProps) {
     loadPaste();
   }, [pasteId]);
 
-  async function copyContent() {
-    if (!paste?.content) return;
+  async function savePaste({
+    useBeacon = false,
+  }: {
+    useBeacon?: boolean;
+  } = {}) {
+    if (!pasteId || !paste) return;
 
-    await navigator.clipboard.writeText(paste.content);
-    setCopiedContent(true);
+    const nextContent = latestContentRef.current;
+    const nextLanguage = latestLanguageRef.current;
 
-    setTimeout(() => {
-      setCopiedContent(false);
-    }, 1500);
+    if (!nextContent.trim()) {
+      setSaveStatus("error");
+      setError("Paste content is required.");
+      return;
+    }
+
+    const payload = JSON.stringify({
+      content: nextContent,
+      language: nextLanguage,
+      expiry: "never",
+      editPassword: "",
+    });
+
+    try {
+      setSaveStatus("saving");
+
+      if (useBeacon && navigator.sendBeacon) {
+        const blob = new Blob([payload], {
+          type: "application/json",
+        });
+
+        const sent = navigator.sendBeacon(`/api/paste/${pasteId}`, blob);
+
+        if (sent) {
+          isDirtyRef.current = false;
+          setSaveStatus("saved");
+          return;
+        }
+      }
+
+      const response = await fetch(`/api/paste/${pasteId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: payload,
+        keepalive: useBeacon,
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok) {
+        setSaveStatus("error");
+        setError(data?.error || "Could not auto-save paste.");
+        return;
+      }
+
+      setPaste(data);
+      isDirtyRef.current = false;
+      setSaveStatus("saved");
+      setError("");
+    } catch {
+      setSaveStatus("error");
+      setError("Could not auto-save paste.");
+    }
   }
 
-  async function copyLink() {
-    await navigator.clipboard.writeText(window.location.href);
-    setCopiedLink(true);
+  function scheduleSave(nextContent: string) {
+    latestContentRef.current = nextContent;
+    isDirtyRef.current = true;
+    setSaveStatus("idle");
 
-    setTimeout(() => {
-      setCopiedLink(false);
-    }, 1500);
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      savePaste();
+    }, 800);
   }
 
-  function formatDate(value: string) {
-    return new Intl.DateTimeFormat("en", {
-      dateStyle: "medium",
-      timeStyle: "short",
-    }).format(new Date(value));
+  function handleContentChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
+    const nextContent = event.target.value;
+    setContent(nextContent);
+    scheduleSave(nextContent);
   }
 
-  function formatExpiry(value: string | null) {
-    if (!value) return "Never";
-    return formatDate(value);
-  }
+  useEffect(() => {
+    function saveOnLeave() {
+      if (isDirtyRef.current) {
+        savePaste({ useBeacon: true });
+      }
+    }
 
-  const rawUrl = pasteId ? `/raw/${pasteId}` : "";
+    window.addEventListener("beforeunload", saveOnLeave);
+    window.addEventListener("pagehide", saveOnLeave);
+
+    return () => {
+      window.removeEventListener("beforeunload", saveOnLeave);
+      window.removeEventListener("pagehide", saveOnLeave);
+
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+
+      if (isDirtyRef.current) {
+        savePaste({ useBeacon: true });
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pasteId, paste]);
+
+  function getSaveLabel() {
+    if (saveStatus === "saving") return "Saving...";
+    if (saveStatus === "saved") return "Saved";
+    if (saveStatus === "error") return "Save failed";
+    return "Unsaved";
+  }
 
   return (
-    <Container className="py-12 sm:py-16">
-      <div className="mx-auto max-w-5xl">
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300 ring-1 ring-violet-400/20">
-              <FileText className="h-7 w-7" />
-            </div>
-
-            <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-              Paste
-            </h1>
-
-            <p className="mt-3 text-slate-400">
-              {pasteId ? `ID: ${pasteId}` : "Loading paste..."}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap gap-3">
-            <Link
-              href="/paste"
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              <Plus className="h-4 w-4" />
-              New paste
-            </Link>
-
-            {rawUrl ? (
-              <a
-                href={rawUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                <ExternalLink className="h-4 w-4" />
-                Raw
-              </a>
-            ) : null}
-
-            <button
-              onClick={copyLink}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-            >
-              {copiedLink ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-              {copiedLink ? "Copied link" : "Copy link"}
-            </button>
-
-            <button
-              onClick={copyContent}
-              disabled={!paste}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              {copiedContent ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-              {copiedContent ? "Copied" : "Copy content"}
-            </button>
-          </div>
-        </div>
-
+    <Container className="py-6 sm:py-8">
+      <div className="mx-auto max-w-6xl">
         {isLoading ? (
-          <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
+          <div className="flex min-h-[70vh] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
             <div className="flex items-center gap-3 text-slate-400">
               <Loader2 className="h-5 w-5 animate-spin" />
               Loading paste...
             </div>
           </div>
-        ) : error ? (
+        ) : error && !paste ? (
           <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">
             {error}
           </div>
         ) : paste ? (
-          <>
-            <div className="mb-4 flex flex-wrap gap-3 text-sm">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Language: {languageLabels[paste.language] || paste.language}
-              </span>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <p className="truncate text-sm text-slate-500">
+                /paste/{pasteId}
+              </p>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Created: {formatDate(paste.createdAt)}
-              </span>
-
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Expires: {formatExpiry(paste.expiresAt)}
-              </span>
-
-              <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                <Eye className="h-4 w-4" />
-                {paste.views} views
-              </span>
+              <div
+                className={`shrink-0 rounded-full px-3 py-1 text-xs ${
+                  saveStatus === "error"
+                    ? "bg-red-500/10 text-red-300"
+                    : saveStatus === "saving"
+                      ? "bg-violet-500/10 text-violet-300"
+                      : "bg-emerald-500/10 text-emerald-300"
+                }`}
+              >
+                {getSaveLabel()}
+              </div>
             </div>
 
-            <pre className="overflow-auto rounded-3xl border border-white/10 bg-slate-950 p-5 text-sm leading-6 text-slate-100">
-              <code>{paste.content}</code>
-            </pre>
-          </>
+            {error ? (
+              <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                {error}
+              </div>
+            ) : null}
+
+            <textarea
+              value={content}
+              onChange={handleContentChange}
+              spellCheck={false}
+              autoFocus
+              className="min-h-[75vh] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-5 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            />
+          </div>
         ) : null}
       </div>
     </Container>

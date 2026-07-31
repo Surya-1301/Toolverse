@@ -1,9 +1,9 @@
+import fs from "fs/promises";
+import path from "path";
 import { NextResponse } from "next/server";
 import { createId } from "@/lib/id";
 import { getExpiresAt } from "@/lib/expiry";
-import { saveUploadedFile } from "@/lib/upload";
-import { validateFileUpload } from "@/lib/uploadValidators";
-import { FileRecord, getFiles, saveFiles } from "@/lib/localDb";
+import { getFiles, saveFiles, FileRecord } from "@/lib/localDb";
 
 export async function POST(request: Request) {
   try {
@@ -19,10 +19,13 @@ export async function POST(request: Request) {
       );
     }
 
-    const validationError = validateFileUpload(file);
+    const maxSize = 100 * 1024 * 1024;
 
-    if (validationError) {
-      return NextResponse.json({ error: validationError }, { status: 400 });
+    if (file.size > maxSize) {
+      return NextResponse.json(
+        { error: "File is too large. Max size is 100 MB." },
+        { status: 400 }
+      );
     }
 
     const expiryResult = getExpiresAt(expiry);
@@ -34,6 +37,9 @@ export async function POST(request: Request) {
       );
     }
 
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
     const files = await getFiles();
 
     let id = createId(8);
@@ -42,41 +48,53 @@ export async function POST(request: Request) {
       id = createId(8);
     }
 
-    const savedFile = await saveUploadedFile(file, "files", id);
+    const uploadDir = path.join(process.cwd(), "data", "uploads", "files");
+
+    await fs.mkdir(uploadDir, {
+      recursive: true,
+    });
+
+    const filePath = path.join(uploadDir, id);
+
+    await fs.writeFile(filePath, buffer);
 
     const record: FileRecord = {
       id,
       originalName: file.name,
-      storedName: savedFile.storedName,
       mimeType: file.type || "application/octet-stream",
       size: file.size,
       createdAt: new Date().toISOString(),
       expiresAt: expiryResult.expiresAt,
       downloads: 0,
+      filePath,
+      downloadUrl: `/api/file/${id}/download`,
     };
 
     files.unshift(record);
+
     await saveFiles(files);
 
     return NextResponse.json(
-  {
-    id: record.id,
-    url: `/f/${record.id}`,
-    downloadUrl: `/api/file/${record.id}`,
-    originalName: record.originalName,
-    mimeType: record.mimeType,
-    size: record.size,
-    downloads: record.downloads,
-    expiresAt: record.expiresAt,
-  },
-  {
-    headers: {
-      "Cache-Control": "no-store",
-      "X-Robots-Tag": "noindex, nofollow",
-    },
-  }
-);
-  } catch {
+      {
+        id: record.id,
+        url: `/f/${record.id}`,
+        downloadUrl: record.downloadUrl,
+        originalName: record.originalName,
+        mimeType: record.mimeType,
+        size: record.size,
+        expiresAt: record.expiresAt,
+        downloads: record.downloads,
+      },
+      {
+        headers: {
+          "Cache-Control": "no-store",
+          "X-Robots-Tag": "noindex, nofollow",
+        },
+      }
+    );
+  } catch (error) {
+    console.error(error);
+
     return NextResponse.json(
       { error: "Could not upload file." },
       { status: 500 }

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const baseUrl = "https://toolverse.dev";
+const baseUrl = "https://ToolverseX.dev";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const routes = [

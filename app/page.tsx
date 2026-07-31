@@ -1,5 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import {
+  Gauge,
+  LockKeyhole,
+  MonitorSmartphone,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
@@ -7,6 +12,27 @@ export const metadata: Metadata = {
   description:
     "Use free online tools like JSON Formatter, QR Generator, Image Compressor, Paste, URL Shortener, Image Host, and File Share.",
 };
+
+const features = [
+  {
+    title: "Browser-first tools",
+    description:
+      "Use fast utilities designed to work instantly with a clean, focused interface.",
+    icon: MonitorSmartphone,
+  },
+  {
+    title: "No account required",
+    description:
+      "Open any tool and start working right away without signup or unnecessary steps.",
+    icon: LockKeyhole,
+  },
+  {
+    title: "Built for speed",
+    description:
+      "Lightweight workflows help you format, compress, upload, and share faster.",
+    icon: Gauge,
+  },
+];
 
 export default function Home() {
   return (
@@ -36,30 +62,33 @@ export default function Home() {
           >
             Explore tools
           </Link>
-
         </div>
 
-        <div className="mx-auto mt-10 grid max-w-3xl gap-3 text-left sm:grid-cols-3">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-sm font-semibold text-white">Browser-first</p>
-            <p className="mt-1 text-xs leading-5 text-slate-400">
-              Many tools run locally on your device.
-            </p>
-          </div>
+        <div className="mx-auto mt-12 grid max-w-5xl gap-5 text-left md:grid-cols-3">
+          {features.map((feature) => {
+            const Icon = feature.icon;
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-sm font-semibold text-white">No signup needed</p>
-            <p className="mt-1 text-xs leading-5 text-slate-400">
-              Open a tool and start using it instantly.
-            </p>
-          </div>
+            return (
+              <div
+                key={feature.title}
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:border-violet-400/40"
+              >
+                <div className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-violet-500/10 blur-2xl transition group-hover:bg-violet-500/20" />
 
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <p className="text-sm font-semibold text-white">Made for speed</p>
-            <p className="mt-1 text-xs leading-5 text-slate-400">
-              Lightweight utilities with clean UI.
-            </p>
-          </div>
+                <div className="relative mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20 transition group-hover:scale-105 group-hover:bg-violet-600/25 group-hover:text-violet-200">
+                  <Icon className="h-6 w-6" />
+                </div>
+
+                <h3 className="relative text-base font-semibold text-white">
+                  {feature.title}
+                </h3>
+
+                <p className="relative mt-2 text-sm leading-6 text-slate-400">
+                  {feature.description}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </Container>
     </section>

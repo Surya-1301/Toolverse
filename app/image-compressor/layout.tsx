@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Image Compressor - Compress Images Online",
+  title: "Image & PDF Compressor - Compress Files Online",
   description:
-    "Compress JPG, PNG, and WebP images in your browser. Reduce image file size for free with Toolverse.",
+    "Compress images and optimize PDF files in your browser with ToolverseX.",
 };
 
 export default function ImageCompressorLayout({
