@@ -35,7 +35,7 @@ export function Footer() {
               href="/"
               className="text-base font-semibold tracking-tight text-white transition hover:text-violet-200"
             >
-              ToolverseX
+              Toolverse
             </Link>
 
             <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
@@ -65,7 +65,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 flex flex-col gap-3 border-t border-white/10 pt-5 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} ToolverseX. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Toolverse. All rights reserved.</p>
 
           <p className="text-slate-600">
             Built for speed, simplicity, and everyday productivity.

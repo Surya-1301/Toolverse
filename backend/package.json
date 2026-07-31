@@ -1,11 +1,11 @@
 {
-  "name": "toolversex-api",
+  "name": "Toolverse-api",
   "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "wrangler dev",
     "deploy": "wrangler deploy",
-    "db:migrate": "wrangler d1 execute toolversex-db --file=schema.sql --remote"
+    "db:migrate": "wrangler d1 execute Toolverse-db --file=schema.sql --remote"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "latest",

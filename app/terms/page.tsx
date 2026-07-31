@@ -16,9 +16,9 @@ import {
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "Terms of Use | ToolverseX",
+  title: "Terms of Use | Toolverse",
   description:
-    "Read the ToolverseX Terms of Use for browser-first tools, uploads, shared links, acceptable use, and service limitations.",
+    "Read the Toolverse Terms of Use for browser-first tools, uploads, shared links, acceptable use, and service limitations.",
 };
 
 const lastUpdated = "July 31, 2026";
@@ -27,7 +27,7 @@ const highlights = [
   {
     title: "Use tools responsibly",
     description:
-      "ToolverseX tools are provided for lawful, safe, and respectful use.",
+      "Toolverse tools are provided for lawful, safe, and respectful use.",
     icon: UserCheck,
   },
   {
@@ -39,7 +39,7 @@ const highlights = [
   {
     title: "No misuse or abuse",
     description:
-      "Do not use ToolverseX for malware, phishing, spam, illegal content, or harmful activity.",
+      "Do not use Toolverse for malware, phishing, spam, illegal content, or harmful activity.",
     icon: ShieldCheck,
   },
 ];
@@ -49,16 +49,16 @@ const sections = [
     title: "1. Acceptance of these terms",
     icon: CheckCircle2,
     content: [
-      "These Terms of Use govern your access to and use of ToolverseX, including our browser-based tools, upload features, sharing links, hosted content pages, and related services.",
-      "By using ToolverseX, you agree to these Terms. If you do not agree, you should not use the service.",
-      "You are responsible for ensuring that your use of ToolverseX complies with applicable laws and these Terms.",
+      "These Terms of Use govern your access to and use of Toolverse, including our browser-based tools, upload features, sharing links, hosted content pages, and related services.",
+      "By using Toolverse, you agree to these Terms. If you do not agree, you should not use the service.",
+      "You are responsible for ensuring that your use of Toolverse complies with applicable laws and these Terms.",
     ],
   },
   {
     title: "2. Description of the service",
     icon: FileText,
     content: [
-      "ToolverseX provides lightweight utilities for tasks such as formatting JSON, generating QR codes, compressing images or PDFs, creating pastes, shortening URLs, uploading files, and sharing content.",
+      "Toolverse provides lightweight utilities for tasks such as formatting JSON, generating QR codes, compressing images or PDFs, creating pastes, shortening URLs, uploading files, and sharing content.",
       "Some tools may operate directly in your browser, while others may require server processing or storage to provide features such as public links or downloadable files.",
       "We may add, change, limit, suspend, or remove tools or features at any time.",
     ],
@@ -67,7 +67,7 @@ const sections = [
     title: "3. Browser-first and local tools",
     icon: LockKeyhole,
     content: [
-      "Some ToolverseX tools are designed to process data locally in your browser. Local processing can reduce the need to upload content to our servers.",
+      "Some Toolverse tools are designed to process data locally in your browser. Local processing can reduce the need to upload content to our servers.",
       "Browser-first functionality may depend on your device, browser, file size, and available system resources.",
       "Even where local processing is used, you are responsible for reviewing outputs before relying on them.",
     ],
@@ -76,7 +76,7 @@ const sections = [
     title: "4. Uploaded and shared content",
     icon: UploadCloud,
     content: [
-      "When you upload files, images, PDFs, text, URLs, or other content to create a shareable link, ToolverseX may store that content so the link can work.",
+      "When you upload files, images, PDFs, text, URLs, or other content to create a shareable link, Toolverse may store that content so the link can work.",
       "You must have the necessary rights and permissions to upload, share, or distribute any content you submit.",
       "Public links may be accessible by anyone who has the link. Do not upload sensitive, confidential, private, regulated, or restricted content unless you understand and accept the sharing behavior of the tool.",
     ],
@@ -85,8 +85,8 @@ const sections = [
     title: "5. Acceptable use",
     icon: ShieldCheck,
     content: [
-      "You agree not to use ToolverseX to upload, host, share, generate, distribute, or link to content that is illegal, abusive, threatening, harmful, defamatory, infringing, deceptive, or otherwise objectionable.",
-      "You may not use ToolverseX to distribute malware, phishing material, spam, scams, credential theft pages, harmful scripts, or content designed to compromise systems or users.",
+      "You agree not to use Toolverse to upload, host, share, generate, distribute, or link to content that is illegal, abusive, threatening, harmful, defamatory, infringing, deceptive, or otherwise objectionable.",
+      "You may not use Toolverse to distribute malware, phishing material, spam, scams, credential theft pages, harmful scripts, or content designed to compromise systems or users.",
       "You may not attempt to bypass limits, disrupt the service, scrape aggressively, overload infrastructure, reverse engineer protected systems, or interfere with other users.",
     ],
   },
@@ -94,7 +94,7 @@ const sections = [
     title: "6. Content moderation and removal",
     icon: Ban,
     content: [
-      "We may remove, restrict, disable, or block access to content or activity that appears to violate these Terms, creates risk, receives abuse reports, or may harm ToolverseX or its users.",
+      "We may remove, restrict, disable, or block access to content or activity that appears to violate these Terms, creates risk, receives abuse reports, or may harm Toolverse or its users.",
       "We may investigate reported content using technical signals, metadata, logs, user reports, and other available information.",
       "We are not obligated to monitor all content, but we reserve the right to act when needed to operate, secure, or protect the service.",
     ],
@@ -112,27 +112,27 @@ const sections = [
     title: "8. Intellectual property",
     icon: Scale,
     content: [
-      "You retain ownership of content you submit, subject to the rights needed for ToolverseX to provide the requested functionality.",
-      "By submitting content, you grant ToolverseX a limited right to store, process, display, transmit, and make that content available as necessary to operate the tool or shared link you requested.",
-      "ToolverseX, including its branding, interface, design, and software, is protected by applicable intellectual property laws.",
+      "You retain ownership of content you submit, subject to the rights needed for Toolverse to provide the requested functionality.",
+      "By submitting content, you grant Toolverse a limited right to store, process, display, transmit, and make that content available as necessary to operate the tool or shared link you requested.",
+      "Toolverse, including its branding, interface, design, and software, is protected by applicable intellectual property laws.",
     ],
   },
   {
     title: "9. No professional advice",
     icon: AlertTriangle,
     content: [
-      "ToolverseX provides general-purpose utilities and does not provide legal, financial, medical, security, or professional advice.",
+      "Toolverse provides general-purpose utilities and does not provide legal, financial, medical, security, or professional advice.",
       "You are responsible for validating outputs, generated content, compressed files, formatted data, shortened links, and any other results before relying on them.",
-      "Use ToolverseX at your own discretion and risk.",
+      "Use Toolverse at your own discretion and risk.",
     ],
   },
   {
     title: "10. Disclaimers and limitations",
     icon: AlertTriangle,
     content: [
-      "ToolverseX is provided on an “as is” and “as available” basis without warranties of any kind, to the fullest extent permitted by law.",
+      "Toolverse is provided on an “as is” and “as available” basis without warranties of any kind, to the fullest extent permitted by law.",
       "We do not guarantee uninterrupted availability, error-free operation, permanent storage, perfect accuracy, compatibility with every file, or recovery of lost content.",
-      "To the fullest extent permitted by law, ToolverseX will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages, or for loss of data, revenue, profits, goodwill, or business opportunities.",
+      "To the fullest extent permitted by law, Toolverse will not be liable for indirect, incidental, special, consequential, exemplary, or punitive damages, or for loss of data, revenue, profits, goodwill, or business opportunities.",
     ],
   },
   {
@@ -141,7 +141,7 @@ const sections = [
     content: [
       "We may update these Terms from time to time to reflect changes to our tools, legal requirements, or operational practices.",
       "When we make updates, we will revise the “Last updated” date on this page.",
-      "Your continued use of ToolverseX after changes are posted means you accept the updated Terms.",
+      "Your continued use of Toolverse after changes are posted means you accept the updated Terms.",
     ],
   },
 ];
@@ -167,7 +167,7 @@ export default function TermsPage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm">
-              These terms explain how ToolverseX may be used, what content is
+              These terms explain how Toolverse may be used, what content is
               allowed, and how shared links, uploads, and hosted files are
               handled.
             </div>
@@ -231,7 +231,7 @@ export default function TermsPage() {
         <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
           <p className="font-semibold text-white">Plain-language summary</p>
           <p className="mt-2 text-violet-100/80">
-            Use ToolverseX responsibly. If you create public links or upload
+            Use Toolverse responsibly. If you create public links or upload
             files, people with those links may access the content. Do not use
             the service for illegal, harmful, abusive, or infringing activity.
           </p>

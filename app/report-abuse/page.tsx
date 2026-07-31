@@ -17,9 +17,9 @@ import {
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "Report Abuse | ToolverseX",
+  title: "Report Abuse | Toolverse",
   description:
-    "Report abuse, harmful content, phishing, malware, illegal files, copyright concerns, or exposed private information on ToolverseX.",
+    "Report abuse, harmful content, phishing, malware, illegal files, copyright concerns, or exposed private information on Toolverse.",
 };
 
 const reportTypes = [
@@ -63,7 +63,7 @@ const reportTypes = [
 
 const requiredDetails = [
   {
-    title: "The ToolverseX link",
+    title: "The Toolverse link",
     description:
       "Include the full URL or file ID for the paste, upload, hosted file, image, or shortened link.",
     icon: FileWarning,
@@ -99,7 +99,7 @@ export default function ReportAbusePage() {
 
               <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400">
                 Use this page to report harmful, illegal, deceptive, abusive, or
-                unsafe content hosted or shared through ToolverseX.
+                unsafe content hosted or shared through Toolverse.
               </p>
             </div>
 
@@ -136,7 +136,7 @@ export default function ReportAbusePage() {
 
               <p className="mt-2 text-sm leading-6 text-slate-400">
                 Reports are easier to review when they include the exact
-                ToolverseX URL or content ID.
+                Toolverse URL or content ID.
               </p>
             </div>
 
@@ -253,7 +253,7 @@ export default function ReportAbusePage() {
                 </Link>
 
                 <a
-                  href="mailto:abuse@toolversex.com"
+                  href="mailto:abuse@Toolverse.com"
                   className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-400"
                 >
                   <Flag className="h-4 w-4" />
@@ -262,7 +262,7 @@ export default function ReportAbusePage() {
               </div>
 
               <p className="mt-3 text-xs text-red-100/60">
-                Replace abuse@toolversex.com with your real abuse reporting
+                Replace abuse@Toolverse.com with your real abuse reporting
                 address before publishing if needed.
               </p>
             </div>

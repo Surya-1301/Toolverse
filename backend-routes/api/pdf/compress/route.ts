@@ -17,7 +17,7 @@ function getPdfSettings(quality: number) {
 
 export async function POST(request: Request) {
   const tempId = randomUUID();
-  const tempDir = path.join(os.tmpdir(), `ToolverseX-pdf-${tempId}`);
+  const tempDir = path.join(os.tmpdir(), `Toolverse-pdf-${tempId}`);
   const inputPath = path.join(tempDir, "input.pdf");
   const outputPath = path.join(tempDir, "output.pdf");
 

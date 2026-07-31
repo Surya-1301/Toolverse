@@ -1,7 +1,7 @@
 export function getApiBaseUrl() {
   return (
     process.env.NEXT_PUBLIC_API_BASE_URL ||
-    "https://toolversex-api.workers.dev"
+    "https://Toolverse-api.workers.dev"
   ).replace(/\/$/, "");
 }
 

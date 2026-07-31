@@ -1,7 +1,7 @@
 {
-  "name": "ToolverseX",
-  "short_name": "ToolverseX",
-  "description": "ToolverseX - Your All-in-One Utility Hub.",
+  "name": "Toolverse",
+  "short_name": "Toolverse",
+  "description": "Toolverse - Your All-in-One Utility Hub.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#020617",

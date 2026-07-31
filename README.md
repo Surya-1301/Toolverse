@@ -1,6 +1,6 @@
-# ToolverseX
+# Toolverse
 
-ToolverseX is a collection of free online tools for developers, creators, and everyday users.
+Toolverse is a collection of free online tools for developers, creators, and everyday users.
 
 ## Current tools
 

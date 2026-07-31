@@ -110,7 +110,7 @@ function UrlShortenerContent() {
         return;
       }
 
-      const fullUrl = `${window.location.origin}/s/${data.slug}`;
+      const fullUrl = `${window.location.origin}/go?slug=${data.slug}`;
       setShortUrl(fullUrl);
       setResult(data);
       setClicks(data.clicks);

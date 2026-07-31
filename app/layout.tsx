@@ -5,7 +5,7 @@ import { Header } from "@/components/Header";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ToolverseX",
+  title: "Toolverse",
   description: "Fast, free, privacy-friendly online tools.",
 };
 
@@ -53,11 +53,11 @@ export default function RootLayout({
                     href="/"
                     className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-violet-200"
                   >
-                    ToolverseX
+                    Toolverse
                   </Link>
 
                   <p className="mt-2 text-sm text-slate-500">
-                    © {new Date().getFullYear()} ToolverseX. All rights
+                    © {new Date().getFullYear()} Toolverse. All rights
                     reserved.
                   </p>
                 </div>

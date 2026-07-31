@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Hosted Image",
-  description: "View a hosted image on ToolverseX.",
+  description: "View a hosted image on Toolverse.",
   robots: {
     index: false,
     follow: false,

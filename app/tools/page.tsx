@@ -68,7 +68,7 @@ export default function ToolsPage() {
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
         <p className="mb-4 inline-flex rounded-full border border-violet-400/30 bg-violet-500/10 px-4 py-1.5 text-sm text-violet-200">
-          ToolverseX utilities
+          Toolverse utilities
         </p>
 
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
@@ -76,7 +76,7 @@ export default function ToolsPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Browse all available ToolverseX tools for formatting, generating,
+          Browse all available Toolverse tools for formatting, generating,
           compressing, hosting, sharing, and shortening.
         </p>
       </div>

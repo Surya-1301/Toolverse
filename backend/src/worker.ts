@@ -5,7 +5,7 @@ export interface Env {
 
 type ExpiryValue = "never" | "1h" | "1d" | "7d" | "30d";
 
-const FRONTEND_ORIGIN = "https://toolversex.pages.dev";
+const FRONTEND_ORIGIN = "https://Toolverse.pages.dev";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": FRONTEND_ORIGIN,
@@ -131,7 +131,7 @@ async function route(request: Request, env: Env) {
 
   if (pathname === "/") {
     return json({
-      name: "ToolverseX API",
+      name: "Toolverse API",
       status: "ok",
     });
   }

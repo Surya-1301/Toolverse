@@ -16,9 +16,9 @@ import {
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | ToolverseX",
+  title: "Privacy Policy | Toolverse",
   description:
-    "Read the ToolverseX Privacy Policy to understand how our browser-first tools, uploads, logs, and shared content are handled.",
+    "Read the Toolverse Privacy Policy to understand how our browser-first tools, uploads, logs, and shared content are handled.",
 };
 
 const lastUpdated = "July 31, 2026";
@@ -49,16 +49,16 @@ const sections = [
     title: "1. Overview",
     icon: FileText,
     content: [
-      "ToolverseX provides lightweight online utilities for formatting, generating, compressing, uploading, sharing, and shortening content.",
-      "This Privacy Policy explains what information may be processed when you use ToolverseX, how that information is used, and the choices you have.",
-      "By using ToolverseX, you agree to the practices described in this policy.",
+      "Toolverse provides lightweight online utilities for formatting, generating, compressing, uploading, sharing, and shortening content.",
+      "This Privacy Policy explains what information may be processed when you use Toolverse, how that information is used, and the choices you have.",
+      "By using Toolverse, you agree to the practices described in this policy.",
     ],
   },
   {
     title: "2. Browser-first tools",
     icon: ShieldCheck,
     content: [
-      "Many ToolverseX tools are designed to work directly in your browser. Examples may include JSON formatting, QR generation, image compression, and similar utilities.",
+      "Many Toolverse tools are designed to work directly in your browser. Examples may include JSON formatting, QR generation, image compression, and similar utilities.",
       "When a tool runs locally, your input is processed on your device and is not uploaded to our servers for that processing.",
       "Some features require server processing or storage to work, such as creating public links, hosting images, sharing files, saving pastes, or shortening URLs.",
     ],
@@ -76,7 +76,7 @@ const sections = [
     title: "4. Uploaded and shared content",
     icon: Server,
     content: [
-      "When you upload or share content, that content may be stored so ToolverseX can make it available through the generated link.",
+      "When you upload or share content, that content may be stored so Toolverse can make it available through the generated link.",
       "Anyone with a public share link may be able to view or download the content, depending on the tool used.",
       "You should avoid uploading sensitive, confidential, private, or legally restricted content unless you are comfortable with the access model shown by the tool.",
     ],
@@ -85,7 +85,7 @@ const sections = [
     title: "5. Logs and analytics",
     icon: BarChart3,
     content: [
-      "We may collect basic technical information to operate, secure, and improve ToolverseX.",
+      "We may collect basic technical information to operate, secure, and improve Toolverse.",
       "This may include browser type, device type, referring page, approximate location derived from network information, pages visited, timestamps, error logs, and performance data.",
       "We use this information to monitor reliability, troubleshoot issues, understand usage patterns, prevent abuse, and improve the service.",
     ],
@@ -94,7 +94,7 @@ const sections = [
     title: "6. Cookies and local storage",
     icon: EyeOff,
     content: [
-      "ToolverseX may use cookies, local storage, or similar browser technologies to remember preferences, support tool functionality, improve performance, or maintain basic session behavior.",
+      "Toolverse may use cookies, local storage, or similar browser technologies to remember preferences, support tool functionality, improve performance, or maintain basic session behavior.",
       "You can usually control cookies and local storage through your browser settings.",
       "Disabling these technologies may affect how some tools work.",
     ],
@@ -103,7 +103,7 @@ const sections = [
     title: "7. Retention and expiry",
     icon: Clock,
     content: [
-      "Some shared content may include an expiry option. When content expires, ToolverseX may remove it or make it unavailable.",
+      "Some shared content may include an expiry option. When content expires, Toolverse may remove it or make it unavailable.",
       "We may also delete inactive, expired, abusive, illegal, or unsupported content at any time.",
       "Local browser-first tool inputs are generally not retained by us unless a feature explicitly requires upload, storage, or link generation.",
     ],
@@ -112,7 +112,7 @@ const sections = [
     title: "8. Security",
     icon: LockKeyhole,
     content: [
-      "We use reasonable technical and organizational measures to protect ToolverseX and the data needed to operate it.",
+      "We use reasonable technical and organizational measures to protect Toolverse and the data needed to operate it.",
       "No online service can guarantee absolute security, so you should use caution when uploading or sharing content.",
       "If you believe you found a security issue or abusive content, please report it using the Report Abuse or Contact links.",
     ],
@@ -141,14 +141,14 @@ const sections = [
     content: [
       "We may update this Privacy Policy from time to time to reflect changes in our tools, practices, legal requirements, or operational needs.",
       "When we make changes, we will update the “Last updated” date on this page.",
-      "Your continued use of ToolverseX after changes are posted means you accept the updated policy.",
+      "Your continued use of Toolverse after changes are posted means you accept the updated policy.",
     ],
   },
   {
     title: "12. Contact",
     icon: Mail,
     content: [
-      "If you have questions about this Privacy Policy, want to report an issue, or need help with content removal, please contact ToolverseX through the Contact or Report Abuse pages.",
+      "If you have questions about this Privacy Policy, want to report an issue, or need help with content removal, please contact Toolverse through the Contact or Report Abuse pages.",
     ],
   },
 ];
@@ -174,7 +174,7 @@ export default function PrivacyPage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm">
-              ToolverseX is built around simple, fast, privacy-conscious tools.
+              Toolverse is built around simple, fast, privacy-conscious tools.
               This policy explains when data stays in your browser and when it
               may be stored to power sharing features.
             </div>
@@ -238,7 +238,7 @@ export default function PrivacyPage() {
         <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
           <p className="font-semibold text-white">Plain-language summary</p>
           <p className="mt-2 text-violet-100/80">
-            We aim to keep ToolverseX simple and privacy-friendly. Many tools
+            We aim to keep Toolverse simple and privacy-friendly. Many tools
             run in your browser. When you create public links or upload files,
             the content may be stored so those links can work. Do not share
             sensitive content unless you understand who can access the link.

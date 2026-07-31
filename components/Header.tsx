@@ -29,14 +29,14 @@ export function Header() {
           <span className="relative h-10 w-10 overflow-hidden rounded-xl bg-white">
             <Image
               src="/logo.png"
-              alt="ToolverseX logo"
+              alt="Toolverse logo"
               fill
               className="object-contain p-1"
               priority
             />
           </span>
 
-          <span className="truncate text-base sm:text-lg">ToolverseX</span>
+          <span className="truncate text-base sm:text-lg">Toolverse</span>
         </Link>
 
         <nav className="hidden items-center gap-1 text-sm text-slate-300 md:flex">

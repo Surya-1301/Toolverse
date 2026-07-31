@@ -15,9 +15,9 @@ import {
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "Contact | ToolverseX",
+  title: "Contact | Toolverse",
   description:
-    "Contact ToolverseX for support, feedback, bug reports, partnerships, or content-related questions.",
+    "Contact Toolverse for support, feedback, bug reports, partnerships, or content-related questions.",
 };
 
 const contactOptions = [
@@ -36,7 +36,7 @@ const contactOptions = [
   {
     title: "Product feedback",
     description:
-      "Share suggestions for improving ToolverseX or request new utilities.",
+      "Share suggestions for improving Toolverse or request new utilities.",
     icon: Sparkles,
   },
   {
@@ -80,7 +80,7 @@ export default function ContactPage() {
               </p>
 
               <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                Contact ToolverseX
+                Contact Toolverse
               </h1>
 
               <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400">
@@ -135,13 +135,13 @@ export default function ContactPage() {
           <div className="space-y-4 text-base leading-8 text-slate-300">
             <p>
               For general inquiries, support, feedback, or product questions,
-              contact the ToolverseX team using your preferred support channel.
+              contact the Toolverse team using your preferred support channel.
             </p>
 
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
               <p className="text-sm text-slate-500">Recommended email format</p>
               <p className="mt-1 break-all font-mono text-sm text-slate-200">
-                support@toolversex.com
+                support@Toolverse.com
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 Replace this address with your real support email before

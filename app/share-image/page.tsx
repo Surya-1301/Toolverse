@@ -54,7 +54,7 @@ function ShareImageContent() {
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
-    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+    document.title = "Toolverse - Your All-in-One Utility Hub.";
   }, []);
 
   useEffect(() => {

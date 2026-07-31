@@ -8,7 +8,7 @@ import {
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "ToolverseX - Free Online Tools for Developers and Creators",
+  title: "Toolverse - Free Online Tools for Developers and Creators",
   description:
     "Use free online tools like JSON Formatter, QR Generator, Image Compressor, Paste, URL Shortener, Image Host, and File Share.",
 };
@@ -50,7 +50,7 @@ export default function Home() {
         </h1>
 
         <p className="mx-auto mt-6 max-w-2xl text-base leading-8 text-slate-300 sm:text-lg">
-          ToolverseX gives developers, creators, and everyday users clean tools
+          Toolverse gives developers, creators, and everyday users clean tools
           for formatting, generating, compressing, hosting, sharing, and
           shortening.
         </p>

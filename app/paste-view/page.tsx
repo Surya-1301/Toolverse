@@ -1,71 +1,63 @@
 "use client";
 
-import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Check,
   Copy,
-  Download,
   ExternalLink,
+  FileText,
   Loader2,
   Plus,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
+import { apiUrl } from "@/lib/apiBase";
 
-type FileRecord = {
+type PasteRecord = {
   id: string;
-  originalName: string;
-  mimeType: string;
-  size: number;
+  content: string;
+  language: string;
   createdAt: string;
   expiresAt: string | null;
-  downloads: number;
-  downloadUrl?: string;
+  views: number;
 };
 
-type CopyType = "page" | "download" | "";
+type CopyType = "content" | "page" | "raw" | "";
 
-export default function FilePage() {
+export default function PasteViewPage() {
   return (
-    <Suspense fallback={<FileLoading />}>
-      <FileContent />
+    <Suspense fallback={<PasteViewLoading />}>
+      <PasteViewContent />
     </Suspense>
   );
 }
 
-function FileLoading() {
+function PasteViewLoading() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
         <div className="flex items-center gap-3 text-slate-400">
           <Loader2 className="h-5 w-5 animate-spin" />
-          Loading file...
+          Loading paste...
         </div>
       </div>
     </Container>
   );
 }
 
-function FileContent() {
+function PasteViewContent() {
   const searchParams = useSearchParams();
-  const fileId = searchParams.get("id") || "";
+  const pasteId = searchParams.get("id") || "";
 
-  const [file, setFile] = useState<FileRecord | null>(null);
+  const [paste, setPaste] = useState<PasteRecord | null>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
-    document.title = "Toolverse - Your All-in-One Utility Hub.";
-  }, []);
-
-  useEffect(() => {
-    async function loadFile() {
-      if (!fileId) {
-        setError("Missing file ID.");
+    async function loadPaste() {
+      if (!pasteId) {
+        setError("Missing paste ID.");
         setIsLoading(false);
         return;
       }
@@ -74,29 +66,29 @@ function FileContent() {
         setError("");
         setIsLoading(true);
 
-        const response = await fetch(apiUrl(`/api/file/${fileId}/meta`), {
+        const response = await fetch(apiUrl(`/api/paste/${pasteId}`), {
           cache: "no-store",
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          setError(data.error || "File not found.");
-          setFile(null);
+          setError(data.error || "Paste not found.");
+          setPaste(null);
           return;
         }
 
-        setFile(data);
+        setPaste(data);
       } catch {
-        setError("Could not load file.");
-        setFile(null);
+        setError("Could not load paste.");
+        setPaste(null);
       } finally {
         setIsLoading(false);
       }
     }
 
-    loadFile();
-  }, [fileId]);
+    loadPaste();
+  }, [pasteId]);
 
   function formatDate(value: string) {
     return new Intl.DateTimeFormat("en", {
@@ -110,20 +102,24 @@ function FileContent() {
     return formatDate(value);
   }
 
-  function getDownloadUrl() {
-    if (!fileId) return "";
-    return `${getApiBaseUrl()}/api/file/${fileId}/download`;
-  }
-
   function getPageUrl() {
     if (typeof window === "undefined") return "";
     return window.location.href;
   }
 
-  async function copyValue(type: CopyType) {
-    if (!file) return;
+  function getRawUrl() {
+    if (!pasteId) return "";
+    return apiUrl(`/raw/${pasteId}`);
+  }
 
-    const value = type === "page" ? getPageUrl() : getDownloadUrl();
+  async function copyValue(type: CopyType) {
+    if (!paste) return;
+
+    let value = "";
+
+    if (type === "content") value = paste.content;
+    if (type === "page") value = getPageUrl();
+    if (type === "raw") value = getRawUrl();
 
     if (!value) return;
 
@@ -135,122 +131,88 @@ function FileContent() {
     }, 1500);
   }
 
-  function downloadFile() {
-    if (!file) return;
-
-    const link = document.createElement("a");
-    link.href = getDownloadUrl();
-    link.download = file.originalName || file.id;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-
-  const isPdf = file?.mimeType === "application/pdf";
-
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-6xl">
         {isLoading ? (
-          <FileLoading />
+          <PasteViewLoading />
         ) : error ? (
           <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">
             {error}
           </div>
-        ) : file ? (
+        ) : paste ? (
           <>
             <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
               <div>
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                  {isPdf ? "Hosted PDF" : "Hosted File"}
+                  Paste
                 </h1>
 
                 <p className="mt-3 break-all text-sm text-slate-400">
-                  ID: {file.id}
+                  ID: {paste.id}
                 </p>
               </div>
 
               <div className="flex flex-wrap gap-3 lg:justify-end">
-                <Link
-                  href="/file-share"
+                <a
+                  href="/paste"
                   className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   <Plus className="h-4 w-4" />
-                  Upload new
-                </Link>
+                  New paste
+                </a>
 
                 <a
-                  href={getDownloadUrl()}
+                  href={getRawUrl()}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
                   <ExternalLink className="h-4 w-4" />
-                  Direct
+                  Raw
                 </a>
 
                 <button
-                  onClick={() => copyValue("page")}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  onClick={() => copyValue("content")}
+                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
-                  {copied === "page" ? (
+                  {copied === "content" ? (
                     <Check className="h-4 w-4" />
                   ) : (
                     <Copy className="h-4 w-4" />
                   )}
-                  {copied === "page" ? "Copied" : "Copy page"}
-                </button>
-
-                <button
-                  onClick={downloadFile}
-                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-                >
-                  <Download className="h-4 w-4" />
-                  {isPdf ? "Download PDF" : "Download file"}
+                  {copied === "content" ? "Copied" : "Copy content"}
                 </button>
               </div>
             </div>
 
             <div className="mb-5 flex flex-wrap gap-3 text-sm">
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {file.mimeType}
+                {paste.language}
               </span>
 
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {formatFileSize(file.size)}
+                Created: {formatDate(paste.createdAt)}
               </span>
 
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Created: {formatDate(file.createdAt)}
+                Expires: {formatExpiry(paste.expiresAt)}
               </span>
 
               <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Expires: {formatExpiry(file.expiresAt)}
-              </span>
-
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {file.downloads} downloads
+                {paste.views} views
               </span>
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <h2 className="break-all text-xl font-semibold text-white">
-                {file.originalName}
-              </h2>
+              <div className="mb-3 flex items-center gap-2 text-sm text-slate-400">
+                <FileText className="h-4 w-4" />
+                Content
+              </div>
 
-              <p className="mt-2 text-sm text-slate-400">
-                {isPdf
-                  ? "This PDF is ready to open or download."
-                  : "This file is ready to download."}
-              </p>
-
-              <button
-                onClick={downloadFile}
-                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-              >
-                <Download className="h-4 w-4" />
-                {isPdf ? "Download PDF" : "Download file"}
-              </button>
+              <pre className="max-h-[70vh] overflow-auto whitespace-pre-wrap break-words rounded-2xl bg-black/30 p-4 font-mono text-sm leading-6 text-slate-100">
+                {paste.content}
+              </pre>
             </div>
           </>
         ) : null}

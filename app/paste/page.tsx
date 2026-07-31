@@ -105,7 +105,7 @@ export default function PastePage() {
       });
 
       if (response.ok) {
-        window.open(`/paste/${alias}`, "_blank", "noopener,noreferrer");
+        window.open(`/paste-view?id=${alias}`, "_blank", "noopener,noreferrer");
         return;
       }
 
@@ -167,8 +167,8 @@ export default function PastePage() {
         return;
       }
 
-      const fullPasteUrl = `${window.location.origin}/paste/${data.id}`;
-      const fullRawUrl = apiUrl(`/raw/${data.id}`);
+     const fullPasteUrl = `${window.location.origin}/paste-view?id=${data.id}`;
+     const fullRawUrl = apiUrl(`/raw/${data.id}`);
 
       setResult(data);
       setPasteUrl(fullPasteUrl);

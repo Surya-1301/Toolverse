@@ -1,6 +1,6 @@
 import crypto from "crypto";
 
-const secret = process.env.PASTE_PASSWORD_SECRET || "ToolverseX-local-secret";
+const secret = process.env.PASTE_PASSWORD_SECRET || "Toolverse-local-secret";
 
 export function hashEditPassword(password: string) {
   return crypto
