@@ -19,7 +19,7 @@ type Mode = "image" | "pdf";
 
 const PDF_API_BASE_URL = (
   process.env.NEXT_PUBLIC_PDF_API_BASE_URL ||
-  "https://toolversex-pdf-api.onrender.com"
+  "https://toolverse-pdf-api.onrender.com"
 ).replace(/\/$/, "");
 
 export default function ImageCompressorPage() {
