@@ -141,7 +141,7 @@ export default function ContactPage() {
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
               <p className="text-sm text-slate-500">Recommended email format</p>
               <p className="mt-1 break-all font-mono text-sm text-slate-200">
-                suppport.toolveree@gmail.com
+                suppport.toolversee@gmail.com
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 Replace this address with your real support email before
