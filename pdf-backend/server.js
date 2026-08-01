@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 const ALLOWED_ORIGINS = [
-  "https://toolverse.pages.dev",
+  "https://toolversee.pages.dev",
   "http://localhost:3000",
   "http://localhost:3001",
 ];
@@ -38,68 +38,64 @@ app.use(
   }),
 );
 
-app.use(express.json({ limit: "2mb" }));
-
-const diskStorage = multer.diskStorage({
-  destination: async function (_req, _file, callback) {
-    const uploadDir = path.join(os.tmpdir(), "Toolverse-pdf-uploads");
-
-    try {
-      await fsp.mkdir(uploadDir, { recursive: true });
-      callback(null, uploadDir);
-    } catch (error) {
-      callback(error);
-    }
-  },
-  filename: function (_req, file, callback) {
-    const id = crypto.randomBytes(16).toString("hex");
-    const safeOriginalName =
-      path
-        .basename(file.originalname || "document.pdf")
-        .replace(/[^a-zA-Z0-9._-]/g, "-")
-        .slice(0, 80) || "document.pdf";
-
-    callback(null, `${id}-${safeOriginalName}`);
-  },
-});
-
-function pdfFileFilter(_req, file, callback) {
-  const isPdf =
-    file.mimetype === "application/pdf" ||
-    file.originalname.toLowerCase().endsWith(".pdf");
-
-  if (!isPdf) {
-    callback(new Error("Only PDF files are allowed."));
-    return;
-  }
-
-  callback(null, true);
-}
+app.use(express.json({ limit: "1mb" }));
 
 const upload = multer({
-  storage: diskStorage,
+  storage: multer.diskStorage({
+    destination: async function (_req, _file, callback) {
+      const uploadDir = path.join(os.tmpdir(), "toolversex-pdf-uploads");
+
+      try {
+        await fsp.mkdir(uploadDir, { recursive: true });
+        callback(null, uploadDir);
+      } catch (error) {
+        callback(error);
+      }
+    },
+    filename: function (_req, file, callback) {
+      const id = crypto.randomBytes(16).toString("hex");
+      const safeOriginalName =
+        path
+          .basename(file.originalname || "document.pdf")
+          .replace(/[^a-zA-Z0-9._-]/g, "-")
+          .slice(0, 80) || "document.pdf";
+
+      callback(null, `${id}-${safeOriginalName}`);
+    },
+  }),
   limits: {
     fileSize: 50 * 1024 * 1024,
     files: 1,
   },
-  fileFilter: pdfFileFilter,
-});
+  fileFilter: function (_req, file, callback) {
+    const isPdf =
+      file.mimetype === "application/pdf" ||
+      file.originalname.toLowerCase().endsWith(".pdf");
 
-const compareUpload = multer({
-  storage: diskStorage,
-  limits: {
-    fileSize: 50 * 1024 * 1024,
-    files: 2,
+    if (!isPdf) {
+      callback(new Error("Only PDF files are allowed."));
+      return;
+    }
+
+    callback(null, true);
   },
-  fileFilter: pdfFileFilter,
 });
 
 function getPdfSettings(quality) {
   const value = Number(quality);
 
-  if (Number.isNaN(value)) return "/ebook";
-  if (value >= 0.85) return "/printer";
-  if (value >= 0.6) return "/ebook";
+  if (Number.isNaN(value)) {
+    return "/ebook";
+  }
+
+  if (value >= 0.85) {
+    return "/printer";
+  }
+
+  if (value >= 0.6) {
+    return "/ebook";
+  }
+
   return "/screen";
 }
 
@@ -107,60 +103,42 @@ function getImageResolution(quality) {
   const value = Number(quality);
 
   if (Number.isNaN(value)) {
-    return { color: "120", gray: "120", mono: "150" };
+    return {
+      color: "120",
+      gray: "120",
+      mono: "150",
+    };
   }
 
   if (value >= 0.85) {
-    return { color: "220", gray: "220", mono: "300" };
+    return {
+      color: "220",
+      gray: "220",
+      mono: "300",
+    };
   }
 
   if (value >= 0.6) {
-    return { color: "150", gray: "150", mono: "200" };
+    return {
+      color: "150",
+      gray: "150",
+      mono: "200",
+    };
   }
 
   if (value >= 0.35) {
-    return { color: "100", gray: "100", mono: "150" };
+    return {
+      color: "100",
+      gray: "100",
+      mono: "150",
+    };
   }
 
-  return { color: "72", gray: "72", mono: "100" };
-}
-
-function sanitizeBaseName(originalName) {
-  return (
-    path
-      .basename(originalName || "document.pdf")
-      .replace(/\.pdf$/i, "")
-      .replace(/[^a-zA-Z0-9._-]/g, "-")
-      .slice(0, 80) || "document"
-  );
-}
-
-function getCompressedDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}-compressed.pdf`;
-}
-
-function getMarkdownDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}.md`;
-}
-
-function getOcrDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}-ocr.md`;
-}
-
-function getProtectedDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}-protected.pdf`;
-}
-
-function getUnlockedDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}-unlocked.pdf`;
-}
-
-function getRepairedDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}-repaired.pdf`;
-}
-
-function getRedactedDownloadFileName(originalName) {
-  return `${sanitizeBaseName(originalName)}-redacted.pdf`;
+  return {
+    color: "72",
+    gray: "72",
+    mono: "100",
+  };
 }
 
 function compressWithGhostscript(inputPath, outputPath, quality) {
@@ -174,233 +152,218 @@ function compressWithGhostscript(inputPath, outputPath, quality) {
     "-dNOPAUSE",
     "-dQUIET",
     "-dBATCH",
+
     "-dDetectDuplicateImages=true",
     "-dCompressFonts=true",
     "-dSubsetFonts=true",
     "-dEmbedAllFonts=true",
+
     "-dAutoRotatePages=/None",
+
     "-dColorImageDownsampleType=/Bicubic",
     `-dColorImageResolution=${resolution.color}`,
     "-dGrayImageDownsampleType=/Bicubic",
     `-dGrayImageResolution=${resolution.gray}`,
     "-dMonoImageDownsampleType=/Subsample",
     `-dMonoImageResolution=${resolution.mono}`,
+
     "-dColorImageDownsampleThreshold=1.0",
     "-dGrayImageDownsampleThreshold=1.0",
     "-dMonoImageDownsampleThreshold=1.0",
+
     `-sOutputFile=${outputPath}`,
     inputPath,
   ];
 
-  return runCommand("gs", args, 120000, "Ghostscript PDF compression failed.");
-}
-
-function convertPdfToMarkdown(inputPath, outputPath) {
-  const pythonScript = `
-from pathlib import Path
-import sys
-from markitdown import MarkItDown
-
-input_path = sys.argv[1]
-output_path = sys.argv[2]
-
-md = MarkItDown()
-result = md.convert(input_path)
-text = getattr(result, "text_content", None) or str(result)
-
-Path(output_path).write_text(text, encoding="utf-8")
-`.trim();
-
-  return runCommand(
-    "python3",
-    ["-c", pythonScript, inputPath, outputPath],
-    120000,
-    "PDF to Markdown conversion failed.",
-  );
-}
-
-function ocrPdfToMarkdown(inputPath, outputPath) {
-  const pythonScript = `
-from pathlib import Path
-import sys
-from pdf2image import convert_from_path
-import pytesseract
-
-input_path = sys.argv[1]
-output_path = sys.argv[2]
-
-images = convert_from_path(input_path, dpi=200)
-parts = []
-
-for index, image in enumerate(images, start=1):
-    text = pytesseract.image_to_string(image, lang="eng").strip()
-    heading = f"## Page {index}"
-    parts.append(f"{heading}\\n\\n{text}" if text else f"{heading}\\n")
-
-output = "\\n\\n---\\n\\n".join(parts).strip()
-
-if not output:
-    output = "No OCR text could be extracted from this PDF."
-
-Path(output_path).write_text(output, encoding="utf-8")
-`.trim();
-
-  return runCommand(
-    "python3",
-    ["-c", pythonScript, inputPath, outputPath],
-    240000,
-    "OCR PDF conversion failed.",
-  );
-}
-
-function protectPdfWithQpdf(inputPath, outputPath, userPassword, ownerPassword) {
-  const args = [
-    "--encrypt",
-    userPassword,
-    ownerPassword,
-    "256",
-    "--",
-    inputPath,
-    outputPath,
-  ];
-
-  return runCommand("qpdf", args, 120000, "PDF protection failed.");
-}
-
-function unlockPdfWithQpdf(inputPath, outputPath, password) {
-  const args = [`--password=${password}`, "--decrypt", inputPath, outputPath];
-  return runCommand("qpdf", args, 120000, "PDF unlock failed.");
-}
-
-function repairPdfWithQpdf(inputPath, outputPath) {
-  const args = ["--linearize", inputPath, outputPath];
-  return runCommand("qpdf", args, 120000, "PDF repair failed.");
-}
-
-function comparePdfs(firstPath, secondPath, outputPath) {
-  const pythonScript = `
-from pathlib import Path
-import json
-import sys
-import difflib
-import fitz
-
-first_path = sys.argv[1]
-second_path = sys.argv[2]
-output_path = sys.argv[3]
-
-def extract_pages(file_path):
-    doc = fitz.open(file_path)
-    pages = []
-    for page in doc:
-        pages.append(page.get_text("text").strip())
-    doc.close()
-    return pages
-
-first_pages = extract_pages(first_path)
-second_pages = extract_pages(second_path)
-
-max_pages = max(len(first_pages), len(second_pages))
-page_results = []
-changed_pages = 0
-
-for index in range(max_pages):
-    left = first_pages[index] if index < len(first_pages) else ""
-    right = second_pages[index] if index < len(second_pages) else ""
-    identical = left == right
-    ratio = difflib.SequenceMatcher(None, left, right).ratio() if (left or right) else 1.0
-
-    diff_lines = []
-    if not identical:
-        changed_pages += 1
-        diff_lines = list(
-            difflib.unified_diff(
-                left.splitlines(),
-                right.splitlines(),
-                fromfile="first",
-                tofile="second",
-                lineterm=""
-            )
-        )[:120]
-
-    page_results.append({
-        "page": index + 1,
-        "identical": identical,
-        "similarity": round(ratio, 4),
-        "firstLength": len(left),
-        "secondLength": len(right),
-        "diffPreview": diff_lines,
-    })
-
-result = {
-    "identical": len(first_pages) == len(second_pages) and changed_pages == 0,
-    "firstPageCount": len(first_pages),
-    "secondPageCount": len(second_pages),
-    "changedPages": changed_pages,
-    "pages": page_results,
-}
-
-Path(output_path).write_text(json.dumps(result), encoding="utf-8")
-`.trim();
-
-  return runCommand(
-    "python3",
-    ["-c", pythonScript, firstPath, secondPath, outputPath],
-    240000,
-    "PDF comparison failed.",
-  );
-}
-
-function redactPdfTerms(inputPath, outputPath, terms) {
-  const pythonScript = `
-from pathlib import Path
-import json
-import sys
-import fitz
-
-input_path = sys.argv[1]
-output_path = sys.argv[2]
-terms_json = sys.argv[3]
-
-terms = json.loads(terms_json)
-terms = [str(term).strip() for term in terms if str(term).strip()]
-
-if not terms:
-    raise ValueError("No redaction terms provided.")
-
-doc = fitz.open(input_path)
-
-for page in doc:
-    for term in terms:
-        rects = page.search_for(term)
-        for rect in rects:
-            page.add_redact_annot(rect, fill=(0, 0, 0))
-    page.apply_redactions()
-
-doc.save(output_path, garbage=4, deflate=True)
-doc.close()
-`.trim();
-
-  return runCommand(
-    "python3",
-    ["-c", pythonScript, inputPath, outputPath, JSON.stringify(terms)],
-    240000,
-    "PDF redaction failed.",
-  );
-}
-
-function runCommand(binary, args, timeout, fallbackMessage) {
   return new Promise((resolve, reject) => {
-    execFile(binary, args, { timeout }, (error, stdout, stderr) => {
+    execFile("gs", args, { timeout: 120000 }, (error, stdout, stderr) => {
       if (error) {
         reject(
-          new Error(stderr || stdout || error.message || fallbackMessage),
+          new Error(
+            stderr ||
+              stdout ||
+              error.message ||
+              "Ghostscript PDF compression failed.",
+          ),
         );
         return;
       }
 
       resolve();
     });
+  });
+}
+
+function pdfToExcel(inputPath, outputPath) {
+  const pyScript = `
+import re
+import sys
+import fitz
+from openpyxl import Workbook
+
+input_path = sys.argv[1]
+output_path = sys.argv[2]
+
+def safe_sheet_name(name):
+    name = re.sub(r'[\\\\/*?:\\[\\]]', "-", name).strip()
+    return (name or "Sheet")[:31]
+
+doc = fitz.open(input_path)
+wb = Workbook()
+default_sheet = wb.active
+wb.remove(default_sheet)
+
+for page_index, page in enumerate(doc):
+    sheet = wb.create_sheet(safe_sheet_name(f"Page {page_index + 1}"))
+    wrote_data = False
+
+    try:
+        tables_result = page.find_tables()
+        tables = getattr(tables_result, "tables", []) if tables_result else []
+
+        current_row = 1
+        for table in tables:
+            extracted = table.extract() or []
+            if not extracted:
+                continue
+
+            for row_values in extracted:
+                for col_index, cell_value in enumerate(row_values, start=1):
+                    sheet.cell(current_row, col_index, "" if cell_value is None else str(cell_value))
+                current_row += 1
+
+            current_row += 2
+            wrote_data = True
+    except Exception:
+        pass
+
+    if not wrote_data:
+        text = page.get_text("text").strip()
+        lines = [line.strip() for line in text.splitlines() if line.strip()]
+
+        if not lines:
+            sheet["A1"] = "No extractable text found on this page."
+            continue
+
+        for row_index, line in enumerate(lines, start=1):
+            parts = [part.strip() for part in re.split(r'\\t|\\s{2,}', line) if part.strip()]
+            if len(parts) <= 1:
+                sheet.cell(row_index, 1, line)
+            else:
+                for col_index, value in enumerate(parts, start=1):
+                    sheet.cell(row_index, col_index, value)
+
+wb.save(output_path)
+`.trim();
+
+  return new Promise((resolve, reject) => {
+    execFile(
+      "python3",
+      ["-c", pyScript, inputPath, outputPath],
+      { timeout: 240000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "PDF to Excel conversion failed.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      },
+    );
+  });
+}
+
+function pdfToPowerPoint(inputPath, outputPath) {
+  const pyScript = `
+import io
+import os
+import re
+import sys
+import fitz
+import tempfile
+from PIL import Image
+from pptx import Presentation
+
+input_path = sys.argv[1]
+output_path = sys.argv[2]
+
+prs = Presentation()
+prs.slide_width = 12192000
+prs.slide_height = 6858000
+blank_layout = prs.slide_layouts[6]
+
+doc = fitz.open(input_path)
+temp_files = []
+
+try:
+    for page_index, page in enumerate(doc):
+        pix = page.get_pixmap(matrix=fitz.Matrix(2, 2), alpha=False)
+        png_bytes = pix.tobytes("png")
+
+        image = Image.open(io.BytesIO(png_bytes))
+        img_width, img_height = image.size
+
+        slide = prs.slides.add_slide(blank_layout)
+
+        max_width = prs.slide_width
+        max_height = prs.slide_height
+        scale = min(max_width / img_width, max_height / img_height)
+
+        width = int(img_width * scale)
+        height = int(img_height * scale)
+        left = int((max_width - width) / 2)
+        top = int((max_height - height) / 2)
+
+        fd, temp_path = tempfile.mkstemp(suffix=f"-page-{page_index + 1}.png")
+        os.close(fd)
+
+        with open(temp_path, "wb") as file_obj:
+            file_obj.write(png_bytes)
+
+        temp_files.append(temp_path)
+        slide.shapes.add_picture(temp_path, left, top, width=width, height=height)
+
+    if len(prs.slides) == 0:
+        prs.slides.add_slide(blank_layout)
+
+    prs.save(output_path)
+finally:
+    doc.close()
+    for temp_path in temp_files:
+        try:
+            os.remove(temp_path)
+        except OSError:
+            pass
+`.trim();
+
+  return new Promise((resolve, reject) => {
+    execFile(
+      "python3",
+      ["-c", pyScript, inputPath, outputPath],
+      { timeout: 240000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "PDF to PowerPoint conversion failed.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      },
+    );
   });
 }
 
@@ -414,52 +377,40 @@ async function safeDelete(filePath) {
   }
 }
 
-function streamFileResponse({
-  res,
-  filePath,
-  contentType,
-  downloadName,
-  extraHeaders = {},
-  cleanupPaths = [],
-}) {
-  res.setHeader("Content-Type", contentType);
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="${downloadName}"`,
-  );
-  res.setHeader("Cache-Control", "no-store");
+function getDownloadFileName(originalName) {
+  const baseName = path
+    .basename(originalName || "document.pdf")
+    .replace(/\\.pdf$/i, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .slice(0, 80);
 
-  for (const [key, value] of Object.entries(extraHeaders)) {
-    res.setHeader(key, value);
-  }
+  return `${baseName || "document"}-compressed.pdf`;
+}
 
-  const stream = fs.createReadStream(filePath);
+function getExcelDownloadFileName(originalName) {
+  const baseName = path
+    .basename(originalName || "document.pdf")
+    .replace(/\\.pdf$/i, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .slice(0, 80);
 
-  stream.on("close", async () => {
-    await Promise.all(cleanupPaths.map((item) => safeDelete(item)));
-  });
+  return `${baseName || "document"}.xlsx`;
+}
 
-  stream.on("error", async () => {
-    await Promise.all(cleanupPaths.map((item) => safeDelete(item)));
-  });
+function getPowerPointDownloadFileName(originalName) {
+  const baseName = path
+    .basename(originalName || "document.pdf")
+    .replace(/\\.pdf$/i, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .slice(0, 80);
 
-  stream.pipe(res);
+  return `${baseName || "document"}.pptx`;
 }
 
 app.get("/", (_req, res) => {
   res.json({
-    name: "Toolverse PDF API",
+    name: "ToolverseX PDF API",
     status: "ok",
-    routes: [
-      "/api/pdf/compress",
-      "/api/pdf/to-markdown",
-      "/api/pdf/ocr",
-      "/api/pdf/protect",
-      "/api/pdf/unlock",
-      "/api/pdf/repair",
-      "/api/pdf/compare",
-      "/api/pdf/redact",
-    ],
   });
 });
 
@@ -475,7 +426,9 @@ app.post("/api/pdf/compress", upload.single("file"), async (req, res) => {
 
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
     }
 
     inputPath = req.file.path;
@@ -493,27 +446,44 @@ app.post("/api/pdf/compress", upload.single("file"), async (req, res) => {
 
     const originalSize = originalStats.size;
     const compressedSize = compressedStats.size;
+
     const shouldUseCompressed = compressedSize < originalSize;
 
     const fileToSend = shouldUseCompressed ? outputPath : inputPath;
+    const downloadName = getDownloadFileName(req.file.originalname);
 
-    return streamFileResponse({
-      res,
-      filePath: fileToSend,
-      contentType: "application/pdf",
-      downloadName: getCompressedDownloadFileName(req.file.originalname),
-      extraHeaders: {
-        "X-Original-Size": String(originalSize),
-        "X-Compressed-Size": String(compressedSize),
-        "X-Compression-Used": shouldUseCompressed ? "compressed" : "original",
-      },
-      cleanupPaths: [inputPath, outputPath],
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${downloadName}"`,
+    );
+    res.setHeader("X-Original-Size", String(originalSize));
+    res.setHeader("X-Compressed-Size", String(compressedSize));
+    res.setHeader(
+      "X-Compression-Used",
+      shouldUseCompressed ? "compressed" : "original",
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(fileToSend);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
     });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
   } catch (error) {
     await safeDelete(inputPath);
     await safeDelete(outputPath);
 
     console.error(error);
+
     res.status(500).json({
       error:
         error instanceof Error
@@ -523,318 +493,124 @@ app.post("/api/pdf/compress", upload.single("file"), async (req, res) => {
   }
 });
 
-app.post("/api/pdf/to-markdown", upload.single("file"), async (req, res) => {
+app.post("/api/pdf/to-excel", upload.single("file"), async (req, res) => {
   let inputPath = "";
   let outputPath = "";
 
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
     }
 
     inputPath = req.file.path;
     outputPath = path.join(
       path.dirname(inputPath),
-      `${crypto.randomBytes(16).toString("hex")}.md`,
+      `${crypto.randomBytes(16).toString("hex")}.xlsx`,
     );
 
-    await convertPdfToMarkdown(inputPath, outputPath);
+    await pdfToExcel(inputPath, outputPath);
 
-    const markdown = await fsp.readFile(outputPath, "utf8");
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted Excel file was not created.");
+    }
 
-    res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${getMarkdownDownloadFileName(req.file.originalname)}"`,
+      `attachment; filename="${getExcelDownloadFileName(req.file.originalname)}"`,
     );
     res.setHeader("Cache-Control", "no-store");
-    res.send(markdown);
 
-    await safeDelete(inputPath);
-    await safeDelete(outputPath);
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
   } catch (error) {
     await safeDelete(inputPath);
     await safeDelete(outputPath);
 
     console.error(error);
+
     res.status(500).json({
       error:
         error instanceof Error
           ? error.message
-          : "Could not convert this PDF to Markdown.",
+          : "Could not convert this PDF to Excel.",
     });
   }
 });
 
-app.post("/api/pdf/ocr", upload.single("file"), async (req, res) => {
+app.post("/api/pdf/to-powerpoint", upload.single("file"), async (req, res) => {
   let inputPath = "";
   let outputPath = "";
 
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
     }
 
     inputPath = req.file.path;
     outputPath = path.join(
       path.dirname(inputPath),
-      `${crypto.randomBytes(16).toString("hex")}-ocr.md`,
+      `${crypto.randomBytes(16).toString("hex")}.pptx`,
     );
 
-    await ocrPdfToMarkdown(inputPath, outputPath);
+    await pdfToPowerPoint(inputPath, outputPath);
 
-    const markdown = await fsp.readFile(outputPath, "utf8");
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted PowerPoint file was not created.");
+    }
 
-    res.setHeader("Content-Type", "text/markdown; charset=utf-8");
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="${getOcrDownloadFileName(req.file.originalname)}"`,
+      `attachment; filename="${getPowerPointDownloadFileName(req.file.originalname)}"`,
     );
     res.setHeader("Cache-Control", "no-store");
-    res.send(markdown);
 
-    await safeDelete(inputPath);
-    await safeDelete(outputPath);
-  } catch (error) {
-    await safeDelete(inputPath);
-    await safeDelete(outputPath);
+    const stream = fs.createReadStream(outputPath);
 
-    console.error(error);
-    res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Could not OCR this PDF.",
-    });
-  }
-});
-
-app.post("/api/pdf/protect", upload.single("file"), async (req, res) => {
-  let inputPath = "";
-  let outputPath = "";
-
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
-    }
-
-    const userPassword = String(req.body.password || "").trim();
-    const nextOwnerPassword = String(req.body.ownerPassword || userPassword).trim();
-
-    if (!userPassword) {
-      return res.status(400).json({ error: "Password is required." });
-    }
-
-    if (userPassword.length < 4) {
-      return res
-        .status(400)
-        .json({ error: "Password must be at least 4 characters long." });
-    }
-
-    inputPath = req.file.path;
-    outputPath = path.join(
-      path.dirname(inputPath),
-      `${crypto.randomBytes(16).toString("hex")}-protected.pdf`,
-    );
-
-    await protectPdfWithQpdf(
-      inputPath,
-      outputPath,
-      userPassword,
-      nextOwnerPassword,
-    );
-
-    return streamFileResponse({
-      res,
-      filePath: outputPath,
-      contentType: "application/pdf",
-      downloadName: getProtectedDownloadFileName(req.file.originalname),
-      cleanupPaths: [inputPath, outputPath],
-    });
-  } catch (error) {
-    await safeDelete(inputPath);
-    await safeDelete(outputPath);
-
-    console.error(error);
-    res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Could not protect this PDF.",
-    });
-  }
-});
-
-app.post("/api/pdf/unlock", upload.single("file"), async (req, res) => {
-  let inputPath = "";
-  let outputPath = "";
-
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
-    }
-
-    const password = String(req.body.password || "").trim();
-
-    if (!password) {
-      return res.status(400).json({ error: "Password is required." });
-    }
-
-    inputPath = req.file.path;
-    outputPath = path.join(
-      path.dirname(inputPath),
-      `${crypto.randomBytes(16).toString("hex")}-unlocked.pdf`,
-    );
-
-    await unlockPdfWithQpdf(inputPath, outputPath, password);
-
-    return streamFileResponse({
-      res,
-      filePath: outputPath,
-      contentType: "application/pdf",
-      downloadName: getUnlockedDownloadFileName(req.file.originalname),
-      cleanupPaths: [inputPath, outputPath],
-    });
-  } catch (error) {
-    await safeDelete(inputPath);
-    await safeDelete(outputPath);
-
-    console.error(error);
-    res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Could not unlock this PDF.",
-    });
-  }
-});
-
-app.post("/api/pdf/repair", upload.single("file"), async (req, res) => {
-  let inputPath = "";
-  let outputPath = "";
-
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
-    }
-
-    inputPath = req.file.path;
-    outputPath = path.join(
-      path.dirname(inputPath),
-      `${crypto.randomBytes(16).toString("hex")}-repaired.pdf`,
-    );
-
-    await repairPdfWithQpdf(inputPath, outputPath);
-
-    return streamFileResponse({
-      res,
-      filePath: outputPath,
-      contentType: "application/pdf",
-      downloadName: getRepairedDownloadFileName(req.file.originalname),
-      cleanupPaths: [inputPath, outputPath],
-    });
-  } catch (error) {
-    await safeDelete(inputPath);
-    await safeDelete(outputPath);
-
-    console.error(error);
-    res.status(500).json({
-      error:
-        error instanceof Error ? error.message : "Could not repair this PDF.",
-    });
-  }
-});
-
-app.post(
-  "/api/pdf/compare",
-  compareUpload.fields([
-    { name: "firstFile", maxCount: 1 },
-    { name: "secondFile", maxCount: 1 },
-  ]),
-  async (req, res) => {
-    let firstPath = "";
-    let secondPath = "";
-    let outputPath = "";
-
-    try {
-      const firstFile = req.files?.firstFile?.[0];
-      const secondFile = req.files?.secondFile?.[0];
-
-      if (!firstFile || !secondFile) {
-        return res.status(400).json({
-          error: "Both firstFile and secondFile are required.",
-        });
-      }
-
-      firstPath = firstFile.path;
-      secondPath = secondFile.path;
-      outputPath = path.join(
-        path.dirname(firstPath),
-        `${crypto.randomBytes(16).toString("hex")}-compare.json`,
-      );
-
-      await comparePdfs(firstPath, secondPath, outputPath);
-
-      const json = await fsp.readFile(outputPath, "utf8");
-      const result = JSON.parse(json);
-
-      await safeDelete(firstPath);
-      await safeDelete(secondPath);
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
       await safeDelete(outputPath);
-
-      return res.json(result);
-    } catch (error) {
-      await safeDelete(firstPath);
-      await safeDelete(secondPath);
-      await safeDelete(outputPath);
-
-      console.error(error);
-      res.status(500).json({
-        error:
-          error instanceof Error ? error.message : "Could not compare PDFs.",
-      });
-    }
-  },
-);
-
-app.post("/api/pdf/redact", upload.single("file"), async (req, res) => {
-  let inputPath = "";
-  let outputPath = "";
-
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: "PDF file is required." });
-    }
-
-    const rawTerms = String(req.body.terms || "");
-    const terms = rawTerms
-      .split(/\r?\n|,/)
-      .map((term) => term.trim())
-      .filter(Boolean);
-
-    if (!terms.length) {
-      return res.status(400).json({
-        error: "At least one redaction term is required.",
-      });
-    }
-
-    inputPath = req.file.path;
-    outputPath = path.join(
-      path.dirname(inputPath),
-      `${crypto.randomBytes(16).toString("hex")}-redacted.pdf`,
-    );
-
-    await redactPdfTerms(inputPath, outputPath, terms);
-
-    return streamFileResponse({
-      res,
-      filePath: outputPath,
-      contentType: "application/pdf",
-      downloadName: getRedactedDownloadFileName(req.file.originalname),
-      cleanupPaths: [inputPath, outputPath],
     });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
   } catch (error) {
     await safeDelete(inputPath);
     await safeDelete(outputPath);
 
     console.error(error);
+
     res.status(500).json({
       error:
-        error instanceof Error ? error.message : "Could not redact this PDF.",
+        error instanceof Error
+          ? error.message
+          : "Could not convert this PDF to PowerPoint.",
     });
   }
 });
