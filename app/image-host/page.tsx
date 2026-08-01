@@ -3,6 +3,8 @@
 import { useState } from "react";
 import {
   Check,
+  Clock,
+  Code2,
   Copy,
   Eraser,
   ExternalLink,
@@ -11,11 +13,9 @@ import {
   Upload,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { PageHeader } from "@/components/PageHeader";
-import { formatFileSize } from "@/lib/formatFileSize";
-import { Clock, Code2 } from "lucide-react";
 import { HowToUse } from "@/components/HowToUse";
-import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
+import { formatFileSize } from "@/lib/formatFileSize";
+import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -93,24 +93,47 @@ export default function ImageHostPage() {
         body: formData,
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+
+      let data: (UploadResult & { error?: string }) | null = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
 
       if (!response.ok) {
-        setError(data.error || "Could not upload image.");
+        setError(
+          data?.error ||
+            responseText ||
+            `Could not upload image. Backend returned ${response.status}.`,
+        );
+        return;
+      }
+
+      if (!data?.id) {
+        setError("Upload succeeded but no image ID was returned.");
         return;
       }
 
       const frontendOrigin = window.location.origin;
       const backendOrigin = getApiBaseUrl();
 
-      const fullPageUrl = `${frontendOrigin}/i/${data.id}`;
+      const fullPageUrl = `${frontendOrigin}/image?id=${data.id}`;
       const fullDirectUrl = `${backendOrigin}/api/image/${data.id}/direct`;
 
       setResult(data);
       setPageUrl(fullPageUrl);
       setDirectUrl(fullDirectUrl);
-    } catch {
-      setError("Could not upload image. Please try again.");
+    } catch (caughtError) {
+      console.error(caughtError);
+
+      setError(
+        caughtError instanceof Error
+          ? `Could not upload image: ${caughtError.message}`
+          : "Could not upload image. Please check your backend Worker URL.",
+      );
     } finally {
       setIsUploading(false);
     }
@@ -180,6 +203,7 @@ export default function ImageHostPage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Host
         </h1>
+
         <p className="mt-4 text-base leading-7 text-slate-400">
           Upload images and get clean shareable links instantly.
         </p>
@@ -193,11 +217,13 @@ export default function ImageHostPage() {
 
           <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
             <Upload className="mb-3 h-8 w-8 text-violet-300" />
+
             <span className="font-medium text-white">
               Click to choose image
             </span>
+
             <span className="mt-2 text-sm text-slate-500">
-              JPG, PNG, WebP, GIF up to 10 MB
+              JPG, PNG, WebP, GIF up to 25 MB
             </span>
 
             <input
@@ -213,9 +239,11 @@ export default function ImageHostPage() {
               <p className="break-all text-sm font-medium text-white">
                 {file.name}
               </p>
+
               <p className="mt-1 text-sm text-slate-400">
                 Size: {formatFileSize(file.size)}
               </p>
+
               <p className="mt-1 text-sm text-slate-400">
                 Type: {file.type || "Unknown"}
               </p>
@@ -248,9 +276,10 @@ export default function ImageHostPage() {
 
           <div className="mt-5 flex flex-wrap gap-3">
             <button
+              type="button"
               onClick={uploadImage}
               disabled={!file || isUploading}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -261,8 +290,9 @@ export default function ImageHostPage() {
             </button>
 
             <button
+              type="button"
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -273,6 +303,7 @@ export default function ImageHostPage() {
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold">Preview</h2>
+
             {result ? (
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
                 Uploaded
@@ -332,6 +363,7 @@ export default function ImageHostPage() {
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <button
+                  type="button"
                   onClick={() => copyValue("page")}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
@@ -344,6 +376,7 @@ export default function ImageHostPage() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => copyValue("direct")}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
@@ -356,6 +389,7 @@ export default function ImageHostPage() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => copyValue("markdown")}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
@@ -368,6 +402,7 @@ export default function ImageHostPage() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => copyValue("html")}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
@@ -419,6 +454,7 @@ export default function ImageHostPage() {
       </div>
 
       <HowToUse
+        title="How to use Image Host"
         subtitle=""
         steps={[
           {

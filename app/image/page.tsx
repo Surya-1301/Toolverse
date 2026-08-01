@@ -62,7 +62,7 @@ function ImageContent() {
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
-    document.title = "Toolverse - Your All-in-One Utility Hub.";
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
   }, []);
 
   useEffect(() => {
@@ -82,17 +82,40 @@ function ImageContent() {
           cache: "no-store",
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+
+        let data: (ImageRecord & { error?: string }) | null = null;
+
+        try {
+          data = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          data = null;
+        }
 
         if (!response.ok) {
-          setError(data.error || "Image not found.");
+          setError(
+            data?.error ||
+              responseText ||
+              `Could not load image. Backend returned ${response.status}.`,
+          );
+          setImage(null);
+          return;
+        }
+
+        if (!data) {
+          setError("Image not found.");
           setImage(null);
           return;
         }
 
         setImage(data);
-      } catch {
-        setError("Could not load image.");
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError(
+          caughtError instanceof Error
+            ? `Could not load image: ${caughtError.message}`
+            : "Could not load image.",
+        );
         setImage(null);
       } finally {
         setIsLoading(false);
@@ -203,6 +226,7 @@ function ImageContent() {
                 </a>
 
                 <button
+                  type="button"
                   onClick={() => copyValue("page")}
                   className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
@@ -215,6 +239,7 @@ function ImageContent() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={downloadImage}
                   className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
@@ -270,6 +295,7 @@ function ImageContent() {
 
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <button
+                type="button"
                 onClick={() => copyValue("page")}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
@@ -282,6 +308,7 @@ function ImageContent() {
               </button>
 
               <button
+                type="button"
                 onClick={() => copyValue("markdown")}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >
@@ -294,6 +321,7 @@ function ImageContent() {
               </button>
 
               <button
+                type="button"
                 onClick={() => copyValue("html")}
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
               >

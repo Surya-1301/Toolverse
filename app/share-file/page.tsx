@@ -48,7 +48,7 @@ function ShareFileContent() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "Toolverse - Your All-in-One Utility Hub.";
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
   }, []);
 
   useEffect(() => {
@@ -67,17 +67,40 @@ function ShareFileContent() {
           cache: "no-store",
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+
+        let data: (FileRecord & { error?: string }) | null = null;
+
+        try {
+          data = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          data = null;
+        }
 
         if (!response.ok) {
-          setError(data.error || "File not found.");
+          setError(
+            data?.error ||
+              responseText ||
+              `Could not load file. Backend returned ${response.status}.`,
+          );
+          setFile(null);
+          return;
+        }
+
+        if (!data) {
+          setError("File not found.");
           setFile(null);
           return;
         }
 
         setFile(data);
-      } catch {
-        setError("Could not load file.");
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError(
+          caughtError instanceof Error
+            ? `Could not load file: ${caughtError.message}`
+            : "Could not load file.",
+        );
       } finally {
         setIsLoading(false);
       }

@@ -69,9 +69,7 @@ export default function PastePage() {
   }
 
   function validateAlias(alias: string) {
-    if (!alias) {
-      return "Enter an alias first.";
-    }
+    if (!alias) return "Enter an alias first.";
 
     if (!/^[a-z0-9-]{3,40}$/.test(alias)) {
       return "Alias must be 3-40 characters and use lowercase letters, numbers, or hyphens.";
@@ -114,7 +112,6 @@ export default function PastePage() {
       }
 
       const responseText = await response.text();
-
       let data: { error?: string } | null = null;
 
       try {
@@ -144,7 +141,6 @@ export default function PastePage() {
       );
     } catch (caughtError) {
       console.error(caughtError);
-
       setError(
         caughtError instanceof Error
           ? `Could not check this alias: ${caughtError.message}`
@@ -182,18 +178,12 @@ export default function PastePage() {
 
       const responseText = await response.text();
 
-      let data: PasteResult & { error?: string };
+      let data: (PasteResult & { error?: string }) | null = null;
 
       try {
-        data = JSON.parse(responseText);
+        data = responseText ? JSON.parse(responseText) : null;
       } catch {
-        data = {
-          id: "",
-          url: "",
-          rawUrl: "",
-          expiresAt: null,
-          error: responseText,
-        };
+        data = null;
       }
 
       if (!response.ok) {
@@ -218,7 +208,6 @@ export default function PastePage() {
       setRawUrl(fullRawUrl);
     } catch (caughtError) {
       console.error(caughtError);
-
       setError(
         caughtError instanceof Error
           ? `Could not create paste: ${caughtError.message}`
@@ -231,7 +220,6 @@ export default function PastePage() {
 
   async function copyValue(type: CopyType) {
     const value = type === "page" ? pasteUrl : rawUrl;
-
     if (!value) return;
 
     await navigator.clipboard.writeText(value);

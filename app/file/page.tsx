@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
+import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 
 type FileRecord = {
   id: string;
@@ -59,7 +59,7 @@ function FileContent() {
   const [copied, setCopied] = useState<CopyType>("");
 
   useEffect(() => {
-    document.title = "Toolverse - Your All-in-One Utility Hub.";
+    document.title = "ToolverseX - Your All-in-One Utility Hub.";
   }, []);
 
   useEffect(() => {
@@ -78,17 +78,40 @@ function FileContent() {
           cache: "no-store",
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+
+        let data: (FileRecord & { error?: string }) | null = null;
+
+        try {
+          data = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          data = null;
+        }
 
         if (!response.ok) {
-          setError(data.error || "File not found.");
+          setError(
+            data?.error ||
+              responseText ||
+              `Could not load file. Backend returned ${response.status}.`,
+          );
+          setFile(null);
+          return;
+        }
+
+        if (!data) {
+          setError("File not found.");
           setFile(null);
           return;
         }
 
         setFile(data);
-      } catch {
-        setError("Could not load file.");
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError(
+          caughtError instanceof Error
+            ? `Could not load file: ${caughtError.message}`
+            : "Could not load file.",
+        );
         setFile(null);
       } finally {
         setIsLoading(false);
@@ -190,6 +213,7 @@ function FileContent() {
                 </a>
 
                 <button
+                  type="button"
                   onClick={() => copyValue("page")}
                   className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
                 >
@@ -202,6 +226,7 @@ function FileContent() {
                 </button>
 
                 <button
+                  type="button"
                   onClick={downloadFile}
                   className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
@@ -245,6 +270,7 @@ function FileContent() {
               </p>
 
               <button
+                type="button"
                 onClick={downloadFile}
                 className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
               >

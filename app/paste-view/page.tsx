@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { apiUrl, fetchApi } from "@/lib/apiBase";
+import { fetchApi } from "@/lib/apiBase";
 
 type PasteRecord = {
   id: string;
@@ -71,10 +71,28 @@ function PasteEditor() {
           cache: "no-store",
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+
+        let data: (PasteRecord & { error?: string }) | null = null;
+
+        try {
+          data = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          data = null;
+        }
 
         if (!response.ok) {
-          setError(data.error || "Paste not found.");
+          setError(
+            data?.error ||
+              responseText ||
+              `Could not load paste. Backend returned ${response.status}.`,
+          );
+          setPaste(null);
+          return;
+        }
+
+        if (!data) {
+          setError("Paste not found.");
           setPaste(null);
           return;
         }
@@ -83,8 +101,13 @@ function PasteEditor() {
         setContent(data.content || "");
         latestContentRef.current = data.content || "";
         setSaveStatus("saved");
-      } catch {
-        setError("Could not load paste.");
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError(
+          caughtError instanceof Error
+            ? `Could not load paste: ${caughtError.message}`
+            : "Could not load paste.",
+        );
         setPaste(null);
       } finally {
         setIsLoading(false);
@@ -117,10 +140,22 @@ function PasteEditor() {
         }),
       });
 
-      const data = await response.json().catch(() => null);
+      const responseText = await response.text();
+
+      let data: { error?: string } | null = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
 
       if (!response.ok) {
-        setError(data?.error || "Could not save paste.");
+        setError(
+          data?.error ||
+            responseText ||
+            `Could not save paste. Backend returned ${response.status}.`,
+        );
         setSaveStatus("error");
         return;
       }
@@ -128,8 +163,13 @@ function PasteEditor() {
       setError("");
       setSaveStatus("saved");
       latestContentRef.current = nextContent;
-    } catch {
-      setError("Could not save paste.");
+    } catch (caughtError) {
+      console.error(caughtError);
+      setError(
+        caughtError instanceof Error
+          ? `Could not save paste: ${caughtError.message}`
+          : "Could not save paste.",
+      );
       setSaveStatus("error");
     }
   }

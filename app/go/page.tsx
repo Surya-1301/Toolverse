@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { apiUrl, fetchApi } from "@/lib/apiBase";
+import { fetchApi } from "@/lib/apiBase";
 
 type LinkRecord = {
   slug: string;
@@ -60,10 +60,28 @@ function GoContent() {
           cache: "no-store",
         });
 
-        const data = await response.json();
+        const responseText = await response.text();
+
+        let data: (LinkRecord & { error?: string }) | null = null;
+
+        try {
+          data = responseText ? JSON.parse(responseText) : null;
+        } catch {
+          data = null;
+        }
 
         if (!response.ok) {
-          setError(data.error || "Short link not found.");
+          setError(
+            data?.error ||
+              responseText ||
+              `Could not open short link. Backend returned ${response.status}.`,
+          );
+          setLink(null);
+          return;
+        }
+
+        if (!data) {
+          setError("Short link not found.");
           setLink(null);
           return;
         }
@@ -75,8 +93,13 @@ function GoContent() {
         if (targetUrl) {
           window.location.href = targetUrl;
         }
-      } catch {
-        setError("Could not open this short link.");
+      } catch (caughtError) {
+        console.error(caughtError);
+        setError(
+          caughtError instanceof Error
+            ? `Could not open this short link: ${caughtError.message}`
+            : "Could not open this short link.",
+        );
       } finally {
         setIsLoading(false);
       }

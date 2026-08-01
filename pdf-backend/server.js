@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 const ALLOWED_ORIGINS = [
-  "https://toolversex.pages.dev",
+  "https://toolversee.pages.dev",
   "http://localhost:3000",
   "http://localhost:3001",
 ];
