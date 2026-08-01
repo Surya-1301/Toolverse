@@ -1,12 +1,82 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Script from "next/script";
 import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
+const siteUrl = "https://toolversee.pages.dev";
+
 export const metadata: Metadata = {
-  title: "Toolverse",
-  description: "Fast, free, privacy-friendly online tools.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Toolversee - Free Online Utility Tools",
+    template: "%s | Toolversee",
+  },
+  description:
+    "Toolversee is a free online utility hub for JSON formatting, QR code generation, image and PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
+  keywords: [
+    "Toolversee",
+    "free online tools",
+    "JSON formatter",
+    "QR code generator",
+    "image compressor",
+    "PDF compressor",
+    "paste sharing",
+    "file sharing",
+    "URL shortener",
+    "image hosting",
+    "developer tools",
+    "web utilities",
+  ],
+  authors: [{ name: "Toolversee" }],
+  creator: "Toolversee",
+  publisher: "Toolversee",
+  applicationName: "Toolversee",
+  generator: "Next.js",
+  referrer: "origin-when-cross-origin",
+  alternates: {
+    canonical: siteUrl,
+  },
+  openGraph: {
+    type: "website",
+    url: siteUrl,
+    siteName: "Toolversee",
+    title: "Toolversee - Free Online Utility Tools",
+    description:
+      "Free online tools for JSON formatting, QR codes, image/PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "Toolversee",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Toolversee - Free Online Utility Tools",
+    description:
+      "Free online tools for JSON formatting, QR codes, image/PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
+    images: ["/logo.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/logo.png",
+  },
+  manifest: "/manifest.webmanifest",
 };
 
 const footerLinks = [
@@ -40,6 +110,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
+        <Script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon='{"token":"4fdd1b111cc042a1b8559e0c749b5a8f"}'
+          strategy="afterInteractive"
+        />
+
         <div className="flex min-h-screen flex-col">
           <Header />
 
@@ -53,11 +130,11 @@ export default function RootLayout({
                     href="/"
                     className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-violet-200"
                   >
-                    Toolverse
+                    Toolversee
                   </Link>
 
                   <p className="mt-2 text-sm text-slate-500">
-                    © {new Date().getFullYear()} Toolverse. All rights
+                    © {new Date().getFullYear()} Toolversee. All rights
                     reserved.
                   </p>
                 </div>
