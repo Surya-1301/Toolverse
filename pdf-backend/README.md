@@ -1,5 +1,12 @@
-# ToolverseX PDF Backend
+# Toolverse PDF Backend
 
-Ghostscript-based PDF compression API.
+Backend service for PDF tools used by Toolverse.
 
-## Local run with Docker
+Currently supports:
+
+- PDF compression via Ghostscript
+- PDF to Markdown conversion via MarkItDown
+
+## Base URL
+
+When deployed, this backend should be available at your PDF API URL, for example:
