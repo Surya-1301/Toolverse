@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { apiUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi } from "@/lib/apiBase";
 
 type PasteRecord = {
   id: string;
@@ -67,7 +67,7 @@ function PasteEditor() {
         setError("");
         setIsLoading(true);
 
-        const response = await fetch(apiUrl(`/api/paste/${pasteId}`), {
+        const response = await fetchApi(`/api/paste/${pasteId}`, {
           cache: "no-store",
         });
 
@@ -106,7 +106,7 @@ function PasteEditor() {
     try {
       setSaveStatus("saving");
 
-      const response = await fetch(apiUrl(`/api/paste/${pasteId}`), {
+      const response = await fetchApi(`/api/paste/${pasteId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

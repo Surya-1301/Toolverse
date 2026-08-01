@@ -14,13 +14,9 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
+import { fetchPdfApi } from "@/lib/apiBase";
 
 type Mode = "image" | "pdf";
-
-const PDF_API_BASE_URL = (
-  process.env.NEXT_PUBLIC_PDF_API_BASE_URL ||
-  "https://toolverse-pdf-api.onrender.com"
-).replace(/\/$/, "");
 
 export default function ImageCompressorPage() {
   const [mode, setMode] = useState<Mode>("image");
@@ -95,7 +91,7 @@ export default function ImageCompressorPage() {
     let response: Response;
 
     try {
-      response = await fetch(`${PDF_API_BASE_URL}/api/pdf/compress`, {
+      response = await fetchPdfApi("/api/pdf/compress", {
         method: "POST",
         body: formData,
       });
@@ -107,9 +103,8 @@ export default function ImageCompressorPage() {
       );
     }
 
-    const responseText = await response.text();
-
     if (!response.ok) {
+      const responseText = await response.text();
       let data: { error?: string } | null = null;
 
       try {
@@ -125,9 +120,7 @@ export default function ImageCompressorPage() {
       );
     }
 
-    const blob = new Blob([responseText as unknown as BlobPart], {
-      type: "application/pdf",
-    });
+    const blob = await response.blob();
 
     if (!blob.size) {
       throw new Error("Compressed PDF is empty. Please try another PDF.");
@@ -245,7 +238,7 @@ export default function ImageCompressorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Compress images in your browser and PDFs with the Ghostscript backend.
+          Compress images in your browser and PDFs.
         </p>
       </div>
 
@@ -341,8 +334,8 @@ export default function ImageCompressorPage() {
               />
 
               <p className="mt-2 text-xs leading-5 text-slate-500">
-                Lower quality usually creates a smaller file. PDF compression is
-                handled by the Ghostscript backend, which works better for
+                Lower quality usually creates a smaller file. PDF compression
+                is handled by the Ghostscript backend, which works better for
                 scanned or image-heavy PDFs.
               </p>
             </div>

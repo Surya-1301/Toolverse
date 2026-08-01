@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Check, Copy, Download, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 
 type ImageRecord = {
   id: string;
@@ -71,7 +71,7 @@ function ShareImageContent() {
         setImageFailed(false);
         setCopied("");
 
-        const response = await fetch(apiUrl(`/api/image/${imageId}/meta`), {
+        const response = await fetchApi(`/api/image/${imageId}/meta`, {
           cache: "no-store",
         });
 

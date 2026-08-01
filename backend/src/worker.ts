@@ -862,7 +862,7 @@ async function route(request: Request, env: Env) {
 
   if (pathname === "/api/pdf/compress" && request.method === "POST") {
     return error(
-      "PDF compression is not enabled on the Cloudflare Worker backend yet. Use the separate Render Ghostscript backend.",
+      "PDF compression is not enabled on the Cloudflare Worker backend yet. Use client-side compression or a Node/WASM-compatible compressor.",
       501,
     );
   }

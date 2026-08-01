@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 
 type FileRecord = {
   id: string;
@@ -74,7 +74,7 @@ function FileContent() {
         setError("");
         setIsLoading(true);
 
-        const response = await fetch(apiUrl(`/api/file/${fileId}/meta`), {
+        const response = await fetchApi(`/api/file/${fileId}/meta`, {
           cache: "no-store",
         });
 

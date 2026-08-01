@@ -15,7 +15,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -108,7 +108,7 @@ export default function FileSharePage() {
       formData.append("file", file);
       formData.append("expiry", expiry);
 
-      const response = await fetch(apiUrl(endpoint), {
+      const response = await fetchApi(endpoint, {
         method: "POST",
         body: formData,
       });

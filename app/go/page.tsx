@@ -4,7 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ExternalLink, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { apiUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi } from "@/lib/apiBase";
 
 type LinkRecord = {
   slug: string;
@@ -56,7 +56,7 @@ function GoContent() {
         setError("");
         setIsLoading(true);
 
-        const response = await fetch(apiUrl(`/api/shorten/${slug}`), {
+        const response = await fetchApi(`/api/shorten/${slug}`, {
           cache: "no-store",
         });
 

@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { apiUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -69,7 +69,9 @@ export default function PastePage() {
   }
 
   function validateAlias(alias: string) {
-    if (!alias) return "Enter an alias first.";
+    if (!alias) {
+      return "Enter an alias first.";
+    }
 
     if (!/^[a-z0-9-]{3,40}$/.test(alias)) {
       return "Alias must be 3-40 characters and use lowercase letters, numbers, or hyphens.";
@@ -101,7 +103,7 @@ export default function PastePage() {
 
       setIsCheckingAlias(true);
 
-      const response = await fetch(apiUrl(`/api/paste/${alias}`), {
+      const response = await fetchApi(`/api/paste/${alias}`, {
         method: "GET",
         cache: "no-store",
       });
@@ -112,6 +114,7 @@ export default function PastePage() {
       }
 
       const responseText = await response.text();
+
       let data: { error?: string } | null = null;
 
       try {
@@ -141,6 +144,7 @@ export default function PastePage() {
       );
     } catch (caughtError) {
       console.error(caughtError);
+
       setError(
         caughtError instanceof Error
           ? `Could not check this alias: ${caughtError.message}`
@@ -163,7 +167,7 @@ export default function PastePage() {
 
       setIsCreating(true);
 
-      const response = await fetch(apiUrl("/api/paste/create"), {
+      const response = await fetchApi("/api/paste/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -178,12 +182,18 @@ export default function PastePage() {
 
       const responseText = await response.text();
 
-      let data: (PasteResult & { error?: string }) | null = null;
+      let data: PasteResult & { error?: string };
 
       try {
-        data = responseText ? JSON.parse(responseText) : null;
+        data = JSON.parse(responseText);
       } catch {
-        data = null;
+        data = {
+          id: "",
+          url: "",
+          rawUrl: "",
+          expiresAt: null,
+          error: responseText,
+        };
       }
 
       if (!response.ok) {
@@ -208,6 +218,7 @@ export default function PastePage() {
       setRawUrl(fullRawUrl);
     } catch (caughtError) {
       console.error(caughtError);
+
       setError(
         caughtError instanceof Error
           ? `Could not create paste: ${caughtError.message}`
@@ -220,6 +231,7 @@ export default function PastePage() {
 
   async function copyValue(type: CopyType) {
     const value = type === "page" ? pasteUrl : rawUrl;
+
     if (!value) return;
 
     await navigator.clipboard.writeText(value);

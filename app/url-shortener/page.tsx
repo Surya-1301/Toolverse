@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Clock } from "lucide-react";
+import { HowToUse } from "@/components/HowToUse";
 import {
   BarChart3,
   Check,
-  Clock,
   Copy,
   Eraser,
   ExternalLink,
@@ -16,8 +17,8 @@ import {
   Send,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-import { HowToUse } from "@/components/HowToUse";
-import { apiUrl } from "@/lib/apiBase";
+import { PageHeader } from "@/components/PageHeader";
+import { apiUrl, fetchApi } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -90,7 +91,7 @@ function UrlShortenerContent() {
 
       setIsCreating(true);
 
-      const response = await fetch(apiUrl("/api/shorten"), {
+      const response = await fetchApi("/api/shorten", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -102,26 +103,10 @@ function UrlShortenerContent() {
         }),
       });
 
-      const responseText = await response.text();
-      let data: (ShortUrlResult & { error?: string }) | null = null;
-
-      try {
-        data = responseText ? JSON.parse(responseText) : null;
-      } catch {
-        data = null;
-      }
+      const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          data?.error ||
-            responseText ||
-            `Could not shorten URL. Backend returned ${response.status}.`,
-        );
-        return;
-      }
-
-      if (!data?.slug) {
-        setError("Short URL created but no slug was returned.");
+        setError(data.error || "Could not shorten URL.");
         return;
       }
 
@@ -129,13 +114,8 @@ function UrlShortenerContent() {
       setShortUrl(fullUrl);
       setResult(data);
       setClicks(data.clicks);
-    } catch (caughtError) {
-      console.error(caughtError);
-      setError(
-        caughtError instanceof Error
-          ? `Could not shorten URL: ${caughtError.message}`
-          : "Could not shorten URL. Please check your backend Worker URL.",
-      );
+    } catch {
+      setError("Could not shorten URL. Please try again.");
     } finally {
       setIsCreating(false);
     }
@@ -158,41 +138,17 @@ function UrlShortenerContent() {
     try {
       setError("");
 
-      const response = await fetch(apiUrl(`/api/shorten/${result.slug}`), {
-        cache: "no-store",
-      });
-
-      const responseText = await response.text();
-      let data:
-        | {
-            clicks?: number;
-            error?: string;
-          }
-        | null = null;
-
-      try {
-        data = responseText ? JSON.parse(responseText) : null;
-      } catch {
-        data = null;
-      }
+      const response = await fetch(apiUrl(`/api/shorten/${result.slug}`));
+      const data = await response.json();
 
       if (!response.ok) {
-        setError(
-          data?.error ||
-            responseText ||
-            `Could not load stats. Backend returned ${response.status}.`,
-        );
+        setError(data.error || "Could not load stats.");
         return;
       }
 
-      setClicks(typeof data?.clicks === "number" ? data.clicks : 0);
-    } catch (caughtError) {
-      console.error(caughtError);
-      setError(
-        caughtError instanceof Error
-          ? `Could not load stats: ${caughtError.message}`
-          : "Could not load stats.",
-      );
+      setClicks(data.clicks);
+    } catch {
+      setError("Could not load stats.");
     }
   }
 
@@ -317,11 +273,10 @@ function UrlShortenerContent() {
                 <input
                   value={shortUrl}
                   readOnly
-                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
                 />
 
                 <button
-                  type="button"
                   onClick={copyShortUrl}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
@@ -334,59 +289,61 @@ function UrlShortenerContent() {
                 </button>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-4">
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <div className="rounded-xl border border-white/10 bg-slate-950/70 p-3">
+                  <p className="text-xs text-slate-500">Slug</p>
+                  <p className="mt-1 text-sm font-medium text-white">
+                    /s/{result.slug}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-slate-950/70 p-3">
+                  <p className="text-xs text-slate-500">Clicks</p>
+                  <p className="mt-1 text-sm font-medium text-white">
+                    {clicks ?? result.clicks}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-white/10 bg-slate-950/70 p-3">
+                  <p className="text-xs text-slate-500">Expires</p>
+                  <p className="mt-1 text-sm font-medium text-white">
+                    {formatExpiry(result.expiresAt)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-wrap gap-3">
                 <a
                   href={shortUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-violet-300 hover:text-violet-200"
                 >
-                  Open
+                  Open short URL
                   <ExternalLink className="h-4 w-4" />
                 </a>
 
-                <button
-                  type="button"
-                  onClick={refreshStats}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  Refresh
-                </button>
-
                 <Link
                   href={qrHref}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 text-sm font-medium text-violet-300 hover:text-violet-200"
                 >
+                  Create QR
                   <QrCode className="h-4 w-4" />
-                  QR
                 </Link>
 
-                <div className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200">
-                  <Clock className="h-4 w-4" />
-                  {clicks ?? 0}
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-2 text-xs text-emerald-100/80 sm:grid-cols-2">
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-slate-400">Alias</p>
-                  <p className="mt-1 text-white">/s/{result.slug}</p>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-slate-400">Expires</p>
-                  <p className="mt-1 text-white">
-                    {formatExpiry(result.expiresAt)}
-                  </p>
-                </div>
+                <button
+                  onClick={refreshStats}
+                  className="inline-flex items-center gap-2 text-sm font-medium text-violet-300 hover:text-violet-200"
+                >
+                  Refresh stats
+                  <BarChart3 className="h-4 w-4" />
+                </button>
               </div>
             </div>
           ) : null}
 
           <div className="flex flex-wrap gap-3">
             <button
-              type="button"
               onClick={createShortUrl}
               disabled={isCreating}
               className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
@@ -400,7 +357,6 @@ function UrlShortenerContent() {
             </button>
 
             <button
-              type="button"
               onClick={clearAll}
               className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
@@ -412,37 +368,38 @@ function UrlShortenerContent() {
       </div>
 
       <HowToUse
-        title="How to use URL Shortener"
         subtitle=""
         steps={[
           {
-            title: "Paste URL",
-            description: "Enter a long URL to shorten.",
+            title: "Paste long URL",
+            description:
+              "Enter a full URL that starts with http:// or https://.",
             icon: <Link2 className="h-5 w-5" />,
           },
           {
-            title: "Choose alias",
-            description: "Optionally set a custom short slug.",
-            icon: <Link2 className="h-5 w-5" />,
-          },
-          {
-            title: "Set expiry",
-            description: "Choose how long the short link stays active.",
-            icon: <Clock className="h-5 w-5" />,
-          },
-          {
-            title: "Shorten",
-            description: "Create the short URL instantly.",
+            title: "Add alias",
+            description: "Optionally create a custom short slug for the link.",
             icon: <Send className="h-5 w-5" />,
           },
           {
-            title: "Copy link",
-            description: "Copy and share the generated short URL.",
+            title: "Set expiry",
+            description: "Choose when the short URL should stop working.",
+            icon: <Clock className="h-5 w-5" />,
+          },
+          {
+            title: "Copy short link",
+            description: "Copy the generated link and share it anywhere.",
             icon: <Copy className="h-5 w-5" />,
           },
           {
-            title: "Track clicks",
-            description: "Refresh to see the latest click count.",
+            title: "Create QR",
+            description:
+              "Open the QR Generator with your short link prefilled.",
+            icon: <QrCode className="h-5 w-5" />,
+          },
+          {
+            title: "Refresh stats",
+            description: "Update the analytics for your short link.",
             icon: <BarChart3 className="h-5 w-5" />,
           },
         ]}

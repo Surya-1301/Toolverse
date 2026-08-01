@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Download, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi } from "@/lib/apiBase";
 
 type FileRecord = {
   id: string;
@@ -63,7 +63,7 @@ function ShareFileContent() {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(apiUrl(`/api/file/${fileId}/meta`), {
+        const response = await fetchApi(`/api/file/${fileId}/meta`, {
           cache: "no-store",
         });
 

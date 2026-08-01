@@ -16,7 +16,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi } from "@/lib/apiBase";
 
 const uploadExpiry = "never";
 
@@ -108,6 +108,7 @@ function QrGeneratorContent() {
       setError("");
 
       const file = event.target.files?.[0];
+
       if (!file) return;
 
       setSelectedFileName(file.name);
@@ -121,13 +122,17 @@ function QrGeneratorContent() {
       const isImage = file.type.startsWith("image/");
       const endpoint = isImage ? "/api/image/upload" : "/api/file/upload";
 
-      const response = await fetch(apiUrl(endpoint), {
+      const response = await fetchApi(endpoint, {
         method: "POST",
         body: formData,
       });
 
       const responseText = await response.text();
-      let data: { id?: string; error?: string } | null = null;
+
+      let data: {
+        id?: string;
+        error?: string;
+      } | null = null;
 
       try {
         data = responseText ? JSON.parse(responseText) : null;
@@ -150,6 +155,7 @@ function QrGeneratorContent() {
       }
 
       const frontendOrigin = window.location.origin;
+
       const fullUrl = isImage
         ? `${frontendOrigin}/share-image?id=${data.id}`
         : `${frontendOrigin}/share-file?id=${data.id}`;
@@ -157,6 +163,7 @@ function QrGeneratorContent() {
       setText(fullUrl);
     } catch (caughtError) {
       console.error(caughtError);
+
       setError(
         caughtError instanceof Error
           ? `Could not upload this file: ${caughtError.message}`
@@ -164,7 +171,10 @@ function QrGeneratorContent() {
       );
     } finally {
       setIsUploading(false);
-      if (event.target) event.target.value = "";
+
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   }
 
@@ -193,7 +203,10 @@ function QrGeneratorContent() {
   function downloadSvg() {
     if (!qrSvg) return;
 
-    const blob = new Blob([qrSvg], { type: "image/svg+xml" });
+    const blob = new Blob([qrSvg], {
+      type: "image/svg+xml",
+    });
+
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 

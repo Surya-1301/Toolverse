@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/PageHeader";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { Clock, Code2 } from "lucide-react";
 import { HowToUse } from "@/components/HowToUse";
-import { apiUrl, getApiBaseUrl } from "@/lib/apiBase";
+import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -88,7 +88,7 @@ export default function ImageHostPage() {
       formData.append("file", file);
       formData.append("expiry", expiry);
 
-      const response = await fetch(apiUrl("/api/image/upload"), {
+      const response = await fetchApi("/api/image/upload", {
         method: "POST",
         body: formData,
       });
