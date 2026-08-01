@@ -4,11 +4,12 @@ export interface Env {
 }
 
 type ExpiryValue = "never" | "1h" | "1d" | "7d" | "30d";
-
-const FRONTEND_ORIGIN = "https://toolversee.pages.dev";
+const FRONTEND_ORIGIN = "https://toolversex.pages.dev";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": FRONTEND_ORIGIN,
+  // Allow uploads from all deployed/custom frontend domains.
+  // This avoids browser "Failed to fetch" errors when the Pages domain changes.
+  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
 };
@@ -114,7 +115,9 @@ function validateUrl(value: string) {
 
 function getExtensionFromName(name: string) {
   const index = name.lastIndexOf(".");
+
   if (index === -1) return "";
+
   return name.slice(index).toLowerCase().slice(0, 20);
 }
 
@@ -860,7 +863,7 @@ async function route(request: Request, env: Env) {
 
   if (pathname === "/api/pdf/compress" && request.method === "POST") {
     return error(
-      "PDF compression is not enabled on the Cloudflare Worker backend yet. Use the separate Render Ghostscript backend.",
+      "PDF compression is not enabled on the Cloudflare Worker backend yet. Use client-side compression or a Node/WASM-compatible compressor.",
       501,
     );
   }
