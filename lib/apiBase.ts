@@ -8,6 +8,5 @@ export function getApiBaseUrl() {
 export function apiUrl(path: string) {
   const baseUrl = getApiBaseUrl();
   const cleanPath = path.startsWith("/") ? path : `/${path}`;
-
   return `${baseUrl}${cleanPath}`;
 }

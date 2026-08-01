@@ -89,25 +89,45 @@ export default function ImageCompressorPage() {
 
   async function compressPdf(file: File) {
     const formData = new FormData();
-
     formData.append("file", file);
     formData.append("quality", String(quality));
 
-    const response = await fetch(`${PDF_API_BASE_URL}/api/pdf/compress`, {
-      method: "POST",
-      body: formData,
-    });
+    let response: Response;
+
+    try {
+      response = await fetch(`${PDF_API_BASE_URL}/api/pdf/compress`, {
+        method: "POST",
+        body: formData,
+      });
+    } catch (caughtError) {
+      throw new Error(
+        caughtError instanceof Error
+          ? `Could not reach PDF backend: ${caughtError.message}`
+          : "Could not reach PDF backend.",
+      );
+    }
+
+    const responseText = await response.text();
 
     if (!response.ok) {
-      const data = await response.json().catch(() => null);
+      let data: { error?: string } | null = null;
+
+      try {
+        data = responseText ? JSON.parse(responseText) : null;
+      } catch {
+        data = null;
+      }
 
       throw new Error(
         data?.error ||
+          responseText ||
           "Could not compress PDF. Please check the PDF compression backend.",
       );
     }
 
-    const blob = await response.blob();
+    const blob = new Blob([responseText as unknown as BlobPart], {
+      type: "application/pdf",
+    });
 
     if (!blob.size) {
       throw new Error("Compressed PDF is empty. Please try another PDF.");
@@ -225,7 +245,7 @@ export default function ImageCompressorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Compress images in your browser and PDFs.
+          Compress images in your browser and PDFs with the Ghostscript backend.
         </p>
       </div>
 
@@ -321,8 +341,8 @@ export default function ImageCompressorPage() {
               />
 
               <p className="mt-2 text-xs leading-5 text-slate-500">
-                Lower quality usually creates a smaller file. PDF compression
-                is handled by the Ghostscript backend, which works better for
+                Lower quality usually creates a smaller file. PDF compression is
+                handled by the Ghostscript backend, which works better for
                 scanned or image-heavy PDFs.
               </p>
             </div>
