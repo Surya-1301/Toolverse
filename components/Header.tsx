@@ -29,7 +29,7 @@ export function Header() {
           <span className="relative h-10 w-10 overflow-hidden rounded-xl bg-white">
             <Image
               src="/favicon.ico"
-              alt="Toolversee logo"
+              alt="Toolverse logo"
               fill
               className="object-contain p-1"
               priority
@@ -37,7 +37,7 @@ export function Header() {
             />
           </span>
 
-          <span className="truncate text-base sm:text-lg">Toolversee</span>
+          <span className="truncate text-base sm:text-lg">Toolverse</span>
         </Link>
 
         <nav className="hidden items-center gap-1 text-sm text-slate-300 md:flex">

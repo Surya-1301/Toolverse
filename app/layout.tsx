@@ -5,18 +5,18 @@ import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
-const siteUrl = "https://toolversee.pages.dev";
+const siteUrl = "https://Toolverse.pages.dev";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Toolversee - Free Online Utility Tools",
-    template: "%s | Toolversee",
+    default: "Toolverse - Free Online Utility Tools",
+    template: "%s | Toolverse",
   },
   description:
-    "Toolversee is a free online utility hub for JSON formatting, QR code generation, image and PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
+    "Toolverse is a free online utility hub for JSON formatting, QR code generation, image and PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
   keywords: [
-    "Toolversee",
+    "Toolverse",
     "free online tools",
     "JSON formatter",
     "QR code generator",
@@ -29,10 +29,10 @@ export const metadata: Metadata = {
     "developer tools",
     "web utilities",
   ],
-  authors: [{ name: "Toolversee" }],
-  creator: "Toolversee",
-  publisher: "Toolversee",
-  applicationName: "Toolversee",
+  authors: [{ name: "Toolverse" }],
+  creator: "Toolverse",
+  publisher: "Toolverse",
+  applicationName: "Toolverse",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   alternates: {
@@ -41,8 +41,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: siteUrl,
-    siteName: "Toolversee",
-    title: "Toolversee - Free Online Utility Tools",
+    siteName: "Toolverse",
+    title: "Toolverse - Free Online Utility Tools",
     description:
       "Free online tools for JSON formatting, QR codes, image/PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
     images: [
@@ -50,13 +50,13 @@ export const metadata: Metadata = {
         url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "Toolversee",
+        alt: "Toolverse",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Toolversee - Free Online Utility Tools",
+    title: "Toolverse - Free Online Utility Tools",
     description:
       "Free online tools for JSON formatting, QR codes, image/PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
     images: ["/logo.png"],
@@ -131,11 +131,11 @@ export default function RootLayout({
                     href="/"
                     className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-violet-200"
                   >
-                    Toolversee
+                    Toolverse
                   </Link>
 
                   <p className="mt-2 text-sm text-slate-500">
-                    © {new Date().getFullYear()} Toolversee. All rights
+                    © {new Date().getFullYear()} Toolverse. All rights
                     reserved.
                   </p>
                 </div>
