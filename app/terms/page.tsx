@@ -227,22 +227,6 @@ export default function TermsPage() {
             );
           })}
         </div>
-
-        <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
-          <p className="font-semibold text-white">Plain-language summary</p>
-          <p className="mt-2 text-violet-100/80">
-            Use Toolverse responsibly. If you create public links or upload
-            files, people with those links may access the content. Do not use
-            the service for illegal, harmful, abusive, or infringing activity.
-          </p>
-
-          <Link
-            href="/report-abuse"
-            className="mt-4 inline-flex rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-          >
-            Report abuse
-          </Link>
-        </div>
       </div>
     </Container>
   );

@@ -234,16 +234,6 @@ export default function PrivacyPage() {
             );
           })}
         </div>
-
-        <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
-          <p className="font-semibold text-white">Plain-language summary</p>
-          <p className="mt-2 text-violet-100/80">
-            We aim to keep Toolverse simple and privacy-friendly. Many tools
-            run in your browser. When you create public links or upload files,
-            the content may be stored so those links can work. Do not share
-            sensitive content unless you understand who can access the link.
-          </p>
-        </div>
       </div>
     </Container>
   );

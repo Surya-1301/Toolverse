@@ -253,18 +253,13 @@ export default function ReportAbusePage() {
                 </Link>
 
                 <a
-                  href="mailto:abuse@Toolverse.com"
-                  className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-400"
-                >
-                  <Flag className="h-4 w-4" />
-                  Email abuse report
-                </a>
+                href="mailto:suppport.toolveree@gmail.com?subject=Toolversee%20Abuse%20Report"
+                className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-400"
+               >
+              <Flag className="h-4 w-4" />
+                Email abuse report
+               </a>
               </div>
-
-              <p className="mt-3 text-xs text-red-100/60">
-                Replace abuse@Toolverse.com with your real abuse reporting
-                address before publishing if needed.
-              </p>
             </div>
           </div>
         </section>

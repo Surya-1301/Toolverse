@@ -4,7 +4,6 @@ import {
   ImageDown,
   Link2,
   QrCode,
-  ScanText,
   Text,
 } from "lucide-react";
 import { Container } from "@/components/Container";
@@ -40,26 +39,18 @@ const tools = [
     status: "live" as const,
   },
   {
-  title: "Upload & Share",
-  description: "Upload images or files and get temporary shareable links.",
-  href: "/file-share",
-  icon: <FileUp className="h-6 w-6" />,
-  status: "live" as const,
-},
+    title: "Upload & Share",
+    description: "Upload images or files and get temporary shareable links.",
+    href: "/file-share",
+    icon: <FileUp className="h-6 w-6" />,
+    status: "live" as const,
+  },
   {
     title: "URL Shortener",
     description: "Turn long URLs into short, memorable links.",
     href: "/url-shortener",
     icon: <Link2 className="h-6 w-6" />,
     status: "live" as const,
-  },
- 
-  {
-    title: "OCR",
-    description: "Extract text from screenshots, photos, and scanned images.",
-    href: "/ocr",
-    icon: <ScanText className="h-6 w-6" />,
-    status: "soon" as const,
   },
 ];
 

@@ -141,7 +141,7 @@ export default function ContactPage() {
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
               <p className="text-sm text-slate-500">Recommended email format</p>
               <p className="mt-1 break-all font-mono text-sm text-slate-200">
-                support@Toolverse.com
+                suppport.toolveree@gmail.com
               </p>
               <p className="mt-2 text-sm leading-6 text-slate-500">
                 Replace this address with your real support email before
@@ -191,19 +191,6 @@ export default function ContactPage() {
             <Flag className="h-4 w-4" />
             Report abuse
           </Link>
-        </div>
-
-        <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-6 text-slate-400">
-          <div className="mb-3 flex items-center gap-2 text-white">
-            <HelpCircle className="h-4 w-4 text-violet-300" />
-            <p className="font-semibold">Before contacting us</p>
-          </div>
-
-          <p>
-            Please check that your browser is up to date and try refreshing the
-            page. For upload or sharing issues, include the generated link or
-            file ID when possible.
-          </p>
         </div>
       </div>
     </Container>
