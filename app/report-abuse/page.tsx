@@ -253,7 +253,7 @@ export default function ReportAbusePage() {
                 </Link>
 
                 <a
-                href="mailto:suppport.toolveree@gmail.com?subject=Toolversee%20Abuse%20Report"
+                href="mailto:suppport.toolversee@gmail.com?subject=Toolversee%20Abuse%20Report"
                 className="inline-flex items-center gap-2 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-400"
                >
               <Flag className="h-4 w-4" />
