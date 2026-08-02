@@ -4,14 +4,15 @@ export interface Env {
 }
 
 type ExpiryValue = "never" | "1h" | "1d" | "7d" | "30d";
-const FRONTEND_ORIGIN = "https://toolversex.pages.dev";
+
+const FRONTEND_ORIGIN = "https://toolversee.pages.dev";
 
 const corsHeaders = {
-  // Allow uploads from all deployed/custom frontend domains.
-  // This avoids browser "Failed to fetch" errors when the Pages domain changes.
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Headers":
+    "Content-Type, Authorization, X-Requested-With, Accept, Origin",
+  "Access-Control-Max-Age": "86400",
 };
 
 function withCors(headers?: HeadersInit) {
@@ -880,7 +881,10 @@ export default {
 
       return json(
         {
-          error: "Internal server error.",
+          error:
+            caughtError instanceof Error
+              ? caughtError.message
+              : "Internal server error.",
         },
         {
           status: 500,

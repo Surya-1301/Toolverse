@@ -36,11 +36,8 @@ export function getApiBaseCandidates() {
   return unique([
     normalizeConfiguredUrl(process.env.NEXT_PUBLIC_API_BASE_URL),
 
-    // Main Cloudflare Worker API
+    // Use only the deployed Cloudflare Worker API.
     "https://toolversex-api.jethalalmirror.workers.dev",
-
-    // Fallback only if you actually deployed this Worker too
-    "https://toolversex-api.workers.dev",
   ]);
 }
 
@@ -59,7 +56,11 @@ export async function fetchApi(path: string, init?: RequestInit) {
 
   for (const baseUrl of candidates) {
     try {
-      const response = await fetch(apiUrl(path, baseUrl), init);
+      const response = await fetch(apiUrl(path, baseUrl), {
+        ...init,
+        mode: "cors",
+      });
+
       workingApiBaseUrl = baseUrl;
       return response;
     } catch (error) {
@@ -68,17 +69,17 @@ export async function fetchApi(path: string, init?: RequestInit) {
     }
   }
 
-  throw new Error(errors[0] || "Could not reach the backend API.");
+  throw new Error(errors.join(" | ") || "Could not reach the backend API.");
 }
 
 export function getPdfApiBaseCandidates() {
   return unique([
     normalizeConfiguredUrl(process.env.NEXT_PUBLIC_PDF_API_BASE_URL),
 
-    // Main PDF backend
+    // Main PDF backend.
     "https://toolverse-pdf-api.onrender.com",
 
-    // Fallback only if deployed
+    // Optional fallback if you deployed this too.
     "https://toolversex-pdf-api.onrender.com",
   ]);
 }
@@ -94,7 +95,11 @@ export async function fetchPdfApi(path: string, init?: RequestInit) {
 
   for (const baseUrl of candidates) {
     try {
-      const response = await fetch(`${baseUrl}${cleanPath}`, init);
+      const response = await fetch(`${baseUrl}${cleanPath}`, {
+        ...init,
+        mode: "cors",
+      });
+
       workingPdfApiBaseUrl = baseUrl;
       return response;
     } catch (error) {
@@ -103,5 +108,5 @@ export async function fetchPdfApi(path: string, init?: RequestInit) {
     }
   }
 
-  throw new Error(errors[0] || "Could not reach the PDF backend.");
+  throw new Error(errors.join(" | ") || "Could not reach the PDF backend.");
 }
