@@ -1091,8 +1091,11 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/health", (_req, res) => {
-  res.json({
+  res.status(200).json({
     status: "ok",
+    service: "Toolverse PDF API",
+    uptime: process.uptime(),
+    timestamp: new Date().toISOString(),
   });
 });
 
