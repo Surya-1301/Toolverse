@@ -414,6 +414,87 @@ finally:
   });
 }
 
+function pdfToJpg(inputPath, outputDir) {
+  const outputPrefix = path.join(outputDir, "page");
+
+  const args = ["-jpeg", "-r", "180", inputPath, outputPrefix];
+
+  return new Promise((resolve, reject) => {
+    execFile("pdftoppm", args, { timeout: 240000 }, (error, stdout, stderr) => {
+      if (error) {
+        reject(
+          new Error(
+            stderr ||
+              stdout ||
+              error.message ||
+              "PDF to JPG conversion failed.",
+          ),
+        );
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+function zipFiles(files, outputPath, cwd) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "zip",
+      ["-j", outputPath, ...files],
+      { timeout: 120000, cwd },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "Could not create ZIP file.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      },
+    );
+  });
+}
+
+function pdfToPdfa(inputPath, outputPath) {
+  const args = [
+    "-dPDFA=2",
+    "-dBATCH",
+    "-dNOPAUSE",
+    "-dNOOUTERSAVE",
+    "-sColorConversionStrategy=RGB",
+    "-sDEVICE=pdfwrite",
+    "-dPDFACompatibilityPolicy=1",
+    `-sOutputFile=${outputPath}`,
+    inputPath,
+  ];
+
+  return new Promise((resolve, reject) => {
+    execFile("gs", args, { timeout: 240000 }, (error, stdout, stderr) => {
+      if (error) {
+        reject(
+          new Error(
+            stderr ||
+              stdout ||
+              error.message ||
+              "PDF/A conversion failed.",
+          ),
+        );
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
 function isOfficeFile(file) {
   const name = (file.originalname || "").toLowerCase();
 
@@ -643,54 +724,44 @@ async function safeDelete(filePath) {
   }
 }
 
-function getDownloadFileName(originalName) {
-  const baseName = path
-    .basename(originalName || "document.pdf")
-    .replace(/\.pdf$/i, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .slice(0, 80);
+async function safeRemoveDir(dirPath) {
+  try {
+    if (dirPath && fs.existsSync(dirPath)) {
+      await fsp.rm(dirPath, { recursive: true, force: true });
+    }
+  } catch {
+    // Ignore cleanup errors.
+  }
+}
 
-  return `${baseName || "document"}-compressed.pdf`;
+function getBaseName(originalName, fallback = "document") {
+  return (
+    path
+      .basename(originalName || fallback)
+      .replace(/\.[^.]+$/i, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "-")
+      .slice(0, 80) || fallback
+  );
+}
+
+function getDownloadFileName(originalName) {
+  return `${getBaseName(originalName, "document")}-compressed.pdf`;
 }
 
 function getPdfDownloadFileName(originalName, suffix = "converted") {
-  const baseName = path
-    .basename(originalName || "document")
-    .replace(/\.[^.]+$/i, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .slice(0, 80);
-
-  return `${baseName || "document"}-${suffix}.pdf`;
+  return `${getBaseName(originalName, "document")}-${suffix}.pdf`;
 }
 
 function getWordDownloadFileName(originalName) {
-  const baseName = path
-    .basename(originalName || "document.pdf")
-    .replace(/\.pdf$/i, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .slice(0, 80);
-
-  return `${baseName || "document"}.docx`;
+  return `${getBaseName(originalName, "document")}.docx`;
 }
 
 function getExcelDownloadFileName(originalName) {
-  const baseName = path
-    .basename(originalName || "document.pdf")
-    .replace(/\.pdf$/i, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .slice(0, 80);
-
-  return `${baseName || "document"}.xlsx`;
+  return `${getBaseName(originalName, "document")}.xlsx`;
 }
 
 function getPowerPointDownloadFileName(originalName) {
-  const baseName = path
-    .basename(originalName || "document.pdf")
-    .replace(/\.pdf$/i, "")
-    .replace(/[^a-zA-Z0-9._-]/g, "-")
-    .slice(0, 80);
-
-  return `${baseName || "document"}.pptx`;
+  return `${getBaseName(originalName, "document")}.pptx`;
 }
 
 app.get("/", (_req, res) => {
@@ -923,6 +994,84 @@ app.post("/api/pdf/html-to-pdf", async (req, res) => {
   }
 });
 
+app.post("/api/pdf/to-jpg", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputDir = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
+    }
+
+    inputPath = req.file.path;
+    outputDir = await fsp.mkdtemp(path.join(os.tmpdir(), "toolversex-jpg-"));
+
+    await pdfToJpg(inputPath, outputDir);
+
+    const jpgFiles = (await fsp.readdir(outputDir))
+      .filter((fileName) => fileName.toLowerCase().endsWith(".jpg"))
+      .map((fileName) => path.join(outputDir, fileName))
+      .sort();
+
+    if (!jpgFiles.length) {
+      throw new Error("No JPG files were created.");
+    }
+
+    const baseName = getBaseName(req.file.originalname, "document");
+
+    if (jpgFiles.length === 1) {
+      outputPath = jpgFiles[0];
+
+      res.setHeader("Content-Type", "image/jpeg");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${baseName}.jpg"`,
+      );
+    } else {
+      outputPath = path.join(outputDir, `${baseName}-jpg.zip`);
+
+      await zipFiles(jpgFiles, outputPath, outputDir);
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${baseName}-jpg.zip"`,
+      );
+    }
+
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeRemoveDir(outputDir);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeRemoveDir(outputDir);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeRemoveDir(outputDir);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert this PDF to JPG.",
+    });
+  }
+});
+
 app.post("/api/pdf/to-word", upload.single("file"), async (req, res) => {
   let inputPath = "";
   let outputPath = "";
@@ -1102,6 +1251,66 @@ app.post("/api/pdf/to-powerpoint", upload.single("file"), async (req, res) => {
         error instanceof Error
           ? error.message
           : "Could not convert this PDF to PowerPoint.",
+    });
+  }
+});
+
+app.post("/api/pdf/to-pdfa", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
+    }
+
+    inputPath = req.file.path;
+    outputPath = path.join(
+      path.dirname(inputPath),
+      `${crypto.randomBytes(16).toString("hex")}-pdfa.pdf`,
+    );
+
+    await pdfToPdfa(inputPath, outputPath);
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted PDF/A file was not created.");
+    }
+
+    const baseName = getBaseName(req.file.originalname, "document");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName}-pdfa.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert this PDF to PDF/A.",
     });
   }
 });

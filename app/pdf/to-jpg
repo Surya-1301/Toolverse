@@ -1,0 +1,98 @@
+app.post("/api/pdf/to-jpg", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputDir = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
+    }
+
+    inputPath = req.file.path;
+    outputDir = await fsp.mkdtemp(path.join(os.tmpdir(), "toolversex-jpg-"));
+
+    await pdfToJpg(inputPath, outputDir);
+
+    const jpgFiles = (await fsp.readdir(outputDir))
+      .filter((fileName) => fileName.toLowerCase().endsWith(".jpg"))
+      .map((fileName) => path.join(outputDir, fileName))
+      .sort();
+
+    if (!jpgFiles.length) {
+      throw new Error("No JPG files were created.");
+    }
+
+    const baseName = path
+      .basename(req.file.originalname || "document.pdf")
+      .replace(/\.pdf$/i, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "-")
+      .slice(0, 80);
+
+    if (jpgFiles.length === 1) {
+      outputPath = jpgFiles[0];
+
+      res.setHeader("Content-Type", "image/jpeg");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${baseName || "document"}.jpg"`,
+      );
+    } else {
+      outputPath = path.join(outputDir, `${baseName || "document"}-jpg.zip`);
+
+      await zipFiles(jpgFiles, outputPath, outputDir);
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${baseName || "document"}-jpg.zip"`,
+      );
+    }
+
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+
+      try {
+        await fsp.rm(outputDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors.
+      }
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+
+      try {
+        await fsp.rm(outputDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors.
+      }
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+
+    try {
+      if (outputDir) {
+        await fsp.rm(outputDir, { recursive: true, force: true });
+      }
+    } catch {
+      // Ignore cleanup errors.
+    }
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert this PDF to JPG.",
+    });
+  }
+});

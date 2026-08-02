@@ -5,6 +5,8 @@ RUN apt-get update \
     ghostscript \
     libreoffice \
     chromium \
+    poppler-utils \
+    zip \
     python3 \
     python3-pip \
   && rm -rf /var/lib/apt/lists/*

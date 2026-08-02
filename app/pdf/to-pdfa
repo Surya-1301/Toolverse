@@ -1,0 +1,63 @@
+app.post("/api/pdf/to-pdfa", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
+    }
+
+    inputPath = req.file.path;
+    outputPath = path.join(
+      path.dirname(inputPath),
+      `${crypto.randomBytes(16).toString("hex")}-pdfa.pdf`,
+    );
+
+    await pdfToPdfa(inputPath, outputPath);
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted PDF/A file was not created.");
+    }
+
+    const baseName = path
+      .basename(req.file.originalname || "document.pdf")
+      .replace(/\.pdf$/i, "")
+      .replace(/[^a-zA-Z0-9._-]/g, "-")
+      .slice(0, 80);
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName || "document"}-pdfa.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert this PDF to PDF/A.",
+    });
+  }
+});
