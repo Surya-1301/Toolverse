@@ -230,7 +230,7 @@ curl -i https://toolversex-api.jethalalmirror.workers.dev
 Expected response:
 
 ```json
-{"name":"ToolverseX API","status":"ok"}
+{"name":"Toolverse API","status":"ok"}
 ```
 
 ### Cloudflare Pages frontend
