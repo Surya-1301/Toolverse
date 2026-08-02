@@ -35,7 +35,11 @@ let workingPdfApiBaseUrl = "";
 export function getApiBaseCandidates() {
   return unique([
     normalizeConfiguredUrl(process.env.NEXT_PUBLIC_API_BASE_URL),
+
+    // Main Cloudflare Worker API
     "https://toolversex-api.jethalalmirror.workers.dev",
+
+    // Fallback only if you actually deployed this Worker too
     "https://toolversex-api.workers.dev",
   ]);
 }
@@ -70,7 +74,11 @@ export async function fetchApi(path: string, init?: RequestInit) {
 export function getPdfApiBaseCandidates() {
   return unique([
     normalizeConfiguredUrl(process.env.NEXT_PUBLIC_PDF_API_BASE_URL),
+
+    // Main PDF backend
     "https://toolverse-pdf-api.onrender.com",
+
+    // Fallback only if deployed
     "https://toolversex-pdf-api.onrender.com",
   ]);
 }

@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/json-formatter", label: "JSON" },
   { href: "/qr-generator", label: "QR" },
   { href: "/image-compressor", label: "Compress" },
+  { href: "/pdf-editor", label: "PDF" },
   { href: "/paste", label: "Paste" },
   { href: "/url-shortener", label: "Shorten" },
   { href: "/file-share", label: "Upload" },
@@ -29,7 +30,7 @@ export function Header() {
           <span className="relative h-10 w-10 overflow-hidden rounded-xl bg-white">
             <Image
               src="/favicon.ico"
-              alt="Toolverse logo"
+              alt="Toolversee logo"
               fill
               className="object-contain p-1"
               priority

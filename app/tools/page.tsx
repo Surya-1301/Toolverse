@@ -1,13 +1,14 @@
 import {
   Braces,
+  FilePenLine,
   FileUp,
   ImageDown,
   Link2,
   QrCode,
   Text,
 } from "lucide-react";
-import { Container } from "@/components/Container";
-import { ToolCard } from "@/components/ToolCard";
+import { Container } from "../../components/Container";
+import { ToolCard } from "../../components/ToolCard";
 
 const tools = [
   {
@@ -29,6 +30,14 @@ const tools = [
     description: "Compress images and PDF files with simple quality controls.",
     href: "/image-compressor",
     icon: <ImageDown className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "PDF Editor",
+    description:
+      "Merge, split, extract, remove, scan, edit, convert, compress, and secure PDFs in one place.",
+    href: "/pdf-editor",
+    icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },
   {
@@ -68,7 +77,8 @@ export default function ToolsPage() {
 
         <p className="mt-4 text-base leading-7 text-slate-400">
           Browse all available Toolverse tools for formatting, generating,
-          compressing, hosting, sharing, and shortening.
+          compressing, organizing, editing, converting, securing, hosting,
+          sharing, and shortening.
         </p>
       </div>
 
