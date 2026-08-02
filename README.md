@@ -1,6 +1,6 @@
 # Toolverse
 
-ToolverseX is a privacy-friendly collection of free online utilities for developers, creators, and everyday users. It includes browser-first tools, shareable links, Cloudflare-backed uploads, and a dedicated PDF backend for heavier PDF conversion and security workflows.
+Toolverse is a privacy-friendly collection of free online utilities for developers, creators, and everyday users. It includes browser-first tools, shareable links, Cloudflare-backed uploads, and a dedicated PDF backend for heavier PDF conversion and security workflows.
 
 ## Live services
 
