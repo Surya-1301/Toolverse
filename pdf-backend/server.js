@@ -427,6 +427,12 @@ function isOfficeFile(file) {
   );
 }
 
+function isExcelOfficeFile(file) {
+  const name = (file.originalname || "").toLowerCase();
+
+  return name.endsWith(".xls") || name.endsWith(".xlsx");
+}
+
 function convertOfficeToPdf(inputPath, outputDir) {
   const args = [
     "--headless",
@@ -440,21 +446,132 @@ function convertOfficeToPdf(inputPath, outputDir) {
   ];
 
   return new Promise((resolve, reject) => {
-    execFile("libreoffice", args, { timeout: 240000 }, (error, stdout, stderr) => {
-      if (error) {
-        reject(
-          new Error(
-            stderr ||
-              stdout ||
-              error.message ||
-              "Office to PDF conversion failed.",
-          ),
-        );
-        return;
-      }
+    execFile(
+      "libreoffice",
+      args,
+      { timeout: 240000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "Office to PDF conversion failed.",
+            ),
+          );
+          return;
+        }
 
-      resolve();
-    });
+        resolve();
+      },
+    );
+  });
+}
+
+function convertExcelToPdf(inputPath, outputPath) {
+  const pyScript = `
+import sys
+import os
+import tempfile
+import subprocess
+from openpyxl import load_workbook
+
+input_path = sys.argv[1]
+output_path = sys.argv[2]
+
+work_dir = tempfile.mkdtemp(prefix="toolversex-excel-")
+base_name = os.path.splitext(os.path.basename(input_path))[0]
+normalized_xlsx = os.path.join(work_dir, base_name + ".xlsx")
+
+try:
+    workbook = load_workbook(input_path)
+
+    for sheet in workbook.worksheets:
+        sheet.page_setup.orientation = "landscape"
+        sheet.page_setup.fitToWidth = 1
+        sheet.page_setup.fitToHeight = 0
+        sheet.sheet_properties.pageSetUpPr.fitToPage = True
+
+        sheet.page_margins.left = 0.25
+        sheet.page_margins.right = 0.25
+        sheet.page_margins.top = 0.4
+        sheet.page_margins.bottom = 0.4
+        sheet.page_margins.header = 0.2
+        sheet.page_margins.footer = 0.2
+
+        if sheet.max_column > 8:
+            sheet.page_setup.paperSize = sheet.PAPERSIZE_A3
+        else:
+            sheet.page_setup.paperSize = sheet.PAPERSIZE_A4
+
+    workbook.save(normalized_xlsx)
+
+    subprocess.run(
+        [
+            "libreoffice",
+            "--headless",
+            "--nologo",
+            "--nofirststartwizard",
+            "--convert-to",
+            "pdf",
+            "--outdir",
+            work_dir,
+            normalized_xlsx,
+        ],
+        check=True,
+        timeout=240,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+
+    generated_pdf = os.path.join(work_dir, base_name + ".pdf")
+
+    if not os.path.exists(generated_pdf):
+        pdf_files = [
+            os.path.join(work_dir, file_name)
+            for file_name in os.listdir(work_dir)
+            if file_name.lower().endswith(".pdf")
+        ]
+
+        if not pdf_files:
+            raise RuntimeError("Converted PDF file was not created.")
+
+        generated_pdf = pdf_files[0]
+
+    with open(generated_pdf, "rb") as src:
+        with open(output_path, "wb") as dst:
+            dst.write(src.read())
+finally:
+    try:
+        for file_name in os.listdir(work_dir):
+            os.remove(os.path.join(work_dir, file_name))
+        os.rmdir(work_dir)
+    except Exception:
+        pass
+`.trim();
+
+  return new Promise((resolve, reject) => {
+    execFile(
+      "python3",
+      ["-c", pyScript, inputPath, outputPath],
+      { timeout: 300000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "Excel to PDF conversion failed.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      },
+    );
   });
 }
 
@@ -474,29 +591,34 @@ function htmlToPdf(html, outputPath) {
         htmlPath,
       ];
 
-      execFile("chromium", args, { timeout: 240000 }, async (error, stdout, stderr) => {
-        await safeDelete(htmlPath);
+      execFile(
+        "chromium",
+        args,
+        { timeout: 240000 },
+        async (error, stdout, stderr) => {
+          await safeDelete(htmlPath);
 
-        try {
-          await fsp.rm(tempDir, { recursive: true, force: true });
-        } catch {
-          // Ignore cleanup errors.
-        }
+          try {
+            await fsp.rm(tempDir, { recursive: true, force: true });
+          } catch {
+            // Ignore cleanup errors.
+          }
 
-        if (error) {
-          reject(
-            new Error(
-              stderr ||
-                stdout ||
-                error.message ||
-                "HTML to PDF conversion failed.",
-            ),
-          );
-          return;
-        }
+          if (error) {
+            reject(
+              new Error(
+                stderr ||
+                  stdout ||
+                  error.message ||
+                  "HTML to PDF conversion failed.",
+              ),
+            );
+            return;
+          }
 
-        resolve();
-      });
+          resolve();
+        },
+      );
     } catch (error) {
       await safeDelete(htmlPath);
 
@@ -677,19 +799,28 @@ app.post("/api/pdf/office-to-pdf", upload.single("file"), async (req, res) => {
     inputPath = req.file.path;
     const outputDir = path.dirname(inputPath);
 
-    await convertOfficeToPdf(inputPath, outputDir);
-
-    const inputBaseName = path.basename(inputPath).replace(/\.[^.]+$/i, "");
-    outputPath = path.join(outputDir, `${inputBaseName}.pdf`);
-
-    if (!fs.existsSync(outputPath)) {
-      const files = await fsp.readdir(outputDir);
-      const pdfFile = files.find((fileName) =>
-        fileName.toLowerCase().endsWith(".pdf"),
+    if (isExcelOfficeFile(req.file)) {
+      outputPath = path.join(
+        outputDir,
+        `${crypto.randomBytes(16).toString("hex")}.pdf`,
       );
 
-      if (pdfFile) {
-        outputPath = path.join(outputDir, pdfFile);
+      await convertExcelToPdf(inputPath, outputPath);
+    } else {
+      await convertOfficeToPdf(inputPath, outputDir);
+
+      const inputBaseName = path.basename(inputPath).replace(/\.[^.]+$/i, "");
+      outputPath = path.join(outputDir, `${inputBaseName}.pdf`);
+
+      if (!fs.existsSync(outputPath)) {
+        const files = await fsp.readdir(outputDir);
+        const pdfFile = files.find((fileName) =>
+          fileName.toLowerCase().endsWith(".pdf"),
+        );
+
+        if (pdfFile) {
+          outputPath = path.join(outputDir, pdfFile);
+        }
       }
     }
 
