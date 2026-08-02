@@ -3,6 +3,8 @@ FROM node:22-bookworm-slim
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     ghostscript \
+    libreoffice \
+    chromium \
     python3 \
     python3-pip \
   && rm -rf /var/lib/apt/lists/*
@@ -14,8 +16,10 @@ RUN npm install --omit=dev
 
 RUN pip3 install --break-system-packages \
   pymupdf \
-  pandas \
-  openpyxl
+  python-pptx \
+  Pillow \
+  openpyxl \
+  pdf2docx
 
 COPY server.js ./
 

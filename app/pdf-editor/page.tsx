@@ -1038,47 +1038,71 @@ export default function PdfEditorPage() {
   }
 
   async function officeToPdf() {
-    const file = files[0];
-    if (!file) throw new Error("Upload one file first.");
+  const file = files[0];
+  if (!file) throw new Error("Upload one file first.");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetchPdfApi("/api/pdf/office-to-pdf", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetchPdfApi("/api/pdf/office-to-pdf", {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert file to PDF.",
-      );
+  if (!response.ok) {
+    const responseText = await response.text();
+
+    let data: { error?: string } | null = null;
+
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = null;
     }
 
-    return response.blob();
+    throw new Error(
+      data?.error ||
+        responseText ||
+        `Could not convert Office file to PDF. Backend returned ${response.status}.`,
+    );
   }
+
+  return response.blob();
+}
 
   async function htmlToPdf() {
-    const html = htmlContent.trim();
-    if (!html) throw new Error("Enter HTML content first.");
+  const html = htmlContent.trim();
+  if (!html) throw new Error("Enter HTML content first.");
 
-    const response = await fetchPdfApi("/api/pdf/html-to-pdf", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        html,
-        fileName: htmlFileName.trim() || "html-document",
-      }),
-    });
+  const response = await fetchPdfApi("/api/pdf/html-to-pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      html,
+      fileName: htmlFileName.trim() || "html-document",
+    }),
+  });
 
-    if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert HTML to PDF.",
-      );
+  if (!response.ok) {
+    const responseText = await response.text();
+
+    let data: { error?: string } | null = null;
+
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = null;
     }
 
-    return response.blob();
+    throw new Error(
+      data?.error ||
+        responseText ||
+        `Could not convert HTML to PDF. Backend returned ${response.status}.`,
+    );
   }
+
+  return response.blob();
+}
 
   async function pdfToJpg() {
     const file = files[0];
@@ -1110,94 +1134,130 @@ export default function PdfEditorPage() {
   }
 
   async function pdfToWord() {
-    const file = files[0];
-    if (!file) throw new Error("Upload one PDF file first.");
+  const file = files[0];
+  if (!file) throw new Error("Upload one PDF file first.");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetchPdfApi("/api/pdf/to-word", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetchPdfApi("/api/pdf/to-word", {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to Word.",
-      );
+  if (!response.ok) {
+    const responseText = await response.text();
+
+    let data: { error?: string } | null = null;
+
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = null;
     }
 
-    const blob = await response.blob();
-    const contentDisposition = response.headers.get("content-disposition");
-
-    return {
-      blob,
-      name: fileNameFromDisposition(
-        contentDisposition,
-        makeDownloadName(file, "converted", ".docx"),
-      ),
-    };
+    throw new Error(
+      data?.error ||
+        responseText ||
+        `Could not convert PDF to Word. Backend returned ${response.status}.`,
+    );
   }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+
+  return {
+    blob,
+    name: fileNameFromDisposition(
+      contentDisposition,
+      makeDownloadName(file, "converted", ".docx"),
+    ),
+  };
+}
 
   async function pdfToPowerPoint() {
-    const file = files[0];
-    if (!file) throw new Error("Upload one PDF file first.");
+  const file = files[0];
+  if (!file) throw new Error("Upload one PDF file first.");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetchPdfApi("/api/pdf/to-powerpoint", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetchPdfApi("/api/pdf/to-powerpoint", {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to PowerPoint.",
-      );
+  if (!response.ok) {
+    const responseText = await response.text();
+
+    let data: { error?: string } | null = null;
+
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = null;
     }
 
-    const blob = await response.blob();
-    const contentDisposition = response.headers.get("content-disposition");
-
-    return {
-      blob,
-      name: fileNameFromDisposition(
-        contentDisposition,
-        makeDownloadName(file, "powerpoint", ".pptx"),
-      ),
-    };
+    throw new Error(
+      data?.error ||
+        responseText ||
+        `Could not convert PDF to PowerPoint. Backend returned ${response.status}.`,
+    );
   }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+
+  return {
+    blob,
+    name: fileNameFromDisposition(
+      contentDisposition,
+      makeDownloadName(file, "powerpoint", ".pptx"),
+    ),
+  };
+}
 
   async function pdfToExcel() {
-    const file = files[0];
-    if (!file) throw new Error("Upload one PDF file first.");
+  const file = files[0];
+  if (!file) throw new Error("Upload one PDF file first.");
 
-    const formData = new FormData();
-    formData.append("file", file);
+  const formData = new FormData();
+  formData.append("file", file);
 
-    const response = await fetchPdfApi("/api/pdf/to-excel", {
-      method: "POST",
-      body: formData,
-    });
+  const response = await fetchPdfApi("/api/pdf/to-excel", {
+    method: "POST",
+    body: formData,
+  });
 
-    if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to Excel.",
-      );
+  if (!response.ok) {
+    const responseText = await response.text();
+
+    let data: { error?: string } | null = null;
+
+    try {
+      data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+      data = null;
     }
 
-    const blob = await response.blob();
-    const contentDisposition = response.headers.get("content-disposition");
-
-    return {
-      blob,
-      name: fileNameFromDisposition(
-        contentDisposition,
-        makeDownloadName(file, "excel", ".xlsx"),
-      ),
-    };
+    throw new Error(
+      data?.error ||
+        responseText ||
+        `Could not convert PDF to Excel. Backend returned ${response.status}.`,
+    );
   }
+
+  const blob = await response.blob();
+  const contentDisposition = response.headers.get("content-disposition");
+
+  return {
+    blob,
+    name: fileNameFromDisposition(
+      contentDisposition,
+      makeDownloadName(file, "excel", ".xlsx"),
+    ),
+  };
+}
 
   async function pdfToPdfa() {
     const file = files[0];

@@ -38,7 +38,7 @@ app.use(
   }),
 );
 
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "5mb" }));
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -56,9 +56,9 @@ const upload = multer({
       const id = crypto.randomBytes(16).toString("hex");
       const safeOriginalName =
         path
-          .basename(file.originalname || "document.pdf")
+          .basename(file.originalname || "document")
           .replace(/[^a-zA-Z0-9._-]/g, "-")
-          .slice(0, 80) || "document.pdf";
+          .slice(0, 80) || "document";
 
       callback(null, `${id}-${safeOriginalName}`);
     },
@@ -68,12 +68,20 @@ const upload = multer({
     files: 1,
   },
   fileFilter: function (_req, file, callback) {
-    const isPdf =
-      file.mimetype === "application/pdf" ||
-      file.originalname.toLowerCase().endsWith(".pdf");
+    const name = file.originalname.toLowerCase();
 
-    if (!isPdf) {
-      callback(new Error("Only PDF files are allowed."));
+    const isAllowed =
+      file.mimetype === "application/pdf" ||
+      name.endsWith(".pdf") ||
+      name.endsWith(".doc") ||
+      name.endsWith(".docx") ||
+      name.endsWith(".ppt") ||
+      name.endsWith(".pptx") ||
+      name.endsWith(".xls") ||
+      name.endsWith(".xlsx");
+
+    if (!isAllowed) {
+      callback(new Error("Only PDF or Office files are allowed."));
       return;
     }
 
@@ -194,6 +202,46 @@ function compressWithGhostscript(inputPath, outputPath, quality) {
   });
 }
 
+function pdfToWord(inputPath, outputPath) {
+  const pyScript = `
+import sys
+from pdf2docx import Converter
+
+input_path = sys.argv[1]
+output_path = sys.argv[2]
+
+converter = Converter(input_path)
+
+try:
+    converter.convert(output_path, start=0, end=None)
+finally:
+    converter.close()
+`.trim();
+
+  return new Promise((resolve, reject) => {
+    execFile(
+      "python3",
+      ["-c", pyScript, inputPath, outputPath],
+      { timeout: 240000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "PDF to Word conversion failed.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      },
+    );
+  });
+}
+
 function pdfToExcel(inputPath, outputPath) {
   const pyScript = `
 import re
@@ -284,7 +332,6 @@ function pdfToPowerPoint(inputPath, outputPath) {
   const pyScript = `
 import io
 import os
-import re
 import sys
 import fitz
 import tempfile
@@ -367,6 +414,103 @@ finally:
   });
 }
 
+function isOfficeFile(file) {
+  const name = (file.originalname || "").toLowerCase();
+
+  return (
+    name.endsWith(".doc") ||
+    name.endsWith(".docx") ||
+    name.endsWith(".ppt") ||
+    name.endsWith(".pptx") ||
+    name.endsWith(".xls") ||
+    name.endsWith(".xlsx")
+  );
+}
+
+function convertOfficeToPdf(inputPath, outputDir) {
+  const args = [
+    "--headless",
+    "--nologo",
+    "--nofirststartwizard",
+    "--convert-to",
+    "pdf",
+    "--outdir",
+    outputDir,
+    inputPath,
+  ];
+
+  return new Promise((resolve, reject) => {
+    execFile("libreoffice", args, { timeout: 240000 }, (error, stdout, stderr) => {
+      if (error) {
+        reject(
+          new Error(
+            stderr ||
+              stdout ||
+              error.message ||
+              "Office to PDF conversion failed.",
+          ),
+        );
+        return;
+      }
+
+      resolve();
+    });
+  });
+}
+
+function htmlToPdf(html, outputPath) {
+  return new Promise(async (resolve, reject) => {
+    const tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "toolversex-html-"));
+    const htmlPath = path.join(tempDir, "input.html");
+
+    try {
+      await fsp.writeFile(htmlPath, html, "utf8");
+
+      const args = [
+        "--headless",
+        "--no-sandbox",
+        "--disable-gpu",
+        `--print-to-pdf=${outputPath}`,
+        htmlPath,
+      ];
+
+      execFile("chromium", args, { timeout: 240000 }, async (error, stdout, stderr) => {
+        await safeDelete(htmlPath);
+
+        try {
+          await fsp.rm(tempDir, { recursive: true, force: true });
+        } catch {
+          // Ignore cleanup errors.
+        }
+
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "HTML to PDF conversion failed.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      });
+    } catch (error) {
+      await safeDelete(htmlPath);
+
+      try {
+        await fsp.rm(tempDir, { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors.
+      }
+
+      reject(error);
+    }
+  });
+}
+
 async function safeDelete(filePath) {
   try {
     if (filePath && fs.existsSync(filePath)) {
@@ -380,17 +524,37 @@ async function safeDelete(filePath) {
 function getDownloadFileName(originalName) {
   const baseName = path
     .basename(originalName || "document.pdf")
-    .replace(/\\.pdf$/i, "")
+    .replace(/\.pdf$/i, "")
     .replace(/[^a-zA-Z0-9._-]/g, "-")
     .slice(0, 80);
 
   return `${baseName || "document"}-compressed.pdf`;
 }
 
+function getPdfDownloadFileName(originalName, suffix = "converted") {
+  const baseName = path
+    .basename(originalName || "document")
+    .replace(/\.[^.]+$/i, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .slice(0, 80);
+
+  return `${baseName || "document"}-${suffix}.pdf`;
+}
+
+function getWordDownloadFileName(originalName) {
+  const baseName = path
+    .basename(originalName || "document.pdf")
+    .replace(/\.pdf$/i, "")
+    .replace(/[^a-zA-Z0-9._-]/g, "-")
+    .slice(0, 80);
+
+  return `${baseName || "document"}.docx`;
+}
+
 function getExcelDownloadFileName(originalName) {
   const baseName = path
     .basename(originalName || "document.pdf")
-    .replace(/\\.pdf$/i, "")
+    .replace(/\.pdf$/i, "")
     .replace(/[^a-zA-Z0-9._-]/g, "-")
     .slice(0, 80);
 
@@ -400,7 +564,7 @@ function getExcelDownloadFileName(originalName) {
 function getPowerPointDownloadFileName(originalName) {
   const baseName = path
     .basename(originalName || "document.pdf")
-    .replace(/\\.pdf$/i, "")
+    .replace(/\.pdf$/i, "")
     .replace(/[^a-zA-Z0-9._-]/g, "-")
     .slice(0, 80);
 
@@ -489,6 +653,202 @@ app.post("/api/pdf/compress", upload.single("file"), async (req, res) => {
         error instanceof Error
           ? error.message
           : "Could not compress this PDF.",
+    });
+  }
+});
+
+app.post("/api/pdf/office-to-pdf", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "Office file is required.",
+      });
+    }
+
+    if (!isOfficeFile(req.file)) {
+      return res.status(400).json({
+        error: "Please upload a DOC, DOCX, PPT, PPTX, XLS, or XLSX file.",
+      });
+    }
+
+    inputPath = req.file.path;
+    const outputDir = path.dirname(inputPath);
+
+    await convertOfficeToPdf(inputPath, outputDir);
+
+    const inputBaseName = path.basename(inputPath).replace(/\.[^.]+$/i, "");
+    outputPath = path.join(outputDir, `${inputBaseName}.pdf`);
+
+    if (!fs.existsSync(outputPath)) {
+      const files = await fsp.readdir(outputDir);
+      const pdfFile = files.find((fileName) =>
+        fileName.toLowerCase().endsWith(".pdf"),
+      );
+
+      if (pdfFile) {
+        outputPath = path.join(outputDir, pdfFile);
+      }
+    }
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted PDF file was not created.");
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${getPdfDownloadFileName(req.file.originalname)}"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert this Office file to PDF.",
+    });
+  }
+});
+
+app.post("/api/pdf/html-to-pdf", async (req, res) => {
+  let outputPath = "";
+
+  try {
+    const body = req.body || {};
+    const html = String(body.html || "").trim();
+    const fileName = String(body.fileName || "html-document")
+      .replace(/[^a-zA-Z0-9._-]/g, "-")
+      .replace(/\.pdf$/i, "")
+      .slice(0, 80);
+
+    if (!html) {
+      return res.status(400).json({
+        error: "HTML content is required.",
+      });
+    }
+
+    outputPath = path.join(
+      os.tmpdir(),
+      `${crypto.randomBytes(16).toString("hex")}.pdf`,
+    );
+
+    await htmlToPdf(html, outputPath);
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted PDF file was not created.");
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${fileName || "html-document"}.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert HTML to PDF.",
+    });
+  }
+});
+
+app.post("/api/pdf/to-word", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        error: "PDF file is required.",
+      });
+    }
+
+    inputPath = req.file.path;
+    outputPath = path.join(
+      path.dirname(inputPath),
+      `${crypto.randomBytes(16).toString("hex")}.docx`,
+    );
+
+    await pdfToWord(inputPath, outputPath);
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Converted Word file was not created.");
+    }
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    );
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${getWordDownloadFileName(req.file.originalname)}"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not convert this PDF to Word.",
     });
   }
 });
@@ -618,15 +978,18 @@ app.post("/api/pdf/to-powerpoint", upload.single("file"), async (req, res) => {
 app.use((error, _req, res, _next) => {
   console.error(error);
 
-  if (error.message === "Only PDF files are allowed.") {
+  if (
+    error.message === "Only PDF files are allowed." ||
+    error.message === "Only PDF or Office files are allowed."
+  ) {
     return res.status(400).json({
-      error: "Only PDF files are allowed.",
+      error: error.message,
     });
   }
 
   if (error.code === "LIMIT_FILE_SIZE") {
     return res.status(413).json({
-      error: "PDF is too large. Max size is 50 MB.",
+      error: "File is too large. Max size is 50 MB.",
     });
   }
 
