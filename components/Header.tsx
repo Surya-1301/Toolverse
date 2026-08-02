@@ -7,13 +7,13 @@ import { useState } from "react";
 import { Container } from "./Container";
 
 const navLinks = [
-  { href: "/json-formatter", label: "JSON" },
-  { href: "/qr-generator", label: "QR" },
-  { href: "/image-compressor", label: "Compress" },
-  { href: "/pdf-editor", label: "PDF" },
-  { href: "/paste", label: "Paste" },
-  { href: "/url-shortener", label: "Shorten" },
-  { href: "/file-share", label: "Upload" },
+    { href: "/pdf-editor", label: "PDF" },
+    { href: "/file-share", label: "Upload" },
+    { href: "/image-compressor", label: "Compress" },
+    { href: "/paste", label: "Paste" },
+    { href: "/url-shortener", label: "Shorten" },
+    { href: "/qr-generator", label: "QR" },
+    { href: "/json-formatter", label: "JSON" },
 ];
 
 export function Header() {

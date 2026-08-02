@@ -13,6 +13,7 @@ import {
   rgb,
 } from "pdf-lib";
 import {
+  ArrowLeft,
   Combine,
   Crop,
   Download,
@@ -39,12 +40,7 @@ import { formatFileSize } from "../../lib/formatFileSize";
 import { fetchPdfApi } from "../../lib/apiBase";
 
 type Category =
-  | "all"
-  | "organize"
-  | "convertToPdf"
-  | "convertFromPdf"
-  | "edit"
-  | "security";
+  "all" | "organize" | "convertToPdf" | "convertFromPdf" | "edit" | "security";
 
 type Mode =
   | "merge"
@@ -225,7 +221,7 @@ const modes: Array<{
     id: "pdf-to-excel",
     category: "convertFromPdf",
     title: "PDF to EXCEL",
-    description: "Convert a PDF into an Excel workbook.",
+    description: "Convert PDF tables into an Excel workbook.",
     icon: <FileText className="h-5 w-5" />,
   },
   {
@@ -501,9 +497,7 @@ function parseFormAssignments(input: string) {
 }
 
 function isTruthyValue(value: string) {
-  return ["true", "yes", "1", "checked", "on"].includes(
-    value.toLowerCase(),
-  );
+  return ["true", "yes", "1", "checked", "on"].includes(value.toLowerCase());
 }
 
 export default function PdfEditorPage() {
@@ -515,16 +509,13 @@ export default function PdfEditorPage() {
   const [pageRanges, setPageRanges] = useState("");
   const [rotation, setRotation] = useState("90");
   const [compressionQuality, setCompressionQuality] = useState("0.6");
-  const [pageNumberPosition, setPageNumberPosition] =
-    useState("bottom-center");
+  const [pageNumberPosition, setPageNumberPosition] = useState("bottom-center");
   const [watermarkText, setWatermarkText] = useState("CONFIDENTIAL");
   const [watermarkOpacity, setWatermarkOpacity] = useState(0.25);
   const [imageWatermarkFile, setImageWatermarkFile] = useState<File | null>(
     null,
   );
-  const [htmlContent, setHtmlContent] = useState(
-    "<html><body><h1>Hello</h1><p>Convert this HTML to PDF.</p></body></html>",
-  );
+  const [htmlContent, setHtmlContent] = useState("");
   const [htmlFileName, setHtmlFileName] = useState("html-document");
   const [password, setPassword] = useState("");
   const [ownerPassword, setOwnerPassword] = useState("");
@@ -593,10 +584,8 @@ export default function PdfEditorPage() {
     setWatermarkText("CONFIDENTIAL");
     setWatermarkOpacity(0.25);
     setImageWatermarkFile(null);
-    setHtmlContent(
-      "<html><body><h1>Hello</h1><p>Convert this HTML to PDF.</p></body></html>",
-    );
-    setHtmlFileName("html-document");
+    setHtmlContent("");
+    setHtmlFileName("");
     setPassword("");
     setOwnerPassword("");
     setRedactionTerms("");
@@ -631,6 +620,11 @@ export default function PdfEditorPage() {
       setMode(nextVisibleModes[0].id);
     }
 
+    resetWorkingState();
+  }
+
+  function backToTools() {
+    setShowToolPanel(false);
     resetWorkingState();
   }
 
@@ -809,9 +803,7 @@ export default function PdfEditorPage() {
 
       if (pageNumberPosition.startsWith("top")) y = height - 34;
       if (pageNumberPosition.endsWith("left")) x = margin;
-      if (pageNumberPosition.endsWith("right")) {
-        x = width - textWidth - margin;
-      }
+      if (pageNumberPosition.endsWith("right")) x = width - textWidth - margin;
 
       page.drawText(label, {
         x,
@@ -1038,71 +1030,47 @@ export default function PdfEditorPage() {
   }
 
   async function officeToPdf() {
-  const file = files[0];
-  if (!file) throw new Error("Upload one file first.");
+    const file = files[0];
+    if (!file) throw new Error("Upload one file first.");
 
-  const formData = new FormData();
-  formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const response = await fetchPdfApi("/api/pdf/office-to-pdf", {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetchPdfApi("/api/pdf/office-to-pdf", {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const responseText = await response.text();
-
-    let data: { error?: string } | null = null;
-
-    try {
-      data = responseText ? JSON.parse(responseText) : null;
-    } catch {
-      data = null;
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Could not convert file to PDF.",
+      );
     }
 
-    throw new Error(
-      data?.error ||
-        responseText ||
-        `Could not convert Office file to PDF. Backend returned ${response.status}.`,
-    );
+    return response.blob();
   }
-
-  return response.blob();
-}
 
   async function htmlToPdf() {
-  const html = htmlContent.trim();
-  if (!html) throw new Error("Enter HTML content first.");
+    const html = htmlContent.trim();
+    if (!html) throw new Error("Enter HTML content first.");
 
-  const response = await fetchPdfApi("/api/pdf/html-to-pdf", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      html,
-      fileName: htmlFileName.trim() || "html-document",
-    }),
-  });
+    const response = await fetchPdfApi("/api/pdf/html-to-pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        html,
+        fileName: htmlFileName.trim() || "html-document",
+      }),
+    });
 
-  if (!response.ok) {
-    const responseText = await response.text();
-
-    let data: { error?: string } | null = null;
-
-    try {
-      data = responseText ? JSON.parse(responseText) : null;
-    } catch {
-      data = null;
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Could not convert HTML to PDF.",
+      );
     }
 
-    throw new Error(
-      data?.error ||
-        responseText ||
-        `Could not convert HTML to PDF. Backend returned ${response.status}.`,
-    );
+    return response.blob();
   }
-
-  return response.blob();
-}
 
   async function pdfToJpg() {
     const file = files[0];
@@ -1117,7 +1085,9 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error((await response.text()) || "Could not convert PDF to JPG.");
+      throw new Error(
+        (await response.text()) || "Could not convert PDF to JPG.",
+      );
     }
 
     const blob = await response.blob();
@@ -1134,130 +1104,94 @@ export default function PdfEditorPage() {
   }
 
   async function pdfToWord() {
-  const file = files[0];
-  if (!file) throw new Error("Upload one PDF file first.");
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
 
-  const formData = new FormData();
-  formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const response = await fetchPdfApi("/api/pdf/to-word", {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetchPdfApi("/api/pdf/to-word", {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const responseText = await response.text();
-
-    let data: { error?: string } | null = null;
-
-    try {
-      data = responseText ? JSON.parse(responseText) : null;
-    } catch {
-      data = null;
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Could not convert PDF to Word.",
+      );
     }
 
-    throw new Error(
-      data?.error ||
-        responseText ||
-        `Could not convert PDF to Word. Backend returned ${response.status}.`,
-    );
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(
+        contentDisposition,
+        makeDownloadName(file, "converted", ".docx"),
+      ),
+    };
   }
-
-  const blob = await response.blob();
-  const contentDisposition = response.headers.get("content-disposition");
-
-  return {
-    blob,
-    name: fileNameFromDisposition(
-      contentDisposition,
-      makeDownloadName(file, "converted", ".docx"),
-    ),
-  };
-}
 
   async function pdfToPowerPoint() {
-  const file = files[0];
-  if (!file) throw new Error("Upload one PDF file first.");
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
 
-  const formData = new FormData();
-  formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const response = await fetchPdfApi("/api/pdf/to-powerpoint", {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetchPdfApi("/api/pdf/to-powerpoint", {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const responseText = await response.text();
-
-    let data: { error?: string } | null = null;
-
-    try {
-      data = responseText ? JSON.parse(responseText) : null;
-    } catch {
-      data = null;
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Could not convert PDF to PowerPoint.",
+      );
     }
 
-    throw new Error(
-      data?.error ||
-        responseText ||
-        `Could not convert PDF to PowerPoint. Backend returned ${response.status}.`,
-    );
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(
+        contentDisposition,
+        makeDownloadName(file, "powerpoint", ".pptx"),
+      ),
+    };
   }
-
-  const blob = await response.blob();
-  const contentDisposition = response.headers.get("content-disposition");
-
-  return {
-    blob,
-    name: fileNameFromDisposition(
-      contentDisposition,
-      makeDownloadName(file, "powerpoint", ".pptx"),
-    ),
-  };
-}
 
   async function pdfToExcel() {
-  const file = files[0];
-  if (!file) throw new Error("Upload one PDF file first.");
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
 
-  const formData = new FormData();
-  formData.append("file", file);
+    const formData = new FormData();
+    formData.append("file", file);
 
-  const response = await fetchPdfApi("/api/pdf/to-excel", {
-    method: "POST",
-    body: formData,
-  });
+    const response = await fetchPdfApi("/api/pdf/to-excel", {
+      method: "POST",
+      body: formData,
+    });
 
-  if (!response.ok) {
-    const responseText = await response.text();
-
-    let data: { error?: string } | null = null;
-
-    try {
-      data = responseText ? JSON.parse(responseText) : null;
-    } catch {
-      data = null;
+    if (!response.ok) {
+      throw new Error(
+        (await response.text()) || "Could not convert PDF to Excel.",
+      );
     }
 
-    throw new Error(
-      data?.error ||
-        responseText ||
-        `Could not convert PDF to Excel. Backend returned ${response.status}.`,
-    );
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(
+        contentDisposition,
+        makeDownloadName(file, "excel", ".xlsx"),
+      ),
+    };
   }
-
-  const blob = await response.blob();
-  const contentDisposition = response.headers.get("content-disposition");
-
-  return {
-    blob,
-    name: fileNameFromDisposition(
-      contentDisposition,
-      makeDownloadName(file, "excel", ".xlsx"),
-    ),
-  };
-}
 
   async function pdfToPdfa() {
     const file = files[0];
@@ -1563,112 +1497,104 @@ export default function PdfEditorPage() {
         </p>
       </div>
 
-      <div className="mx-auto mt-8 max-w-6xl">
-        <div className="flex flex-wrap gap-3">
-          {categoryTabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => switchCategory(tab.id)}
-              className={`rounded-full border px-6 py-3 text-sm font-semibold tracking-[0.14em] transition ${
-                activeCategory === tab.id
-                  ? "border-white bg-white text-slate-950"
-                  : "border-white/10 bg-white/[0.05] text-slate-400 hover:bg-white/[0.08] hover:text-white"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+      {!showToolPanel ? (
+        <div className="mx-auto mt-8 max-w-6xl">
+          <div className="flex flex-wrap gap-3">
+            {categoryTabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => switchCategory(tab.id)}
+                className={`rounded-full border px-6 py-3 text-sm font-semibold tracking-[0.14em] transition ${
+                  activeCategory === tab.id
+                    ? "border-white bg-white text-slate-950"
+                    : "border-white/10 bg-white/[0.05] text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {visibleModes.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => switchMode(item.id)}
-              className={`rounded-2xl border p-5 text-left transition ${
-                mode === item.id
-                  ? "border-violet-500/70 bg-violet-500/10"
-                  : "border-white/10 bg-white/[0.03] hover:border-violet-500/50 hover:bg-white/[0.05]"
-              }`}
-            >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 text-white">
-                {item.icon}
-              </div>
+          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+            {visibleModes.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => switchMode(item.id)}
+                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-violet-500/50 hover:bg-white/[0.05]"
+              >
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 text-white">
+                  {item.icon}
+                </div>
 
-              <h2 className="font-semibold text-white">{item.title}</h2>
-              <p className="mt-2 text-sm leading-6 text-slate-400">
-                {item.description}
-              </p>
-            </button>
-          ))}
+                <h2 className="font-semibold text-white">{item.title}</h2>
+                <p className="mt-2 text-sm leading-6 text-slate-400">
+                  {item.description}
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      ) : null}
 
       {showToolPanel ? (
-        <div className="mx-auto mt-8 grid max-w-6xl gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-            <div className="mb-5 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 text-white">
-                {selectedMode.icon}
-              </div>
-              <div>
-                <h2 className="font-semibold text-white">{selectedMode.title}</h2>
-                <p className="text-sm text-slate-400">
-                  {selectedMode.description}
-                </p>
-              </div>
-            </div>
+        <div className="mx-auto mt-8 max-w-6xl">
+          <button
+            type="button"
+            onClick={backToTools}
+            className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to all PDF tools
+          </button>
 
-            {isHtmlMode ? (
-              <div className="space-y-5">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
-                    File name
-                  </label>
-                  <input
-                    value={htmlFileName}
-                    onChange={(event) => setHtmlFileName(event.target.value)}
-                    placeholder="html-document"
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-                  />
+          <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+              <div className="mb-5 flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 text-white">
+                  {selectedMode.icon}
                 </div>
-
                 <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
-                    HTML content
-                  </label>
-                  <textarea
-                    value={htmlContent}
-                    onChange={(event) => setHtmlContent(event.target.value)}
-                    rows={14}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-                  />
+                  <h2 className="font-semibold text-white">
+                    {selectedMode.title}
+                  </h2>
+                  <p className="text-sm text-slate-400">
+                    {selectedMode.description}
+                  </p>
                 </div>
               </div>
-            ) : (
-              <>
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Upload{" "}
-                  {isImageMode
-                    ? "images"
-                    : isWordMode
-                      ? "Word file"
-                      : isPowerPointMode
-                        ? "PowerPoint file"
-                        : isExcelMode
-                          ? "Excel file"
-                          : isCompareMode
-                            ? "first PDF"
-                            : `PDF ${mode === "merge" ? "files" : "file"}`}
-                </label>
 
-                <label className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
-                  <Upload className="mb-3 h-8 w-8 text-violet-300" />
+              {isHtmlMode ? (
+                <div className="space-y-5">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      File name
+                    </label>
+                    <input
+                      value={htmlFileName}
+                      onChange={(event) => setHtmlFileName(event.target.value)}
+                      placeholder="html-document"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
 
-                  <span className="font-medium text-white">
-                    Click to choose{" "}
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      HTML content
+                    </label>
+                    <textarea
+                      value={htmlContent}
+                      onChange={(event) => setHtmlContent(event.target.value)}
+                      rows={14}
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Upload{" "}
                     {isImageMode
                       ? "images"
                       : isWordMode
@@ -1680,442 +1606,478 @@ export default function PdfEditorPage() {
                             : isCompareMode
                               ? "first PDF"
                               : `PDF ${mode === "merge" ? "files" : "file"}`}
-                  </span>
-
-                  <span className="mt-2 text-sm text-slate-500">
-                    {isImageMode
-                      ? "Select JPG, PNG, or WebP images"
-                      : isWordMode
-                        ? "Select one DOC or DOCX file"
-                        : isPowerPointMode
-                          ? "Select one PPT or PPTX file"
-                          : isExcelMode
-                            ? "Select one XLS or XLSX file"
-                            : mode === "merge"
-                              ? "Select two or more PDFs"
-                              : "Select one PDF file"}
-                  </span>
-
-                  <input
-                    type="file"
-                    accept={
-                      isImageMode
-                        ? "image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
-                        : isWordMode
-                          ? ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                          : isPowerPointMode
-                            ? ".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
-                            : isExcelMode
-                              ? ".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                              : "application/pdf,.pdf"
-                    }
-                    multiple={mode === "merge" || isImageMode}
-                    onChange={handleFilesChange}
-                    className="hidden"
-                  />
-                </label>
-
-                {files.length ? (
-                  <div className="mt-4 space-y-2">
-                    {files.map((file) => (
-                      <div
-                        key={`${file.name}-${file.size}`}
-                        className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3"
-                      >
-                        <p className="break-all text-sm font-medium text-white">
-                          {file.name}
-                        </p>
-                        <p className="mt-1 text-xs text-slate-500">
-                          {formatFileSize(file.size)}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                ) : null}
-              </>
-            )}
-
-            {isCompareMode ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Upload second PDF
-                </label>
-                <input
-                  type="file"
-                  accept="application/pdf,.pdf"
-                  onChange={handleSecondCompareFileChange}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
-                />
-
-                {secondCompareFile ? (
-                  <div className="mt-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3">
-                    <p className="break-all text-sm font-medium text-white">
-                      {secondCompareFile.name}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      {formatFileSize(secondCompareFile.size)}
-                    </p>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            {needsPageInput ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  {mode === "reorder"
-                    ? "New page order"
-                    : mode === "rotate"
-                      ? "Pages to rotate"
-                      : mode === "remove"
-                        ? "Pages to remove"
-                        : "Pages to extract"}
-                </label>
-                <input
-                  value={pageRanges}
-                  onChange={(event) => setPageRanges(event.target.value)}
-                  placeholder={
-                    mode === "rotate"
-                      ? "Leave empty for all pages, or use 1,3,5-7"
-                      : mode === "reorder"
-                        ? "Example: 3,1,2,4"
-                        : "Example: 1,3,5-7"
-                  }
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-                />
-                <p className="mt-2 text-xs leading-5 text-slate-500">
-                  {mode === "reorder"
-                    ? "Enter every page exactly once in the new order."
-                    : mode === "remove"
-                      ? "Use commas and ranges to remove pages, for example: 1,3,5-7."
-                      : mode === "extract-pages" || mode === "split"
-                        ? "Use commas and ranges to extract pages, for example: 1,3,5-7."
-                        : "Use commas and ranges, for example: 1,3,5-7."}
-                </p>
-              </div>
-            ) : null}
-
-            {mode === "rotate" ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Rotation
-                </label>
-                <select
-                  value={rotation}
-                  onChange={(event) => setRotation(event.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                >
-                  <option value="90">90° clockwise</option>
-                  <option value="180">180°</option>
-                  <option value="270">270° clockwise</option>
-                </select>
-              </div>
-            ) : null}
-
-            {mode === "compress-pdf" ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Compression level
-                </label>
-                <select
-                  value={compressionQuality}
-                  onChange={(event) => setCompressionQuality(event.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                >
-                  <option value="0.85">Low compression / high quality</option>
-                  <option value="0.6">Balanced</option>
-                  <option value="0.35">High compression / smaller file</option>
-                </select>
-              </div>
-            ) : null}
-
-            {mode === "page-numbers" ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Number position
-                </label>
-                <select
-                  value={pageNumberPosition}
-                  onChange={(event) => setPageNumberPosition(event.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                >
-                  <option value="bottom-center">Bottom center</option>
-                  <option value="bottom-left">Bottom left</option>
-                  <option value="bottom-right">Bottom right</option>
-                  <option value="top-center">Top center</option>
-                  <option value="top-left">Top left</option>
-                  <option value="top-right">Top right</option>
-                </select>
-              </div>
-            ) : null}
-
-            {mode === "image-watermark" ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Watermark image
-                </label>
-                <input
-                  type="file"
-                  accept="image/png,image/jpeg,.png,.jpg,.jpeg"
-                  onChange={(event) => {
-                    setImageWatermarkFile(event.target.files?.[0] || null);
-                    setOutput(null);
-                    setError("");
-                  }}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
-                />
-              </div>
-            ) : null}
-
-            {mode === "watermark" || mode === "image-watermark" ? (
-              <div className="mt-5 grid gap-5 sm:grid-cols-2">
-                {mode === "watermark" ? (
-                  <div className="sm:col-span-2">
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
-                      Watermark text
-                    </label>
-                    <input
-                      value={watermarkText}
-                      onChange={(event) => setWatermarkText(event.target.value)}
-                      placeholder="CONFIDENTIAL"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-                    />
-                  </div>
-                ) : null}
-
-                <div className="sm:col-span-2">
-                  <div className="flex items-center justify-between gap-3">
-                    <label className="block text-sm font-medium text-slate-300">
-                      Opacity
-                    </label>
-                    <span className="rounded-full border border-white/10 bg-slate-950 px-3 py-1 text-xs text-slate-300">
-                      {Math.round(watermarkOpacity * 100)}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0.05"
-                    max="0.6"
-                    step="0.05"
-                    value={watermarkOpacity}
-                    onChange={(event) =>
-                      setWatermarkOpacity(Number(event.target.value))
-                    }
-                    className="mt-3 w-full accent-violet-500"
-                  />
-                </div>
-              </div>
-            ) : null}
-
-            {isCropMode ? (
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {[
-                  { label: "Top %", value: cropTop, setValue: setCropTop },
-                  { label: "Right %", value: cropRight, setValue: setCropRight },
-                  {
-                    label: "Bottom %",
-                    value: cropBottom,
-                    setValue: setCropBottom,
-                  },
-                  { label: "Left %", value: cropLeft, setValue: setCropLeft },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
-                      {item.label}
-                    </label>
-                    <input
-                      type="number"
-                      min="0"
-                      max="44"
-                      value={item.value}
-                      onChange={(event) => item.setValue(event.target.value)}
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                    />
-                  </div>
-                ))}
-              </div>
-            ) : null}
-
-            {isPdfFormsMode ? (
-              <div className="mt-5 space-y-4">
-                <div>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
-                    Field values
                   </label>
-                  <textarea
-                    value={formFieldsText}
-                    onChange={(event) => setFormFieldsText(event.target.value)}
-                    rows={7}
-                    placeholder={"Full Name=Alex Doe\nEmail=alex@example.com"}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-                  />
-                  <p className="mt-2 text-xs text-slate-500">
-                    Use one field per line in the format `Field Name=Value`.
-                  </p>
-                </div>
 
-                <label className="inline-flex items-center gap-3 text-sm text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={flattenForms}
-                    onChange={(event) => setFlattenForms(event.target.checked)}
-                    className="h-4 w-4 rounded border-white/20 bg-slate-950"
-                  />
-                  Flatten form after filling
-                </label>
+                  <label className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+                    <Upload className="mb-3 h-8 w-8 text-violet-300" />
 
-                {detectedFormFields.length ? (
-                  <div className="rounded-xl border border-white/10 bg-slate-950 p-4">
-                    <p className="mb-2 text-sm font-medium text-white">
-                      Detected fields
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {detectedFormFields.map((field) => (
-                        <span
-                          key={field}
-                          className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-300"
+                    <span className="font-medium text-white">
+                      Click to choose{" "}
+                      {isImageMode
+                        ? "images"
+                        : isWordMode
+                          ? "Word file"
+                          : isPowerPointMode
+                            ? "PowerPoint file"
+                            : isExcelMode
+                              ? "Excel file"
+                              : isCompareMode
+                                ? "first PDF"
+                                : `PDF ${mode === "merge" ? "files" : "file"}`}
+                    </span>
+
+                    <span className="mt-2 text-sm text-slate-500">
+                      {isImageMode
+                        ? "Select JPG, PNG, or WebP images"
+                        : isWordMode
+                          ? "Select one DOC or DOCX file"
+                          : isPowerPointMode
+                            ? "Select one PPT or PPTX file"
+                            : isExcelMode
+                              ? "Select one XLS or XLSX file"
+                              : mode === "merge"
+                                ? "Select two or more PDFs"
+                                : "Select one PDF file"}
+                    </span>
+
+                    <input
+                      type="file"
+                      accept={
+                        isImageMode
+                          ? "image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+                          : isWordMode
+                            ? ".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            : isPowerPointMode
+                              ? ".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                              : isExcelMode
+                                ? ".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                : "application/pdf,.pdf"
+                      }
+                      multiple={mode === "merge" || isImageMode}
+                      onChange={handleFilesChange}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {files.length ? (
+                    <div className="mt-4 space-y-2">
+                      {files.map((file) => (
+                        <div
+                          key={`${file.name}-${file.size}`}
+                          className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3"
                         >
-                          {field}
-                        </span>
+                          <p className="break-all text-sm font-medium text-white">
+                            {file.name}
+                          </p>
+                          <p className="mt-1 text-xs text-slate-500">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
                       ))}
                     </div>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
+                  ) : null}
+                </>
+              )}
 
-            {isUnlockMode || isProtectMode ? (
-              <div className="mt-5 grid gap-5">
-                <div>
+              {isCompareMode ? (
+                <div className="mt-5">
                   <label className="mb-2 block text-sm font-medium text-slate-300">
-                    {isProtectMode ? "User password" : "Current password"}
+                    Upload second PDF
                   </label>
                   <input
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
+                    type="file"
+                    accept="application/pdf,.pdf"
+                    onChange={handleSecondCompareFileChange}
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+                  />
+
+                  {secondCompareFile ? (
+                    <div className="mt-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3">
+                      <p className="break-all text-sm font-medium text-white">
+                        {secondCompareFile.name}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-500">
+                        {formatFileSize(secondCompareFile.size)}
+                      </p>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {needsPageInput ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    {mode === "reorder"
+                      ? "New page order"
+                      : mode === "rotate"
+                        ? "Pages to rotate"
+                        : mode === "remove"
+                          ? "Pages to remove"
+                          : "Pages to extract"}
+                  </label>
+                  <input
+                    value={pageRanges}
+                    onChange={(event) => setPageRanges(event.target.value)}
                     placeholder={
-                      isProtectMode
-                        ? "Enter password to protect PDF"
-                        : "Enter current PDF password"
+                      mode === "rotate"
+                        ? "Leave empty for all pages, or use 1,3,5-7"
+                        : mode === "reorder"
+                          ? "Example: 3,1,2,4"
+                          : "Example: 1,3,5-7"
                     }
                     className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
                   />
+                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                    {mode === "reorder"
+                      ? "Enter every page exactly once in the new order."
+                      : mode === "remove"
+                        ? "Use commas and ranges to remove pages, for example: 1,3,5-7."
+                        : mode === "extract-pages" || mode === "split"
+                          ? "Use commas and ranges to extract pages, for example: 1,3,5-7."
+                          : "Use commas and ranges, for example: 1,3,5-7."}
+                  </p>
                 </div>
+              ) : null}
 
-                {isProtectMode ? (
+              {mode === "rotate" ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Rotation
+                  </label>
+                  <select
+                    value={rotation}
+                    onChange={(event) => setRotation(event.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                  >
+                    <option value="90">90° clockwise</option>
+                    <option value="180">180°</option>
+                    <option value="270">270° clockwise</option>
+                  </select>
+                </div>
+              ) : null}
+
+              {mode === "compress-pdf" ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Compression level
+                  </label>
+                  <select
+                    value={compressionQuality}
+                    onChange={(event) =>
+                      setCompressionQuality(event.target.value)
+                    }
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                  >
+                    <option value="0.85">Low compression / high quality</option>
+                    <option value="0.6">Balanced</option>
+                    <option value="0.35">
+                      High compression / smaller file
+                    </option>
+                  </select>
+                </div>
+              ) : null}
+
+              {mode === "page-numbers" ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Number position
+                  </label>
+                  <select
+                    value={pageNumberPosition}
+                    onChange={(event) =>
+                      setPageNumberPosition(event.target.value)
+                    }
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                  >
+                    <option value="bottom-center">Bottom center</option>
+                    <option value="bottom-left">Bottom left</option>
+                    <option value="bottom-right">Bottom right</option>
+                    <option value="top-center">Top center</option>
+                    <option value="top-left">Top left</option>
+                    <option value="top-right">Top right</option>
+                  </select>
+                </div>
+              ) : null}
+
+              {mode === "image-watermark" ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Watermark image
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+                    onChange={(event) => {
+                      setImageWatermarkFile(event.target.files?.[0] || null);
+                      setOutput(null);
+                      setError("");
+                    }}
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+                  />
+                </div>
+              ) : null}
+
+              {mode === "watermark" || mode === "image-watermark" ? (
+                <div className="mt-5 grid gap-5 sm:grid-cols-2">
+                  {mode === "watermark" ? (
+                    <div className="sm:col-span-2">
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Watermark text
+                      </label>
+                      <input
+                        value={watermarkText}
+                        onChange={(event) =>
+                          setWatermarkText(event.target.value)
+                        }
+                        placeholder="CONFIDENTIAL"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+                  ) : null}
+
+                  <div className="sm:col-span-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <label className="block text-sm font-medium text-slate-300">
+                        Opacity
+                      </label>
+                      <span className="rounded-full border border-white/10 bg-slate-950 px-3 py-1 text-xs text-slate-300">
+                        {Math.round(watermarkOpacity * 100)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.05"
+                      max="0.6"
+                      step="0.05"
+                      value={watermarkOpacity}
+                      onChange={(event) =>
+                        setWatermarkOpacity(Number(event.target.value))
+                      }
+                      className="mt-3 w-full accent-violet-500"
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {isCropMode ? (
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  {[
+                    { label: "Top %", value: cropTop, setValue: setCropTop },
+                    {
+                      label: "Right %",
+                      value: cropRight,
+                      setValue: setCropRight,
+                    },
+                    {
+                      label: "Bottom %",
+                      value: cropBottom,
+                      setValue: setCropBottom,
+                    },
+                    { label: "Left %", value: cropLeft, setValue: setCropLeft },
+                  ].map((item) => (
+                    <div key={item.label}>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        {item.label}
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="44"
+                        value={item.value}
+                        onChange={(event) => item.setValue(event.target.value)}
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {isPdfFormsMode ? (
+                <div className="mt-5 space-y-4">
                   <div>
                     <label className="mb-2 block text-sm font-medium text-slate-300">
-                      Owner password (optional)
+                      Field values
+                    </label>
+                    <textarea
+                      value={formFieldsText}
+                      onChange={(event) =>
+                        setFormFieldsText(event.target.value)
+                      }
+                      rows={7}
+                      placeholder={"Full Name=Alex Doe\nEmail=alex@example.com"}
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                    <p className="mt-2 text-xs text-slate-500">
+                      Use one field per line in the format `Field Name=Value`.
+                    </p>
+                  </div>
+
+                  <label className="inline-flex items-center gap-3 text-sm text-slate-300">
+                    <input
+                      type="checkbox"
+                      checked={flattenForms}
+                      onChange={(event) =>
+                        setFlattenForms(event.target.checked)
+                      }
+                      className="h-4 w-4 rounded border-white/20 bg-slate-950"
+                    />
+                    Flatten form after filling
+                  </label>
+
+                  {detectedFormFields.length ? (
+                    <div className="rounded-xl border border-white/10 bg-slate-950 p-4">
+                      <p className="mb-2 text-sm font-medium text-white">
+                        Detected fields
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {detectedFormFields.map((field) => (
+                          <span
+                            key={field}
+                            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-300"
+                          >
+                            {field}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {isUnlockMode || isProtectMode ? (
+                <div className="mt-5 grid gap-5">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      {isProtectMode ? "User password" : "Current password"}
                     </label>
                     <input
                       type="password"
-                      value={ownerPassword}
-                      onChange={(event) => setOwnerPassword(event.target.value)}
-                      placeholder="Optional. Uses user password if left empty."
+                      value={password}
+                      onChange={(event) => setPassword(event.target.value)}
+                      placeholder={
+                        isProtectMode
+                          ? "Enter password to protect PDF"
+                          : "Enter current PDF password"
+                      }
                       className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
                     />
                   </div>
-                ) : null}
-              </div>
-            ) : null}
 
-            {isRedactMode ? (
-              <div className="mt-5">
-                <label className="mb-2 block text-sm font-medium text-slate-300">
-                  Terms to redact
-                </label>
-                <textarea
-                  value={redactionTerms}
-                  onChange={(event) => setRedactionTerms(event.target.value)}
-                  placeholder="Enter words or phrases separated by commas or new lines"
-                  rows={5}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-                />
-              </div>
-            ) : null}
-
-            {error ? (
-              <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                {error}
-              </div>
-            ) : null}
-
-            <div className="mt-5 flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={processPdf}
-                disabled={!canProcess || isProcessing}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
-              >
-                {isProcessing ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <FileText className="h-4 w-4" />
-                )}
-                {isProcessing ? "Processing..." : selectedMode.title}
-              </button>
-
-              <button
-                type="button"
-                onClick={resetWorkingState}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
-              >
-                <Eraser className="h-4 w-4" />
-                Clear
-              </button>
-            </div>
-          </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-            <h2 className="font-semibold text-white">Output</h2>
-
-            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
-              {output ? (
-                <>
-                  <div className="mb-4 flex items-start justify-between gap-3">
+                  {isProtectMode ? (
                     <div>
-                      <p className="break-all font-medium text-white">
-                        {output.name}
-                      </p>
-                      <p className="mt-1 text-sm text-slate-400">
-                        {formatFileSize(output.size)}
-                      </p>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Owner password (optional)
+                      </label>
+                      <input
+                        type="password"
+                        value={ownerPassword}
+                        onChange={(event) =>
+                          setOwnerPassword(event.target.value)
+                        }
+                        placeholder="Optional. Uses user password if left empty."
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
                     </div>
-
-                    <button
-                      type="button"
-                      onClick={downloadOutput}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
-                    >
-                      <Download className="h-4 w-4" />
-                      Download
-                    </button>
-                  </div>
-
-                  {output.kind === "text" ? (
-                    <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-900 p-4 text-left text-sm leading-6 text-slate-200">
-                      {output.previewText || "No preview output."}
-                    </pre>
-                  ) : (
-                    <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-center text-sm text-slate-500">
-                      <div>
-                        <FileText className="mx-auto mb-3 h-10 w-10" />
-                        Your output file is ready to download.
-                      </div>
-                    </div>
-                  )}
-                </>
-              ) : (
-                <div className="flex min-h-[320px] items-center justify-center text-center text-sm text-slate-500">
-                  <div>
-                    <FileText className="mx-auto mb-3 h-10 w-10" />
-                    Your output file will appear here.
-                  </div>
+                  ) : null}
                 </div>
-              )}
+              ) : null}
+
+              {isRedactMode ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Terms to redact
+                  </label>
+                  <textarea
+                    value={redactionTerms}
+                    onChange={(event) => setRedactionTerms(event.target.value)}
+                    placeholder="Enter words or phrases separated by commas or new lines"
+                    rows={5}
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                  />
+                </div>
+              ) : null}
+
+              {error ? (
+                <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                  {error}
+                </div>
+              ) : null}
+
+              <div className="mt-5 flex flex-wrap gap-3">
+                <button
+                  type="button"
+                  onClick={processPdf}
+                  disabled={!canProcess || isProcessing}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {isProcessing ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <FileText className="h-4 w-4" />
+                  )}
+                  {isProcessing ? "Processing..." : selectedMode.title}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={resetWorkingState}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                >
+                  <Eraser className="h-4 w-4" />
+                  Clear
+                </button>
+              </div>
             </div>
 
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+              <h2 className="font-semibold text-white">Output</h2>
+
+              <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
+                {output ? (
+                  <>
+                    <div className="mb-4 flex items-start justify-between gap-3">
+                      <div>
+                        <p className="break-all font-medium text-white">
+                          {output.name}
+                        </p>
+                        <p className="mt-1 text-sm text-slate-400">
+                          {formatFileSize(output.size)}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={downloadOutput}
+                        className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                      >
+                        <Download className="h-4 w-4" />
+                        Download
+                      </button>
+                    </div>
+
+                    {output.kind === "text" ? (
+                      <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-900 p-4 text-left text-sm leading-6 text-slate-200">
+                        {output.previewText || "No preview output."}
+                      </pre>
+                    ) : (
+                      <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-center text-sm text-slate-500">
+                        <div>
+                          <FileText className="mx-auto mb-3 h-10 w-10" />
+                          Your output file is ready to download.
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex min-h-[320px] items-center justify-center text-center text-sm text-slate-500">
+                    <div>
+                      <FileText className="mx-auto mb-3 h-10 w-10" />
+                      Your output file will appear here.
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       ) : null}
@@ -2133,7 +2095,7 @@ export default function PdfEditorPage() {
           {
             title: "Choose a tool",
             description:
-              "Click Merge PDF, Rotate PDF, Compress PDF, PDF to POWERPOINT, PDF to EXCEL, or any other tool card.",
+              "Click Merge PDF, Rotate PDF, Compress PDF, PDF to Excel, or any other tool card.",
             icon: <Crop className="h-5 w-5" />,
           },
           {

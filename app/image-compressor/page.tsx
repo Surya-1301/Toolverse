@@ -238,7 +238,7 @@ export default function ImageCompressorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Compress images in your browser and PDFs with the Ghostscript backend.
+          Compress images in your browser and PDFs.
         </p>
       </div>
 
@@ -334,9 +334,7 @@ export default function ImageCompressorPage() {
               />
 
               <p className="mt-2 text-xs leading-5 text-slate-500">
-                Lower quality usually creates a smaller file. PDF compression is
-                handled by the Ghostscript backend, which works better for
-                scanned or image-heavy PDFs.
+                Lower quality usually creates a smaller file.
               </p>
             </div>
 

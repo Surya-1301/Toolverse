@@ -358,12 +358,6 @@ export default function FileSharePage() {
                   }`
                 : "Choose an image, PDF, or file to generate shareable links."}
             </p>
-
-            <p className="mt-4 text-xs leading-5 text-slate-500">
-              Owner link and user link stay on your Pages domain. Direct
-              file/image delivery uses the backend Worker.
-            </p>
-
             {result ? (
               <div className="mt-4 grid gap-2 text-xs text-slate-400 sm:grid-cols-2">
                 <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">

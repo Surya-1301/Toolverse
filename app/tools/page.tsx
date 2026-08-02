@@ -12,27 +12,6 @@ import { ToolCard } from "../../components/ToolCard";
 
 const tools = [
   {
-    title: "JSON Formatter",
-    description: "Format, validate, and minify JSON instantly in your browser.",
-    href: "/json-formatter",
-    icon: <Braces className="h-6 w-6" />,
-    status: "live" as const,
-  },
-  {
-    title: "QR Generator",
-    description: "Create downloadable QR codes for links, text, and files.",
-    href: "/qr-generator",
-    icon: <QrCode className="h-6 w-6" />,
-    status: "live" as const,
-  },
-  {
-    title: "Image & PDF Compressor",
-    description: "Compress images and PDF files with simple quality controls.",
-    href: "/image-compressor",
-    icon: <ImageDown className="h-6 w-6" />,
-    status: "live" as const,
-  },
-  {
     title: "PDF Editor",
     description:
       "Merge, split, extract, remove, scan, edit, convert, compress, and secure PDFs in one place.",
@@ -40,11 +19,11 @@ const tools = [
     icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },
-  {
-    title: "Paste",
-    description: "Share text and code snippets with quick, clean links.",
-    href: "/paste",
-    icon: <Text className="h-6 w-6" />,
+{
+    title: "Image & PDF Compressor",
+    description: "Compress images and PDF files with simple quality controls.",
+    href: "/image-compressor",
+    icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
   {
@@ -55,10 +34,31 @@ const tools = [
     status: "live" as const,
   },
   {
+    title: "Paste",
+    description: "Share text and code snippets with quick, clean links.",
+    href: "/paste",
+    icon: <Text className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
     title: "URL Shortener",
     description: "Turn long URLs into short, memorable links.",
     href: "/url-shortener",
     icon: <Link2 className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "QR Generator",
+    description: "Create downloadable QR codes for links, text, and files.",
+    href: "/qr-generator",
+    icon: <QrCode className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "JSON Formatter",
+    description: "Format, validate, and minify JSON instantly in your browser.",
+    href: "/json-formatter",
+    icon: <Braces className="h-6 w-6" />,
     status: "live" as const,
   },
 ];
