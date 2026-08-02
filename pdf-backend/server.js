@@ -234,63 +234,262 @@ finally:
 
 function pdfToExcel(inputPath, outputPath) {
   const pyScript = `
-import re
 import sys
 import fitz
 from openpyxl import Workbook
+from openpyxl.styles import Alignment, Font, PatternFill, Border, Side
+from openpyxl.utils import get_column_letter
 
 input_path = sys.argv[1]
 output_path = sys.argv[2]
-
-def safe_sheet_name(name):
-    name = re.sub(r'[\\\\/*?:\\[\\]]', "-", name).strip()
-    return (name or "Sheet")[:31]
 
 doc = fitz.open(input_path)
 wb = Workbook()
 default_sheet = wb.active
 wb.remove(default_sheet)
 
+thin_border = Border(
+    left=Side(style="thin", color="B7C7D9"),
+    right=Side(style="thin", color="B7C7D9"),
+    top=Side(style="thin", color="B7C7D9"),
+    bottom=Side(style="thin", color="B7C7D9"),
+)
+
+header_fill = PatternFill("solid", fgColor="44566C")
+header_font = Font(color="FFFFFF", bold=True)
+bold_font = Font(bold=True)
+
+def safe_sheet_name(name):
+    cleaned = "".join("-" if char in "\\\\/*?:[]" else char for char in name).strip()
+    return (cleaned or "Sheet")[:31]
+
+def cluster_positions(values, tolerance):
+    clusters = []
+
+    for value in sorted(values):
+        placed = False
+
+        for cluster in clusters:
+            if abs(cluster["center"] - value) <= tolerance:
+                cluster["items"].append(value)
+                cluster["center"] = sum(cluster["items"]) / len(cluster["items"])
+                placed = True
+                break
+
+        if not placed:
+            clusters.append({
+                "center": value,
+                "items": [value],
+            })
+
+    return [cluster["center"] for cluster in clusters]
+
+def nearest_index(value, centers):
+    if not centers:
+        return 0
+
+    best_index = 0
+    best_distance = abs(value - centers[0])
+
+    for index, center in enumerate(centers[1:], start=1):
+        distance = abs(value - center)
+
+        if distance < best_distance:
+            best_index = index
+            best_distance = distance
+
+    return best_index
+
+def write_words_layout(page, sheet):
+    words = page.get_text("words")
+
+    if not words:
+        sheet["A1"] = "No extractable text found on this page."
+        return
+
+    x_values = []
+    y_values = []
+
+    for word in words:
+        x0, y0, x1, y1, text = word[:5]
+
+        if not str(text).strip():
+            continue
+
+        x_values.append(float(x0))
+        y_values.append(float(y0))
+
+    if not x_values or not y_values:
+        sheet["A1"] = "No extractable text found on this page."
+        return
+
+    x_centers = cluster_positions(x_values, 18)
+    y_centers = cluster_positions(y_values, 5)
+
+    if len(x_centers) > 80:
+        x_centers = cluster_positions(x_values, 28)
+
+    if len(y_centers) > 300:
+        y_centers = cluster_positions(y_values, 8)
+
+    occupied = {}
+
+    for word in words:
+        x0, y0, x1, y1, text = word[:5]
+        text = str(text).strip()
+
+        if not text:
+            continue
+
+        row = nearest_index(float(y0), y_centers) + 1
+        col = nearest_index(float(x0), x_centers) + 1
+
+        key = (row, col)
+
+        if key in occupied:
+            occupied[key] = f"{occupied[key]} {text}"
+        else:
+            occupied[key] = text
+
+    max_row = 1
+    max_col = 1
+
+    for (row, col), text in occupied.items():
+        cell = sheet.cell(row=row, column=col, value=text)
+        cell.alignment = Alignment(
+            horizontal="center",
+            vertical="center",
+            wrap_text=True,
+        )
+
+        max_row = max(max_row, row)
+        max_col = max(max_col, col)
+
+        normalized = str(text).strip().lower()
+
+        if (
+            normalized in ["s no", "customer name", "shift"]
+            or normalized.startswith("day ")
+            or "customer" in normalized
+        ):
+            cell.fill = header_fill
+            cell.font = header_font
+            cell.border = thin_border
+        elif normalized.isdigit() and col == 1:
+            cell.font = bold_font
+
+    for row in range(1, max_row + 1):
+        for col in range(1, max_col + 1):
+            sheet.cell(row=row, column=col).border = thin_border
+
+    for col_index in range(1, max_col + 1):
+        values = [
+            str(sheet.cell(row=row, column=col_index).value or "")
+            for row in range(1, max_row + 1)
+        ]
+        max_len = max([len(value) for value in values] or [8])
+
+        if col_index == 1:
+            width = 8
+        elif max_len > 20:
+            width = min(max_len + 2, 34)
+        else:
+            width = max(10, min(max_len + 2, 18))
+
+        sheet.column_dimensions[get_column_letter(col_index)].width = width
+
+    for row_index in range(1, max_row + 1):
+        sheet.row_dimensions[row_index].height = 22
+
+    sheet.freeze_panes = "A2"
+
+    sheet.page_setup.orientation = "landscape"
+    sheet.page_setup.fitToWidth = 1
+    sheet.page_setup.fitToHeight = 0
+    sheet.sheet_properties.pageSetUpPr.fitToPage = True
+    sheet.page_margins.left = 0.25
+    sheet.page_margins.right = 0.25
+    sheet.page_margins.top = 0.4
+    sheet.page_margins.bottom = 0.4
+
+def write_detected_tables(page, sheet, tables):
+    current_row = 1
+
+    for table_index, table in enumerate(tables):
+        extracted = table.extract() or []
+
+        if not extracted:
+            continue
+
+        for row_offset, row_values in enumerate(extracted):
+            for col_index, cell_value in enumerate(row_values, start=1):
+                cell = sheet.cell(
+                    current_row,
+                    col_index,
+                    "" if cell_value is None else str(cell_value),
+                )
+                cell.alignment = Alignment(
+                    horizontal="center",
+                    vertical="center",
+                    wrap_text=True,
+                )
+                cell.border = thin_border
+
+                if row_offset == 0:
+                    cell.fill = header_fill
+                    cell.font = header_font
+
+            current_row += 1
+
+        if table_index < len(tables) - 1:
+            current_row += 2
+
+    for col_index in range(1, sheet.max_column + 1):
+        max_len = max(
+            [
+                len(str(sheet.cell(row=row, column=col_index).value or ""))
+                for row in range(1, sheet.max_row + 1)
+            ] or [8]
+        )
+
+        if col_index == 1:
+            width = 8
+        elif max_len > 20:
+            width = min(max_len + 2, 34)
+        else:
+            width = max(10, min(max_len + 2, 18))
+
+        sheet.column_dimensions[get_column_letter(col_index)].width = width
+
+    for row_index in range(1, sheet.max_row + 1):
+        sheet.row_dimensions[row_index].height = 22
+
+    sheet.freeze_panes = "A2"
+
+    sheet.page_setup.orientation = "landscape"
+    sheet.page_setup.fitToWidth = 1
+    sheet.page_setup.fitToHeight = 0
+    sheet.sheet_properties.pageSetUpPr.fitToPage = True
+    sheet.page_margins.left = 0.25
+    sheet.page_margins.right = 0.25
+    sheet.page_margins.top = 0.4
+    sheet.page_margins.bottom = 0.4
+
 for page_index, page in enumerate(doc):
     sheet = wb.create_sheet(safe_sheet_name(f"Page {page_index + 1}"))
-    wrote_data = False
 
     try:
         tables_result = page.find_tables()
         tables = getattr(tables_result, "tables", []) if tables_result else []
 
-        current_row = 1
-        for table in tables:
-            extracted = table.extract() or []
-            if not extracted:
-                continue
-
-            for row_values in extracted:
-                for col_index, cell_value in enumerate(row_values, start=1):
-                    sheet.cell(current_row, col_index, "" if cell_value is None else str(cell_value))
-                current_row += 1
-
-            current_row += 2
-            wrote_data = True
+        if tables:
+            write_detected_tables(page, sheet, tables)
+        else:
+            write_words_layout(page, sheet)
     except Exception:
-        pass
+        write_words_layout(page, sheet)
 
-    if not wrote_data:
-        text = page.get_text("text").strip()
-        lines = [line.strip() for line in text.splitlines() if line.strip()]
-
-        if not lines:
-            sheet["A1"] = "No extractable text found on this page."
-            continue
-
-        for row_index, line in enumerate(lines, start=1):
-            parts = [part.strip() for part in re.split(r'\\t|\\s{2,}', line) if part.strip()]
-            if len(parts) <= 1:
-                sheet.cell(row_index, 1, line)
-            else:
-                for col_index, value in enumerate(parts, start=1):
-                    sheet.cell(row_index, col_index, value)
-
+doc.close()
 wb.save(output_path)
 `.trim();
 
@@ -298,6 +497,7 @@ wb.save(output_path)
     pyScript,
     [inputPath, outputPath],
     "PDF to Excel conversion failed.",
+    300000,
   );
 }
 
