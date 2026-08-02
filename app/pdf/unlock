@@ -1,0 +1,63 @@
+app.post("/api/pdf/unlock", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "PDF file is required." });
+    }
+
+    const password = String(req.body.password || "").trim();
+
+    if (!password) {
+      return res.status(400).json({ error: "Current password is required." });
+    }
+
+    inputPath = req.file.path;
+    outputPath = path.join(
+      path.dirname(inputPath),
+      `${crypto.randomBytes(16).toString("hex")}-unlocked.pdf`,
+    );
+
+    await unlockPdf(inputPath, outputPath, password);
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Unlocked PDF file was not created.");
+    }
+
+    const baseName = getBaseName(req.file.originalname, "document");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName}-unlocked.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not unlock this PDF.",
+    });
+  }
+});

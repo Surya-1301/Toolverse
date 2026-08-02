@@ -1,0 +1,65 @@
+app.post("/api/pdf/redact", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "PDF file is required." });
+    }
+
+    const terms = String(req.body.terms || "").trim();
+
+    if (!terms) {
+      return res.status(400).json({
+        error: "Enter at least one redaction term.",
+      });
+    }
+
+    inputPath = req.file.path;
+    outputPath = path.join(
+      path.dirname(inputPath),
+      `${crypto.randomBytes(16).toString("hex")}-redacted.pdf`,
+    );
+
+    await redactPdf(inputPath, outputPath, terms);
+
+    if (!fs.existsSync(outputPath)) {
+      throw new Error("Redacted PDF file was not created.");
+    }
+
+    const baseName = getBaseName(req.file.originalname, "document");
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName}-redacted.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    const stream = fs.createReadStream(outputPath);
+
+    stream.on("close", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.on("error", async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+
+    stream.pipe(res);
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    console.error(error);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not redact this PDF.",
+    });
+  }
+});

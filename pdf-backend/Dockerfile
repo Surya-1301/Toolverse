@@ -21,10 +21,12 @@ RUN pip3 install --break-system-packages \
   python-pptx \
   Pillow \
   openpyxl \
-  pdf2docx
+  pdf2docx \
+  pikepdf
 
 COPY server.js ./
 
 ENV NODE_ENV=production
 EXPOSE 4000
+
 CMD ["npm", "start"]
