@@ -882,6 +882,31 @@ export default function PdfEditorPage() {
     });
   }
 
+  function selectAllThumbnailPages() {
+    if (!supportsSelectableThumbnails) return;
+
+    const allPages = pdfThumbnails.map((thumbnail) => thumbnail.pageNumber);
+    setSelectedThumbnailPages(allPages);
+    setPageRanges(allPages.join(","));
+  }
+
+  function clearThumbnailSelection() {
+    setSelectedThumbnailPages([]);
+    setPageRanges("");
+  }
+
+  function invertThumbnailSelection() {
+    if (!supportsSelectableThumbnails) return;
+
+    const selectedSet = new Set(selectedThumbnailPages);
+    const invertedPages = pdfThumbnails
+      .map((thumbnail) => thumbnail.pageNumber)
+      .filter((pageNumber) => !selectedSet.has(pageNumber));
+
+    setSelectedThumbnailPages(invertedPages);
+    setPageRanges(invertedPages.join(","));
+  }
+
   function handleThumbnailDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
@@ -2165,6 +2190,15 @@ export default function PdfEditorPage() {
                             ? "Click pages to select them. The page range field updates automatically."
                             : "Preview pages before editing."}
                       </p>
+
+                      {pdfThumbnails.length ? (
+                        <p className="mt-1 text-[11px] text-slate-600">
+                          {pdfThumbnails.length} pages shown
+                          {supportsSelectableThumbnails
+                            ? ` • ${selectedThumbnailPages.length} selected`
+                            : ""}
+                        </p>
+                      ) : null}
                     </div>
 
                     {isGeneratingThumbnails ? (
@@ -2178,22 +2212,46 @@ export default function PdfEditorPage() {
                     </p>
                   ) : null}
 
-                  {supportsSelectableThumbnails &&
-                  selectedThumbnailPages.length ? (
-                    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 py-2 text-xs text-violet-100">
-                      <span className="font-semibold">Selected pages:</span>
-                      <span>{selectedPagesValue}</span>
+                  {supportsSelectableThumbnails && pdfThumbnails.length ? (
+                    <div className="mb-3 rounded-xl border border-violet-500/20 bg-violet-500/10 p-3 text-xs text-violet-100">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="font-semibold">Selected pages:</span>
+                        <span>
+                          {selectedThumbnailPages.length
+                            ? selectedPagesValue
+                            : "None selected"}
+                        </span>
 
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedThumbnailPages([]);
-                          setPageRanges("");
-                        }}
-                        className="ml-auto rounded-lg border border-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
-                      >
-                        Clear selection
-                      </button>
+                        <span className="ml-auto rounded-full border border-white/10 bg-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200">
+                          {selectedThumbnailPages.length} selected
+                        </span>
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={selectAllThumbnailPages}
+                          className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
+                        >
+                          Select all
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={invertThumbnailSelection}
+                          className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
+                        >
+                          Invert selection
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={clearThumbnailSelection}
+                          className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-semibold text-red-200 transition hover:bg-red-500/10"
+                        >
+                          Clear selection
+                        </button>
+                      </div>
                     </div>
                   ) : null}
 
@@ -2239,7 +2297,11 @@ export default function PdfEditorPage() {
                     </div>
                   ) : (
                     <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
-                      Page previews will appear here.
+                      {mode === "reorder"
+                        ? "Upload a PDF, then drag page previews to reorder them."
+                        : supportsSelectableThumbnails
+                          ? "Upload a PDF, then click pages to select them."
+                          : "Upload a PDF to preview pages."}
                     </div>
                   )}
                 </div>
