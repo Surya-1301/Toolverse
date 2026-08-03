@@ -39,7 +39,6 @@ import { HowToUse } from "../../components/HowToUse";
 import { formatFileSize } from "../../lib/formatFileSize";
 import { fetchPdfApi } from "../../lib/apiBase";
 import { getApiErrorMessage } from "../../lib/apiError";
-import * as pdfjsLib from "pdfjs-dist";
 import {
   closestCenter,
   DndContext,
@@ -55,7 +54,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS as DndCSS } from "@dnd-kit/utilities";
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 type Category =
   "all" | "organize" | "convertToPdf" | "convertFromPdf" | "edit" | "security";
@@ -90,6 +88,8 @@ type Mode =
   | "compare-pdf";
 
 type OutputKind = "file" | "text";
+
+type PdfJsModule = typeof import("pdfjs-dist");
 
 type PdfThumbnail = {
   id: string;
@@ -820,64 +820,74 @@ export default function PdfEditorPage() {
   }
 
   async function generatePdfThumbnails(file: File) {
-    try {
-      setThumbnailError("");
-      setIsGeneratingThumbnails(true);
-      setPdfThumbnails([]);
+  try {
+    setThumbnailError("");
+    setIsGeneratingThumbnails(true);
+    setPdfThumbnails([]);
 
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const maxPages = Math.min(pdf.numPages, 24);
-      const nextThumbnails: PdfThumbnail[] = [];
-
-      for (let pageNumber = 1; pageNumber <= maxPages; pageNumber += 1) {
-        const page = await pdf.getPage(pageNumber);
-        const viewport = page.getViewport({ scale: 0.28 });
-        const canvas = document.createElement("canvas");
-        const context = canvas.getContext("2d");
-
-        if (!context) continue;
-
-        canvas.width = Math.floor(viewport.width);
-        canvas.height = Math.floor(viewport.height);
-
-        await page.render({
-          canvas,
-          canvasContext: context,
-          viewport,
-        }).promise;
-
-        nextThumbnails.push({
-          id: `page-${pageNumber}`,
-          pageNumber,
-          dataUrl: canvas.toDataURL("image/jpeg", 0.8),
-          width: canvas.width,
-          height: canvas.height,
-        });
-      }
-
-      setPdfThumbnails(nextThumbnails);
-
-      if (mode === "reorder") {
-        setPageOrder(
-          nextThumbnails.map((item) => String(item.pageNumber)).join(","),
-        );
-      }
-
-      if (pdf.numPages > maxPages) {
-        setThumbnailError(
-          `Showing first ${maxPages} pages out of ${pdf.numPages}.`,
-        );
-      }
-    } catch (error) {
-      console.error(error);
-      setThumbnailError("Could not generate PDF previews for this file.");
-      setPdfThumbnails([]);
-    } finally {
-      setIsGeneratingThumbnails(false);
+    if (typeof window === "undefined") {
+      return;
     }
-  }
 
+    const pdfjsLib: PdfJsModule = await import("pdfjs-dist");
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const maxPages = Math.min(pdf.numPages, 24);
+    const nextThumbnails: PdfThumbnail[] = [];
+
+    for (let pageNumber = 1; pageNumber <= maxPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const viewport = page.getViewport({ scale: 0.28 });
+
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      if (!context) continue;
+
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+
+      await page.render({
+        canvas,
+        canvasContext: context,
+        viewport,
+      }).promise;
+
+      nextThumbnails.push({
+        id: `page-${pageNumber}`,
+        pageNumber,
+        dataUrl: canvas.toDataURL("image/jpeg", 0.8),
+        width: canvas.width,
+        height: canvas.height,
+      });
+    }
+
+    setPdfThumbnails(nextThumbnails);
+
+    if (mode === "reorder") {
+      setPageOrder(
+        nextThumbnails
+          .map((item: PdfThumbnail) => String(item.pageNumber))
+          .join(","),
+      );
+    }
+
+    if (pdf.numPages > maxPages) {
+      setThumbnailError(
+        `Showing first ${maxPages} pages out of ${pdf.numPages}.`,
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    setThumbnailError("Could not generate PDF previews for this file.");
+    setPdfThumbnails([]);
+  } finally {
+    setIsGeneratingThumbnails(false);
+  }
+}
   function handleFilesChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files || []);
 
