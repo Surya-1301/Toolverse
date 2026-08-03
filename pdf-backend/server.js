@@ -97,6 +97,26 @@ const upload = multer({
   },
 });
 
+const batchUpload = multer({
+  storage: pdfStorage,
+  limits: {
+    fileSize: 50 * 1024 * 1024,
+    files: 10,
+  },
+  fileFilter: function (_req, file, callback) {
+    const isPdf =
+      file.mimetype === "application/pdf" ||
+      file.originalname.toLowerCase().endsWith(".pdf");
+
+    if (!isPdf) {
+      callback(new Error("Only PDF files are allowed."));
+      return;
+    }
+
+    callback(null, true);
+  },
+});
+
 const compareUpload = multer({
   storage: pdfStorage,
   limits: {
@@ -1133,6 +1153,142 @@ app.get("/health", (_req, res) => {
   });
 });
 
+app.post(
+  "/api/pdf/batch/compress",
+  batchUpload.array("files", 10),
+  async (req, res) => {
+    const uploadedFiles = Array.isArray(req.files) ? req.files : [];
+    const outputDir = path.join(
+      os.tmpdir(),
+      `toolverse-batch-compress-${crypto.randomBytes(8).toString("hex")}`,
+    );
+    const outputZip = path.join(
+      os.tmpdir(),
+      `toolverse-batch-compressed-${crypto.randomBytes(8).toString("hex")}.zip`,
+    );
+
+    try {
+      if (!uploadedFiles.length) {
+        return res.status(400).json({
+          error: "Upload one or more PDF files first.",
+        });
+      }
+
+      await fsp.mkdir(outputDir, { recursive: true });
+
+      const quality = req.body?.quality || "0.6";
+      const pdfSettings = getPdfSettings(quality);
+      const imageResolution = getImageResolution(quality);
+
+      for (const file of uploadedFiles) {
+        const baseName = getBaseName(file.originalname, "document");
+        const outputPath = path.join(outputDir, `${baseName}-compressed.pdf`);
+
+        await new Promise((resolve, reject) => {
+          execFile(
+            "gs",
+            [
+              "-sDEVICE=pdfwrite",
+              "-dCompatibilityLevel=1.4",
+              `-dPDFSETTINGS=${pdfSettings}`,
+              "-dNOPAUSE",
+              "-dQUIET",
+              "-dBATCH",
+              "-dDetectDuplicateImages=true",
+              "-dCompressFonts=true",
+              "-dSubsetFonts=true",
+              "-dColorImageDownsampleType=/Bicubic",
+              "-dGrayImageDownsampleType=/Bicubic",
+              "-dMonoImageDownsampleType=/Subsample",
+              `-dColorImageResolution=${imageResolution.color}`,
+              `-dGrayImageResolution=${imageResolution.gray}`,
+              `-dMonoImageResolution=${imageResolution.mono}`,
+              `-sOutputFile=${outputPath}`,
+              file.path,
+            ],
+            { timeout: 240000 },
+            (error, stdout, stderr) => {
+              if (error) {
+                reject(
+                  new Error(
+                    stderr ||
+                      stdout ||
+                      error.message ||
+                      `Could not compress ${file.originalname}.`,
+                  ),
+                );
+                return;
+              }
+
+              resolve();
+            },
+          );
+        });
+
+        if (!fs.existsSync(outputPath)) {
+          await fsp.copyFile(file.path, outputPath);
+        }
+
+        const originalSize = file.size;
+        const compressedSize = fs.existsSync(outputPath)
+          ? fs.statSync(outputPath).size
+          : originalSize;
+
+        if (compressedSize >= originalSize && fs.existsSync(file.path)) {
+          await fsp.copyFile(file.path, outputPath);
+        }
+      }
+
+      await new Promise((resolve, reject) => {
+        execFile(
+          "zip",
+          ["-j", outputZip, path.join(outputDir, "*")],
+          { timeout: 120000, shell: true },
+          (error, stdout, stderr) => {
+            if (error) {
+              reject(
+                new Error(
+                  stderr ||
+                    stdout ||
+                    error.message ||
+                    "Could not create ZIP file.",
+                ),
+              );
+              return;
+            }
+
+            resolve();
+          },
+        );
+      });
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="compressed-pdfs.zip"',
+      );
+      res.setHeader("Cache-Control", "no-store");
+
+      streamFile(res, outputZip, async () => {
+        await Promise.all(uploadedFiles.map((file) => safeDelete(file.path)));
+        await safeDelete(outputZip);
+        await safeRemoveDir(outputDir);
+      });
+    } catch (error) {
+      await Promise.all(uploadedFiles.map((file) => safeDelete(file.path)));
+      await safeDelete(outputZip);
+      await safeRemoveDir(outputDir);
+
+      res.status(500).json({
+        error:
+          error instanceof Error
+            ? error.message
+            : "Could not batch compress these PDFs.",
+      });
+    }
+  },
+);
+
 app.post("/api/pdf/compress", upload.single("file"), async (req, res) => {
   let inputPath = "";
   let outputPath = "";
@@ -1298,6 +1454,105 @@ app.post("/api/pdf/html-to-pdf", async (req, res) => {
         error instanceof Error
           ? error.message
           : "Could not convert HTML to PDF.",
+    });
+  }
+});
+
+app.post("/api/pdf/repair", upload.single("file"), async (req, res) => {
+  let inputPath = "";
+  let outputPath = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Upload one PDF file first." });
+    }
+
+    inputPath = req.file.path;
+    const baseName = getBaseName(req.file.originalname, "document");
+    outputPath = path.join(
+      os.tmpdir(),
+      `${baseName}-repaired-${crypto.randomBytes(8).toString("hex")}.pdf`,
+    );
+
+    const script = `
+import fitz
+import sys
+
+input_pdf = sys.argv[1]
+output_pdf = sys.argv[2]
+
+doc = fitz.open(input_pdf)
+doc.save(output_pdf, garbage=4, deflate=True, clean=True)
+doc.close()
+`;
+
+    try {
+      await runPythonScript(
+        script,
+        [inputPath, outputPath],
+        "Could not repair this PDF with PyMuPDF.",
+      );
+    } catch (_pythonError) {
+      await new Promise((resolve, reject) => {
+        execFile(
+          "gs",
+          [
+            "-sDEVICE=pdfwrite",
+            "-dCompatibilityLevel=1.7",
+            "-dPDFSETTINGS=/prepress",
+            "-dNOPAUSE",
+            "-dQUIET",
+            "-dBATCH",
+            `-sOutputFile=${outputPath}`,
+            inputPath,
+          ],
+          { timeout: 240000 },
+          (error, stdout, stderr) => {
+            if (error) {
+              reject(
+                new Error(
+                  stderr ||
+                    stdout ||
+                    error.message ||
+                    "Could not repair this PDF.",
+                ),
+              );
+              return;
+            }
+
+            resolve();
+          },
+        );
+      });
+    }
+
+    if (!fs.existsSync(outputPath)) {
+      await safeDelete(inputPath);
+      return res.status(500).json({
+        error: "Could not repair this PDF. Please try another file.",
+      });
+    }
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName}-repaired.pdf"`,
+    );
+    res.setHeader("Cache-Control", "no-store");
+
+    streamFile(res, outputPath, async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputPath);
+    });
+  } catch (error) {
+    await safeDelete(inputPath);
+    await safeDelete(outputPath);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not repair this PDF. Please try again.",
     });
   }
 });
@@ -1895,6 +2150,308 @@ app.post(
       await safeDelete(firstPath);
       await safeDelete(secondPath);
     }
+  },
+);
+
+function zipDirectoryFiles(outputZip, outputDir) {
+  return new Promise((resolve, reject) => {
+    execFile(
+      "zip",
+      ["-j", outputZip, path.join(outputDir, "*")],
+      { timeout: 120000, shell: true },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr || stdout || error.message || "Could not create ZIP file.",
+            ),
+          );
+          return;
+        }
+
+        resolve();
+      },
+    );
+  });
+}
+
+function sendBatchZip(res, outputZip, uploadedFiles, outputDir, fileName) {
+  res.setHeader("Content-Type", "application/zip");
+  res.setHeader("Content-Disposition", `attachment; filename="${fileName}"`);
+  res.setHeader("Cache-Control", "no-store");
+
+  streamFile(res, outputZip, async () => {
+    await Promise.all(uploadedFiles.map((file) => safeDelete(file.path)));
+    await safeDelete(outputZip);
+    await safeRemoveDir(outputDir);
+  });
+}
+
+async function batchRoute(req, res, options) {
+  const uploadedFiles = Array.isArray(req.files) ? req.files : [];
+  const outputDir = path.join(
+    os.tmpdir(),
+    `toolverse-${options.slug}-${crypto.randomBytes(8).toString("hex")}`,
+  );
+  const outputZip = path.join(
+    os.tmpdir(),
+    `toolverse-${options.slug}-${crypto.randomBytes(8).toString("hex")}.zip`,
+  );
+
+  try {
+    if (!uploadedFiles.length) {
+      return res
+        .status(400)
+        .json({ error: "Upload one or more PDF files first." });
+    }
+
+    await fsp.mkdir(outputDir, { recursive: true });
+    await options.processFiles({ uploadedFiles, outputDir, req });
+    await zipDirectoryFiles(outputZip, outputDir);
+    sendBatchZip(res, outputZip, uploadedFiles, outputDir, options.fileName);
+  } catch (error) {
+    await Promise.all(uploadedFiles.map((file) => safeDelete(file.path)));
+    await safeDelete(outputZip);
+    await safeRemoveDir(outputDir);
+
+    res.status(500).json({
+      error: error instanceof Error ? error.message : options.fallbackError,
+    });
+  }
+}
+
+app.post(
+  "/api/pdf/batch/protect",
+  batchUpload.array("files", 10),
+  async (req, res) => {
+    const password = String(req.body?.password || "").trim();
+
+    if (!password) {
+      return res
+        .status(400)
+        .json({ error: "Enter a password to protect the PDFs." });
+    }
+
+    return batchRoute(req, res, {
+      slug: "batch-protect",
+      fileName: "protected-pdfs.zip",
+      fallbackError: "Could not protect these PDFs.",
+      async processFiles({ uploadedFiles, outputDir }) {
+        for (const file of uploadedFiles) {
+          const baseName = getBaseName(file.originalname, "document");
+          const outputPath = path.join(outputDir, `${baseName}-protected.pdf`);
+          const script = `
+import pikepdf
+import sys
+input_pdf = sys.argv[1]
+output_pdf = sys.argv[2]
+password = sys.argv[3]
+with pikepdf.open(input_pdf) as pdf:
+    pdf.save(output_pdf, encryption=pikepdf.Encryption(owner=password, user=password, R=6))
+`;
+          await runPythonScript(
+            script,
+            [file.path, outputPath, password],
+            `Could not protect ${file.originalname}.`,
+          );
+        }
+      },
+    });
+  },
+);
+
+app.post(
+  "/api/pdf/batch/unlock",
+  batchUpload.array("files", 10),
+  async (req, res) => {
+    const password = String(req.body?.password || "").trim();
+
+    if (!password) {
+      return res
+        .status(400)
+        .json({ error: "Enter the current password for the PDFs." });
+    }
+
+    return batchRoute(req, res, {
+      slug: "batch-unlock",
+      fileName: "unlocked-pdfs.zip",
+      fallbackError: "Could not unlock these PDFs.",
+      async processFiles({ uploadedFiles, outputDir }) {
+        for (const file of uploadedFiles) {
+          const baseName = getBaseName(file.originalname, "document");
+          const outputPath = path.join(outputDir, `${baseName}-unlocked.pdf`);
+          const script = `
+import pikepdf
+import sys
+input_pdf = sys.argv[1]
+output_pdf = sys.argv[2]
+password = sys.argv[3]
+try:
+    with pikepdf.open(input_pdf, password=password) as pdf:
+        pdf.save(output_pdf)
+except pikepdf.PasswordError:
+    raise Exception("The password is incorrect for one or more PDFs.")
+`;
+          await runPythonScript(
+            script,
+            [file.path, outputPath, password],
+            `Could not unlock ${file.originalname}.`,
+          );
+        }
+      },
+    });
+  },
+);
+
+app.post(
+  "/api/pdf/batch/repair",
+  batchUpload.array("files", 10),
+  async (req, res) => {
+    return batchRoute(req, res, {
+      slug: "batch-repair",
+      fileName: "repaired-pdfs.zip",
+      fallbackError: "Could not repair these PDFs.",
+      async processFiles({ uploadedFiles, outputDir }) {
+        for (const file of uploadedFiles) {
+          const baseName = getBaseName(file.originalname, "document");
+          const outputPath = path.join(outputDir, `${baseName}-repaired.pdf`);
+          const script = `
+import fitz
+import sys
+input_pdf = sys.argv[1]
+output_pdf = sys.argv[2]
+doc = fitz.open(input_pdf)
+doc.save(output_pdf, garbage=4, deflate=True, clean=True)
+doc.close()
+`;
+          await runPythonScript(
+            script,
+            [file.path, outputPath],
+            `Could not repair ${file.originalname}.`,
+          );
+        }
+      },
+    });
+  },
+);
+
+app.post(
+  "/api/pdf/batch/watermark",
+  batchUpload.array("files", 10),
+  async (req, res) => {
+    const watermarkText = String(req.body?.watermarkText || "").trim();
+    const opacity = String(req.body?.opacity || "0.25");
+
+    if (!watermarkText) {
+      return res.status(400).json({ error: "Enter watermark text first." });
+    }
+
+    return batchRoute(req, res, {
+      slug: "batch-watermark",
+      fileName: "watermarked-pdfs.zip",
+      fallbackError: "Could not watermark these PDFs.",
+      async processFiles({ uploadedFiles, outputDir }) {
+        for (const file of uploadedFiles) {
+          const baseName = getBaseName(file.originalname, "document");
+          const outputPath = path.join(
+            outputDir,
+            `${baseName}-watermarked.pdf`,
+          );
+          const script = `
+import fitz
+import sys
+input_pdf = sys.argv[1]
+output_pdf = sys.argv[2]
+text = sys.argv[3]
+opacity = float(sys.argv[4])
+doc = fitz.open(input_pdf)
+for page in doc:
+    rect = page.rect
+    page.insert_text((rect.width * 0.18, rect.height * 0.5), text, fontsize=42, rotate=35, color=(0.45, 0.45, 0.45), fill_opacity=opacity)
+doc.save(output_pdf, garbage=4, deflate=True)
+doc.close()
+`;
+          await runPythonScript(
+            script,
+            [file.path, outputPath, watermarkText, opacity],
+            `Could not watermark ${file.originalname}.`,
+          );
+        }
+      },
+    });
+  },
+);
+
+app.post(
+  "/api/pdf/batch/header-footer",
+  batchUpload.array("files", 10),
+  async (req, res) => {
+    const headerText = String(req.body?.headerText || "").trim();
+    const footerText = String(req.body?.footerText || "").trim();
+    const fontSize = String(req.body?.fontSize || "10");
+    const margin = String(req.body?.margin || "32");
+
+    if (!headerText && !footerText) {
+      return res
+        .status(400)
+        .json({ error: "Enter header or footer text first." });
+    }
+
+    return batchRoute(req, res, {
+      slug: "batch-header-footer",
+      fileName: "header-footer-pdfs.zip",
+      fallbackError: "Could not add header and footer to these PDFs.",
+      async processFiles({ uploadedFiles, outputDir }) {
+        for (const file of uploadedFiles) {
+          const baseName = getBaseName(file.originalname, "document");
+          const outputPath = path.join(
+            outputDir,
+            `${baseName}-header-footer.pdf`,
+          );
+          const script = `
+import fitz
+import sys
+from datetime import date
+input_pdf = sys.argv[1]
+output_pdf = sys.argv[2]
+header = sys.argv[3]
+footer = sys.argv[4]
+font_size = float(sys.argv[5])
+margin = float(sys.argv[6])
+filename = sys.argv[7]
+doc = fitz.open(input_pdf)
+total = len(doc)
+def render(template, page_number):
+    return template.replace("{page}", str(page_number)).replace("{total}", str(total)).replace("{date}", date.today().isoformat()).replace("{filename}", filename)
+for index, page in enumerate(doc, start=1):
+    rect = page.rect
+    if header:
+        text = render(header, index)
+        tw = fitz.get_text_length(text, fontsize=font_size)
+        page.insert_text((max((rect.width - tw) / 2, margin), margin), text, fontsize=font_size, color=(0.25,0.25,0.25))
+    if footer:
+        text = render(footer, index)
+        tw = fitz.get_text_length(text, fontsize=font_size)
+        page.insert_text((max((rect.width - tw) / 2, margin), rect.height - margin), text, fontsize=font_size, color=(0.25,0.25,0.25))
+doc.save(output_pdf, garbage=4, deflate=True)
+doc.close()
+`;
+          await runPythonScript(
+            script,
+            [
+              file.path,
+              outputPath,
+              headerText,
+              footerText,
+              fontSize,
+              margin,
+              baseName,
+            ],
+            `Could not add header/footer to ${file.originalname}.`,
+          );
+        }
+      },
+    });
   },
 );
 
