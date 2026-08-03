@@ -16,7 +16,16 @@
     <loc>https://toolversee.pages.dev/image-compressor</loc>
   </url>
   <url>
+    <loc>https://toolversee.pages.dev/image-host</loc>
+  </url>
+  <url>
     <loc>https://toolversee.pages.dev/pdf-editor</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf-to-markdown</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/ocr-pdf</loc>
   </url>
   <url>
     <loc>https://toolversee.pages.dev/file-share</loc>
@@ -38,5 +47,29 @@
   </url>
   <url>
     <loc>https://toolversee.pages.dev/report-abuse</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/compress</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/merge</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/sign</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/repair</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/header-footer</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/metadata-editor</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/pdf-to-text</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/extract-images</loc>
   </url>
 </urlset>

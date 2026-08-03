@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   degrees,
   PDFCheckBox,
@@ -27,6 +28,7 @@ import {
   ImageIcon,
   Loader2,
   LockKeyhole,
+  Plus,
   RotateCw,
   Scissors,
   ShieldCheck,
@@ -65,11 +67,16 @@ type Mode =
   | "remove"
   | "rotate"
   | "reorder"
+  | "add-pages"
   | "page-numbers"
   | "watermark"
   | "image-watermark"
   | "crop-pdf"
   | "pdf-forms"
+  | "sign-pdf"
+  | "metadata-editor"
+  | "repair-pdf"
+  | "header-footer"
   | "images-to-pdf"
   | "scan-to-pdf"
   | "word-to-pdf"
@@ -83,6 +90,12 @@ type Mode =
   | "pdf-to-powerpoint"
   | "pdf-to-excel"
   | "pdf-to-pdfa"
+  | "batch-compress"
+  | "batch-protect"
+  | "batch-unlock"
+  | "batch-watermark"
+  | "batch-header-footer"
+  | "batch-repair"
   | "compress-pdf"
   | "unlock-pdf"
   | "protect-pdf"
@@ -185,17 +198,59 @@ const modes: Array<{
     icon: <FileText className="h-5 w-5" />,
   },
   {
-    id: "scan-to-pdf",
+    id: "add-pages",
     category: "organize",
-    title: "Scan to PDF",
-    description: "Turn image scans into a PDF.",
+    title: "Add Pages to PDF",
+    description: "Insert pages from another PDF into an existing PDF.",
+    icon: <Plus className="h-5 w-5" />,
+  },
+  {
+    id: "compare-pdf",
+    category: "organize",
+    title: "Compare PDF",
+    description: "Compare two PDFs and inspect differences.",
+    icon: <FileSearch className="h-5 w-5" />,
+  },
+  {
+    id: "rotate",
+    category: "edit",
+    title: "Rotate PDF",
+    description: "Rotate all or selected pages.",
+    icon: <RotateCw className="h-5 w-5" />,
+  },
+  {
+    id: "page-numbers",
+    category: "edit",
+    title: "Add page numbers",
+    description: "Add page numbers to every page.",
+    icon: <Hash className="h-5 w-5" />,
+  },
+  {
+    id: "watermark",
+    category: "edit",
+    title: "Add watermark",
+    description: "Add a text watermark across PDF pages.",
+    icon: <Stamp className="h-5 w-5" />,
+  },
+  {
+    id: "image-watermark",
+    category: "edit",
+    title: "Image watermark",
+    description: "Add a logo/image watermark to PDF pages.",
     icon: <ImageIcon className="h-5 w-5" />,
   },
   {
-    id: "compress-pdf",
+    id: "crop-pdf",
     category: "edit",
-    title: "Compress PDF",
-    description: "Reduce PDF file size using the backend.",
+    title: "Crop PDF",
+    description: "Crop page edges using percentage margins.",
+    icon: <Crop className="h-5 w-5" />,
+  },
+  {
+    id: "pdf-forms",
+    category: "edit",
+    title: "PDF Forms",
+    description: "Fill PDF form fields and optionally flatten them.",
     icon: <FileText className="h-5 w-5" />,
   },
   {
@@ -203,6 +258,13 @@ const modes: Array<{
     category: "convertToPdf",
     title: "JPG to PDF",
     description: "Convert JPG, PNG, or WebP images into a PDF.",
+    icon: <ImageIcon className="h-5 w-5" />,
+  },
+  {
+    id: "scan-to-pdf",
+    category: "organize",
+    title: "Scan to PDF",
+    description: "Turn image scans into a PDF.",
     icon: <ImageIcon className="h-5 w-5" />,
   },
   {
@@ -283,46 +345,40 @@ const modes: Array<{
     icon: <FileText className="h-5 w-5" />,
   },
   {
-    id: "rotate",
+    id: "compress-pdf",
     category: "edit",
-    title: "Rotate PDF",
-    description: "Rotate all or selected pages.",
-    icon: <RotateCw className="h-5 w-5" />,
+    title: "Compress PDF",
+    description: "Reduce PDF file size.",
+    icon: <FileText className="h-5 w-5" />,
   },
   {
-    id: "page-numbers",
+    id: "repair-pdf",
     category: "edit",
-    title: "Add page numbers",
-    description: "Add page numbers to every page.",
-    icon: <Hash className="h-5 w-5" />,
+    title: "Repair PDF",
+    description: "Try to rebuild damaged or corrupted PDF files.",
+    icon: <FileSearch className="h-5 w-5" />,
   },
   {
-    id: "watermark",
+    id: "header-footer",
     category: "edit",
-    title: "Add watermark",
-    description: "Add a text watermark across PDF pages.",
+    title: "Header & Footer",
+    description:
+      "Add custom headers, footers, page numbers, dates, and filenames.",
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    id: "sign-pdf",
+    category: "edit",
+    title: "Sign PDF",
+    description: "Type, upload, or draw a signature on a PDF page.",
     icon: <Stamp className="h-5 w-5" />,
   },
   {
-    id: "image-watermark",
+    id: "metadata-editor",
     category: "edit",
-    title: "Image watermark",
-    description: "Add a logo/image watermark to PDF pages.",
-    icon: <ImageIcon className="h-5 w-5" />,
-  },
-  {
-    id: "crop-pdf",
-    category: "edit",
-    title: "Crop PDF",
-    description: "Crop page edges using percentage margins.",
-    icon: <Crop className="h-5 w-5" />,
-  },
-  {
-    id: "pdf-forms",
-    category: "edit",
-    title: "PDF Forms",
-    description: "Fill PDF form fields and optionally flatten them.",
-    icon: <FileText className="h-5 w-5" />,
+    title: "Metadata Editor",
+    description: "Edit or remove PDF title, author, subject, and keywords.",
+    icon: <FileSearch className="h-5 w-5" />,
   },
   {
     id: "unlock-pdf",
@@ -346,10 +402,45 @@ const modes: Array<{
     icon: <FileX className="h-5 w-5" />,
   },
   {
-    id: "compare-pdf",
+    id: "batch-compress",
+    category: "edit",
+    title: "Batch Compress",
+    description: "Compress multiple PDFs and download one ZIP file.",
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    id: "batch-protect",
     category: "security",
-    title: "Compare PDF",
-    description: "Compare two PDFs and inspect differences.",
+    title: "Batch Protect",
+    description: "Password-protect multiple PDFs and download one ZIP file.",
+    icon: <LockKeyhole className="h-5 w-5" />,
+  },
+  {
+    id: "batch-unlock",
+    category: "security",
+    title: "Batch Unlock",
+    description: "Unlock multiple PDFs with one password and download a ZIP.",
+    icon: <LockKeyhole className="h-5 w-5" />,
+  },
+  {
+    id: "batch-watermark",
+    category: "edit",
+    title: "Batch Watermark",
+    description: "Add the same watermark to multiple PDFs.",
+    icon: <Stamp className="h-5 w-5" />,
+  },
+  {
+    id: "batch-header-footer",
+    category: "edit",
+    title: "Batch Header & Footer",
+    description: "Add the same header and footer to multiple PDFs.",
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    id: "batch-repair",
+    category: "edit",
+    title: "Batch Repair",
+    description: "Try to repair multiple PDFs and download one ZIP file.",
     icon: <FileSearch className="h-5 w-5" />,
   },
 ];
@@ -584,6 +675,11 @@ function isTruthyValue(value: string) {
   return ["true", "yes", "1", "checked", "on"].includes(value.toLowerCase());
 }
 
+function isPdfMode(value: string | null): value is Mode {
+  if (!value) return false;
+  return modes.some((item) => item.id === value);
+}
+
 function getFileExtension(fileName: string) {
   const match = fileName.match(/\.([a-z0-9]+)$/i);
   return match?.[1]?.toUpperCase() || "FILE";
@@ -703,6 +799,10 @@ function SelectableThumbnailCard({
 }
 
 export default function PdfEditorPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [mode, setMode] = useState<Mode>("merge");
   const [showToolPanel, setShowToolPanel] = useState(false);
@@ -723,6 +823,9 @@ export default function PdfEditorPage() {
   );
   const [secondCompareFile, setSecondCompareFile] = useState<File | null>(null);
   const [pageRanges, setPageRanges] = useState("");
+  const [insertPdfFile, setInsertPdfFile] = useState<File | null>(null);
+  const [insertPosition, setInsertPosition] = useState("end");
+  const [insertAfterPage, setInsertAfterPage] = useState("1");
   const [rotation, setRotation] = useState("90");
   const [compressionQuality, setCompressionQuality] = useState("0.6");
   const [pageNumberPosition, setPageNumberPosition] = useState("bottom-center");
@@ -733,6 +836,31 @@ export default function PdfEditorPage() {
   );
   const [htmlContent, setHtmlContent] = useState("");
   const [htmlFileName, setHtmlFileName] = useState("html-document");
+  const signatureCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [signatureText, setSignatureText] = useState("");
+  const [signaturePage, setSignaturePage] = useState("1");
+  const [signaturePosition, setSignaturePosition] = useState("bottom-right");
+  const [signatureFontSize, setSignatureFontSize] = useState("28");
+  const [signatureImageFile, setSignatureImageFile] = useState<File | null>(
+    null,
+  );
+  const [signatureImageScale, setSignatureImageScale] = useState("0.25");
+  const [isDrawingSignature, setIsDrawingSignature] = useState(false);
+  const [hasDrawnSignature, setHasDrawnSignature] = useState(false);
+  const [signatureMode, setSignatureMode] = useState<"text" | "image" | "draw">(
+    "text",
+  );
+  const [metadataTitle, setMetadataTitle] = useState("");
+  const [metadataAuthor, setMetadataAuthor] = useState("");
+  const [metadataSubject, setMetadataSubject] = useState("");
+  const [metadataKeywords, setMetadataKeywords] = useState("");
+  const [metadataCreator, setMetadataCreator] = useState("");
+  const [metadataProducer, setMetadataProducer] = useState("");
+  const [metadataLoaded, setMetadataLoaded] = useState(false);
+  const [headerText, setHeaderText] = useState("");
+  const [footerText, setFooterText] = useState("Page {page} of {total}");
+  const [headerFooterFontSize, setHeaderFooterFontSize] = useState("10");
+  const [headerFooterMargin, setHeaderFooterMargin] = useState("32");
   const [password, setPassword] = useState("");
   const [ownerPassword, setOwnerPassword] = useState("");
   const [redactionTerms, setRedactionTerms] = useState("");
@@ -770,6 +898,14 @@ export default function PdfEditorPage() {
   const isCompareMode = mode === "compare-pdf";
   const isCropMode = mode === "crop-pdf";
   const isPdfFormsMode = mode === "pdf-forms";
+  const isBatchMode = [
+    "batch-compress",
+    "batch-protect",
+    "batch-unlock",
+    "batch-watermark",
+    "batch-header-footer",
+    "batch-repair",
+  ].includes(mode);
 
   const shouldShowPdfThumbnails =
     files.length > 0 &&
@@ -786,11 +922,16 @@ export default function PdfEditorPage() {
       "remove",
       "rotate",
       "reorder",
+      "add-pages",
       "page-numbers",
       "watermark",
       "image-watermark",
       "crop-pdf",
       "pdf-forms",
+      "sign-pdf",
+      "metadata-editor",
+      "repair-pdf",
+      "header-footer",
       "compress-pdf",
       "unlock-pdf",
       "protect-pdf",
@@ -824,6 +965,20 @@ export default function PdfEditorPage() {
     .sort((a, b) => a - b)
     .join(",");
 
+  useEffect(() => {
+    const tool = searchParams.get("tool");
+
+    if (!isPdfMode(tool)) return;
+
+    setMode(tool);
+    setShowToolPanel(true);
+
+    const selectedTool = modes.find((item) => item.id === tool);
+    if (selectedTool) {
+      setActiveCategory(selectedTool.category);
+    }
+  }, [searchParams]);
+
   async function inspectPdfForms(file: File) {
     try {
       const pdf = await PDFDocument.load(await file.arrayBuffer());
@@ -832,6 +987,26 @@ export default function PdfEditorPage() {
       setDetectedFormFields(fields);
     } catch {
       setDetectedFormFields([]);
+    }
+  }
+
+  async function loadPdfMetadata(file: File) {
+    try {
+      const pdf = await PDFDocument.load(await file.arrayBuffer());
+
+      setMetadataTitle(pdf.getTitle() || "");
+      setMetadataAuthor(pdf.getAuthor() || "");
+      setMetadataSubject(pdf.getSubject() || "");
+      const keywords = pdf.getKeywords();
+      setMetadataKeywords(
+        Array.isArray(keywords) ? keywords.join(", ") : keywords || "",
+      );
+      setMetadataCreator(pdf.getCreator() || "");
+      setMetadataProducer(pdf.getProducer() || "");
+      setMetadataLoaded(true);
+    } catch (error) {
+      console.error(error);
+      setMetadataLoaded(false);
     }
   }
 
@@ -852,6 +1027,9 @@ export default function PdfEditorPage() {
     setSelectedThumbnailPages([]);
     setSecondCompareFile(null);
     setPageRanges("");
+    setInsertPdfFile(null);
+    setInsertPosition("end");
+    setInsertAfterPage("1");
     setRotation("90");
     setCompressionQuality("0.6");
     setPageNumberPosition("bottom-center");
@@ -860,6 +1038,26 @@ export default function PdfEditorPage() {
     setImageWatermarkFile(null);
     setHtmlContent("");
     setHtmlFileName("");
+    setSignatureText("");
+    setSignaturePage("1");
+    setSignaturePosition("bottom-right");
+    setSignatureFontSize("28");
+    setSignatureImageFile(null);
+    setSignatureImageScale("0.25");
+    setIsDrawingSignature(false);
+    setHasDrawnSignature(false);
+    setSignatureMode("text");
+    setMetadataTitle("");
+    setMetadataAuthor("");
+    setMetadataSubject("");
+    setMetadataKeywords("");
+    setMetadataCreator("");
+    setMetadataProducer("");
+    setMetadataLoaded(false);
+    setHeaderText("");
+    setFooterText("Page {page} of {total}");
+    setHeaderFooterFontSize("10");
+    setHeaderFooterMargin("32");
     setPassword("");
     setOwnerPassword("");
     setRedactionTerms("");
@@ -879,6 +1077,10 @@ export default function PdfEditorPage() {
     setShowToolPanel(true);
     setMode(nextMode);
     resetWorkingState();
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tool", nextMode);
+    router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }
 
   function switchCategory(nextCategory: Category) {
@@ -900,6 +1102,90 @@ export default function PdfEditorPage() {
   function backToTools() {
     setShowToolPanel(false);
     resetWorkingState();
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("tool");
+    const nextUrl = params.toString()
+      ? `${pathname}?${params.toString()}`
+      : pathname;
+    router.replace(nextUrl, { scroll: false });
+  }
+
+  function getSignatureCanvasPoint(
+    event: React.PointerEvent<HTMLCanvasElement>,
+  ) {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return null;
+
+    const rect = canvas.getBoundingClientRect();
+
+    return {
+      x: ((event.clientX - rect.left) / rect.width) * canvas.width,
+      y: ((event.clientY - rect.top) / rect.height) * canvas.height,
+    };
+  }
+
+  function beginSignatureDraw(event: React.PointerEvent<HTMLCanvasElement>) {
+    const canvas = signatureCanvasRef.current;
+    const point = getSignatureCanvasPoint(event);
+
+    if (!canvas || !point) return;
+
+    event.currentTarget.setPointerCapture(event.pointerId);
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    context.strokeStyle = "#111827";
+    context.lineWidth = 3;
+    context.lineCap = "round";
+    context.lineJoin = "round";
+    context.beginPath();
+    context.moveTo(point.x, point.y);
+
+    setIsDrawingSignature(true);
+    setHasDrawnSignature(true);
+  }
+
+  function moveSignatureDraw(event: React.PointerEvent<HTMLCanvasElement>) {
+    if (!isDrawingSignature) return;
+
+    const canvas = signatureCanvasRef.current;
+    const point = getSignatureCanvasPoint(event);
+
+    if (!canvas || !point) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    context.lineTo(point.x, point.y);
+    context.stroke();
+  }
+
+  function endSignatureDraw(event: React.PointerEvent<HTMLCanvasElement>) {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    setIsDrawingSignature(false);
+  }
+
+  function clearDrawnSignature() {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    setHasDrawnSignature(false);
+  }
+
+  function getDrawnSignatureDataUrl() {
+    const canvas = signatureCanvasRef.current;
+    if (!canvas || !hasDrawnSignature) return "";
+
+    return canvas.toDataURL("image/png");
   }
 
   function toggleThumbnailPage(pageNumber: number) {
@@ -1064,6 +1350,14 @@ export default function PdfEditorPage() {
 
     if (isPdfFormsMode && selectedFiles[0] && isPdfFile(selectedFiles[0])) {
       void inspectPdfForms(selectedFiles[0]);
+    }
+
+    if (
+      mode === "metadata-editor" &&
+      selectedFiles[0] &&
+      isPdfFile(selectedFiles[0])
+    ) {
+      void loadPdfMetadata(selectedFiles[0]);
     }
   }
 
@@ -1383,6 +1677,256 @@ export default function PdfEditorPage() {
     return pdfBytesToBlob(await pdf.save());
   }
 
+  function getSignaturePosition(
+    pageWidth: number,
+    pageHeight: number,
+    itemWidth: number,
+    itemHeight: number,
+  ) {
+    const margin = 48;
+    const positions: Record<string, { x: number; y: number }> = {
+      "bottom-left": { x: margin, y: margin },
+      "bottom-center": {
+        x: Math.max((pageWidth - itemWidth) / 2, margin),
+        y: margin,
+      },
+      "bottom-right": {
+        x: Math.max(pageWidth - itemWidth - margin, margin),
+        y: margin,
+      },
+      "top-left": { x: margin, y: pageHeight - margin - itemHeight },
+      "top-center": {
+        x: Math.max((pageWidth - itemWidth) / 2, margin),
+        y: pageHeight - margin - itemHeight,
+      },
+      "top-right": {
+        x: Math.max(pageWidth - itemWidth - margin, margin),
+        y: pageHeight - margin - itemHeight,
+      },
+    };
+
+    return positions[signaturePosition] || positions["bottom-right"];
+  }
+
+  async function updatePdfMetadata() {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const pdf = await PDFDocument.load(await file.arrayBuffer());
+
+    pdf.setTitle(metadataTitle.trim());
+    pdf.setAuthor(metadataAuthor.trim());
+    pdf.setSubject(metadataSubject.trim());
+
+    const keywords = metadataKeywords
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+
+    pdf.setKeywords(keywords);
+    pdf.setCreator(metadataCreator.trim());
+    pdf.setProducer(metadataProducer.trim());
+    pdf.setModificationDate(new Date());
+
+    return pdfBytesToBlob(await pdf.save());
+  }
+
+  async function signPdf() {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const typedText = signatureText.trim();
+    const drawnSignatureDataUrl = getDrawnSignatureDataUrl();
+
+    if (!typedText && !signatureImageFile && !drawnSignatureDataUrl) {
+      throw new Error(
+        "Enter signature text, upload a signature image, or draw a signature first.",
+      );
+    }
+
+    const pdf = await PDFDocument.load(await file.arrayBuffer());
+    const pages = pdf.getPages();
+    const pageCount = pages.length;
+    const targetPageNumber = Math.min(
+      Math.max(Number(signaturePage) || 1, 1),
+      pageCount,
+    );
+    const page = pages[targetPageNumber - 1];
+    const { width, height } = page.getSize();
+
+    if (drawnSignatureDataUrl) {
+      const imageBytes = await fetch(drawnSignatureDataUrl).then((response) =>
+        response.arrayBuffer(),
+      );
+      const embeddedImage = await pdf.embedPng(imageBytes);
+      const scale = Math.min(
+        Math.max(Number(signatureImageScale) || 0.25, 0.05),
+        1,
+      );
+      const imageWidth = embeddedImage.width * scale;
+      const imageHeight = embeddedImage.height * scale;
+      const selectedPosition = getSignaturePosition(
+        width,
+        height,
+        imageWidth,
+        imageHeight,
+      );
+
+      page.drawImage(embeddedImage, {
+        x: selectedPosition.x,
+        y: selectedPosition.y,
+        width: imageWidth,
+        height: imageHeight,
+      });
+
+      return pdfBytesToBlob(await pdf.save());
+    }
+
+    if (signatureImageFile) {
+      const imageBytes = await signatureImageFile.arrayBuffer();
+      const imageName = signatureImageFile.name.toLowerCase();
+      const embeddedImage =
+        signatureImageFile.type === "image/png" || imageName.endsWith(".png")
+          ? await pdf.embedPng(imageBytes)
+          : await pdf.embedJpg(imageBytes);
+      const scale = Math.min(
+        Math.max(Number(signatureImageScale) || 0.25, 0.05),
+        1,
+      );
+      const imageWidth = embeddedImage.width * scale;
+      const imageHeight = embeddedImage.height * scale;
+      const selectedPosition = getSignaturePosition(
+        width,
+        height,
+        imageWidth,
+        imageHeight,
+      );
+
+      page.drawImage(embeddedImage, {
+        x: selectedPosition.x,
+        y: selectedPosition.y,
+        width: imageWidth,
+        height: imageHeight,
+      });
+
+      return pdfBytesToBlob(await pdf.save());
+    }
+
+    const font = await pdf.embedFont(StandardFonts.TimesRomanItalic);
+    const fontSize = Math.min(
+      Math.max(Number(signatureFontSize) || 28, 10),
+      72,
+    );
+    const textWidth = font.widthOfTextAtSize(typedText, fontSize);
+    const selectedPosition = getSignaturePosition(
+      width,
+      height,
+      textWidth,
+      fontSize,
+    );
+
+    page.drawText(typedText, {
+      x: selectedPosition.x,
+      y: selectedPosition.y,
+      size: fontSize,
+      font,
+      color: rgb(0.08, 0.08, 0.08),
+    });
+
+    page.drawLine({
+      start: { x: selectedPosition.x, y: selectedPosition.y - 8 },
+      end: {
+        x: selectedPosition.x + Math.min(textWidth, 220),
+        y: selectedPosition.y - 8,
+      },
+      thickness: 0.8,
+      color: rgb(0.08, 0.08, 0.08),
+    });
+
+    return pdfBytesToBlob(await pdf.save());
+  }
+
+  function renderHeaderFooterText(
+    template: string,
+    pageNumber: number,
+    totalPages: number,
+    fileName: string,
+  ) {
+    const today = new Date().toLocaleDateString();
+
+    return template
+      .replaceAll("{page}", String(pageNumber))
+      .replaceAll("{total}", String(totalPages))
+      .replaceAll("{date}", today)
+      .replaceAll("{filename}", fileName);
+  }
+
+  async function addHeaderFooterPdf() {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const headerTemplate = headerText.trim();
+    const footerTemplate = footerText.trim();
+
+    if (!headerTemplate && !footerTemplate) {
+      throw new Error("Enter header or footer text first.");
+    }
+
+    const pdf = await PDFDocument.load(await file.arrayBuffer());
+    const pages = pdf.getPages();
+    const totalPages = pages.length;
+    const font = await pdf.embedFont(StandardFonts.Helvetica);
+    const fontSize = Math.min(
+      Math.max(Number(headerFooterFontSize) || 10, 6),
+      32,
+    );
+    const margin = Math.min(Math.max(Number(headerFooterMargin) || 32, 12), 96);
+    const fileName = file.name.replace(/\.[^.]+$/i, "");
+
+    pages.forEach((page, index) => {
+      const { width, height } = page.getSize();
+      const pageNumber = index + 1;
+
+      if (headerTemplate) {
+        const renderedHeader = renderHeaderFooterText(
+          headerTemplate,
+          pageNumber,
+          totalPages,
+          fileName,
+        );
+        const headerWidth = font.widthOfTextAtSize(renderedHeader, fontSize);
+
+        page.drawText(renderedHeader, {
+          x: Math.max((width - headerWidth) / 2, margin),
+          y: height - margin,
+          size: fontSize,
+          font,
+          color: rgb(0.25, 0.25, 0.25),
+        });
+      }
+
+      if (footerTemplate) {
+        const renderedFooter = renderHeaderFooterText(
+          footerTemplate,
+          pageNumber,
+          totalPages,
+          fileName,
+        );
+        const footerWidth = font.widthOfTextAtSize(renderedFooter, fontSize);
+
+        page.drawText(renderedFooter, {
+          x: Math.max((width - footerWidth) / 2, margin),
+          y: margin,
+          size: fontSize,
+          font,
+          color: rgb(0.25, 0.25, 0.25),
+        });
+      }
+    });
+
+    return pdfBytesToBlob(await pdf.save());
+  }
+
   async function imagesToPdf() {
     if (!files.length) throw new Error("Upload one or more images first.");
 
@@ -1405,6 +1949,108 @@ export default function PdfEditorPage() {
     }
 
     return pdfBytesToBlob(await pdf.save());
+  }
+
+  async function repairPdf() {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetchPdfApi("/api/pdf/repair", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not repair this PDF. Please try another file.",
+        ),
+      );
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(
+        contentDisposition,
+        makeDownloadName(file, "repaired"),
+      ),
+    };
+  }
+
+  async function batchPostZip(
+    endpoint: string,
+    fallback: string,
+    outputName: string,
+    extraFields?: Record<string, string>,
+  ) {
+    if (!files.length) throw new Error("Upload one or more PDF files first.");
+
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
+
+    Object.entries(extraFields || {}).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    const response = await fetchPdfApi(endpoint, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(await getApiErrorMessage(response, fallback));
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(contentDisposition, outputName),
+    };
+  }
+
+  async function batchCompressPdfs() {
+    if (!files.length) {
+      throw new Error("Upload one or more PDF files first.");
+    }
+
+    const formData = new FormData();
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    formData.append("quality", compressionQuality);
+
+    const response = await fetchPdfApi("/api/pdf/batch/compress", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not batch compress these PDFs. Please try again.",
+        ),
+      );
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(contentDisposition, "compressed-pdfs.zip"),
+    };
   }
 
   async function compressPdf() {
@@ -1847,6 +2493,38 @@ export default function PdfEditorPage() {
     return JSON.parse(responseText) as CompareResult;
   }
 
+  async function addPagesToPdf() {
+    const file = files[0];
+    if (!file) throw new Error("Upload the main PDF first.");
+    if (!insertPdfFile) throw new Error("Upload a PDF to insert.");
+
+    const mainPdf = await PDFDocument.load(await file.arrayBuffer());
+    const insertPdf = await PDFDocument.load(await insertPdfFile.arrayBuffer());
+    const insertPageIndices = insertPdf.getPageIndices();
+    const copiedPages = await mainPdf.copyPages(insertPdf, insertPageIndices);
+
+    let insertIndex = mainPdf.getPageCount();
+
+    if (insertPosition === "start") {
+      insertIndex = 0;
+    }
+
+    if (insertPosition === "after-page") {
+      const pageCount = mainPdf.getPageCount();
+      const afterPage = Math.min(
+        Math.max(Number(insertAfterPage) || 1, 1),
+        pageCount,
+      );
+      insertIndex = afterPage;
+    }
+
+    copiedPages.forEach((page, index) => {
+      mainPdf.insertPage(insertIndex + index, page);
+    });
+
+    return pdfBytesToBlob(await mainPdf.save());
+  }
+
   async function extractSelectedPages(pageNumbers: number[]) {
     const file = files[0];
     if (!file) throw new Error("Upload one PDF file first.");
@@ -1907,6 +2585,11 @@ export default function PdfEditorPage() {
           makeDownloadName(files[0] || null, "rotated"),
           await rotatePages(),
         );
+      } else if (mode === "add-pages") {
+        nextOutput = createFileOutput(
+          makeDownloadName(files[0] || null, "pages-added"),
+          await addPagesToPdf(),
+        );
       } else if (mode === "reorder") {
         nextOutput = createFileOutput(
           makeDownloadName(files[0] || null, "organized"),
@@ -1931,6 +2614,19 @@ export default function PdfEditorPage() {
         nextOutput = createFileOutput(
           makeDownloadName(files[0] || null, "cropped"),
           await cropPdf(),
+        );
+      } else if (mode === "repair-pdf") {
+        const result = await repairPdf();
+        nextOutput = createFileOutput(result.name, result.blob);
+      } else if (mode === "metadata-editor") {
+        nextOutput = createFileOutput(
+          makeDownloadName(files[0] || null, "metadata-updated"),
+          await updatePdfMetadata(),
+        );
+      } else if (mode === "sign-pdf") {
+        nextOutput = createFileOutput(
+          makeDownloadName(files[0] || null, "signed"),
+          await signPdf(),
         );
       } else if (mode === "pdf-forms") {
         nextOutput = createFileOutput(
@@ -2003,6 +2699,58 @@ export default function PdfEditorPage() {
           "pdf-compare-result.json",
           JSON.stringify(result, null, 2),
         );
+      } else if (mode === "header-footer") {
+        nextOutput = createFileOutput(
+          makeDownloadName(files[0] || null, "header-footer"),
+          await addHeaderFooterPdf(),
+        );
+      } else if (mode === "batch-compress") {
+        const result = await batchCompressPdfs();
+        nextOutput = createFileOutput(result.name, result.blob);
+      } else if (mode === "batch-protect") {
+        const result = await batchPostZip(
+          "/api/pdf/batch/protect",
+          "Could not protect these PDFs. Please try again.",
+          "protected-pdfs.zip",
+          { password: password.trim() },
+        );
+        nextOutput = createFileOutput(result.name, result.blob);
+      } else if (mode === "batch-unlock") {
+        const result = await batchPostZip(
+          "/api/pdf/batch/unlock",
+          "Could not unlock these PDFs. Please check the password and try again.",
+          "unlocked-pdfs.zip",
+          { password: password.trim() },
+        );
+        nextOutput = createFileOutput(result.name, result.blob);
+      } else if (mode === "batch-watermark") {
+        const result = await batchPostZip(
+          "/api/pdf/batch/watermark",
+          "Could not watermark these PDFs. Please try again.",
+          "watermarked-pdfs.zip",
+          { watermarkText, opacity: String(watermarkOpacity) },
+        );
+        nextOutput = createFileOutput(result.name, result.blob);
+      } else if (mode === "batch-header-footer") {
+        const result = await batchPostZip(
+          "/api/pdf/batch/header-footer",
+          "Could not add header and footer to these PDFs. Please try again.",
+          "header-footer-pdfs.zip",
+          {
+            headerText,
+            footerText,
+            fontSize: headerFooterFontSize,
+            margin: headerFooterMargin,
+          },
+        );
+        nextOutput = createFileOutput(result.name, result.blob);
+      } else if (mode === "batch-repair") {
+        const result = await batchPostZip(
+          "/api/pdf/batch/repair",
+          "Could not repair these PDFs. Please try again.",
+          "repaired-pdfs.zip",
+        );
+        nextOutput = createFileOutput(result.name, result.blob);
       } else {
         const result = await compressPdf();
         nextOutput = createFileOutput(
@@ -2056,11 +2804,35 @@ export default function PdfEditorPage() {
     if (isHtmlMode) return hasHtmlContent;
     if (isImageMode) return hasFiles;
     if (isCompareMode) return hasMainFile && hasSecondCompareFile;
+    if (mode === "add-pages") return hasMainFile && Boolean(insertPdfFile);
+    if (
+      mode === "batch-compress" ||
+      mode === "batch-protect" ||
+      mode === "batch-unlock" ||
+      mode === "batch-watermark" ||
+      mode === "batch-header-footer" ||
+      mode === "batch-repair"
+    )
+      return hasFiles;
 
     if (mode === "protect-pdf") return hasMainFile && hasPassword;
     if (mode === "unlock-pdf") return hasMainFile && hasPassword;
     if (mode === "redact-pdf") return hasMainFile && hasRedactionTerms;
     if (mode === "pdf-forms") return hasMainFile && hasFormFields;
+    if (mode === "header-footer") {
+      return (
+        hasMainFile &&
+        (headerText.trim().length > 0 || footerText.trim().length > 0)
+      );
+    }
+    if (mode === "sign-pdf") {
+      return (
+        hasMainFile &&
+        (signatureText.trim().length > 0 ||
+          Boolean(signatureImageFile) ||
+          hasDrawnSignature)
+      );
+    }
 
     return hasMainFile;
   })();
@@ -2070,9 +2842,28 @@ export default function PdfEditorPage() {
 
     if (isHtmlMode && !hasHtmlContent) return "Enter HTML content first.";
     if (isImageMode && !hasFiles) return "Upload one or more images first.";
+    if (
+      mode === "batch-compress" ||
+      mode === "batch-protect" ||
+      mode === "batch-unlock" ||
+      mode === "batch-watermark" ||
+      mode === "batch-header-footer" ||
+      mode === "batch-repair" ||
+      false
+    ) {
+      return "Upload one or more PDF files first.";
+    }
 
     if (isCompareMode && (!hasMainFile || !hasSecondCompareFile)) {
       return "Upload both PDFs to compare.";
+    }
+
+    if (mode === "add-pages" && !hasMainFile) {
+      return "Upload the main PDF first.";
+    }
+
+    if (mode === "add-pages" && !insertPdfFile) {
+      return "Upload a PDF to insert.";
     }
 
     if (mode === "protect-pdf" && !hasPassword) {
@@ -2089,6 +2880,19 @@ export default function PdfEditorPage() {
 
     if (mode === "pdf-forms" && !hasFormFields) {
       return "Enter form field values.";
+    }
+
+    if (mode === "header-footer" && !headerText.trim() && !footerText.trim()) {
+      return "Enter header or footer text first.";
+    }
+
+    if (
+      mode === "sign-pdf" &&
+      !signatureText.trim() &&
+      !signatureImageFile &&
+      !hasDrawnSignature
+    ) {
+      return "Type, upload, or draw a signature first.";
     }
 
     if (!hasMainFile && !isHtmlMode && !isImageMode) {
@@ -2113,13 +2917,13 @@ export default function PdfEditorPage() {
 
       {!showToolPanel ? (
         <div className="mx-auto mt-8 max-w-6xl">
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2">
             {categoryTabs.map((tab) => (
               <button
                 key={tab.id}
                 type="button"
                 onClick={() => switchCategory(tab.id)}
-                className={`rounded-full border px-6 py-3 text-sm font-semibold tracking-[0.14em] transition ${
+                className={`shrink-0 rounded-full border px-6 py-3 text-sm font-semibold tracking-[0.14em] transition ${
                   activeCategory === tab.id
                     ? "border-white bg-white text-slate-950"
                     : "border-white/10 bg-white/[0.05] text-slate-400 hover:bg-white/[0.08] hover:text-white"
@@ -2130,20 +2934,26 @@ export default function PdfEditorPage() {
             ))}
           </div>
 
-          <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500">
+            <span>{visibleModes.length} PDF tools shown</span>
+          </div>
+
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {visibleModes.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => switchMode(item.id)}
-                className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:border-violet-500/50 hover:bg-white/[0.05]"
+                className="group flex min-h-[170px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05]"
               >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 text-white">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600 text-white transition group-hover:bg-violet-500">
                   {item.icon}
                 </div>
 
-                <h2 className="font-semibold text-white">{item.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-400">
+                <h2 className="text-base font-semibold text-white">
+                  {item.title}
+                </h2>
+                <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-400">
                   {item.description}
                 </p>
               </button>
@@ -2219,7 +3029,7 @@ export default function PdfEditorPage() {
                             ? "Excel file"
                             : isCompareMode
                               ? "first PDF"
-                              : `PDF ${mode === "merge" ? "files" : "file"}`}
+                              : `PDF ${mode === "merge" || isBatchMode ? "files" : "file"}`}
                   </label>
 
                   <label className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
@@ -2237,7 +3047,7 @@ export default function PdfEditorPage() {
                               ? "Excel file"
                               : isCompareMode
                                 ? "first PDF"
-                                : `PDF ${mode === "merge" ? "files" : "file"}`}
+                                : `PDF ${mode === "merge" || isBatchMode ? "files" : "file"}`}
                     </span>
 
                     <span className="mt-2 text-sm text-slate-500">
@@ -2249,7 +3059,7 @@ export default function PdfEditorPage() {
                             ? "Select one PPT or PPTX file"
                             : isExcelMode
                               ? "Select one XLS or XLSX file"
-                              : mode === "merge"
+                              : mode === "merge" || isBatchMode
                                 ? "Select two or more PDFs"
                                 : "Select one PDF file"}
                     </span>
@@ -2267,7 +3077,7 @@ export default function PdfEditorPage() {
                                 ? ".xls,.xlsx,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                                 : "application/pdf,.pdf"
                       }
-                      multiple={mode === "merge" || isImageMode}
+                      multiple={mode === "merge" || isImageMode || isBatchMode}
                       onChange={handleFilesChange}
                       className="hidden"
                     />
@@ -2356,6 +3166,9 @@ export default function PdfEditorPage() {
                         onClick={() => {
                           setSelectedThumbnailPages([]);
                           setPageRanges("");
+                          setInsertPdfFile(null);
+                          setInsertPosition("end");
+                          setInsertAfterPage("1");
                         }}
                         className="ml-auto rounded-lg border border-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
                       >
@@ -2412,6 +3225,66 @@ export default function PdfEditorPage() {
                 </div>
               ) : null}
 
+              {mode === "add-pages" ? (
+                <div className="mt-5 space-y-4 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      PDF to insert
+                    </label>
+                    <input
+                      type="file"
+                      accept="application/pdf,.pdf"
+                      onChange={(event) => {
+                        const selectedFile = event.target.files?.[0] || null;
+                        setInsertPdfFile(selectedFile);
+                      }}
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500"
+                    />
+                    <p className="mt-2 text-xs text-slate-500">
+                      {insertPdfFile
+                        ? `Selected: ${insertPdfFile.name}`
+                        : "Upload another PDF whose pages will be inserted into the main PDF."}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Insert position
+                      </label>
+                      <select
+                        value={insertPosition}
+                        onChange={(event) =>
+                          setInsertPosition(event.target.value)
+                        }
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                      >
+                        <option value="end">At end</option>
+                        <option value="start">At beginning</option>
+                        <option value="after-page">After page number</option>
+                      </select>
+                    </div>
+
+                    {insertPosition === "after-page" ? (
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                          After page
+                        </label>
+                        <input
+                          value={insertAfterPage}
+                          onChange={(event) =>
+                            setInsertAfterPage(event.target.value)
+                          }
+                          inputMode="numeric"
+                          placeholder="1"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        />
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              ) : null}
+
               {needsPageInput ? (
                 <div className="mt-5">
                   <label className="mb-2 block text-sm font-medium text-slate-300">
@@ -2464,7 +3337,65 @@ export default function PdfEditorPage() {
                 </div>
               ) : null}
 
-              {mode === "compress-pdf" ? (
+              {mode === "batch-protect" || mode === "batch-unlock" ? (
+                <div className="mt-5">
+                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                    Password for all PDFs
+                  </label>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(event) => setPassword(event.target.value)}
+                    placeholder="Enter password"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                  />
+                </div>
+              ) : null}
+
+              {mode === "batch-watermark" ? (
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Watermark text
+                    </label>
+                    <input
+                      value={watermarkText}
+                      onChange={(event) => setWatermarkText(event.target.value)}
+                      placeholder="CONFIDENTIAL"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {mode === "batch-header-footer" ? (
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Header text
+                    </label>
+                    <input
+                      value={headerText}
+                      onChange={(event) => setHeaderText(event.target.value)}
+                      placeholder="Confidential"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Footer text
+                    </label>
+                    <input
+                      value={footerText}
+                      onChange={(event) => setFooterText(event.target.value)}
+                      placeholder="Page {page} of {total}"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
+                </div>
+              ) : null}
+
+              {mode === "compress-pdf" || mode === "batch-compress" ? (
                 <div className="mt-5">
                   <label className="mb-2 block text-sm font-medium text-slate-300">
                     Compression level
@@ -2482,6 +3413,366 @@ export default function PdfEditorPage() {
                       High compression / smaller file
                     </option>
                   </select>
+                </div>
+              ) : null}
+
+              {mode === "header-footer" ? (
+                <div className="mt-5 space-y-4">
+                  <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4 text-sm leading-6 text-violet-100">
+                    Use tokens like{" "}
+                    <span className="font-semibold">{"{page}"}</span>,{" "}
+                    <span className="font-semibold">{"{total}"}</span>,{" "}
+                    <span className="font-semibold">{"{date}"}</span>, and{" "}
+                    <span className="font-semibold">{"{filename}"}</span>.
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Header text
+                    </label>
+                    <input
+                      value={headerText}
+                      onChange={(event) => setHeaderText(event.target.value)}
+                      placeholder="Confidential"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Footer text
+                    </label>
+                    <input
+                      value={footerText}
+                      onChange={(event) => setFooterText(event.target.value)}
+                      placeholder="Page {page} of {total}"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Font size
+                      </label>
+                      <input
+                        value={headerFooterFontSize}
+                        onChange={(event) =>
+                          setHeaderFooterFontSize(event.target.value)
+                        }
+                        inputMode="numeric"
+                        placeholder="10"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Margin
+                      </label>
+                      <input
+                        value={headerFooterMargin}
+                        onChange={(event) =>
+                          setHeaderFooterMargin(event.target.value)
+                        }
+                        inputMode="numeric"
+                        placeholder="32"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {mode === "metadata-editor" ? (
+                <div className="mt-5 space-y-4">
+                  <div className="rounded-2xl border border-violet-500/20 bg-violet-500/10 p-4 text-sm leading-6 text-violet-100">
+                    {metadataLoaded
+                      ? "Metadata loaded from the uploaded PDF. Leave fields empty to remove values."
+                      : "Upload a PDF to load existing metadata, then edit or clear the fields."}
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Title
+                      </label>
+                      <input
+                        value={metadataTitle}
+                        onChange={(event) =>
+                          setMetadataTitle(event.target.value)
+                        }
+                        placeholder="Document title"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Author
+                      </label>
+                      <input
+                        value={metadataAuthor}
+                        onChange={(event) =>
+                          setMetadataAuthor(event.target.value)
+                        }
+                        placeholder="Author name"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Subject
+                      </label>
+                      <input
+                        value={metadataSubject}
+                        onChange={(event) =>
+                          setMetadataSubject(event.target.value)
+                        }
+                        placeholder="Document subject"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Keywords
+                      </label>
+                      <input
+                        value={metadataKeywords}
+                        onChange={(event) =>
+                          setMetadataKeywords(event.target.value)
+                        }
+                        placeholder="invoice, finance, report"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Creator
+                      </label>
+                      <input
+                        value={metadataCreator}
+                        onChange={(event) =>
+                          setMetadataCreator(event.target.value)
+                        }
+                        placeholder="Creator app"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Producer
+                      </label>
+                      <input
+                        value={metadataProducer}
+                        onChange={(event) =>
+                          setMetadataProducer(event.target.value)
+                        }
+                        placeholder="Producer app"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ) : null}
+
+              {mode === "sign-pdf" ? (
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Signature type
+                    </label>
+                    <div className="grid gap-2 sm:grid-cols-3">
+                      {[
+                        { id: "text", label: "Type" },
+                        { id: "image", label: "Upload image" },
+                        { id: "draw", label: "Draw" },
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() =>
+                            setSignatureMode(
+                              item.id as "text" | "image" | "draw",
+                            )
+                          }
+                          className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
+                            signatureMode === item.id
+                              ? "border-violet-400 bg-violet-500/20 text-white"
+                              : "border-white/10 bg-slate-950 text-slate-300 hover:border-violet-400/50"
+                          }`}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {signatureMode === "text" ? (
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Signature text
+                      </label>
+                      <input
+                        value={signatureText}
+                        onChange={(event) =>
+                          setSignatureText(event.target.value)
+                        }
+                        placeholder="Your name or initials"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+                  ) : null}
+
+                  {signatureMode === "image" ? (
+                    <>
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                          Signature image
+                        </label>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/jpg"
+                          onChange={(event) => {
+                            const selectedFile =
+                              event.target.files?.[0] || null;
+                            setSignatureImageFile(selectedFile);
+                          }}
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500"
+                        />
+                        <p className="mt-2 text-xs text-slate-500">
+                          {signatureImageFile
+                            ? `Selected: ${signatureImageFile.name}`
+                            : "Optional. Upload a PNG signature with transparent background for best results."}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                          Image scale
+                        </label>
+                        <select
+                          value={signatureImageScale}
+                          onChange={(event) =>
+                            setSignatureImageScale(event.target.value)
+                          }
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                        >
+                          <option value="0.15">Small</option>
+                          <option value="0.25">Medium</option>
+                          <option value="0.4">Large</option>
+                          <option value="0.6">Extra large</option>
+                        </select>
+                      </div>
+                    </>
+                  ) : null}
+
+                  {signatureMode === "draw" ? (
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Draw signature
+                      </label>
+                      <div className="rounded-2xl border border-white/10 bg-white p-3">
+                        <canvas
+                          ref={signatureCanvasRef}
+                          width={720}
+                          height={220}
+                          onPointerDown={beginSignatureDraw}
+                          onPointerMove={moveSignatureDraw}
+                          onPointerUp={endSignatureDraw}
+                          onPointerCancel={endSignatureDraw}
+                          className="h-40 w-full touch-none rounded-xl bg-white"
+                        />
+                      </div>
+                      <div className="mt-3 flex flex-wrap items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={clearDrawnSignature}
+                          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+                        >
+                          Clear drawing
+                        </button>
+                        <span className="text-xs text-slate-500">
+                          {hasDrawnSignature
+                            ? "Signature drawing ready."
+                            : "Use mouse or touch to draw your signature."}
+                        </span>
+                      </div>
+
+                      <div className="mt-4">
+                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                          Drawing scale
+                        </label>
+                        <select
+                          value={signatureImageScale}
+                          onChange={(event) =>
+                            setSignatureImageScale(event.target.value)
+                          }
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                        >
+                          <option value="0.15">Small</option>
+                          <option value="0.25">Medium</option>
+                          <option value="0.4">Large</option>
+                          <option value="0.6">Extra large</option>
+                        </select>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Page
+                      </label>
+                      <input
+                        value={signaturePage}
+                        onChange={(event) =>
+                          setSignaturePage(event.target.value)
+                        }
+                        inputMode="numeric"
+                        placeholder="1"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Position
+                      </label>
+                      <select
+                        value={signaturePosition}
+                        onChange={(event) =>
+                          setSignaturePosition(event.target.value)
+                        }
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                      >
+                        <option value="bottom-right">Bottom right</option>
+                        <option value="bottom-center">Bottom center</option>
+                        <option value="bottom-left">Bottom left</option>
+                        <option value="top-right">Top right</option>
+                        <option value="top-center">Top center</option>
+                        <option value="top-left">Top left</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                        Font size
+                      </label>
+                      <input
+                        value={signatureFontSize}
+                        onChange={(event) =>
+                          setSignatureFontSize(event.target.value)
+                        }
+                        inputMode="numeric"
+                        placeholder="28"
+                        disabled={signatureMode !== "text"}
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                      />
+                    </div>
+                  </div>
                 </div>
               ) : null}
 
