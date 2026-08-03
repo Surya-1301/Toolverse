@@ -35,6 +35,12 @@ app.use(
     },
     methods: ["GET", "POST", "OPTIONS"],
     allowedHeaders: ["Content-Type"],
+    exposedHeaders: [
+      "Content-Disposition",
+      "X-Original-Size",
+      "X-Compressed-Size",
+      "X-Compression-Used",
+    ],
   }),
 );
 
