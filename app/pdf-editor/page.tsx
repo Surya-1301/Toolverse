@@ -74,12 +74,21 @@ type Mode =
 
 type OutputKind = "file" | "text";
 
+type CompressionStats = {
+  originalSize: number;
+  compressedSize: number;
+  savedBytes: number;
+  savedPercent: number;
+  usedCompressed: boolean;
+};
+
 type OutputFile = {
   name: string;
   blob: Blob;
   size: number;
   kind: OutputKind;
   previewText?: string;
+  compressionStats?: CompressionStats;
 };
 
 type CompareResult = {
@@ -390,12 +399,17 @@ function pdfBytesToBlob(bytes: Uint8Array) {
   });
 }
 
-function createFileOutput(name: string, blob: Blob): OutputFile {
+function createFileOutput(
+  name: string,
+  blob: Blob,
+  compressionStats?: CompressionStats,
+): OutputFile {
   return {
     name,
     blob,
     size: blob.size,
     kind: "file",
+    compressionStats,
   };
 }
 
@@ -471,6 +485,34 @@ function fileNameFromDisposition(disposition: string | null, fallback: string) {
   }
 
   return fallback;
+}
+
+function getCompressionStats(response: Response): CompressionStats | undefined {
+  const originalSize = Number(response.headers.get("x-original-size") || "");
+  const compressedSize = Number(
+    response.headers.get("x-compressed-size") || "",
+  );
+  const compressionUsed = response.headers.get("x-compression-used") || "";
+
+  if (!Number.isFinite(originalSize) || !Number.isFinite(compressedSize)) {
+    return undefined;
+  }
+
+  if (originalSize <= 0 || compressedSize <= 0) {
+    return undefined;
+  }
+
+  const savedBytes = Math.max(originalSize - compressedSize, 0);
+  const savedPercent =
+    originalSize > 0 ? Math.round((savedBytes / originalSize) * 100) : 0;
+
+  return {
+    originalSize,
+    compressedSize,
+    savedBytes,
+    savedPercent,
+    usedCompressed: compressionUsed === "compressed",
+  };
 }
 
 function parseFormAssignments(input: string) {
@@ -1024,10 +1066,26 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error((await response.text()) || "Could not compress PDF.");
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not compress this PDF. Please try again.",
+        ),
+      );
     }
 
-    return response.blob();
+    const compressionStats = getCompressionStats(response);
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(
+        contentDisposition,
+        makeDownloadName(file, "compressed"),
+      ),
+      compressionStats,
+    };
   }
 
   async function officeToPdf() {
@@ -1043,13 +1101,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this Office file to PDF. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this Office file to PDF. Please try again.",
+        ),
+      );
+    }
 
     return response.blob();
   }
@@ -1068,13 +1126,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this HTML to PDF. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this HTML to PDF. Please try again.",
+        ),
+      );
+    }
 
     return response.blob();
   }
@@ -1092,13 +1150,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this PDF to JPG. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this PDF to JPG. Please try again.",
+        ),
+      );
+    }
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1126,13 +1184,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this PDF to Word. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this PDF to Word. Please try again.",
+        ),
+      );
+    }
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1159,13 +1217,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this PDF to PowerPoint. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this PDF to PowerPoint. Please try again.",
+        ),
+      );
+    }
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1192,13 +1250,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this PDF to Excel. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this PDF to Excel. Please try again.",
+        ),
+      );
+    }
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1225,13 +1283,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not convert this PDF to PDF/A. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not convert this PDF to PDF/A. Please try again.",
+        ),
+      );
+    }
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
 
@@ -1263,13 +1321,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "We could not unlock this PDF. Please check the password and try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "We could not unlock this PDF. Please check the password and try again.",
+        ),
+      );
+    }
 
     return response.blob();
   }
@@ -1297,13 +1355,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not protect this PDF. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not protect this PDF. Please try again.",
+        ),
+      );
+    }
 
     return response.blob();
   }
@@ -1327,13 +1385,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not redact this PDF. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not redact this PDF. Please try again.",
+        ),
+      );
+    }
 
     return response.blob();
   }
@@ -1358,13 +1416,13 @@ export default function PdfEditorPage() {
     const responseText = await response.text();
 
     if (!response.ok) {
-  throw new Error(
-    await getApiErrorMessage(
-      response,
-      "Could not compare these PDFs. Please try again.",
-    ),
-  );
-}
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not compare these PDFs. Please try again.",
+        ),
+      );
+    }
 
     return JSON.parse(responseText) as CompareResult;
   }
@@ -1487,9 +1545,11 @@ export default function PdfEditorPage() {
           JSON.stringify(result, null, 2),
         );
       } else {
+        const result = await compressPdf();
         nextOutput = createFileOutput(
-          makeDownloadName(files[0] || null, "compressed"),
-          await compressPdf(),
+          result.name,
+          result.blob,
+          result.compressionStats,
         );
       }
 
@@ -2084,6 +2144,51 @@ export default function PdfEditorPage() {
                         <p className="mt-1 text-sm text-slate-400">
                           {formatFileSize(output.size)}
                         </p>
+
+                        {output.compressionStats ? (
+                          <div className="mt-4 grid gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-left text-sm">
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-slate-300">
+                                Original size
+                              </span>
+                              <span className="font-semibold text-white">
+                                {formatFileSize(
+                                  output.compressionStats.originalSize,
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-slate-300">
+                                {output.compressionStats.usedCompressed
+                                  ? "Compressed size"
+                                  : "Final size"}
+                              </span>
+                              <span className="font-semibold text-white">
+                                {formatFileSize(
+                                  output.compressionStats.compressedSize,
+                                )}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-4">
+                              <span className="text-slate-300">Saved</span>
+                              <span className="font-semibold text-emerald-300">
+                                {formatFileSize(
+                                  output.compressionStats.savedBytes,
+                                )}{" "}
+                                ({output.compressionStats.savedPercent}%)
+                              </span>
+                            </div>
+
+                            {!output.compressionStats.usedCompressed ? (
+                              <p className="pt-2 text-xs leading-5 text-amber-200">
+                                The compressed version was not smaller, so the
+                                original PDF was returned.
+                              </p>
+                            ) : null}
+                          </div>
+                        ) : null}
                       </div>
 
                       <button
