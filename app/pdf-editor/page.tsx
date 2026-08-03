@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   degrees,
   PDFCheckBox,
@@ -39,6 +39,9 @@ import { HowToUse } from "../../components/HowToUse";
 import { formatFileSize } from "../../lib/formatFileSize";
 import { fetchPdfApi } from "../../lib/apiBase";
 import { getApiErrorMessage } from "../../lib/apiError";
+import * as pdfjsLib from "pdfjs-dist";
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 type Category =
   "all" | "organize" | "convertToPdf" | "convertFromPdf" | "edit" | "security";
@@ -73,6 +76,13 @@ type Mode =
   | "compare-pdf";
 
 type OutputKind = "file" | "text";
+
+type PdfThumbnail = {
+  pageNumber: number;
+  dataUrl: string;
+  width: number;
+  height: number;
+};
 
 type CompressionStats = {
   originalSize: number;
@@ -547,6 +557,9 @@ export default function PdfEditorPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [mode, setMode] = useState<Mode>("merge");
   const [showToolPanel, setShowToolPanel] = useState(false);
+  const [pdfThumbnails, setPdfThumbnails] = useState<PdfThumbnail[]>([]);
+  const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+  const [thumbnailError, setThumbnailError] = useState("");
   const [files, setFiles] = useState<File[]>([]);
   const [secondCompareFile, setSecondCompareFile] = useState<File | null>(null);
   const [pageRanges, setPageRanges] = useState("");
@@ -598,6 +611,37 @@ export default function PdfEditorPage() {
   const isCropMode = mode === "crop-pdf";
   const isPdfFormsMode = mode === "pdf-forms";
 
+  const shouldShowPdfThumbnails =
+    files.length > 0 &&
+    files[0] &&
+    isPdfFile(files[0]) &&
+    !isHtmlMode &&
+    !isImageMode &&
+    !isWordMode &&
+    !isPowerPointMode &&
+    !isExcelMode &&
+    [
+      "split",
+      "extract-pages",
+      "remove",
+      "rotate",
+      "reorder",
+      "page-numbers",
+      "watermark",
+      "image-watermark",
+      "crop-pdf",
+      "pdf-forms",
+      "compress-pdf",
+      "unlock-pdf",
+      "protect-pdf",
+      "redact-pdf",
+      "pdf-to-jpg",
+      "pdf-to-word",
+      "pdf-to-powerpoint",
+      "pdf-to-excel",
+      "pdf-to-pdfa",
+    ].includes(mode);
+
   const needsPageInput = [
     "split",
     "extract-pages",
@@ -619,6 +663,9 @@ export default function PdfEditorPage() {
 
   function resetWorkingState() {
     setFiles([]);
+    setPdfThumbnails([]);
+    setIsGeneratingThumbnails(false);
+    setThumbnailError("");
     setSecondCompareFile(null);
     setPageRanges("");
     setRotation("90");
@@ -671,6 +718,58 @@ export default function PdfEditorPage() {
     resetWorkingState();
   }
 
+  async function generatePdfThumbnails(file: File) {
+    try {
+      setThumbnailError("");
+      setIsGeneratingThumbnails(true);
+      setPdfThumbnails([]);
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const maxPages = Math.min(pdf.numPages, 24);
+      const nextThumbnails: PdfThumbnail[] = [];
+
+      for (let pageNumber = 1; pageNumber <= maxPages; pageNumber += 1) {
+        const page = await pdf.getPage(pageNumber);
+        const viewport = page.getViewport({ scale: 0.28 });
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        if (!context) continue;
+
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+
+        await page.render({
+  canvas,
+  canvasContext: context,
+  viewport,
+}).promise;
+
+        nextThumbnails.push({
+          pageNumber,
+          dataUrl: canvas.toDataURL("image/jpeg", 0.8),
+          width: canvas.width,
+          height: canvas.height,
+        });
+      }
+
+      setPdfThumbnails(nextThumbnails);
+
+      if (pdf.numPages > maxPages) {
+        setThumbnailError(
+          `Showing first ${maxPages} pages out of ${pdf.numPages}.`,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      setThumbnailError("Could not generate PDF previews for this file.");
+      setPdfThumbnails([]);
+    } finally {
+      setIsGeneratingThumbnails(false);
+    }
+  }
+
   function handleFilesChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files || []);
 
@@ -706,6 +805,13 @@ export default function PdfEditorPage() {
     }
 
     setFiles(selectedFiles);
+
+    if (selectedFiles[0] && isPdfFile(selectedFiles[0])) {
+      void generatePdfThumbnails(selectedFiles[0]);
+    } else {
+      setPdfThumbnails([]);
+      setThumbnailError("");
+    }
 
     if (isPdfFormsMode && selectedFiles[0] && isPdfFile(selectedFiles[0])) {
       void inspectPdfForms(selectedFiles[0]);
@@ -1802,6 +1908,63 @@ export default function PdfEditorPage() {
                       </p>
                     </div>
                   ) : null}
+                </div>
+              ) : null}
+
+              {shouldShowPdfThumbnails ? (
+                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <h3 className="text-sm font-semibold text-white">
+                        Page previews
+                      </h3>
+                      <p className="mt-1 text-xs text-slate-500">
+                        Preview pages before editing. Drag-and-drop page editing
+                        comes next.
+                      </p>
+                    </div>
+
+                    {isGeneratingThumbnails ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-violet-300" />
+                    ) : null}
+                  </div>
+
+                  {thumbnailError ? (
+                    <p className="mb-3 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                      {thumbnailError}
+                    </p>
+                  ) : null}
+
+                  {pdfThumbnails.length ? (
+                    <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-auto pr-1 sm:grid-cols-3">
+                      {pdfThumbnails.map((thumbnail) => (
+                        <div
+                          key={thumbnail.pageNumber}
+                          className="rounded-xl border border-white/10 bg-slate-900 p-2"
+                        >
+                          <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
+                            <img
+                              src={thumbnail.dataUrl}
+                              alt={`Page ${thumbnail.pageNumber}`}
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+
+                          <p className="mt-2 text-center text-xs font-medium text-slate-300">
+                            Page {thumbnail.pageNumber}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : isGeneratingThumbnails ? (
+                    <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
+                      Generating page previews...
+                    </div>
+                  ) : (
+                    <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
+                      Page previews will appear here.
+                    </div>
+                  )}
                 </div>
               ) : null}
 
