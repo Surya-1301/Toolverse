@@ -612,15 +612,71 @@ function SortableThumbnailCard({ thumbnail }: { thumbnail: PdfThumbnail }) {
   );
 }
 
+function SelectableThumbnailCard({
+  thumbnail,
+  isSelectable,
+  isSelected,
+  onToggle,
+}: {
+  thumbnail: PdfThumbnail;
+  isSelectable: boolean;
+  isSelected: boolean;
+  onToggle: (pageNumber: number) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onToggle(thumbnail.pageNumber)}
+      disabled={!isSelectable}
+      className={`group rounded-xl border bg-slate-900 p-2 text-left transition ${
+        isSelectable
+          ? "cursor-pointer hover:border-violet-400/60"
+          : "cursor-default"
+      } ${
+        isSelected
+          ? "border-violet-400 shadow-lg shadow-violet-500/20"
+          : "border-white/10"
+      }`}
+    >
+      <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
+        <img
+          src={thumbnail.dataUrl}
+          alt={`Page ${thumbnail.pageNumber}`}
+          className="max-h-full max-w-full object-contain"
+        />
+
+        {isSelectable ? (
+          <span
+            className={`absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border text-xs font-bold ${
+              isSelected
+                ? "border-violet-300 bg-violet-600 text-white"
+                : "border-slate-300 bg-white/90 text-slate-700"
+            }`}
+          >
+            {isSelected ? "✓" : "+"}
+          </span>
+        ) : null}
+      </div>
+
+      <p className="mt-2 text-center text-xs font-medium text-slate-300">
+        Page {thumbnail.pageNumber}
+      </p>
+    </button>
+  );
+}
+
 export default function PdfEditorPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [mode, setMode] = useState<Mode>("merge");
   const [showToolPanel, setShowToolPanel] = useState(false);
   const [pdfThumbnails, setPdfThumbnails] = useState<PdfThumbnail[]>([]);
- const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
- const [thumbnailError, setThumbnailError] = useState("");
- const [pageOrder, setPageOrder] = useState("");
- const [files, setFiles] = useState<File[]>([]);
+  const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+  const [thumbnailError, setThumbnailError] = useState("");
+  const [pageOrder, setPageOrder] = useState("");
+  const [selectedThumbnailPages, setSelectedThumbnailPages] = useState<
+    number[]
+  >([]);
+  const [files, setFiles] = useState<File[]>([]);
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -717,6 +773,18 @@ export default function PdfEditorPage() {
     "reorder",
   ].includes(mode);
 
+  const supportsSelectableThumbnails = [
+    "split",
+    "extract-pages",
+    "remove",
+    "rotate",
+  ].includes(mode);
+
+  const selectedPagesValue = selectedThumbnailPages
+    .slice()
+    .sort((a, b) => a - b)
+    .join(",");
+
   async function inspectPdfForms(file: File) {
     try {
       const pdf = await PDFDocument.load(await file.arrayBuffer());
@@ -742,6 +810,7 @@ export default function PdfEditorPage() {
     setPdfThumbnails([]);
     setIsGeneratingThumbnails(false);
     setThumbnailError("");
+    setSelectedThumbnailPages([]);
     setSecondCompareFile(null);
     setPageRanges("");
     setRotation("90");
@@ -794,6 +863,25 @@ export default function PdfEditorPage() {
     resetWorkingState();
   }
 
+  function toggleThumbnailPage(pageNumber: number) {
+    if (!supportsSelectableThumbnails) return;
+
+    setSelectedThumbnailPages((currentPages) => {
+      const isSelected = currentPages.includes(pageNumber);
+      const nextPages = isSelected
+        ? currentPages.filter((item) => item !== pageNumber)
+        : [...currentPages, pageNumber];
+      const sortedPages = nextPages.slice().sort((a, b) => a - b);
+      const nextValue = sortedPages.join(",");
+
+      if (["split", "extract-pages", "remove", "rotate"].includes(mode)) {
+        setPageRanges(nextValue);
+      }
+
+      return sortedPages;
+    });
+  }
+
   function handleThumbnailDragEnd(event: DragEndEvent) {
     const { active, over } = event;
 
@@ -820,74 +908,77 @@ export default function PdfEditorPage() {
   }
 
   async function generatePdfThumbnails(file: File) {
-  try {
-    setThumbnailError("");
-    setIsGeneratingThumbnails(true);
-    setPdfThumbnails([]);
+    try {
+      setThumbnailError("");
+      setIsGeneratingThumbnails(true);
+      setPdfThumbnails([]);
 
-    if (typeof window === "undefined") {
-      return;
+      if (typeof window === "undefined") {
+        return;
+      }
+
+      const pdfjsLib: PdfJsModule = await import("pdfjs-dist");
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://unpkg.com/pdfjs-dist@" +
+        pdfjsLib.version +
+        "/build/pdf.worker.min.mjs";
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const maxPages = Math.min(pdf.numPages, 24);
+      const nextThumbnails: PdfThumbnail[] = [];
+
+      for (let pageNumber = 1; pageNumber <= maxPages; pageNumber += 1) {
+        const page = await pdf.getPage(pageNumber);
+        const viewport = page.getViewport({ scale: 0.28 });
+
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+
+        if (!context) continue;
+
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+
+        await page.render({
+          canvas,
+          canvasContext: context,
+          viewport,
+        }).promise;
+
+        nextThumbnails.push({
+          id: `page-${pageNumber}`,
+          pageNumber,
+          dataUrl: canvas.toDataURL("image/jpeg", 0.8),
+          width: canvas.width,
+          height: canvas.height,
+        });
+      }
+
+      setPdfThumbnails(nextThumbnails);
+
+      if (mode === "reorder") {
+        setPageOrder(
+          nextThumbnails
+            .map((item: PdfThumbnail) => String(item.pageNumber))
+            .join(","),
+        );
+      }
+
+      if (pdf.numPages > maxPages) {
+        setThumbnailError(
+          `Showing first ${maxPages} pages out of ${pdf.numPages}.`,
+        );
+      }
+    } catch (error) {
+      console.error(error);
+      setThumbnailError("Could not generate PDF previews for this file.");
+      setPdfThumbnails([]);
+    } finally {
+      setIsGeneratingThumbnails(false);
     }
-
-    const pdfjsLib: PdfJsModule = await import("pdfjs-dist");
-
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    const maxPages = Math.min(pdf.numPages, 24);
-    const nextThumbnails: PdfThumbnail[] = [];
-
-    for (let pageNumber = 1; pageNumber <= maxPages; pageNumber += 1) {
-      const page = await pdf.getPage(pageNumber);
-      const viewport = page.getViewport({ scale: 0.28 });
-
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
-
-      if (!context) continue;
-
-      canvas.width = Math.floor(viewport.width);
-      canvas.height = Math.floor(viewport.height);
-
-      await page.render({
-        canvas,
-        canvasContext: context,
-        viewport,
-      }).promise;
-
-      nextThumbnails.push({
-        id: `page-${pageNumber}`,
-        pageNumber,
-        dataUrl: canvas.toDataURL("image/jpeg", 0.8),
-        width: canvas.width,
-        height: canvas.height,
-      });
-    }
-
-    setPdfThumbnails(nextThumbnails);
-
-    if (mode === "reorder") {
-      setPageOrder(
-        nextThumbnails
-          .map((item: PdfThumbnail) => String(item.pageNumber))
-          .join(","),
-      );
-    }
-
-    if (pdf.numPages > maxPages) {
-      setThumbnailError(
-        `Showing first ${maxPages} pages out of ${pdf.numPages}.`,
-      );
-    }
-  } catch (error) {
-    console.error(error);
-    setThumbnailError("Could not generate PDF previews for this file.");
-    setPdfThumbnails([]);
-  } finally {
-    setIsGeneratingThumbnails(false);
   }
-}
   function handleFilesChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFiles = Array.from(event.target.files || []);
 
@@ -923,6 +1014,7 @@ export default function PdfEditorPage() {
     }
 
     setFiles(selectedFiles);
+    setSelectedThumbnailPages([]);
 
     if (selectedFiles[0] && isPdfFile(selectedFiles[0])) {
       void generatePdfThumbnails(selectedFiles[0]);
@@ -1651,6 +1743,31 @@ export default function PdfEditorPage() {
     return JSON.parse(responseText) as CompareResult;
   }
 
+  async function extractSelectedPages(pageNumbers: number[]) {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const pdf = await PDFDocument.load(await file.arrayBuffer());
+    const nextPdf = await PDFDocument.create();
+    const totalPages = pdf.getPageCount();
+    const uniquePages = Array.from(new Set(pageNumbers))
+      .filter((pageNumber) => pageNumber >= 1 && pageNumber <= totalPages)
+      .sort((a, b) => a - b);
+
+    if (!uniquePages.length) {
+      throw new Error("Select at least one valid page.");
+    }
+
+    const copiedPages = await nextPdf.copyPages(
+      pdf,
+      uniquePages.map((pageNumber) => pageNumber - 1),
+    );
+
+    copiedPages.forEach((page) => nextPdf.addPage(page));
+
+    return pdfBytesToBlob(await nextPdf.save());
+  }
+
   async function processPdf() {
     try {
       setError("");
@@ -1661,6 +1778,11 @@ export default function PdfEditorPage() {
 
       if (mode === "merge") {
         nextOutput = createFileOutput("merged-pdf.pdf", await mergePdfs());
+      } else if (mode === "split" && selectedThumbnailPages.length) {
+        nextOutput = createFileOutput(
+          makeDownloadName(files[0] || null, "selected-pages"),
+          await extractSelectedPages(selectedThumbnailPages),
+        );
       } else if (mode === "split") {
         nextOutput = createFileOutput(
           makeDownloadName(files[0] || null, "split"),
@@ -2039,7 +2161,9 @@ export default function PdfEditorPage() {
                       <p className="mt-1 text-xs text-slate-500">
                         {mode === "reorder"
                           ? "Drag pages to reorder them. The page order field updates automatically."
-                          : "Preview pages before editing."}
+                          : supportsSelectableThumbnails
+                            ? "Click pages to select them. The page range field updates automatically."
+                            : "Preview pages before editing."}
                       </p>
                     </div>
 
@@ -2052,6 +2176,25 @@ export default function PdfEditorPage() {
                     <p className="mb-3 rounded-xl border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
                       {thumbnailError}
                     </p>
+                  ) : null}
+
+                  {supportsSelectableThumbnails &&
+                  selectedThumbnailPages.length ? (
+                    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 py-2 text-xs text-violet-100">
+                      <span className="font-semibold">Selected pages:</span>
+                      <span>{selectedPagesValue}</span>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedThumbnailPages([]);
+                          setPageRanges("");
+                        }}
+                        className="ml-auto rounded-lg border border-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
+                      >
+                        Clear selection
+                      </button>
+                    </div>
                   ) : null}
 
                   {pdfThumbnails.length ? (
@@ -2078,22 +2221,15 @@ export default function PdfEditorPage() {
                     ) : (
                       <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-auto pr-1 sm:grid-cols-3">
                         {pdfThumbnails.map((thumbnail) => (
-                          <div
+                          <SelectableThumbnailCard
                             key={thumbnail.id}
-                            className="rounded-xl border border-white/10 bg-slate-900 p-2"
-                          >
-                            <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
-                              <img
-                                src={thumbnail.dataUrl}
-                                alt={`Page ${thumbnail.pageNumber}`}
-                                className="max-h-full max-w-full object-contain"
-                              />
-                            </div>
-
-                            <p className="mt-2 text-center text-xs font-medium text-slate-300">
-                              Page {thumbnail.pageNumber}
-                            </p>
-                          </div>
+                            thumbnail={thumbnail}
+                            isSelectable={supportsSelectableThumbnails}
+                            isSelected={selectedThumbnailPages.includes(
+                              thumbnail.pageNumber,
+                            )}
+                            onToggle={toggleThumbnailPage}
+                          />
                         ))}
                       </div>
                     )
