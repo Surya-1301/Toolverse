@@ -142,7 +142,7 @@ async function route(request: Request, env: Env) {
 
   if (pathname === "/") {
     return json({
-      name: "ToolverseX API",
+      name: "Toolverse API",
       status: "ok",
     });
   }
