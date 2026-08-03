@@ -78,6 +78,8 @@ type Mode =
   | "html-to-pdf"
   | "pdf-to-jpg"
   | "pdf-to-word"
+  | "pdf-to-text"
+  | "extract-images"
   | "pdf-to-powerpoint"
   | "pdf-to-excel"
   | "pdf-to-pdfa"
@@ -244,6 +246,20 @@ const modes: Array<{
     title: "PDF to WORD",
     description: "Convert a PDF into a DOCX file.",
     icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    id: "pdf-to-text",
+    category: "convertFromPdf",
+    title: "PDF to Text",
+    description: "Extract plain text from every PDF page.",
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    id: "extract-images",
+    category: "convertFromPdf",
+    title: "Extract Images",
+    description: "Extract embedded images from a PDF as a ZIP file.",
+    icon: <FileImage className="h-5 w-5" />,
   },
   {
     id: "pdf-to-powerpoint",
@@ -568,6 +584,27 @@ function isTruthyValue(value: string) {
   return ["true", "yes", "1", "checked", "on"].includes(value.toLowerCase());
 }
 
+function getFileExtension(fileName: string) {
+  const match = fileName.match(/\.([a-z0-9]+)$/i);
+  return match?.[1]?.toUpperCase() || "FILE";
+}
+
+function getOutputTypeLabel(output: OutputFile) {
+  if (output.kind === "text") return "TEXT";
+
+  const extension = getFileExtension(output.name);
+
+  if (extension === "PDF") return "PDF";
+  if (extension === "ZIP") return "ZIP";
+  if (extension === "DOCX") return "DOCX";
+  if (extension === "XLSX") return "XLSX";
+  if (extension === "PPTX") return "PPTX";
+  if (["JPG", "JPEG", "PNG", "WEBP"].includes(extension)) return "IMAGE";
+  if (extension === "JSON") return "JSON";
+
+  return extension;
+}
+
 function SortableThumbnailCard({ thumbnail }: { thumbnail: PdfThumbnail }) {
   const {
     attributes,
@@ -760,6 +797,8 @@ export default function PdfEditorPage() {
       "redact-pdf",
       "pdf-to-jpg",
       "pdf-to-word",
+      "pdf-to-text",
+      "extract-images",
       "pdf-to-powerpoint",
       "pdf-to-excel",
       "pdf-to-pdfa",
@@ -880,31 +919,6 @@ export default function PdfEditorPage() {
 
       return sortedPages;
     });
-  }
-
-  function selectAllThumbnailPages() {
-    if (!supportsSelectableThumbnails) return;
-
-    const allPages = pdfThumbnails.map((thumbnail) => thumbnail.pageNumber);
-    setSelectedThumbnailPages(allPages);
-    setPageRanges(allPages.join(","));
-  }
-
-  function clearThumbnailSelection() {
-    setSelectedThumbnailPages([]);
-    setPageRanges("");
-  }
-
-  function invertThumbnailSelection() {
-    if (!supportsSelectableThumbnails) return;
-
-    const selectedSet = new Set(selectedThumbnailPages);
-    const invertedPages = pdfThumbnails
-      .map((thumbnail) => thumbnail.pageNumber)
-      .filter((pageNumber) => !selectedSet.has(pageNumber));
-
-    setSelectedThumbnailPages(invertedPages);
-    setPageRanges(invertedPages.join(","));
   }
 
   function handleThumbnailDragEnd(event: DragEndEvent) {
@@ -1478,6 +1492,71 @@ export default function PdfEditorPage() {
     return response.blob();
   }
 
+  async function pdfToText() {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const pdfjsLib: PdfJsModule = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://unpkg.com/pdfjs-dist@" +
+      pdfjsLib.version +
+      "/build/pdf.worker.min.mjs";
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pages: string[] = [];
+
+    for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+      const page = await pdf.getPage(pageNumber);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item) => {
+          if ("str" in item) return item.str;
+          return "";
+        })
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      pages.push(`Page ${pageNumber}\n${pageText}`);
+    }
+
+    return pages.join("\n\n---\n\n");
+  }
+
+  async function extractImagesFromPdf() {
+    const file = files[0];
+    if (!file) throw new Error("Upload one PDF file first.");
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await fetchPdfApi("/api/pdf/extract-images", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error(
+        await getApiErrorMessage(
+          response,
+          "Could not extract images from this PDF. Please try again.",
+        ),
+      );
+    }
+
+    const blob = await response.blob();
+    const contentDisposition = response.headers.get("content-disposition");
+
+    return {
+      blob,
+      name: fileNameFromDisposition(
+        contentDisposition,
+        makeDownloadName(file, "images", ".zip"),
+      ),
+    };
+  }
+
   async function pdfToJpg() {
     const file = files[0];
     if (!file) throw new Error("Upload one PDF file first.");
@@ -1879,6 +1958,15 @@ export default function PdfEditorPage() {
           `${(htmlFileName.trim() || "html-document").replace(/\.[^.]+$/, "")}.pdf`,
           await htmlToPdf(),
         );
+      } else if (mode === "pdf-to-text") {
+        const text = await pdfToText();
+        nextOutput = createTextOutput(
+          makeDownloadName(files[0] || null, "text", ".txt"),
+          text,
+        );
+      } else if (mode === "extract-images") {
+        const result = await extractImagesFromPdf();
+        nextOutput = createFileOutput(result.name, result.blob);
       } else if (mode === "pdf-to-jpg") {
         const result = await pdfToJpg();
         nextOutput = createFileOutput(result.name, result.blob);
@@ -1950,11 +2038,65 @@ export default function PdfEditorPage() {
     URL.revokeObjectURL(url);
   }
 
-  const canProcess = isHtmlMode
-    ? !!htmlContent.trim()
-    : isCompareMode
-      ? files.length > 0 && !!secondCompareFile
-      : files.length > 0;
+  function processAnotherFile() {
+    resetWorkingState();
+  }
+
+  const hasFiles = files.length > 0;
+  const hasMainFile = Boolean(files[0]);
+  const hasSecondCompareFile = Boolean(secondCompareFile);
+  const hasPassword = password.trim().length > 0;
+  const hasHtmlContent = htmlContent.trim().length > 0;
+  const hasFormFields = formFieldsText.trim().length > 0;
+  const hasRedactionTerms = redactionTerms.trim().length > 0;
+
+  const canProcess = (() => {
+    if (isProcessing) return false;
+
+    if (isHtmlMode) return hasHtmlContent;
+    if (isImageMode) return hasFiles;
+    if (isCompareMode) return hasMainFile && hasSecondCompareFile;
+
+    if (mode === "protect-pdf") return hasMainFile && hasPassword;
+    if (mode === "unlock-pdf") return hasMainFile && hasPassword;
+    if (mode === "redact-pdf") return hasMainFile && hasRedactionTerms;
+    if (mode === "pdf-forms") return hasMainFile && hasFormFields;
+
+    return hasMainFile;
+  })();
+
+  const processDisabledReason = (() => {
+    if (isProcessing) return "Processing...";
+
+    if (isHtmlMode && !hasHtmlContent) return "Enter HTML content first.";
+    if (isImageMode && !hasFiles) return "Upload one or more images first.";
+
+    if (isCompareMode && (!hasMainFile || !hasSecondCompareFile)) {
+      return "Upload both PDFs to compare.";
+    }
+
+    if (mode === "protect-pdf" && !hasPassword) {
+      return "Enter a password to protect the PDF.";
+    }
+
+    if (mode === "unlock-pdf" && !hasPassword) {
+      return "Enter the current PDF password.";
+    }
+
+    if (mode === "redact-pdf" && !hasRedactionTerms) {
+      return "Enter text to redact.";
+    }
+
+    if (mode === "pdf-forms" && !hasFormFields) {
+      return "Enter form field values.";
+    }
+
+    if (!hasMainFile && !isHtmlMode && !isImageMode) {
+      return "Upload a file first.";
+    }
+
+    return "";
+  })();
 
   return (
     <Container className="py-12 sm:py-16">
@@ -2190,15 +2332,6 @@ export default function PdfEditorPage() {
                             ? "Click pages to select them. The page range field updates automatically."
                             : "Preview pages before editing."}
                       </p>
-
-                      {pdfThumbnails.length ? (
-                        <p className="mt-1 text-[11px] text-slate-600">
-                          {pdfThumbnails.length} pages shown
-                          {supportsSelectableThumbnails
-                            ? ` • ${selectedThumbnailPages.length} selected`
-                            : ""}
-                        </p>
-                      ) : null}
                     </div>
 
                     {isGeneratingThumbnails ? (
@@ -2212,46 +2345,22 @@ export default function PdfEditorPage() {
                     </p>
                   ) : null}
 
-                  {supportsSelectableThumbnails && pdfThumbnails.length ? (
-                    <div className="mb-3 rounded-xl border border-violet-500/20 bg-violet-500/10 p-3 text-xs text-violet-100">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold">Selected pages:</span>
-                        <span>
-                          {selectedThumbnailPages.length
-                            ? selectedPagesValue
-                            : "None selected"}
-                        </span>
+                  {supportsSelectableThumbnails &&
+                  selectedThumbnailPages.length ? (
+                    <div className="mb-3 flex flex-wrap items-center gap-2 rounded-xl border border-violet-500/20 bg-violet-500/10 px-3 py-2 text-xs text-violet-100">
+                      <span className="font-semibold">Selected pages:</span>
+                      <span>{selectedPagesValue}</span>
 
-                        <span className="ml-auto rounded-full border border-white/10 bg-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200">
-                          {selectedThumbnailPages.length} selected
-                        </span>
-                      </div>
-
-                      <div className="mt-3 flex flex-wrap gap-2">
-                        <button
-                          type="button"
-                          onClick={selectAllThumbnailPages}
-                          className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
-                        >
-                          Select all
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={invertThumbnailSelection}
-                          className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
-                        >
-                          Invert selection
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={clearThumbnailSelection}
-                          className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] font-semibold text-red-200 transition hover:bg-red-500/10"
-                        >
-                          Clear selection
-                        </button>
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedThumbnailPages([]);
+                          setPageRanges("");
+                        }}
+                        className="ml-auto rounded-lg border border-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
+                      >
+                        Clear selection
+                      </button>
                     </div>
                   ) : null}
 
@@ -2297,11 +2406,7 @@ export default function PdfEditorPage() {
                     </div>
                   ) : (
                     <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
-                      {mode === "reorder"
-                        ? "Upload a PDF, then drag page previews to reorder them."
-                        : supportsSelectableThumbnails
-                          ? "Upload a PDF, then click pages to select them."
-                          : "Upload a PDF to preview pages."}
+                      Page previews will appear here.
                     </div>
                   )}
                 </div>
@@ -2610,8 +2715,8 @@ export default function PdfEditorPage() {
                 <button
                   type="button"
                   onClick={processPdf}
-                  disabled={!canProcess || isProcessing}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={!canProcess}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700"
                 >
                   {isProcessing ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -2630,77 +2735,110 @@ export default function PdfEditorPage() {
                   Clear
                 </button>
               </div>
+
+              {!canProcess && processDisabledReason ? (
+                <p className="mt-2 text-xs text-amber-300">
+                  {processDisabledReason}
+                </p>
+              ) : null}
             </div>
 
             <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-              <h2 className="font-semibold text-white">Output</h2>
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="font-semibold text-white">Output</h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Your processed file will appear here.
+                  </p>
+                </div>
+
+                {output ? (
+                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[11px] font-semibold text-emerald-200">
+                    Output ready
+                  </span>
+                ) : null}
+              </div>
 
               <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
                 {output ? (
                   <>
-                    <div className="mb-4 flex items-start justify-between gap-3">
-                      <div>
-                        <p className="break-all font-medium text-white">
-                          {output.name}
-                        </p>
-                        <p className="mt-1 text-sm text-slate-400">
-                          {formatFileSize(output.size)}
-                        </p>
+                    <div className="mb-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                        <div className="min-w-0">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-2.5 py-1 text-[11px] font-semibold text-violet-200">
+                              {getOutputTypeLabel(output)}
+                            </span>
 
-                        {output.compressionStats ? (
-                          <div className="mt-4 grid gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-left text-sm">
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-slate-300">
-                                Original size
-                              </span>
-                              <span className="font-semibold text-white">
-                                {formatFileSize(
-                                  output.compressionStats.originalSize,
-                                )}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-slate-300">
-                                {output.compressionStats.usedCompressed
-                                  ? "Compressed size"
-                                  : "Final size"}
-                              </span>
-                              <span className="font-semibold text-white">
-                                {formatFileSize(
-                                  output.compressionStats.compressedSize,
-                                )}
-                              </span>
-                            </div>
-
-                            <div className="flex items-center justify-between gap-4">
-                              <span className="text-slate-300">Saved</span>
-                              <span className="font-semibold text-emerald-300">
-                                {formatFileSize(
-                                  output.compressionStats.savedBytes,
-                                )}{" "}
-                                ({output.compressionStats.savedPercent}%)
-                              </span>
-                            </div>
-
-                            {!output.compressionStats.usedCompressed ? (
-                              <p className="pt-2 text-xs leading-5 text-amber-200">
-                                The compressed version was not smaller, so the
-                                original PDF was returned.
-                              </p>
-                            ) : null}
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                              {formatFileSize(output.size)}
+                            </span>
                           </div>
-                        ) : null}
+
+                          <p className="break-all text-sm font-semibold text-white">
+                            {output.name}
+                          </p>
+
+                          <p className="mt-1 text-xs text-slate-500">
+                            Ready to download.
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={downloadOutput}
+                          disabled={!output}
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download
+                        </button>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={downloadOutput}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500"
-                      >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </button>
+                      {output.compressionStats ? (
+                        <div className="mt-4 grid gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-left text-sm">
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="text-slate-300">
+                              Original size
+                            </span>
+                            <span className="font-semibold text-white">
+                              {formatFileSize(
+                                output.compressionStats.originalSize,
+                              )}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="text-slate-300">
+                              {output.compressionStats.usedCompressed
+                                ? "Compressed size"
+                                : "Final size"}
+                            </span>
+                            <span className="font-semibold text-white">
+                              {formatFileSize(
+                                output.compressionStats.compressedSize,
+                              )}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between gap-4">
+                            <span className="text-slate-300">Saved</span>
+                            <span className="font-semibold text-emerald-300">
+                              {formatFileSize(
+                                output.compressionStats.savedBytes,
+                              )}{" "}
+                              ({output.compressionStats.savedPercent}%)
+                            </span>
+                          </div>
+
+                          {!output.compressionStats.usedCompressed ? (
+                            <p className="pt-2 text-xs leading-5 text-amber-200">
+                              The compressed version was not smaller, so the
+                              original PDF was returned.
+                            </p>
+                          ) : null}
+                        </div>
+                      ) : null}
                     </div>
 
                     {output.kind === "text" ? (
@@ -2708,19 +2846,33 @@ export default function PdfEditorPage() {
                         {output.previewText || "No preview output."}
                       </pre>
                     ) : (
-                      <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-center text-sm text-slate-500">
+                      <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-center text-sm text-slate-500">
                         <div>
-                          <FileText className="mx-auto mb-3 h-10 w-10" />
+                          <FileText className="mx-auto mb-3 h-10 w-10 text-emerald-300" />
                           Your output file is ready to download.
                         </div>
                       </div>
                     )}
+
+                    <button
+                      type="button"
+                      onClick={processAnotherFile}
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                    >
+                      Process another file
+                    </button>
                   </>
                 ) : (
-                  <div className="flex min-h-[320px] items-center justify-center text-center text-sm text-slate-500">
-                    <div>
+                  <div className="flex min-h-[360px] items-center justify-center rounded-xl border border-dashed border-white/10 bg-slate-900/40 text-center text-sm text-slate-500">
+                    <div className="max-w-xs">
                       <FileText className="mx-auto mb-3 h-10 w-10" />
-                      Your output file will appear here.
+                      <p className="font-medium text-slate-300">
+                        No output yet
+                      </p>
+                      <p className="mt-1 leading-6">
+                        Upload a file, choose your settings, and process it.
+                        Your result will appear here.
+                      </p>
                     </div>
                   </div>
                 )}

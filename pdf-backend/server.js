@@ -125,7 +125,9 @@ function runPythonScript(script, args, fallbackMessage, timeout = 240000) {
       { timeout },
       (error, stdout, stderr) => {
         if (error) {
-          reject(new Error(stderr || stdout || error.message || fallbackMessage));
+          reject(
+            new Error(stderr || stdout || error.message || fallbackMessage),
+          );
           return;
         }
 
@@ -585,7 +587,10 @@ function pdfToJpg(inputPath, outputDir) {
       if (error) {
         reject(
           new Error(
-            stderr || stdout || error.message || "PDF to JPG conversion failed.",
+            stderr ||
+              stdout ||
+              error.message ||
+              "PDF to JPG conversion failed.",
           ),
         );
         return;
@@ -635,7 +640,9 @@ function pdfToPdfa(inputPath, outputPath) {
     execFile("gs", args, { timeout: 240000 }, (error, stdout, stderr) => {
       if (error) {
         reject(
-          new Error(stderr || stdout || error.message || "PDF/A conversion failed."),
+          new Error(
+            stderr || stdout || error.message || "PDF/A conversion failed.",
+          ),
         );
         return;
       }
@@ -838,7 +845,10 @@ print(json.dumps(result))
         if (error) {
           reject(
             new Error(
-              stderr || stdout || error.message || "Could not compare these PDFs.",
+              stderr ||
+                stdout ||
+                error.message ||
+                "Could not compare these PDFs.",
             ),
           );
           return;
@@ -886,18 +896,26 @@ function convertOfficeToPdf(inputPath, outputDir) {
   ];
 
   return new Promise((resolve, reject) => {
-    execFile("libreoffice", args, { timeout: 240000 }, (error, stdout, stderr) => {
-      if (error) {
-        reject(
-          new Error(
-            stderr || stdout || error.message || "Office to PDF conversion failed.",
-          ),
-        );
-        return;
-      }
+    execFile(
+      "libreoffice",
+      args,
+      { timeout: 240000 },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(
+            new Error(
+              stderr ||
+                stdout ||
+                error.message ||
+                "Office to PDF conversion failed.",
+            ),
+          );
+          return;
+        }
 
-      resolve();
-    });
+        resolve();
+      },
+    );
   });
 }
 
@@ -993,7 +1011,9 @@ finally:
 
 function htmlToPdf(html, outputPath) {
   return new Promise(async (resolve, reject) => {
-    const tempDir = await fsp.mkdtemp(path.join(os.tmpdir(), "toolversex-html-"));
+    const tempDir = await fsp.mkdtemp(
+      path.join(os.tmpdir(), "toolversex-html-"),
+    );
     const htmlPath = path.join(tempDir, "input.html");
 
     try {
@@ -1007,21 +1027,29 @@ function htmlToPdf(html, outputPath) {
         htmlPath,
       ];
 
-      execFile("chromium", args, { timeout: 240000 }, async (error, stdout, stderr) => {
-        await safeDelete(htmlPath);
-        await safeRemoveDir(tempDir);
+      execFile(
+        "chromium",
+        args,
+        { timeout: 240000 },
+        async (error, stdout, stderr) => {
+          await safeDelete(htmlPath);
+          await safeRemoveDir(tempDir);
 
-        if (error) {
-          reject(
-            new Error(
-              stderr || stdout || error.message || "HTML to PDF conversion failed.",
-            ),
-          );
-          return;
-        }
+          if (error) {
+            reject(
+              new Error(
+                stderr ||
+                  stdout ||
+                  error.message ||
+                  "HTML to PDF conversion failed.",
+              ),
+            );
+            return;
+          }
 
-        resolve();
-      });
+          resolve();
+        },
+      );
     } catch (error) {
       await safeDelete(htmlPath);
       await safeRemoveDir(tempDir);
@@ -1153,9 +1181,7 @@ app.post("/api/pdf/compress", upload.single("file"), async (req, res) => {
 
     res.status(500).json({
       error:
-        error instanceof Error
-          ? error.message
-          : "Could not compress this PDF.",
+        error instanceof Error ? error.message : "Could not compress this PDF.",
     });
   }
 });
@@ -1269,7 +1295,144 @@ app.post("/api/pdf/html-to-pdf", async (req, res) => {
 
     res.status(500).json({
       error:
-        error instanceof Error ? error.message : "Could not convert HTML to PDF.",
+        error instanceof Error
+          ? error.message
+          : "Could not convert HTML to PDF.",
+    });
+  }
+});
+
+app.post("/api/pdf/extract-images", upload.single("file"), async (req, res) => {
+  let outputDir = "";
+  let outputZip = "";
+
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Upload one PDF file first." });
+    }
+
+    const originalName = req.file.originalname || "document.pdf";
+    const inputPath = req.file.path;
+    const baseName = getBaseName(originalName, "document");
+
+    outputDir = path.join(
+      os.tmpdir(),
+      `toolverse-images-${crypto.randomBytes(8).toString("hex")}`,
+    );
+    outputZip = path.join(
+      os.tmpdir(),
+      `${baseName}-images-${crypto.randomBytes(8).toString("hex")}.zip`,
+    );
+
+    await fsp.mkdir(outputDir, { recursive: true });
+
+    const script = `
+import fitz
+import os
+import sys
+
+input_pdf = sys.argv[1]
+output_dir = sys.argv[2]
+
+doc = fitz.open(input_pdf)
+image_count = 0
+seen_xrefs = set()
+
+for page_index in range(len(doc)):
+    page = doc[page_index]
+    images = page.get_images(full=True)
+
+    for image_index, image in enumerate(images, start=1):
+        xref = image[0]
+
+        # Avoid writing duplicate embedded image objects multiple times.
+        key = (page_index + 1, xref)
+        if key in seen_xrefs:
+            continue
+        seen_xrefs.add(key)
+
+        base_image = doc.extract_image(xref)
+        image_bytes = base_image.get("image")
+        image_ext = base_image.get("ext", "png")
+
+        if not image_bytes:
+            continue
+
+        image_count += 1
+        file_name = f"page-{page_index + 1}-image-{image_index}.{image_ext}"
+        file_path = os.path.join(output_dir, file_name)
+
+        with open(file_path, "wb") as image_file:
+            image_file.write(image_bytes)
+
+doc.close()
+print(image_count)
+`;
+
+    const stdout = await runPythonScript(
+      script,
+      [inputPath, outputDir],
+      "Could not extract images from this PDF.",
+    );
+
+    const imageCount = Number(String(stdout || "").trim() || "0");
+
+    if (!imageCount) {
+      await safeDelete(inputPath);
+      await safeRemoveDir(outputDir);
+
+      return res.status(422).json({
+        error:
+          "No embedded images were found in this PDF. If the pages are scanned images, use PDF to JPG instead.",
+      });
+    }
+
+    await new Promise((resolve, reject) => {
+      execFile(
+        "zip",
+        ["-j", outputZip, path.join(outputDir, "*")],
+        { timeout: 120000, shell: true },
+        (error, stdout, stderr) => {
+          if (error) {
+            reject(
+              new Error(
+                stderr ||
+                  stdout ||
+                  error.message ||
+                  "Could not create ZIP file.",
+              ),
+            );
+            return;
+          }
+
+          resolve();
+        },
+      );
+    });
+
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${baseName}-images.zip"`,
+    );
+    res.setHeader("X-Extracted-Images", String(imageCount));
+    res.setHeader("Cache-Control", "no-store");
+
+    streamFile(res, outputZip, async () => {
+      await safeDelete(inputPath);
+      await safeDelete(outputZip);
+      await safeRemoveDir(outputDir);
+    });
+  } catch (error) {
+    await safeDelete(req.file?.path);
+    await safeDelete(outputZip);
+    await safeRemoveDir(outputDir);
+
+    res.status(500).json({
+      error:
+        error instanceof Error
+          ? error.message
+          : "Could not extract images from this PDF. Please try again.",
     });
   }
 });
@@ -1344,7 +1507,8 @@ app.post("/api/pdf/to-word", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     inputPath = req.file.path;
     outputPath = path.join(
@@ -1390,7 +1554,8 @@ app.post("/api/pdf/to-excel", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     inputPath = req.file.path;
     outputPath = path.join(
@@ -1436,7 +1601,8 @@ app.post("/api/pdf/to-powerpoint", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     inputPath = req.file.path;
     outputPath = path.join(
@@ -1482,7 +1648,8 @@ app.post("/api/pdf/to-pdfa", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     inputPath = req.file.path;
     outputPath = path.join(
@@ -1527,7 +1694,8 @@ app.post("/api/pdf/unlock", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     const password = String(req.body.password || "").trim();
 
@@ -1578,7 +1746,8 @@ app.post("/api/pdf/protect", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     const password = String(req.body.password || "").trim();
     const ownerPassword = String(req.body.ownerPassword || "").trim();
@@ -1599,7 +1768,12 @@ app.post("/api/pdf/protect", upload.single("file"), async (req, res) => {
       `${crypto.randomBytes(16).toString("hex")}-protected.pdf`,
     );
 
-    await protectPdf(inputPath, outputPath, password, ownerPassword || password);
+    await protectPdf(
+      inputPath,
+      outputPath,
+      password,
+      ownerPassword || password,
+    );
 
     if (!fs.existsSync(outputPath)) {
       throw new Error("Protected PDF file was not created.");
@@ -1634,7 +1808,8 @@ app.post("/api/pdf/redact", upload.single("file"), async (req, res) => {
   let outputPath = "";
 
   try {
-    if (!req.file) return res.status(400).json({ error: "PDF file is required." });
+    if (!req.file)
+      return res.status(400).json({ error: "PDF file is required." });
 
     const terms = String(req.body.terms || "").trim();
 
@@ -1734,7 +1909,9 @@ app.use((error, _req, res, _next) => {
   }
 
   if (error.code === "LIMIT_FILE_SIZE") {
-    return res.status(413).json({ error: "File is too large. Max size is 50 MB." });
+    return res
+      .status(413)
+      .json({ error: "File is too large. Max size is 50 MB." });
   }
 
   return res.status(500).json({ error: "Unexpected server error." });
