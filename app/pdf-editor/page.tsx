@@ -40,7 +40,21 @@ import { formatFileSize } from "../../lib/formatFileSize";
 import { fetchPdfApi } from "../../lib/apiBase";
 import { getApiErrorMessage } from "../../lib/apiError";
 import * as pdfjsLib from "pdfjs-dist";
-
+import {
+  closestCenter,
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS as DndCSS } from "@dnd-kit/utilities";
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
 type Category =
@@ -78,6 +92,7 @@ type Mode =
 type OutputKind = "file" | "text";
 
 type PdfThumbnail = {
+  id: string;
   pageNumber: number;
   dataUrl: string;
   width: number;
@@ -553,14 +568,66 @@ function isTruthyValue(value: string) {
   return ["true", "yes", "1", "checked", "on"].includes(value.toLowerCase());
 }
 
+function SortableThumbnailCard({ thumbnail }: { thumbnail: PdfThumbnail }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: thumbnail.id,
+  });
+
+  const style = {
+    transform: DndCSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`touch-none cursor-grab rounded-xl border bg-slate-900 p-2 transition active:cursor-grabbing ${
+        isDragging
+          ? "z-20 scale-[1.03] border-violet-400 shadow-2xl shadow-violet-500/20"
+          : "border-white/10 hover:border-violet-400/50"
+      }`}
+    >
+      <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
+        <img
+          src={thumbnail.dataUrl}
+          alt={`Page ${thumbnail.pageNumber}`}
+          className="max-h-full max-w-full object-contain"
+        />
+      </div>
+
+      <p className="mt-2 text-center text-xs font-medium text-slate-300">
+        Page {thumbnail.pageNumber}
+      </p>
+    </div>
+  );
+}
+
 export default function PdfEditorPage() {
   const [activeCategory, setActiveCategory] = useState<Category>("all");
   const [mode, setMode] = useState<Mode>("merge");
   const [showToolPanel, setShowToolPanel] = useState(false);
   const [pdfThumbnails, setPdfThumbnails] = useState<PdfThumbnail[]>([]);
-  const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
-  const [thumbnailError, setThumbnailError] = useState("");
-  const [files, setFiles] = useState<File[]>([]);
+ const [isGeneratingThumbnails, setIsGeneratingThumbnails] = useState(false);
+ const [thumbnailError, setThumbnailError] = useState("");
+ const [pageOrder, setPageOrder] = useState("");
+ const [files, setFiles] = useState<File[]>([]);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 6,
+      },
+    }),
+  );
   const [secondCompareFile, setSecondCompareFile] = useState<File | null>(null);
   const [pageRanges, setPageRanges] = useState("");
   const [rotation, setRotation] = useState("90");
@@ -661,6 +728,15 @@ export default function PdfEditorPage() {
     }
   }
 
+  useEffect(() => {
+    if (mode !== "reorder") return;
+    if (!pdfThumbnails.length) return;
+
+    setPageOrder(
+      pdfThumbnails.map((item) => String(item.pageNumber)).join(","),
+    );
+  }, [mode, pdfThumbnails]);
+
   function resetWorkingState() {
     setFiles([]);
     setPdfThumbnails([]);
@@ -718,6 +794,31 @@ export default function PdfEditorPage() {
     resetWorkingState();
   }
 
+  function handleThumbnailDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) return;
+
+    setPdfThumbnails((items) => {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) {
+        return items;
+      }
+
+      const nextItems = arrayMove(items, oldIndex, newIndex);
+
+      if (mode === "reorder") {
+        setPageOrder(
+          nextItems.map((item) => String(item.pageNumber)).join(","),
+        );
+      }
+
+      return nextItems;
+    });
+  }
+
   async function generatePdfThumbnails(file: File) {
     try {
       setThumbnailError("");
@@ -741,12 +842,13 @@ export default function PdfEditorPage() {
         canvas.height = Math.floor(viewport.height);
 
         await page.render({
-  canvas,
-  canvasContext: context,
-  viewport,
-}).promise;
+          canvas,
+          canvasContext: context,
+          viewport,
+        }).promise;
 
         nextThumbnails.push({
+          id: `page-${pageNumber}`,
           pageNumber,
           dataUrl: canvas.toDataURL("image/jpeg", 0.8),
           width: canvas.width,
@@ -755,6 +857,12 @@ export default function PdfEditorPage() {
       }
 
       setPdfThumbnails(nextThumbnails);
+
+      if (mode === "reorder") {
+        setPageOrder(
+          nextThumbnails.map((item) => String(item.pageNumber)).join(","),
+        );
+      }
 
       if (pdf.numPages > maxPages) {
         setThumbnailError(
@@ -1919,8 +2027,9 @@ export default function PdfEditorPage() {
                         Page previews
                       </h3>
                       <p className="mt-1 text-xs text-slate-500">
-                        Preview pages before editing. Drag-and-drop page editing
-                        comes next.
+                        {mode === "reorder"
+                          ? "Drag pages to reorder them. The page order field updates automatically."
+                          : "Preview pages before editing."}
                       </p>
                     </div>
 
@@ -1936,26 +2045,48 @@ export default function PdfEditorPage() {
                   ) : null}
 
                   {pdfThumbnails.length ? (
-                    <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-auto pr-1 sm:grid-cols-3">
-                      {pdfThumbnails.map((thumbnail) => (
-                        <div
-                          key={thumbnail.pageNumber}
-                          className="rounded-xl border border-white/10 bg-slate-900 p-2"
+                    mode === "reorder" ? (
+                      <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleThumbnailDragEnd}
+                      >
+                        <SortableContext
+                          items={pdfThumbnails.map((thumbnail) => thumbnail.id)}
+                          strategy={verticalListSortingStrategy}
                         >
-                          <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
-                            <img
-                              src={thumbnail.dataUrl}
-                              alt={`Page ${thumbnail.pageNumber}`}
-                              className="max-h-full max-w-full object-contain"
-                            />
+                          <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-auto pr-1 sm:grid-cols-3">
+                            {pdfThumbnails.map((thumbnail) => (
+                              <SortableThumbnailCard
+                                key={thumbnail.id}
+                                thumbnail={thumbnail}
+                              />
+                            ))}
                           </div>
+                        </SortableContext>
+                      </DndContext>
+                    ) : (
+                      <div className="grid max-h-[420px] grid-cols-2 gap-3 overflow-auto pr-1 sm:grid-cols-3">
+                        {pdfThumbnails.map((thumbnail) => (
+                          <div
+                            key={thumbnail.id}
+                            className="rounded-xl border border-white/10 bg-slate-900 p-2"
+                          >
+                            <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
+                              <img
+                                src={thumbnail.dataUrl}
+                                alt={`Page ${thumbnail.pageNumber}`}
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            </div>
 
-                          <p className="mt-2 text-center text-xs font-medium text-slate-300">
-                            Page {thumbnail.pageNumber}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
+                            <p className="mt-2 text-center text-xs font-medium text-slate-300">
+                              Page {thumbnail.pageNumber}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    )
                   ) : isGeneratingThumbnails ? (
                     <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
                       Generating page previews...
