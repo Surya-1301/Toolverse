@@ -38,6 +38,7 @@ import { Container } from "../../components/Container";
 import { HowToUse } from "../../components/HowToUse";
 import { formatFileSize } from "../../lib/formatFileSize";
 import { fetchPdfApi } from "../../lib/apiBase";
+import { getApiErrorMessage } from "../../lib/apiError";
 
 type Category =
   "all" | "organize" | "convertToPdf" | "convertFromPdf" | "edit" | "security";
@@ -1042,10 +1043,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert file to PDF.",
-      );
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this Office file to PDF. Please try again.",
+    ),
+  );
+}
 
     return response.blob();
   }
@@ -1064,10 +1068,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert HTML to PDF.",
-      );
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this HTML to PDF. Please try again.",
+    ),
+  );
+}
 
     return response.blob();
   }
@@ -1085,10 +1092,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to JPG.",
-      );
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this PDF to JPG. Please try again.",
+    ),
+  );
+}
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1116,10 +1126,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to Word.",
-      );
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this PDF to Word. Please try again.",
+    ),
+  );
+}
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1146,10 +1159,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to PowerPoint.",
-      );
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this PDF to PowerPoint. Please try again.",
+    ),
+  );
+}
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1176,10 +1192,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to Excel.",
-      );
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this PDF to Excel. Please try again.",
+    ),
+  );
+}
 
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
@@ -1206,11 +1225,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error(
-        (await response.text()) || "Could not convert PDF to PDF/A.",
-      );
-    }
-
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not convert this PDF to PDF/A. Please try again.",
+    ),
+  );
+}
     const blob = await response.blob();
     const contentDisposition = response.headers.get("content-disposition");
 
@@ -1242,8 +1263,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error((await response.text()) || "Could not unlock PDF.");
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "We could not unlock this PDF. Please check the password and try again.",
+    ),
+  );
+}
 
     return response.blob();
   }
@@ -1271,8 +1297,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error((await response.text()) || "Could not protect PDF.");
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not protect this PDF. Please try again.",
+    ),
+  );
+}
 
     return response.blob();
   }
@@ -1296,8 +1327,13 @@ export default function PdfEditorPage() {
     });
 
     if (!response.ok) {
-      throw new Error((await response.text()) || "Could not redact PDF.");
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not redact this PDF. Please try again.",
+    ),
+  );
+}
 
     return response.blob();
   }
@@ -1322,8 +1358,13 @@ export default function PdfEditorPage() {
     const responseText = await response.text();
 
     if (!response.ok) {
-      throw new Error(responseText || "Could not compare PDFs.");
-    }
+  throw new Error(
+    await getApiErrorMessage(
+      response,
+      "Could not compare these PDFs. Please try again.",
+    ),
+  );
+}
 
     return JSON.parse(responseText) as CompareResult;
   }
