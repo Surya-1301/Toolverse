@@ -206,7 +206,7 @@ const modes: Array<{
   },
   {
     id: "compare-pdf",
-    category: "security",
+    category: "organize",
     title: "Compare PDF",
     description: "Compare two PDFs and inspect differences.",
     icon: <FileSearch className="h-5 w-5" />,
