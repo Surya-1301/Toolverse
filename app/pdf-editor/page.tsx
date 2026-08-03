@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   degrees,
@@ -206,7 +206,7 @@ const modes: Array<{
   },
   {
     id: "compare-pdf",
-    category: "organize",
+    category: "security",
     title: "Compare PDF",
     description: "Compare two PDFs and inspect differences.",
     icon: <FileSearch className="h-5 w-5" />,
@@ -798,7 +798,7 @@ function SelectableThumbnailCard({
   );
 }
 
-export default function PdfEditorPage() {
+function PdfEditorPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -2936,15 +2936,18 @@ export default function PdfEditorPage() {
 
           <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500">
             <span>{visibleModes.length} PDF tools shown</span>
+            <span className="hidden sm:inline">
+              Choose a tool to start editing.
+            </span>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {visibleModes.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => switchMode(item.id)}
-                className="group flex min-h-[170px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05]"
+                className="group flex min-h-[190px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05]"
               >
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600 text-white transition group-hover:bg-violet-500">
                   {item.icon}
@@ -4216,5 +4219,23 @@ export default function PdfEditorPage() {
         ]}
       />
     </Container>
+  );
+}
+
+export default function PdfEditorPage() {
+  return (
+    <Suspense
+      fallback={
+        <Container className="py-12 sm:py-16">
+          <div className="mx-auto max-w-3xl text-center">
+            <p className="text-sm font-semibold text-slate-400">
+              Loading PDF editor...
+            </p>
+          </div>
+        </Container>
+      }
+    >
+      <PdfEditorPageContent />
+    </Suspense>
   );
 }
