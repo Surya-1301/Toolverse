@@ -2936,12 +2936,9 @@ function PdfEditorPageContent() {
 
           <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500">
             <span>{visibleModes.length} PDF tools shown</span>
-            <span className="hidden sm:inline">
-              Choose a tool to start editing.
-            </span>
           </div>
 
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {visibleModes.map((item) => (
               <button
                 key={item.id}
