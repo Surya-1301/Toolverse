@@ -58,7 +58,7 @@ import {
 import { CSS as DndCSS } from "@dnd-kit/utilities";
 
 type Category =
-  "all" | "organize" | "convertToPdf" | "convertFromPdf" | "edit" | "security";
+  "all" | "edit" | "organize" | "convertToPdf" | "convertFromPdf" | "security";
 
 type Mode =
   | "merge"
@@ -148,10 +148,10 @@ type CompareResult = {
 
 const categoryTabs: Array<{ id: Category; label: string }> = [
   { id: "all", label: "ALL" },
+  { id: "edit", label: "EDIT PDF" },
   { id: "organize", label: "ORGANIZE PDF" },
   { id: "convertToPdf", label: "CONVERT TO PDF" },
   { id: "convertFromPdf", label: "CONVERT FROM PDF" },
-  { id: "edit", label: "EDIT PDF" },
   { id: "security", label: "PDF SECURITY" },
 ];
 
@@ -2920,7 +2920,7 @@ function PdfEditorPageContent() {
           <div className="flex flex-nowrap gap-3 overflow-x-auto pb-2">
             {categoryTabs.map((tab) => (
               <button
-                key={tab.id}
+                key={`category-${tab.id}`}
                 type="button"
                 onClick={() => switchCategory(tab.id)}
                 className={`shrink-0 rounded-full border px-6 py-3 text-sm font-semibold tracking-[0.14em] transition ${
@@ -2941,7 +2941,7 @@ function PdfEditorPageContent() {
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {visibleModes.map((item) => (
               <button
-                key={item.id}
+                key={`tool-${item.id}`}
                 type="button"
                 onClick={() => switchMode(item.id)}
                 className="group flex min-h-[190px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05]"
