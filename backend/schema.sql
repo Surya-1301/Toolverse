@@ -26,6 +26,14 @@ CREATE TABLE IF NOT EXISTS images (
   expires_at TEXT,
   views INTEGER NOT NULL DEFAULT 0,
   r2_key TEXT NOT NULL
+  encrypted INTEGER NOT NULL DEFAULT 0,
+  encryption_algorithm TEXT,
+  encryption_kdf TEXT,
+  encryption_iterations INTEGER,
+  encryption_salt TEXT,
+  encryption_iv TEXT,
+  encryption_metadata_iv TEXT,
+  encrypted_metadata TEXT
 );
 
 CREATE TABLE IF NOT EXISTS files (
@@ -37,4 +45,12 @@ CREATE TABLE IF NOT EXISTS files (
   expires_at TEXT,
   downloads INTEGER NOT NULL DEFAULT 0,
   r2_key TEXT NOT NULL
+  encrypted INTEGER NOT NULL DEFAULT 0,
+  encryption_algorithm TEXT,
+  encryption_kdf TEXT,
+  encryption_iterations INTEGER,
+  encryption_salt TEXT,
+  encryption_iv TEXT,
+  encryption_metadata_iv TEXT,
+  encrypted_metadata TEXT
 );
