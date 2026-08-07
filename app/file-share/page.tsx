@@ -316,16 +316,6 @@ export default function FileSharePage() {
             </select>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm leading-6 text-emerald-100">
-            <div className="flex gap-2">
-              <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" />
-              <p>
-                A random 256-bit key is created automatically. Only people with
-                the full share link can decrypt the file.
-              </p>
-            </div>
-          </div>
-
           {error ? (
             <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {error}

@@ -194,7 +194,7 @@ function ShareFileContent() {
         ) : file ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
             <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-              Encrypted Shared File
+              Shared File
             </h1>
 
             <p className="mt-3 break-all text-slate-400">
