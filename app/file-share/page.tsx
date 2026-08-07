@@ -18,6 +18,7 @@ import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 import { encryptFileWithRandomKey } from "@/lib/clientEncryption";
+import { getUploadKind, validateUploadForSharing } from "@/lib/uploadValidators";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -51,12 +52,6 @@ export default function FileSharePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  function getUploadKind(selectedFile: File): UploadKind {
-    if (selectedFile.type.startsWith("image/")) return "image";
-    if (selectedFile.type === "application/pdf") return "pdf";
-    return "file";
-  }
-
   function resetResultState() {
     setResult(null);
     setOwnerUrl("");
@@ -73,6 +68,16 @@ export default function FileSharePage() {
 
     if (!selectedFile) return;
 
+    const validationError = validateUploadForSharing(selectedFile);
+
+    if (validationError) {
+      setFile(null);
+      setUploadKind("file");
+      setError(validationError);
+      event.target.value = "";
+      return;
+    }
+
     setFile(selectedFile);
     setUploadKind(getUploadKind(selectedFile));
   }
@@ -84,6 +89,13 @@ export default function FileSharePage() {
 
       if (!file) {
         setError("Please choose an image, PDF, or file first.");
+        return;
+      }
+
+      const validationError = validateUploadForSharing(file);
+
+      if (validationError) {
+        setError(validationError);
         return;
       }
 
@@ -108,6 +120,14 @@ export default function FileSharePage() {
 
       formData.append("file", encrypted.encryptedFile);
       formData.append("expiry", expiry);
+
+      /**
+       * These original fields let the Worker validate the original file type
+       * and size even though the uploaded bytes are now encrypted.
+       */
+      formData.append("originalName", file.name);
+      formData.append("originalMimeType", file.type || "application/octet-stream");
+      formData.append("originalSize", String(file.size));
 
       formData.append("encrypted", "true");
       formData.append("encryptionAlgorithm", encrypted.algorithm);
@@ -220,8 +240,7 @@ export default function FileSharePage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Upload images, PDFs, and files with automatic AES-GCM encryption. The
-          share link includes the key after #key= so recipients can open it.
+          Upload images, PDFs, and files with automatic AES-GCM encryption.
         </p>
       </div>
 
@@ -239,12 +258,13 @@ export default function FileSharePage() {
             </span>
 
             <span className="mt-2 text-sm text-slate-500">
-              Images stay on the image API. Files stay on the file API.
+              Allowed: images up to 25 MB, PDFs up to 50 MB, text/docs/ZIP up to
+              100 MB.
             </span>
 
             <input
               type="file"
-              accept="image/*,application/pdf,*/*"
+              accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.xml,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.rtf,.odt,.ods,.odp,.zip"
               onChange={handleFileChange}
               className="hidden"
             />
@@ -294,6 +314,16 @@ export default function FileSharePage() {
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm leading-6 text-emerald-100">
+            <div className="flex gap-2">
+              <LockKeyhole className="mt-0.5 h-4 w-4 shrink-0" />
+              <p>
+                A random 256-bit key is created automatically. Only people with
+                the full share link can decrypt the file.
+              </p>
+            </div>
           </div>
 
           {error ? (
@@ -431,19 +461,19 @@ export default function FileSharePage() {
         steps={[
           {
             title: "Choose content",
-            description: "Select an image, PDF, or file.",
+            description: "Select an allowed image, PDF, text, document, or ZIP file.",
             icon: <Upload className="h-5 w-5" />,
           },
           {
             title: "Upload",
             description:
-              "Your browser creates a random key, encrypts the content, then uploads encrypted bytes.",
+              "Your browser validates, encrypts, then uploads encrypted bytes.",
             icon: <LockKeyhole className="h-5 w-5" />,
           },
           {
             title: "Share full link",
             description:
-              "Send the user link including #key= so recipients can decrypt it.",
+              "Send the generated user link so recipients can decrypt it.",
             icon: <Copy className="h-5 w-5" />,
           },
         ]}
