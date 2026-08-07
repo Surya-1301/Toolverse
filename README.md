@@ -95,6 +95,7 @@ Worker bindings:
 
 - `DB` → D1 database metadata store
 - `FILES_BUCKET` → R2 file/image storage
+- `FILE_ENCRYPTION_KEY` → Worker secret used to AES-GCM encrypt stored uploads
 
 ### PDF backend
 
@@ -153,6 +154,7 @@ Set these in local development and Cloudflare Pages production.
 ```env
 NEXT_PUBLIC_API_BASE_URL=https://toolversex-api.jethalalmirror.workers.dev
 NEXT_PUBLIC_PDF_API_BASE_URL=https://toolverse-pdf-api.onrender.com
+FILE_ENCRYPTION_KEY=replace-with-a-long-random-secret
 ```
 
 For local development, use local service URLs if needed:
@@ -218,6 +220,7 @@ Deploy the Worker from the `backend` folder:
 
 ```bash
 cd backend
+npx wrangler secret put FILE_ENCRYPTION_KEY
 npx wrangler deploy
 ```
 

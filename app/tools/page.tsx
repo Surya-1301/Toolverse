@@ -15,7 +15,7 @@ const tools = [
     title: "PDF Editor",
     description:
       "Merge, split, extract, remove, scan, edit, convert, compress, and secure PDFs in one place.",
-    href: "/pdf-editor",
+    href: "https://pdfverse.pages.dev/",
     icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },

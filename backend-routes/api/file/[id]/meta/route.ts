@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { getFiles, saveFiles } from "@/lib/localDb";
-import { isExpired } from "@/lib/expiry";
 
 type RouteContext = {
   params: Promise<{
@@ -8,39 +6,27 @@ type RouteContext = {
   }>;
 };
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://toolversex-api.jethalalmirror.workers.dev";
+
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  const files = await getFiles();
-  const file = files.find((item) => item.id === id);
+  const response = await fetch(`${API_BASE}/api/file/${id}/meta`, {
+    method: "GET",
+    cache: "no-store",
+  });
 
-  if (!file) {
-    return NextResponse.json({ error: "File not found." }, { status: 404 });
-  }
+  const text = await response.text();
 
-  if (isExpired(file.expiresAt)) {
-    const activeFiles = files.filter((item) => item.id !== id);
-    await saveFiles(activeFiles);
-
-    return NextResponse.json({ error: "File has expired." }, { status: 410 });
-  }
-
-  return NextResponse.json(
-    {
-      id: file.id,
-      originalName: file.originalName,
-      mimeType: file.mimeType,
-      size: file.size,
-      createdAt: file.createdAt,
-      expiresAt: file.expiresAt,
-      downloads: file.downloads,
-      downloadUrl: file.downloadUrl || `/api/file/${file.id}/download`,
+  return new NextResponse(text, {
+    status: response.status,
+    headers: {
+      "Content-Type":
+        response.headers.get("Content-Type") || "application/json",
+      "Cache-Control": "no-store",
+      "X-Robots-Tag": "noindex, nofollow",
     },
-    {
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Robots-Tag": "noindex, nofollow",
-      },
-    }
-  );
+  });
 }

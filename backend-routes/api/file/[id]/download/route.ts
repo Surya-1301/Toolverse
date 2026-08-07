@@ -1,8 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
 import { NextResponse } from "next/server";
-import { getFiles, saveFiles } from "@/lib/localDb";
-import { isExpired } from "@/lib/expiry";
 
 type RouteContext = {
   params: Promise<{
@@ -10,58 +6,36 @@ type RouteContext = {
   }>;
 };
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://toolversex-api.jethalalmirror.workers.dev";
+
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  const files = await getFiles();
-  const file = files.find((item) => item.id === id);
+  const response = await fetch(`${API_BASE}/api/file/${id}/download`, {
+    method: "GET",
+    cache: "no-store",
+  });
 
-  if (!file) {
-    return NextResponse.json({ error: "File not found." }, { status: 404 });
+  if (!response.body) {
+    return NextResponse.json(
+      { error: "Could not download file." },
+      { status: response.status || 500 },
+    );
   }
 
-  if (isExpired(file.expiresAt)) {
-    return NextResponse.json({ error: "File has expired." }, { status: 410 });
-  }
-
-  const possiblePaths = [
-    file.filePath,
-
-    path.join(process.cwd(), "data", "uploads", "files", file.id),
-    path.join(process.cwd(), "public", "uploads", "files", file.id),
-    path.join(process.cwd(), "data", "files", file.id),
-    path.join(process.cwd(), "public", "uploads", file.id),
-  ].filter(Boolean) as string[];
-
-  for (const filePath of possiblePaths) {
-    try {
-      const fileBuffer = await fs.readFile(filePath);
-
-      file.downloads += 1;
-      await saveFiles(files);
-
-      const encodedName = encodeURIComponent(file.originalName).replace(
-        /['()]/g,
-        escape
-      );
-
-      return new Response(fileBuffer, {
-        headers: {
-          "Content-Type": file.mimeType || "application/octet-stream",
-          "Content-Disposition": `attachment; filename*=UTF-8''${encodedName}`,
-          "Cache-Control": "no-store",
-        },
-      });
-    } catch {
-      // Try next path
-    }
-  }
-
-  return NextResponse.json(
-    {
-      error: "File could not be loaded.",
-      checkedPaths: possiblePaths,
+  return new NextResponse(response.body, {
+    status: response.status,
+    headers: {
+      "Content-Type":
+        response.headers.get("Content-Type") || "application/octet-stream",
+      "Content-Disposition":
+        response.headers.get("Content-Disposition") ||
+        'attachment; filename="encrypted-file.enc"',
+      "Cache-Control": "private, max-age=0, no-store",
+      "X-Content-Type-Options": "nosniff",
+      "X-Robots-Tag": "noindex, nofollow",
     },
-    { status: 404 }
-  );
+  });
 }

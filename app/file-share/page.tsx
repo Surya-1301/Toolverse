@@ -10,13 +10,14 @@ import {
   FileUp,
   ImageIcon,
   Loader2,
+  LockKeyhole,
   Upload,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
-import { encryptFileForUpload } from "@/lib/clientEncryption";
+import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
+import { encryptFileWithRandomKey } from "@/lib/clientEncryption";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -30,24 +31,15 @@ type UploadKind = "image" | "pdf" | "file";
 
 type UploadResult = {
   id: string;
-  url?: string;
   expiresAt: string | null;
-  downloadUrl?: string;
-  originalName?: string;
-  mimeType?: string;
   size?: number;
-  downloads?: number;
   directUrl?: string;
-  width?: number | null;
-  height?: number | null;
+  downloadUrl?: string;
 };
 
 export default function FileSharePage() {
   const [file, setFile] = useState<File | null>(null);
   const [expiry, setExpiry] = useState("never");
-  const [encryptUpload, setEncryptUpload] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [result, setResult] = useState<UploadResult | null>(null);
   const [uploadKind, setUploadKind] = useState<UploadKind>("file");
 
@@ -63,13 +55,6 @@ export default function FileSharePage() {
     if (selectedFile.type.startsWith("image/")) return "image";
     if (selectedFile.type === "application/pdf") return "pdf";
     return "file";
-  }
-
-  function getSelectedKindLabel() {
-    if (!file) return "File";
-    if (uploadKind === "image") return "Image";
-    if (uploadKind === "pdf") return "PDF";
-    return "File";
   }
 
   function resetResultState() {
@@ -102,41 +87,33 @@ export default function FileSharePage() {
         return;
       }
 
-      if (encryptUpload) {
-        if (password.length < 8) {
-          setError("Use at least 8 characters for the encryption password.");
-          return;
-        }
-        if (password !== confirmPassword) {
-          setError("Encryption passwords do not match.");
-          return;
-        }
-      }
-
       setIsUploading(true);
 
-      const kind = encryptUpload ? "file" : getUploadKind(file);
+      const kind = getUploadKind(file);
       const endpoint =
         kind === "image" ? "/api/image/upload" : "/api/file/upload";
 
-      const formData = new FormData();
-      let uploadFile = file;
+      const encrypted = await encryptFileWithRandomKey(file);
 
-      if (encryptUpload) {
-        const encrypted = await encryptFileForUpload(file, password);
-        uploadFile = encrypted.encryptedFile;
-        formData.append("encrypted", "true");
-        formData.append("encryptionAlgorithm", encrypted.algorithm);
-        formData.append("encryptionKdf", encrypted.kdf);
-        formData.append("encryptionIterations", String(encrypted.iterations));
-        formData.append("encryptionSalt", encrypted.salt);
-        formData.append("encryptionIv", encrypted.iv);
-        formData.append("encryptionMetadataIv", encrypted.metadataIv);
-        formData.append("encryptedMetadata", encrypted.encryptedMetadata);
+      if (
+        !encrypted.iv ||
+        !encrypted.metadataIv ||
+        !encrypted.encryptedMetadata
+      ) {
+        setError("Could not create encryption metadata. Please try again.");
+        return;
       }
 
-      formData.append("file", uploadFile);
+      const formData = new FormData();
+
+      formData.append("file", encrypted.encryptedFile);
       formData.append("expiry", expiry);
+
+      formData.append("encrypted", "true");
+      formData.append("encryptionAlgorithm", encrypted.algorithm);
+      formData.append("encryptionIv", encrypted.iv);
+      formData.append("encryptionMetadataIv", encrypted.metadataIv);
+      formData.append("encryptedMetadata", encrypted.encryptedMetadata);
 
       const response = await fetchApi(endpoint, {
         method: "POST",
@@ -169,6 +146,7 @@ export default function FileSharePage() {
 
       const frontendOrigin = window.location.origin;
       const backendOrigin = getApiBaseUrl();
+      const keyHash = `#key=${encodeURIComponent(encrypted.key)}`;
 
       const ownerPath =
         kind === "image" ? `/image?id=${data.id}` : `/file?id=${data.id}`;
@@ -186,8 +164,8 @@ export default function FileSharePage() {
       setUploadKind(kind);
       setResult(data);
 
-      setOwnerUrl(`${frontendOrigin}${ownerPath}`);
-      setUserUrl(`${frontendOrigin}${userPath}`);
+      setOwnerUrl(`${frontendOrigin}${ownerPath}${keyHash}`);
+      setUserUrl(`${frontendOrigin}${userPath}${keyHash}`);
       setDirectUrl(`${backendOrigin}${directPath}`);
     } catch (caughtError) {
       console.error(caughtError);
@@ -223,9 +201,6 @@ export default function FileSharePage() {
     setError("");
     setIsUploading(false);
     setCopied(false);
-    setEncryptUpload(false);
-    setPassword("");
-    setConfirmPassword("");
   }
 
   function formatExpiry(value: string | null) {
@@ -237,8 +212,6 @@ export default function FileSharePage() {
     }).format(new Date(value));
   }
 
-  const selectedKindLabel = getSelectedKindLabel();
-
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
@@ -247,7 +220,8 @@ export default function FileSharePage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Upload images, PDFs, and files to create shareable pages.
+          Upload images, PDFs, and files with automatic AES-GCM encryption. The
+          share link includes the key after #key= so recipients can open it.
         </p>
       </div>
 
@@ -265,7 +239,7 @@ export default function FileSharePage() {
             </span>
 
             <span className="mt-2 text-sm text-slate-500">
-              Images get image pages. PDFs and files get file pages.
+              Images stay on the image API. Files stay on the file API.
             </span>
 
             <input
@@ -293,7 +267,7 @@ export default function FileSharePage() {
                   </p>
 
                   <p className="mt-1 text-sm text-slate-400">
-                    {selectedKindLabel} · {formatFileSize(file.size)}
+                    {formatFileSize(file.size)}
                   </p>
 
                   <p className="mt-1 text-xs text-slate-500">
@@ -322,46 +296,6 @@ export default function FileSharePage() {
             </select>
           </div>
 
-          <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
-            <label className="flex items-start gap-3 text-sm text-slate-300">
-              <input
-                type="checkbox"
-                checked={encryptUpload}
-                onChange={(event) => setEncryptUpload(event.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-white/10 bg-slate-900"
-              />
-              <span>
-                <span className="block font-medium text-white">
-                  Encrypt before upload
-                </span>
-                <span className="mt-1 block text-slate-500">
-                  AES-GCM runs in this browser. Toolverse stores only encrypted
-                  bytes in R2. If the password is lost, the file cannot be
-                  recovered.
-                </span>
-              </span>
-            </label>
-
-            {encryptUpload ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
-                  placeholder="Encryption password"
-                  className="rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                />
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(event) => setConfirmPassword(event.target.value)}
-                  placeholder="Confirm password"
-                  className="rounded-xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                />
-              </div>
-            ) : null}
-          </div>
-
           {error ? (
             <div className="mt-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
               {error}
@@ -380,11 +314,7 @@ export default function FileSharePage() {
               ) : (
                 <Upload className="h-4 w-4" />
               )}
-              {isUploading
-                ? encryptUpload
-                  ? "Encrypting..."
-                  : "Uploading..."
-                : "Upload & share"}
+              {isUploading ? "Encrypting & uploading..." : "Upload & share"}
             </button>
 
             <button
@@ -398,15 +328,126 @@ export default function FileSharePage() {
           </div>
         </div>
 
-        {/* Keep your existing share-link/result UI below this point.
-            The important encryption changes are above:
-            - encryptUpload state
-            - password fields
-            - encryptFileForUpload()
-            - encrypted FormData fields
-            - encrypted uploads forced to /api/file/upload
-        */}
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="font-semibold">
+              {result ? "Share links ready" : "Upload output"}
+            </h2>
+
+            <span
+              className={`rounded-full px-2.5 py-1 text-xs ${
+                result
+                  ? "bg-emerald-500/10 text-emerald-300"
+                  : "bg-slate-500/10 text-slate-400"
+              }`}
+            >
+              {result ? "Encrypted" : "Waiting"}
+            </span>
+          </div>
+
+          {result ? (
+            <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+              <div className="grid gap-3">
+                <div>
+                  <label className="mb-1 block text-xs text-slate-400">
+                    Owner link with key
+                  </label>
+                  <input
+                    value={ownerUrl}
+                    readOnly
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs text-slate-400">
+                    User share link with key
+                  </label>
+                  <input
+                    value={userUrl}
+                    readOnly
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="mb-1 block text-xs text-slate-400">
+                    Encrypted direct URL
+                  </label>
+                  <input
+                    value={directUrl}
+                    readOnly
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 grid gap-3 sm:grid-cols-3">
+                <a
+                  href={ownerUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Open owner
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+
+                <a
+                  href={userUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Open user
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+
+                <button
+                  type="button"
+                  onClick={copyUserUrl}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                >
+                  {copied ? (
+                    <Check className="h-4 w-4" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                  {copied ? "Copied" : "Copy user"}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950/60 p-6 text-center text-sm text-slate-500">
+              Your encrypted share link appears here after upload.
+            </div>
+          )}
+        </div>
       </div>
+
+      <HowToUse
+        title="How to use Upload & Share"
+        subtitle=""
+        steps={[
+          {
+            title: "Choose content",
+            description: "Select an image, PDF, or file.",
+            icon: <Upload className="h-5 w-5" />,
+          },
+          {
+            title: "Upload",
+            description:
+              "Your browser creates a random key, encrypts the content, then uploads encrypted bytes.",
+            icon: <LockKeyhole className="h-5 w-5" />,
+          },
+          {
+            title: "Share full link",
+            description:
+              "Send the user link including #key= so recipients can decrypt it.",
+            icon: <Copy className="h-5 w-5" />,
+          },
+        ]}
+      />
     </Container>
   );
 }

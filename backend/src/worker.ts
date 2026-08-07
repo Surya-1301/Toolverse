@@ -6,7 +6,6 @@ export interface Env {
 type ExpiryValue = "never" | "1h" | "1d" | "7d" | "30d";
 
 const FRONTEND_ORIGIN = "https://toolversee.pages.dev";
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -505,15 +504,11 @@ async function route(request: Request, env: Env) {
 
     const file = formData.get("file");
     const expiry = String(formData.get("expiry") || "never");
+
     const encrypted = String(formData.get("encrypted") || "false") === "true";
     const encryptionAlgorithm = String(
       formData.get("encryptionAlgorithm") || "",
     );
-    const encryptionKdf = String(formData.get("encryptionKdf") || "");
-    const encryptionIterations = Number(
-      formData.get("encryptionIterations") || 0,
-    );
-    const encryptionSalt = String(formData.get("encryptionSalt") || "");
     const encryptionIv = String(formData.get("encryptionIv") || "");
     const encryptionMetadataIv = String(
       formData.get("encryptionMetadataIv") || "",
@@ -534,6 +529,13 @@ async function route(request: Request, env: Env) {
       return error("Image is too large. Max size is 25 MB.");
     }
 
+    if (
+      encrypted &&
+      (!encryptionIv || !encryptionMetadataIv || !encryptedMetadata)
+    ) {
+      return error("Encryption metadata is missing.");
+    }
+
     let id = createId(8);
 
     while (
@@ -544,16 +546,6 @@ async function route(request: Request, env: Env) {
       id = createId(8);
     }
 
-    if (
-      encrypted &&
-      (!encryptionSalt ||
-        !encryptionIv ||
-        !encryptionMetadataIv ||
-        !encryptedMetadata)
-    ) {
-      return error("Encryption metadata is missing.");
-    }
-
     const extension = encrypted
       ? ".enc"
       : getExtensionFromName(file.name) || ".img";
@@ -562,7 +554,9 @@ async function route(request: Request, env: Env) {
 
     await env.FILES_BUCKET.put(key, arrayBuffer, {
       httpMetadata: {
-        contentType: file.type || "application/octet-stream",
+        contentType: encrypted
+          ? "application/octet-stream"
+          : file.type || "application/octet-stream",
       },
     });
 
@@ -582,7 +576,7 @@ async function route(request: Request, env: Env) {
     )
       .bind(
         id,
-        encrypted ? "Encrypted file" : file.name,
+        encrypted ? "Encrypted image" : file.name,
         encrypted
           ? "application/octet-stream"
           : file.type || "application/octet-stream",
@@ -592,9 +586,9 @@ async function route(request: Request, env: Env) {
         key,
         encrypted ? 1 : 0,
         encrypted ? encryptionAlgorithm || "AES-GCM-256" : null,
-        encrypted ? encryptionKdf || "PBKDF2-SHA256" : null,
-        encrypted ? encryptionIterations || 310000 : null,
-        encrypted ? encryptionSalt : null,
+        null,
+        null,
+        null,
         encrypted ? encryptionIv : null,
         encrypted ? encryptionMetadataIv : null,
         encrypted ? encryptedMetadata : null,
@@ -605,13 +599,16 @@ async function route(request: Request, env: Env) {
       id,
       url: `/i/${id}`,
       directUrl: `/api/image/${id}/direct`,
-      originalName: file.name,
-      mimeType: file.type || "application/octet-stream",
+      originalName: encrypted ? "Encrypted image" : file.name,
+      mimeType: encrypted
+        ? "application/octet-stream"
+        : file.type || "application/octet-stream",
       size: file.size,
       width: null,
       height: null,
       expiresAt,
       views: 0,
+      encrypted,
     });
   }
 
@@ -678,7 +675,7 @@ async function route(request: Request, env: Env) {
       encrypted: Boolean(image.encrypted),
       encryption: image.encrypted
         ? {
-            algorithm: image.encryption_algorithm,
+            algorithm: image.encryption_algorithm || "AES-GCM-256",
             kdf: image.encryption_kdf,
             iterations: image.encryption_iterations,
             salt: image.encryption_salt,
@@ -701,7 +698,7 @@ async function route(request: Request, env: Env) {
 
     const image = await env.DB.prepare(
       `
-      SELECT mime_type, expires_at, r2_key
+      SELECT mime_type, expires_at, r2_key, encrypted
       FROM images
       WHERE id = ?
       `,
@@ -711,6 +708,7 @@ async function route(request: Request, env: Env) {
         mime_type: string;
         expires_at: string | null;
         r2_key: string;
+        encrypted?: number;
       }>();
 
     if (!image) return notFound("Image not found.");
@@ -732,7 +730,11 @@ async function route(request: Request, env: Env) {
       .run();
 
     return new Response(object.body, {
-      headers: cacheHeaders(image.mime_type || "application/octet-stream"),
+      headers: cacheHeaders(
+        image.encrypted
+          ? "application/octet-stream"
+          : image.mime_type || "application/octet-stream",
+      ),
     });
   }
 
@@ -745,15 +747,11 @@ async function route(request: Request, env: Env) {
 
     const file = formData.get("file");
     const expiry = String(formData.get("expiry") || "never");
+
     const encrypted = String(formData.get("encrypted") || "false") === "true";
     const encryptionAlgorithm = String(
       formData.get("encryptionAlgorithm") || "",
     );
-    const encryptionKdf = String(formData.get("encryptionKdf") || "");
-    const encryptionIterations = Number(
-      formData.get("encryptionIterations") || 0,
-    );
-    const encryptionSalt = String(formData.get("encryptionSalt") || "");
     const encryptionIv = String(formData.get("encryptionIv") || "");
     const encryptionMetadataIv = String(
       formData.get("encryptionMetadataIv") || "",
@@ -770,6 +768,13 @@ async function route(request: Request, env: Env) {
       return error("File is too large. Max size is 100 MB.");
     }
 
+    if (
+      encrypted &&
+      (!encryptionIv || !encryptionMetadataIv || !encryptedMetadata)
+    ) {
+      return error("Encryption metadata is missing.");
+    }
+
     let id = createId(8);
 
     while (
@@ -778,23 +783,15 @@ async function route(request: Request, env: Env) {
       id = createId(8);
     }
 
-    if (
-      encrypted &&
-      (!encryptionSalt ||
-        !encryptionIv ||
-        !encryptionMetadataIv ||
-        !encryptedMetadata)
-    ) {
-      return error("Encryption metadata is missing.");
-    }
-
     const extension = encrypted ? ".enc" : getExtensionFromName(file.name);
     const key = `files/${id}${extension}`;
     const arrayBuffer = await file.arrayBuffer();
 
     await env.FILES_BUCKET.put(key, arrayBuffer, {
       httpMetadata: {
-        contentType: file.type || "application/octet-stream",
+        contentType: encrypted
+          ? "application/octet-stream"
+          : file.type || "application/octet-stream",
       },
     });
 
@@ -824,9 +821,9 @@ async function route(request: Request, env: Env) {
         key,
         encrypted ? 1 : 0,
         encrypted ? encryptionAlgorithm || "AES-GCM-256" : null,
-        encrypted ? encryptionKdf || "PBKDF2-SHA256" : null,
-        encrypted ? encryptionIterations || 310000 : null,
-        encrypted ? encryptionSalt : null,
+        null,
+        null,
+        null,
         encrypted ? encryptionIv : null,
         encrypted ? encryptionMetadataIv : null,
         encrypted ? encryptedMetadata : null,
@@ -837,11 +834,14 @@ async function route(request: Request, env: Env) {
       id,
       url: `/f/${id}`,
       downloadUrl: `/api/file/${id}/download`,
-      originalName: file.name,
-      mimeType: file.type || "application/octet-stream",
+      originalName: encrypted ? "Encrypted file" : file.name,
+      mimeType: encrypted
+        ? "application/octet-stream"
+        : file.type || "application/octet-stream",
       size: file.size,
       expiresAt,
       downloads: 0,
+      encrypted,
     });
   }
 
@@ -904,7 +904,7 @@ async function route(request: Request, env: Env) {
       encrypted: Boolean(file.encrypted),
       encryption: file.encrypted
         ? {
-            algorithm: file.encryption_algorithm,
+            algorithm: file.encryption_algorithm || "AES-GCM-256",
             kdf: file.encryption_kdf,
             iterations: file.encryption_iterations,
             salt: file.encryption_salt,
@@ -927,7 +927,7 @@ async function route(request: Request, env: Env) {
 
     const file = await env.DB.prepare(
       `
-      SELECT original_name, mime_type, expires_at, r2_key
+      SELECT original_name, mime_type, expires_at, r2_key, encrypted
       FROM files
       WHERE id = ?
       `,
@@ -938,6 +938,7 @@ async function route(request: Request, env: Env) {
         mime_type: string;
         expires_at: string | null;
         r2_key: string;
+        encrypted?: number;
       }>();
 
     if (!file) return notFound("File not found.");
@@ -962,12 +963,14 @@ async function route(request: Request, env: Env) {
 
     return new Response(object.body, {
       headers: withCors({
-        "Content-Type": file.mime_type || "application/octet-stream",
-        "Content-Disposition": `attachment; filename="${file.original_name.replace(
-          /"/g,
-          "",
-        )}"`,
+        "Content-Type": file.encrypted
+          ? "application/octet-stream"
+          : file.mime_type || "application/octet-stream",
+        "Content-Disposition": `attachment; filename="${(
+          file.encrypted ? "encrypted-file.enc" : file.original_name
+        ).replace(/"/g, "")}"`,
         "Cache-Control": "private, max-age=0, no-store",
+        "X-Content-Type-Options": "nosniff",
       }),
     });
   }

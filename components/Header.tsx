@@ -7,7 +7,7 @@ import { useState } from "react";
 import { Container } from "./Container";
 
 const navLinks = [
-    { href: "/pdf-editor", label: "PDF" },
+    { href: "https://pdfverse.pages.dev/", label: "PDF" },
     { href: "/file-share", label: "Upload" },
     { href: "/image-compressor", label: "Compress" },
     { href: "/paste", label: "Paste" },
