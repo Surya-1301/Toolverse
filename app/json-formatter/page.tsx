@@ -1,10 +1,80 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Eraser, FileJson, Minimize2, Share2, Wand2 } from "lucide-react";
+import {
+  Braces,
+  Check,
+  ClipboardCheck,
+  Code2,
+  Copy,
+  Eraser,
+  Minimize2,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
-import { Braces, CheckCircle2, } from "lucide-react";
-import { HowToUse } from "@/components/HowToUse";
+
+const howToUseSteps = [
+  {
+    title: "Paste JSON",
+    description: "Add your JSON data into the input editor.",
+    icon: <Braces className="h-5 w-5" />,
+  },
+  {
+    title: "Format JSON",
+    description: "Use Format JSON to make your data readable and indented.",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    title: "Minify JSON",
+    description: "Use Minify JSON to remove spaces and line breaks.",
+    icon: <Minimize2 className="h-5 w-5" />,
+  },
+  {
+    title: "Validate syntax",
+    description: "Check if your JSON is valid or find syntax errors quickly.",
+    icon: <ClipboardCheck className="h-5 w-5" />,
+  },
+  {
+    title: "Copy output",
+    description: "Copy the formatted or minified JSON result to your clipboard.",
+    icon: <Copy className="h-5 w-5" />,
+  },
+  {
+    title: "Clear editor",
+    description: "Reset the input and output boxes when you want to start over.",
+    icon: <Eraser className="h-5 w-5" />,
+  },
+];
+
+function HowToUseSection() {
+  return (
+    <section className="mt-14">
+      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        How to use JSON Formatter
+      </h2>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+          >
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              {step.icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
 
 export default function JsonFormatterPage() {
   const [input, setInput] = useState("");
@@ -17,18 +87,16 @@ export default function JsonFormatterPage() {
       setError("");
 
       if (!input.trim()) {
-        setError("Please enter JSON first.");
         setOutput("");
+        setError("Please enter JSON first.");
         return;
       }
 
       const parsed = JSON.parse(input);
-      const formatted = JSON.stringify(parsed, null, 2);
-
-      setOutput(formatted);
+      setOutput(JSON.stringify(parsed, null, 2));
     } catch {
-      setError("Invalid JSON. Please check your syntax.");
       setOutput("");
+      setError("Invalid JSON. Please check your syntax.");
     }
   }
 
@@ -37,18 +105,16 @@ export default function JsonFormatterPage() {
       setError("");
 
       if (!input.trim()) {
-        setError("Please enter JSON first.");
         setOutput("");
+        setError("Please enter JSON first.");
         return;
       }
 
       const parsed = JSON.parse(input);
-      const minified = JSON.stringify(parsed);
-
-      setOutput(minified);
+      setOutput(JSON.stringify(parsed));
     } catch {
-      setError("Invalid JSON. Please check your syntax.");
       setOutput("");
+      setError("Invalid JSON. Please check your syntax.");
     }
   }
 
@@ -57,16 +123,20 @@ export default function JsonFormatterPage() {
       setError("");
 
       if (!input.trim()) {
-        setError("Please enter JSON first.");
         setOutput("");
+        setError("Please enter JSON first.");
         return;
       }
 
       JSON.parse(input);
       setOutput("Valid JSON ✅");
-    } catch {
-      setError("Invalid JSON. Please check your syntax.");
+    } catch (caughtError) {
       setOutput("");
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Invalid JSON. Please check your syntax.",
+      );
     }
   }
 
@@ -91,131 +161,98 @@ export default function JsonFormatterPage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           JSON Formatter
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Format, validate, and minify JSON instantly in your browser. Your data
-          stays on your device.
+          Format, validate, and minify JSON instantly in your browser.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-        <div className="mb-4 flex flex-wrap gap-3">
-          <button
-            onClick={formatJson}
-            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-          >
-            <Wand2 className="h-4 w-4" />
-            Format
-          </button>
+      <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <label className="mb-3 block text-sm font-semibold text-slate-300">
+            JSON input
+          </label>
 
-          <button
-            onClick={minifyJson}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            <Minimize2 className="h-4 w-4" />
-            Minify
-          </button>
-
-          <button
-            onClick={validateJson}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-          >
-            <Check className="h-4 w-4" />
-            Validate
-          </button>
-
-          <button
-            onClick={copyOutput}
-            disabled={!output}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <Copy className="h-4 w-4" />
-            {copied ? "Copied" : "Copy"}
-          </button>
-
-          <button
-            onClick={clearAll}
-            className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
-          >
-            <Eraser className="h-4 w-4" />
-            Clear
-          </button>
+          <textarea
+            value={input}
+            onChange={(event) => setInput(event.target.value)}
+            placeholder="Paste JSON here..."
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+          />
         </div>
 
-        {error ? (
-          <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-            {error}
-          </div>
-        ) : null}
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
-              Input JSON
-            </label>
-            <textarea
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-              placeholder={`Paste JSON here...\n\nExample:\n{"name":"Toolverse","type":"tools"}`}
-              spellCheck={false}
-              className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
-            />
-          </div>
-
-          <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <label className="block text-sm font-semibold text-slate-300">
               Output
             </label>
-            <textarea
-              value={output}
-              readOnly
-              placeholder="Formatted output will appear here..."
-              spellCheck={false}
-              className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none placeholder:text-slate-600"
-            />
+
+            <button
+              onClick={copyOutput}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+            >
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
+              {copied ? "Copied" : "Copy"}
+            </button>
           </div>
+
+          <textarea
+            readOnly
+            value={output}
+            placeholder="Output will appear here..."
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
+          />
         </div>
       </div>
 
-     <HowToUse
-       subtitle=""
-  steps={[
-    {
-      title: "Paste JSON",
-      description: "Add your JSON into the input editor on the left.",
-      icon: <Braces className="h-5 w-5" />,
-    },
-    {
-      title: "Format it",
-      description: "Click Format to make compressed JSON readable.",
-      icon: <Wand2 className="h-5 w-5" />,
-    },
-    {
-      title: "Validate syntax",
-      description: "Check whether your JSON is valid before using it.",
-      icon: <CheckCircle2 className="h-5 w-5" />,
-    },
-    {
-      title: "Minify output",
-      description: "Remove spaces and line breaks for compact JSON.",
-      icon: <Minimize2 className="h-5 w-5" />,
-    },
-    {
-      title: "Copy result",
-      description: "Copy the formatted or minified JSON instantly.",
-      icon: <Copy className="h-5 w-5" />,
-    },
-    {
-      title: "Share Anywhere",
-      description: "Share the formatted or minified JSON with others.",
-      icon: <Share2 className="h-5 w-5" />,
-    },
-  ]}
-/>
+      {error ? (
+        <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="mt-5 flex flex-wrap gap-3">
+        <button
+          onClick={formatJson}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          <Wand2 className="h-4 w-4" />
+          Format JSON
+        </button>
+
+        <button
+          onClick={minifyJson}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          <Minimize2 className="h-4 w-4" />
+          Minify JSON
+        </button>
+
+        <button
+          onClick={validateJson}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          <Code2 className="h-4 w-4" />
+          Validate JSON
+        </button>
+
+        <button
+          onClick={clearAll}
+          className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+        >
+          <Eraser className="h-4 w-4" />
+          Clear
+        </button>
+      </div>
+
+      <HowToUseSection />
     </Container>
   );
 }

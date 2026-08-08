@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Eraser, Wand2 } from "lucide-react";
+import {
+  Check,
+  Code2,
+  Copy,
+  Eraser,
+  FileCode2,
+  ScanLine,
+  Minimize2,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 function formatHtmlCode(value: string) {
@@ -75,7 +85,9 @@ function validateHtmlTags(value: string) {
       const last = stack.pop();
 
       if (last !== tagName) {
-        return `Invalid HTML: expected closing </${last || "unknown"}> but found </${tagName}>.`;
+        return `Invalid HTML: expected closing </${
+          last || "unknown"
+        }> but found </${tagName}>.`;
       }
     } else {
       stack.push(tagName);
@@ -83,10 +95,74 @@ function validateHtmlTags(value: string) {
   }
 
   if (stack.length) {
-    return `Invalid HTML: missing closing tag for <${stack[stack.length - 1]}>.`;
+    return `Invalid HTML: missing closing tag for <${
+      stack[stack.length - 1]
+    }>.`;
   }
 
   return "HTML tags look valid ✅";
+}
+
+const howToUseSteps = [
+  {
+    title: "Paste HTML",
+    description: "Add your HTML code into the input editor.",
+    icon: <FileCode2 className="h-5 w-5" />,
+  },
+  {
+    title: "Format code",
+    description: "Use Format HTML to make your markup clean and readable.",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    title: "Minify HTML",
+    description: "Use Minify HTML to reduce spaces, comments, and line breaks.",
+    icon: <Code2 className="h-5 w-5" />,
+  },
+  {
+    title: "Validate tags",
+    description: "Check for common opening and closing tag mistakes.",
+    icon: <ScanLine className="h-5 w-5" />,
+  },
+  {
+    title: "Copy output",
+    description: "Copy the formatted, minified, or validated result instantly.",
+    icon: <Copy className="h-5 w-5" />,
+  },
+  {
+    title: "Clear editor",
+    description: "Reset the input and output areas when you want to start over.",
+    icon: <Eraser className="h-5 w-5" />,
+  },
+];
+
+function HowToUseSection() {
+  return (
+    <section className="mt-14">
+      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        How to use HTML Formatter / Minifier
+      </h2>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+          >
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              {step.icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function HtmlFormatterPage() {
@@ -164,7 +240,11 @@ export default function HtmlFormatterPage() {
               onClick={copyOutput}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
@@ -189,6 +269,7 @@ export default function HtmlFormatterPage() {
           onClick={formatHtml}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+          <Wand2 className="h-4 w-4" />
           Format HTML
         </button>
 
@@ -196,6 +277,7 @@ export default function HtmlFormatterPage() {
           onClick={minifyHtml}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+          <Minimize2 className="h-4 w-4" />
           Minify HTML
         </button>
 
@@ -203,6 +285,7 @@ export default function HtmlFormatterPage() {
           onClick={validateHtml}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+        <Check className="h-4 w-4" />
           Validate tags
         </button>
 
@@ -214,6 +297,8 @@ export default function HtmlFormatterPage() {
           Clear
         </button>
       </div>
+
+      <HowToUseSection />
     </Container>
   );
 }

@@ -1,8 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Check, Copy, Download, Eraser, Upload, Wand2 } from "lucide-react";
-import * as XLSX from "xlsx";
+import { useState } from "react";
+import {
+  Check,
+  Copy,
+  Download,
+  Eraser,
+  FileSpreadsheet,
+  RefreshCw,
+  Table2,
+  Upload,
+  Wand2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 function parseCsvLine(line: string) {
@@ -26,7 +35,7 @@ function parseCsvLine(line: string) {
     }
 
     if (char === "," && !insideQuotes) {
-      values.push(current);
+      values.push(current.trim());
       current = "";
       continue;
     }
@@ -34,220 +43,259 @@ function parseCsvLine(line: string) {
     current += char;
   }
 
-  values.push(current);
+  values.push(current.trim());
+
   return values;
 }
 
-function csvToAoa(csv: string) {
-  return csv
-    .split(/\r?\n/)
-    .map((l) => l.trimEnd())
-    .filter((l) => l.length > 0)
-    .map(parseCsvLine);
+function escapeHtml(value: string) {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
 }
 
-function aoaToCsv(aoa: string[][]) {
-  return aoa
-    .map((row) =>
-      row
-        .map((cell) => {
-          const value = cell ?? "";
-          if (/[",\n\r]/.test(value)) return `"${value.replace(/"/g, '""')}"`;
-          return value;
+function csvToHtmlTable(csv: string) {
+  const rows = csv
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map(parseCsvLine);
+
+  if (!rows.length) {
+    return "";
+  }
+
+  return `
+<html>
+<head>
+  <meta charset="UTF-8" />
+</head>
+<body>
+  <table border="1">
+    ${rows
+      .map(
+        (row, rowIndex) => `
+    <tr>
+      ${row
+        .map((cell) =>
+          rowIndex === 0
+            ? `<th>${escapeHtml(cell)}</th>`
+            : `<td>${escapeHtml(cell)}</td>`,
+        )
+        .join("")}
+    </tr>`,
+      )
+      .join("")}
+  </table>
+</body>
+</html>`.trim();
+}
+
+function htmlTableToCsv(html: string) {
+  const rows = Array.from(html.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi));
+
+  if (!rows.length) {
+    throw new Error("No HTML table rows found. Paste an HTML table first.");
+  }
+
+  return rows
+    .map((rowMatch) => {
+      const cells = Array.from(
+        rowMatch[1].matchAll(/<t[dh][^>]*>([\s\S]*?)<\/t[dh]>/gi),
+      );
+
+      return cells
+        .map((cellMatch) => {
+          const text = cellMatch[1]
+            .replace(/<[^>]+>/g, "")
+            .replace(/&amp;/g, "&")
+            .replace(/&lt;/g, "<")
+            .replace(/&gt;/g, ">")
+            .replace(/\s+/g, " ")
+            .trim();
+
+          if (/[",\n\r]/.test(text)) {
+            return `"${text.replace(/"/g, '""')}"`;
+          }
+
+          return text;
         })
-        .join(","),
-    )
+        .join(",");
+    })
     .join("\n");
 }
 
-function csvToWorkbook(csv: string) {
-  const rows = csvToAoa(csv);
-  const ws = XLSX.utils.aoa_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
-  return wb;
-}
+const howToUseSteps = [
+  {
+    title: "Paste or upload",
+    description: "Paste CSV data or upload a CSV file from your device.",
+    icon: <Upload className="h-5 w-5" />,
+  },
+  {
+    title: "Choose conversion",
+    description: "Convert CSV to Excel-compatible format or table HTML to CSV.",
+    icon: <RefreshCw className="h-5 w-5" />,
+  },
+  {
+    title: "Generate output",
+    description: "Click the conversion button to create the final output.",
+    icon: <Wand2 className="h-5 w-5" />,
+  },
+  {
+    title: "Review result",
+    description: "Check the generated table markup or CSV in the output box.",
+    icon: <Table2 className="h-5 w-5" />,
+  },
+  {
+    title: "Download file",
+    description: "Download the result as an XLS or CSV file.",
+    icon: <Download className="h-5 w-5" />,
+  },
+  {
+    title: "Clear editor",
+    description: "Reset the input and output areas when starting again.",
+    icon: <Eraser className="h-5 w-5" />,
+  },
+];
 
-function sheetToAoa(workbook: XLSX.WorkBook, sheetName: string) {
-  const ws = workbook.Sheets[sheetName];
-  if (!ws) return [];
-  const aoa = XLSX.utils.sheet_to_json(ws, { header: 1 }) as any[];
-  return (aoa ?? []).map((r) => (Array.isArray(r) ? r.map(String) : []));
+function HowToUseSection() {
+  return (
+    <section className="mt-14">
+      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        How to use Excel to CSV / CSV to Excel
+      </h2>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+          >
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              {step.icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function ExcelCsvConverterPage() {
-  // Removed default demo text
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const [xlsxSheets, setXlsxSheets] = useState<
-    Array<{ name: string; aoa: string[][] }>
-  >([]);
-  const [activeSheetName, setActiveSheetName] = useState<string | null>(null);
+  function convertCsvToExcel() {
+    try {
+      setError("");
 
-  const activeSheet = useMemo(() => {
-    if (!activeSheetName) return null;
-    return xlsxSheets.find((s) => s.name === activeSheetName) ?? null;
-  }, [xlsxSheets, activeSheetName]);
+      if (!input.trim()) {
+        setOutput("");
+        setError("Please enter CSV first.");
+        return;
+      }
 
-  const activeSheetCsv = useMemo(() => {
-    if (!activeSheet) return "";
-    return aoaToCsv(activeSheet.aoa);
-  }, [activeSheet]);
-
-  // Keep output synced to selected sheet (when XLSX is present)
-  function selectSheet(name: string) {
-    setActiveSheetName(name);
-    const sheet = xlsxSheets.find((s) => s.name === name);
-    setOutput(sheet ? aoaToCsv(sheet.aoa) : "");
+      setOutput(csvToHtmlTable(input));
+    } catch (caughtError) {
+      setOutput("");
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not convert CSV.",
+      );
+    }
   }
 
-  async function uploadFile(event: React.ChangeEvent<HTMLInputElement>) {
+  function convertExcelHtmlToCsv() {
+    try {
+      setError("");
+
+      if (!input.trim()) {
+        setOutput("");
+        setError("Please paste an HTML table first.");
+        return;
+      }
+
+      setOutput(htmlTableToCsv(input));
+    } catch (caughtError) {
+      setOutput("");
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Could not convert table to CSV.",
+      );
+    }
+  }
+
+  async function uploadCsv(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+
     if (!file) return;
 
+    setInput(await file.text());
+    setOutput("");
     setError("");
     setCopied(false);
 
-    const ext = file.name.split(".").pop()?.toLowerCase();
-
-    try {
-      if (ext === "csv") {
-        const text = await file.text();
-        setInput(text);
-        setOutput("");
-        setXlsxSheets([]);
-        setActiveSheetName(null);
-        return;
-      }
-
-      if (ext === "xlsx") {
-        const arrayBuffer = await file.arrayBuffer();
-        const wb = XLSX.read(arrayBuffer, { type: "array" });
-
-        const sheets = wb.SheetNames.map((name) => ({
-          name,
-          aoa: sheetToAoa(wb, name),
-        }));
-
-        setXlsxSheets(sheets);
-
-        const firstName = sheets[0]?.name ?? null;
-        setActiveSheetName(firstName);
-
-        const firstCsv = sheets[0] ? aoaToCsv(sheets[0].aoa) : "";
-        // Load first sheet into both panels for a consistent experience
-        setInput(firstCsv);
-        setOutput(firstCsv);
-
-        return;
-      }
-
-      setError("Unsupported file type. Please upload .csv or .xlsx");
-    } catch (caughtError) {
-      setError(
-        caughtError instanceof Error ? caughtError.message : "Could not read file.",
-      );
-    } finally {
-      event.target.value = "";
-    }
+    event.target.value = "";
   }
 
-  function convertCsvToExcel() {
-    setError("");
-    if (!input.trim()) {
-      setError("Please enter or upload CSV first.");
-      return;
-    }
-    // Optional: keep output same as input so panels look consistent
-    setOutput(input);
-  }
+  async function copyOutput() {
+    if (!output) return;
 
-  function excelToCsv() {
-    setError("");
-    if (!xlsxSheets.length) {
-      setError("Please upload an .xlsx file first.");
-      return;
-    }
-    // Ensure output matches selected sheet
-    setOutput(activeSheetCsv);
-  }
-
-  async function copyText() {
-    const textToCopy = output.trim() ? output : input;
-    if (!textToCopy) return;
-
-    await navigator.clipboard.writeText(textToCopy);
+    await navigator.clipboard.writeText(output);
     setCopied(true);
-    setTimeout(() => setCopied(false), 1500);
+
+    setTimeout(() => {
+      setCopied(false);
+    }, 1500);
   }
 
-  function downloadXlsx() {
-    try {
-      setError("");
-      if (!input.trim()) {
-        setError("Please enter or upload CSV first.");
-        return;
-      }
+  function downloadExcel() {
+    if (!output) return;
 
-      const wb = csvToWorkbook(input);
-      const xlsxBytes = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const blob = new Blob([output], {
+      type: "application/vnd.ms-excel",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
-      const blob = new Blob([xlsxBytes], {
-        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      });
+    link.href = url;
+    link.download = "spreadsheet.xls";
 
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "spreadsheet.xlsx";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (caughtError) {
-      setError(
-        caughtError instanceof Error ? caughtError.message : "Could not create XLSX.",
-      );
-    }
+    URL.revokeObjectURL(url);
   }
 
   function downloadCsv() {
-    try {
-      setError("");
+    if (!output) return;
 
-      // Prefer output if present, else input
-      const csv = output.trim() ? output : input;
+    const blob = new Blob([output], {
+      type: "text/csv",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
 
-      if (!csv.trim()) {
-        setError("Nothing to download. Upload an .xlsx or paste CSV first.");
-        return;
-      }
+    link.href = url;
+    link.download = "spreadsheet.csv";
 
-      const fileName =
-        xlsxSheets.length && activeSheetName
-          ? `${activeSheetName}.csv`
-          : "spreadsheet.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-      const blob = new Blob([csv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = fileName;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } catch (caughtError) {
-      setError(
-        caughtError instanceof Error ? caughtError.message : "Could not download CSV.",
-      );
-    }
+    URL.revokeObjectURL(url);
   }
 
   function clearAll() {
@@ -255,13 +303,7 @@ export default function ExcelCsvConverterPage() {
     setOutput("");
     setError("");
     setCopied(false);
-    setXlsxSheets([]);
-    setActiveSheetName(null);
   }
-
-  // Same UI for both panels
-  const panelClassName =
-    "min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500";
 
   return (
     <Container className="py-12 sm:py-16">
@@ -271,7 +313,8 @@ export default function ExcelCsvConverterPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-           Convert CSV into an Excel-compatible file, or convert an Excel sheet into CSV.
+          Convert CSV into an Excel-compatible file, or convert an HTML table
+          copied from Excel into CSV.
         </p>
       </div>
 
@@ -284,8 +327,8 @@ export default function ExcelCsvConverterPage() {
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Paste CSV or upload a file..."
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            placeholder="Paste CSV or an HTML table here..."
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
           />
         </div>
 
@@ -296,41 +339,23 @@ export default function ExcelCsvConverterPage() {
             </label>
 
             <button
-              onClick={copyText}
+              onClick={copyOutput}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
 
-          {xlsxSheets.length ? (
-            <div className="mb-3 flex flex-wrap gap-2">
-              {xlsxSheets.map((sheet) => {
-                const active = sheet.name === activeSheetName;
-                return (
-                  <button
-                    key={sheet.name}
-                    onClick={() => selectSheet(sheet.name)}
-                    className={[
-                      "rounded-xl px-3 py-2 text-xs font-semibold transition",
-                      active
-                        ? "bg-violet-600 text-white"
-                        : "border border-white/10 text-slate-200 hover:bg-white/10",
-                    ].join(" ")}
-                  >
-                    {sheet.name}
-                  </button>
-                );
-              })}
-            </div>
-          ) : null}
-
           <textarea
+            readOnly
             value={output}
-            onChange={(event) => setOutput(event.target.value)}
-            placeholder="Converted output will appear here..."
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            placeholder="Output will appear here..."
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
           />
         </div>
       </div>
@@ -344,35 +369,37 @@ export default function ExcelCsvConverterPage() {
       <div className="mt-5 flex flex-wrap gap-3">
         <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
           <Upload className="h-4 w-4" />
-          Upload CSV / XLSX
+          Upload CSV
           <input
             type="file"
-            accept=".csv,text/csv,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-            onChange={uploadFile}
+            accept=".csv,text/csv"
+            onChange={uploadCsv}
             className="hidden"
           />
         </label>
 
-         <button
-          onClick={excelToCsv}
+        <button
+          onClick={convertCsvToExcel}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
-           CSV to Excel
+          <Wand2 className="h-4 w-4" />
+          CSV to Excel
         </button>
 
         <button
-          onClick={excelToCsv}
+          onClick={convertExcelHtmlToCsv}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
-          Excel to CSV
+          <FileSpreadsheet className="h-4 w-4" />
+          Excel HTML to CSV
         </button>
 
         <button
-          onClick={downloadXlsx}
+          onClick={downloadExcel}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
-          Download XLSX
+          Download XLS
         </button>
 
         <button
@@ -391,6 +418,7 @@ export default function ExcelCsvConverterPage() {
           Clear
         </button>
       </div>
+      <HowToUseSection />
     </Container>
   );
 }

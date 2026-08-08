@@ -450,7 +450,7 @@ export default function FileSharePage() {
 
       <HowToUse
         title="How to use Upload & Share"
-        subtitle="Securely share images, PDFs, text files, documents, and ZIP files. Unsafe executable files are blocked."
+        subtitle=""
         steps={[
           {
             title: "Choose allowed file",

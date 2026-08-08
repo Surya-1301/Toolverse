@@ -1,7 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Download, Eraser, Upload } from "lucide-react";
+import {
+  Check,
+  Copy,
+  Download,
+  Eraser,
+  FileJson,
+  RefreshCw,
+  Table2,
+  Upload,
+  Wand2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 type CsvRow = Record<string, string>;
@@ -80,12 +90,18 @@ function jsonToCsvValue(json: string) {
     return "";
   }
 
-  if (!rows.every((row) => row && typeof row === "object" && !Array.isArray(row))) {
+  if (
+    !rows.every(
+      (row) => row && typeof row === "object" && !Array.isArray(row),
+    )
+  ) {
     throw new Error("JSON must be an object or an array of objects.");
   }
 
   const objectRows = rows as Array<Record<string, unknown>>;
-  const headers = Array.from(new Set(objectRows.flatMap((row) => Object.keys(row))));
+  const headers = Array.from(
+    new Set(objectRows.flatMap((row) => Object.keys(row))),
+  );
 
   return [
     headers.map(escapeCsvCell).join(","),
@@ -93,6 +109,68 @@ function jsonToCsvValue(json: string) {
       headers.map((header) => escapeCsvCell(row[header])).join(","),
     ),
   ].join("\n");
+}
+
+const howToUseSteps = [
+  {
+    title: "Paste or upload",
+    description: "Paste CSV/JSON text or upload a CSV file from your device.",
+    icon: <Upload className="h-5 w-5" />,
+  },
+  {
+    title: "Choose direction",
+    description: "Select CSV to JSON or JSON to CSV based on your input.",
+    icon: <RefreshCw className="h-5 w-5" />,
+  },
+  {
+    title: "Convert data",
+    description: "Generate structured JSON or clean CSV output instantly.",
+    icon: <Wand2 className="h-5 w-5" />,
+  },
+  {
+    title: "Review output",
+    description: "Check the converted data inside the output editor.",
+    icon: <FileJson className="h-5 w-5" />,
+  },
+  {
+    title: "Copy/download",
+    description: "Copy the output or download it as JSON or CSV.",
+    icon: <Download className="h-5 w-5" />,
+  },
+  {
+    title: "Clear editor",
+    description: "Reset the tool when you want to convert another file.",
+    icon: <Eraser className="h-5 w-5" />,
+  },
+];
+
+function HowToUseSection() {
+  return (
+    <section className="mt-14">
+      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        How to use CSV ↔ JSON Converter
+      </h2>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+          >
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              {step.icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function CsvJsonConverterPage() {
@@ -115,7 +193,11 @@ export default function CsvJsonConverterPage() {
       setOutput(JSON.stringify(converted, null, 2));
     } catch (caughtError) {
       setOutput("");
-      setError(caughtError instanceof Error ? caughtError.message : "Invalid CSV input.");
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Invalid CSV input.",
+      );
     }
   }
 
@@ -132,7 +214,11 @@ export default function CsvJsonConverterPage() {
       setOutput(jsonToCsvValue(input));
     } catch (caughtError) {
       setOutput("");
-      setError(caughtError instanceof Error ? caughtError.message : "Invalid JSON input.");
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : "Invalid JSON input.",
+      );
     }
   }
 
@@ -163,7 +249,9 @@ export default function CsvJsonConverterPage() {
   function downloadOutput() {
     if (!output) return;
 
-    const isJson = output.trim().startsWith("[") || output.trim().startsWith("{");
+    const isJson =
+      output.trim().startsWith("[") || output.trim().startsWith("{");
+
     const blob = new Blob([output], {
       type: isJson ? "application/json" : "text/csv",
     });
@@ -210,7 +298,7 @@ export default function CsvJsonConverterPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Paste CSV or JSON here..."
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
           />
         </div>
 
@@ -224,7 +312,11 @@ export default function CsvJsonConverterPage() {
               onClick={copyOutput}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
@@ -233,7 +325,7 @@ export default function CsvJsonConverterPage() {
             readOnly
             value={output}
             placeholder="Output will appear here..."
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
           />
         </div>
       </div>
@@ -260,6 +352,7 @@ export default function CsvJsonConverterPage() {
           onClick={csvToJson}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+          <Wand2 className="h-4 w-4" />
           CSV to JSON
         </button>
 
@@ -267,6 +360,7 @@ export default function CsvJsonConverterPage() {
           onClick={jsonToCsv}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+          <Table2 className="h-4 w-4" />
           JSON to CSV
         </button>
 
@@ -286,6 +380,8 @@ export default function CsvJsonConverterPage() {
           Clear
         </button>
       </div>
+
+      <HowToUseSection />
     </Container>
   );
 }

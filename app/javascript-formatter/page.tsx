@@ -1,7 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Copy, Eraser, Wand2 } from "lucide-react";
+import {
+  Check,
+  Code2,
+  Copy,
+  Eraser,
+  FileCode2,
+  Minimize2,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 function removeJsComments(value: string) {
@@ -39,6 +48,68 @@ function minifyJsCode(value: string) {
     .replace(/\s+/g, " ")
     .replace(/\s*([{}()[\];,:=+\-*/<>])\s*/g, "$1")
     .trim();
+}
+
+const howToUseSteps = [
+  {
+    title: "Paste JavaScript",
+    description: "Add your JavaScript code into the input editor.",
+    icon: <FileCode2 className="h-5 w-5" />,
+  },
+  {
+    title: "Beautify code",
+    description: "Use Beautify JS to format your code into readable lines.",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    title: "Minify JS",
+    description: "Use Minify JS to remove comments, spaces, and line breaks.",
+    icon: <Minimize2 className="h-5 w-5" />,
+  },
+  {
+    title: "Review output",
+    description: "Check the formatted or minified JavaScript in the output box.",
+    icon: <Code2 className="h-5 w-5" />,
+  },
+  {
+    title: "Copy result",
+    description: "Copy the processed JavaScript output to your clipboard.",
+    icon: <Copy className="h-5 w-5" />,
+  },
+  {
+    title: "Clear editor",
+    description: "Reset the input and output areas when you want to start over.",
+    icon: <Eraser className="h-5 w-5" />,
+  },
+];
+
+function HowToUseSection() {
+  return (
+    <section className="mt-14">
+      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        How to use JavaScript Formatter / Minifier
+      </h2>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+          >
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              {step.icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function JavascriptFormatterPage() {
@@ -108,7 +179,11 @@ export default function JavascriptFormatterPage() {
               onClick={copyOutput}
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Copy className="h-4 w-4" />
+              )}
               {copied ? "Copied" : "Copy"}
             </button>
           </div>
@@ -127,6 +202,7 @@ export default function JavascriptFormatterPage() {
           onClick={formatJs}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+          <Wand2 className="h-4 w-4" />
           Beautify JS
         </button>
 
@@ -134,6 +210,7 @@ export default function JavascriptFormatterPage() {
           onClick={minifyJs}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
+          <Minimize2 className="h-4 w-4" />
           Minify JS
         </button>
 
@@ -145,6 +222,8 @@ export default function JavascriptFormatterPage() {
           Clear
         </button>
       </div>
+
+      <HowToUseSection />
     </Container>
   );
 }

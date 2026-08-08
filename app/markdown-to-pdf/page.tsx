@@ -1,7 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, Eraser } from "lucide-react";
+import {
+  Download,
+  Eraser,
+  Eye,
+  FileDown,
+  FileText,
+  Keyboard,
+  Sparkles,
+} from "lucide-react";
 import { Container } from "@/components/Container";
 
 function escapeHtml(value: string) {
@@ -23,6 +31,7 @@ function markdownToHtml(markdown: string) {
     .split(/\r?\n/)
     .map((line) => {
       const heading = line.match(/^(#{1,6})\s+(.*)$/);
+
       if (heading) {
         const level = heading[1].length;
         return `<h${level}>${inlineMarkdown(heading[2])}</h${level}>`;
@@ -33,16 +42,78 @@ function markdownToHtml(markdown: string) {
       }
 
       if (!line.trim()) return "<br />";
+
       return `<p>${inlineMarkdown(line)}</p>`;
     })
     .join("\n");
+}
+
+const howToUseSteps = [
+  {
+    title: "Write Markdown",
+    description: "Type or paste Markdown content into the editor.",
+    icon: <Keyboard className="h-5 w-5" />,
+  },
+  {
+    title: "Use formatting",
+    description: "Add headings, bold text, italic text, code, and lists.",
+    icon: <FileText className="h-5 w-5" />,
+  },
+  {
+    title: "Preview output",
+    description: "Check the rendered preview before creating your PDF.",
+    icon: <Eye className="h-5 w-5" />,
+  },
+  {
+    title: "Generate PDF",
+    description: "Click Download PDF to open the browser print dialog.",
+    icon: <Sparkles className="h-5 w-5" />,
+  },
+  {
+    title: "Save file",
+    description: "Choose Save as PDF from your browser print options.",
+    icon: <FileDown className="h-5 w-5" />,
+  },
+  {
+    title: "Clear editor",
+    description: "Reset the editor when you want to start a new document.",
+    icon: <Eraser className="h-5 w-5" />,
+  },
+];
+
+function HowToUseSection() {
+  return (
+    <section className="mt-14">
+      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        How to use Markdown to PDF
+      </h2>
+
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+          >
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+              {step.icon}
+            </div>
+
+            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+
+            <p className="mt-3 text-sm leading-6 text-slate-400">
+              {step.description}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
 }
 
 export default function MarkdownToPdfPage() {
   const [input, setInput] = useState("");
 
   const html = useMemo(() => markdownToHtml(input), [input]);
-  const hasOutput = input.trim().length > 0;
 
   function downloadPdf() {
     const win = window.open("", "_blank");
@@ -108,8 +179,8 @@ export default function MarkdownToPdfPage() {
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            placeholder="Paste Markdown here..."
             className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            placeholder="Write Markdown here..."
           />
         </div>
 
@@ -118,26 +189,17 @@ export default function MarkdownToPdfPage() {
             Live preview
           </label>
 
-          <div className="relative min-h-[460px] rounded-2xl border border-white/10 bg-slate-950 p-6 text-slate-200">
-            {!hasOutput ? (
-              <div className="absolute inset-0 flex items-start justify-start p-6">
-                <span className="text-sm text-slate-500">
-                  Output will appear here...
-                </span>
-              </div>
-            ) : null}
-
-            {hasOutput ? (
-              <div dangerouslySetInnerHTML={{ __html: html }} />
-            ) : null}
-          </div>
+          <div
+            className="min-h-[460px] rounded-2xl border border-white/10 bg-slate-950 p-6 text-slate-200"
+            dangerouslySetInnerHTML={{ __html: html }}
+          />
         </div>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
         <button
           onClick={downloadPdf}
-          className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
           Download PDF
@@ -151,6 +213,8 @@ export default function MarkdownToPdfPage() {
           Clear
         </button>
       </div>
+
+      <HowToUseSection />
     </Container>
   );
 }
