@@ -18,13 +18,14 @@ export function ToolCard({
   status = "live",
 }: ToolCardProps) {
   const isLive = status === "live";
+  const isExternal = /^https?:\/\//i.test(href);
 
   const content = (
     <div
       className={cn(
         "group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5 transition duration-200",
         isLive &&
-          "hover:-translate-y-1 hover:border-violet-500/60 hover:bg-white/[0.06] hover:shadow-2xl hover:shadow-violet-950/30"
+          "hover:-translate-y-1 hover:border-violet-500/60 hover:bg-white/[0.06] hover:shadow-2xl hover:shadow-violet-950/30",
       )}
     >
       <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent opacity-0 transition group-hover:opacity-100" />
@@ -39,7 +40,7 @@ export function ToolCard({
             "rounded-full px-2.5 py-1 text-xs",
             isLive
               ? "bg-emerald-500/10 text-emerald-300"
-              : "bg-amber-500/10 text-amber-300"
+              : "bg-amber-500/10 text-amber-300",
           )}
         >
           {isLive ? "Live" : "Coming soon"}
@@ -54,14 +55,14 @@ export function ToolCard({
       <div
         className={cn(
           "mt-5 flex items-center gap-2 text-sm font-medium",
-          isLive ? "text-violet-300" : "text-slate-500"
+          isLive ? "text-violet-300" : "text-slate-500",
         )}
       >
         {isLive ? "Open tool" : "Launching soon"}
         <ArrowRight
           className={cn(
             "h-4 w-4 transition",
-            isLive && "group-hover:translate-x-1"
+            isLive && "group-hover:translate-x-1",
           )}
         />
       </div>
@@ -72,5 +73,19 @@ export function ToolCard({
     return <div className="cursor-not-allowed opacity-70">{content}</div>;
   }
 
-  return <Link href={href}>{content}</Link>;
+  // External tool (like PDF Editor) opens in new tab
+  if (isExternal) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className="block">
+        {content}
+      </a>
+    );
+  }
+
+  // Internal tool (conversion/formatter pages) navigates normally
+  return (
+    <Link href={href} className="block">
+      {content}
+    </Link>
+  );
 }
