@@ -126,7 +126,10 @@ export default function FileSharePage() {
        * and size even though the uploaded bytes are now encrypted.
        */
       formData.append("originalName", file.name);
-      formData.append("originalMimeType", file.type || "application/octet-stream");
+      formData.append(
+        "originalMimeType",
+        file.type || "application/octet-stream",
+      );
       formData.append("originalSize", String(file.size));
 
       formData.append("encrypted", "true");
@@ -447,23 +450,24 @@ export default function FileSharePage() {
 
       <HowToUse
         title="How to use Upload & Share"
-        subtitle=""
+        subtitle="Securely share images, PDFs, text files, documents, and ZIP files. Unsafe executable files are blocked."
         steps={[
           {
-            title: "Choose content",
-            description: "Select an allowed image, PDF, text, document, or ZIP file.",
+            title: "Choose allowed file",
+            description:
+              "Upload images up to 25 MB, PDFs up to 50 MB, or text/docs/ZIP files up to 100 MB.",
             icon: <Upload className="h-5 w-5" />,
           },
           {
-            title: "Upload",
+            title: "Encrypted upload",
             description:
-              "Your browser validates, encrypts, then uploads encrypted bytes.",
+              "Your browser checks the file, creates a random AES-GCM key, and uploads only encrypted bytes.",
             icon: <LockKeyhole className="h-5 w-5" />,
           },
           {
-            title: "Share full link",
+            title: "Share securely",
             description:
-              "Send the generated user link so recipients can decrypt it.",
+              "Copy the generated share link. Anyone with that full link can open and decrypt the file.",
             icon: <Copy className="h-5 w-5" />,
           },
         ]}

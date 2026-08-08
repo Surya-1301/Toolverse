@@ -19,18 +19,18 @@ const tools = [
     icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },
-{
-    title: "Image & PDF Compressor",
-    description: "Compress images and PDF files with simple quality controls.",
-    href: "/image-compressor",
-    icon: <ImageDown className="h-6 w-6" />,
-    status: "live" as const,
-  },
   {
     title: "Upload & Share",
     description: "Upload images or files and get temporary shareable links.",
     href: "/file-share",
     icon: <FileUp className="h-6 w-6" />,
+    status: "live" as const,
+  },
+{
+    title: "Image & PDF Compressor",
+    description: "Compress images and PDF files with simple quality controls.",
+    href: "/image-compressor",
+    icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
   {
