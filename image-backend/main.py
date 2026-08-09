@@ -1,11 +1,10 @@
 import os
 import uuid
-from io import BytesIO
 
+import requests
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
-from PIL import Image, UnidentifiedImageError
 
 
 app = FastAPI(
@@ -40,27 +39,13 @@ ALLOWED_CONTENT_TYPES = {
     "image/webp",
 }
 
-rembg_session = None
-
-
-def get_rembg_session():
-    global rembg_session
-
-    if rembg_session is None:
-        from rembg import new_session
-
-        # u2netp is much lighter than the default u2net model and works better
-        # on small Render instances. The session is cached after first use.
-        rembg_session = new_session("u2netp")
-
-    return rembg_session
-
 
 @app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {
         "ok": True,
         "service": "Toolverse Image API",
+        "provider": "remove.bg",
         "routes": [
             "/ping",
             "/healthz",
@@ -93,7 +78,8 @@ def health():
         "ok": True,
         "status": "healthy",
         "service": "Toolverse Image API",
-        "model": "u2netp",
+        "provider": "remove.bg",
+        "hasApiKey": bool(os.getenv("REMOVEBG_API_KEY")),
         "routes": [
             "/ping",
             "/healthz",
@@ -105,6 +91,14 @@ def health():
 
 @app.post("/api/image/remove-background")
 async def remove_background(file: UploadFile = File(...)):
+    api_key = os.getenv("REMOVEBG_API_KEY")
+
+    if not api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="REMOVEBG_API_KEY is missing on the backend.",
+        )
+
     if not file:
         raise HTTPException(status_code=400, detail="No image file uploaded.")
 
@@ -126,35 +120,50 @@ async def remove_background(file: UploadFile = File(...)):
         )
 
     try:
-        input_image = Image.open(BytesIO(file_bytes)).convert("RGBA")
-    except UnidentifiedImageError:
+        remove_bg_response = requests.post(
+            "https://api.remove.bg/v1.0/removebg",
+            files={
+                "image_file": (
+                    file.filename or "image.png",
+                    file_bytes,
+                    file.content_type or "application/octet-stream",
+                )
+            },
+            data={
+                "size": "auto",
+                "format": "png",
+            },
+            headers={
+                "X-Api-Key": api_key,
+            },
+            timeout=60,
+        )
+    except requests.RequestException as error:
         raise HTTPException(
-            status_code=400,
-            detail="Could not read this image. Please upload a valid image.",
+            status_code=502,
+            detail=f"Could not reach remove.bg API: {str(error)}",
         )
 
-    try:
-        # Lazy import keeps server startup fast for Render port detection.
-        from rembg import remove
+    if remove_bg_response.status_code != requests.codes.ok:
+        try:
+            error_message = remove_bg_response.json().get("errors", [{}])[0].get(
+                "title",
+                remove_bg_response.text,
+            )
+        except Exception:
+            error_message = remove_bg_response.text
 
-        session = get_rembg_session()
-        output_image = remove(input_image, session=session)
-    except Exception as error:
         raise HTTPException(
-            status_code=500,
-            detail=f"Background removal failed: {str(error)}",
+            status_code=remove_bg_response.status_code,
+            detail=f"remove.bg failed: {error_message}",
         )
-
-    output_buffer = BytesIO()
-    output_image.save(output_buffer, format="PNG")
-    output_buffer.seek(0)
 
     original_name = file.filename or f"image-{uuid.uuid4()}.png"
     safe_name = os.path.splitext(original_name)[0]
     output_name = f"{safe_name}-no-bg.png"
 
     return Response(
-        content=output_buffer.getvalue(),
+        content=remove_bg_response.content,
         media_type="image/png",
         headers={
             "Content-Disposition": f'attachment; filename="{output_name}"',
