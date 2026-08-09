@@ -13,10 +13,17 @@ import {
 import { Container } from "@/components/Container";
 
 function getImageApiBaseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_IMAGE_API_BASE_URL?.replace(/\/$/, "") ||
-    "http://localhost:10000"
-  );
+  const envUrl = process.env.NEXT_PUBLIC_IMAGE_API_BASE_URL;
+
+  if (envUrl && envUrl.trim()) {
+    return envUrl.replace(/\/$/, "");
+  }
+
+  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+    return "http://localhost:10000";
+  }
+
+  return "";
 }
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -128,6 +135,15 @@ export default function BackgroundRemoverPage() {
       return;
     }
 
+    const apiBaseUrl = getImageApiBaseUrl();
+
+    if (!apiBaseUrl) {
+      setError(
+        "Image API URL is missing. Add NEXT_PUBLIC_IMAGE_API_BASE_URL in Cloudflare Pages and redeploy.",
+      );
+      return;
+    }
+
     try {
       setError("");
       setIsProcessing(true);
@@ -142,7 +158,7 @@ export default function BackgroundRemoverPage() {
       formData.append("file", file);
 
       const response = await fetch(
-        `${getImageApiBaseUrl()}/api/image/remove-background`,
+        `${apiBaseUrl}/api/image/remove-background`,
         {
           method: "POST",
           body: formData,
@@ -156,8 +172,12 @@ export default function BackgroundRemoverPage() {
           const data = await response.json();
           message = data?.detail || data?.error || message;
         } catch {
-          const text = await response.text();
-          message = text || message;
+          try {
+            const text = await response.text();
+            message = text || message;
+          } catch {
+            // keep default message
+          }
         }
 
         throw new Error(message);
@@ -176,11 +196,15 @@ export default function BackgroundRemoverPage() {
     } catch (caughtError) {
       setResultBlob(null);
       setOutputPreview("");
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : "Could not remove background. Please try again.",
-      );
+
+      const message =
+        caughtError instanceof TypeError
+          ? "Could not reach the image backend. Check Render URL, CORS, and Cloudflare NEXT_PUBLIC_IMAGE_API_BASE_URL."
+          : caughtError instanceof Error
+            ? caughtError.message
+            : "Could not remove background. Please try again.";
+
+      setError(message);
     } finally {
       setIsProcessing(false);
     }
