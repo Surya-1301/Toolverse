@@ -231,10 +231,6 @@ export default function BackgroundRemoverPage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300 ring-1 ring-violet-400/20">
-          <ImagePlus className="h-8 w-8" />
-        </div>
-
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Background Remover
         </h1>

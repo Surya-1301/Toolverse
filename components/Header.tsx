@@ -12,8 +12,8 @@ const navLinks = [
     { href: "/image-compressor", label: "Compress" },
     { href: "/paste", label: "Paste" },
     { href: "/url-shortener", label: "Shorten" },
-    { href: "/conversion", label: "Conversion tools" },
-    { href: "/image-tools", label: "Image tools" },
+    { href: "/tools/conversion-tools", label: "Conversion tools" },
+    { href: "/tools/image-tools", label: "Image tools" },
 ];
 
 export function Header() {
