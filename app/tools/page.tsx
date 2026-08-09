@@ -87,6 +87,13 @@ const categoryCards = [
     icon: <ImagePlus className="h-6 w-6" />,
      status: "live" as const,
   },
+  {
+  title: "Text & Developer Tools",
+  description:
+    "Generate UUIDs, passwords, hashes, Base64, JWTs, regex matches, timestamps, URLs, and colors.",
+  href: "/tools/text-developer-tools",
+  icon: <Code2 className="h-6 w-6" />,
+},
 ];
 
 function CategoryToolCard({
