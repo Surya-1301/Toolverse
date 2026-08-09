@@ -48,9 +48,28 @@ def root():
         "ok": True,
         "service": "Toolverse Image API",
         "routes": [
+            "/ping",
+            "/healthz",
             "/health",
             "/api/image/remove-background",
         ],
+    }
+
+
+@app.get("/ping")
+def ping():
+    return {
+        "ok": True,
+        "status": "up",
+    }
+
+
+@app.get("/healthz")
+def healthz():
+    return {
+        "ok": True,
+        "status": "healthy",
+        "service": "Toolverse Image API",
     }
 
 
@@ -58,7 +77,14 @@ def root():
 def health():
     return {
         "ok": True,
+        "status": "healthy",
         "service": "Toolverse Image API",
+        "routes": [
+            "/ping",
+            "/healthz",
+            "/health",
+            "/api/image/remove-background",
+        ],
     }
 
 
