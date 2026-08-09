@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import {
+  ArrowLeft,
   Check,
   Copy,
   Eraser,
@@ -19,6 +21,18 @@ import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 import { encryptFileWithRandomKey } from "@/lib/clientEncryption";
 import { getUploadKind, validateUploadForSharing } from "@/lib/uploadValidators";
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
+}
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -237,6 +251,7 @@ export default function FileSharePage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Upload & Share

@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import imageCompression from "browser-image-compression";
 import {
+  ArrowLeft,
   Download,
   Eraser,
   FileText,
@@ -15,6 +17,18 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchPdfApi } from "@/lib/apiBase";
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
+}
 
 type Mode = "image" | "pdf";
 
@@ -232,6 +246,7 @@ export default function ImageCompressorPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image & PDF Compressor

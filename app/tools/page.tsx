@@ -17,6 +17,9 @@ import { Container } from "../../components/Container";
 import { ToolCard } from "../../components/ToolCard";
 
 const popularTools = [
+  // -----------------------------
+  // Existing popular tools
+  // -----------------------------
   {
     title: "PDF Editor",
     description:
@@ -27,39 +30,90 @@ const popularTools = [
   },
   {
     title: "Upload & Share",
-    description: "Upload images or files and get temporary shareable links.",
+    description:
+      "Upload images or files and get temporary shareable links.",
     href: "/file-share",
     icon: <FileUp className="h-6 w-6" />,
     status: "live" as const,
   },
   {
     title: "Image & PDF Compressor",
-    description: "Compress images and PDF files with simple quality controls.",
+    description:
+      "Compress images and PDF files with simple quality controls.",
     href: "/image-compressor",
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
   {
     title: "Paste",
-    description: "Share text and code snippets with quick, clean links.",
+    description:
+      "Share text and code snippets with quick, clean links.",
     href: "/paste",
     icon: <Text className="h-6 w-6" />,
     status: "live" as const,
   },
   {
     title: "URL Shortener",
-    description: "Turn long URLs into short, memorable links.",
+    description:
+      "Turn long URLs into short, memorable links.",
     href: "/url-shortener",
     icon: <Link2 className="h-6 w-6" />,
     status: "live" as const,
   },
+   {
+    title: "Background Remover",
+    description:
+      "Remove image backgrounds and download transparent PNG files.",
+    href: "/background-remover",
+    icon: <ImagePlus className="h-6 w-6" />,
+    status: "live" as const,
+  },
+
+
+  // -----------------------------
+  // Image tools
+  // -----------------------------
   {
+    title: "Image Converter",
+    description:
+      "Convert PNG, JPG, and WebP images directly in your browser.",
+    href: "/image-converter",
+    icon: <ImageDown className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "Image Resizer",
+    description:
+      "Resize single or multiple images with aspect ratio and quality controls.",
+    href: "/image-resizer",
+    icon: <ImageDown className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "Image Cropper",
+    description:
+      "Crop images by coordinates and download the cropped result.",
+    href: "/image-cropper",
+    icon: <ImagePlus className="h-6 w-6" />,
+    status: "live" as const,
+  },
+  {
+    title: "Image Watermark",
+    description:
+      "Add text or logo watermarks with position, opacity, and batch support.",
+    href: "/image-watermark-tool",
+    icon: <ImagePlus className="h-6 w-6" />,
+    status: "live" as const,
+  },
+    {
     title: "QR Generator",
-    description: "Create downloadable QR codes for links, text, and files.",
+    description:
+      "Create downloadable QR codes for links, text, and files.",
     href: "/qr-generator",
     icon: <QrCode className="h-6 w-6" />,
     status: "live" as const,
   },
+ 
 ];
 
 const categoryCards = [
@@ -69,7 +123,7 @@ const categoryCards = [
       "Convert Markdown, HTML, YAML, JSON, CSV, and Excel-compatible files.",
     href: "/tools/conversion-tools",
     icon: <FileCode2 className="h-6 w-6" />,
-     status: "live" as const,
+    status: "live" as const,
   },
   {
     title: "Formatter & Minifier",
@@ -77,23 +131,16 @@ const categoryCards = [
       "Format, validate, minify, clean, and copy developer-friendly code outputs.",
     href: "/tools/formatter-tools",
     icon: <Code2 className="h-6 w-6" />,
-     status: "live" as const,
+    status: "live" as const,
   },
   {
-    title: "Image Tools",
+    title: "Text & Developer Tools",
     description:
-      "Convert, resize, crop, watermark, and remove backgrounds from images.",
-    href: "/tools/image-tools",
-    icon: <ImagePlus className="h-6 w-6" />,
-     status: "live" as const,
+      "Generate UUIDs, passwords, hashes, Base64, JWTs, regex matches, timestamps, URLs, and colors.",
+    href: "/tools/text-developer-tools",
+    icon: <Code2 className="h-6 w-6" />,
+    status: "live" as const,
   },
-  {
-  title: "Text & Developer Tools",
-  description:
-    "Generate UUIDs, passwords, hashes, Base64, JWTs, regex matches, timestamps, URLs, and colors.",
-  href: "/tools/text-developer-tools",
-  icon: <Code2 className="h-6 w-6" />,
-},
 ];
 
 function CategoryToolCard({
@@ -122,7 +169,9 @@ function CategoryToolCard({
         </span>
       </div>
 
-      <h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>
+      <h2 className="text-xl font-bold tracking-tight text-white">
+        {title}
+      </h2>
 
       <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400">
         {description}
@@ -135,11 +184,12 @@ function CategoryToolCard({
     </Link>
   );
 }
+
 export default function ToolsPage() {
   return (
     <Container className="py-12 sm:py-16">
+      {/* Page Header */}
       <div className="mx-auto max-w-3xl text-center">
-
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Explore all tools
         </h1>
@@ -151,6 +201,7 @@ export default function ToolsPage() {
         </p>
       </div>
 
+      {/* Popular Tools */}
       <section className="mt-12">
         <div className="mb-5">
           <h2 className="text-2xl font-bold tracking-tight text-white">
@@ -158,13 +209,17 @@ export default function ToolsPage() {
           </h2>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {popularTools.map((tool) => (
-            <ToolCard key={tool.title} {...tool} />
+            <ToolCard
+              key={tool.title}
+              {...tool}
+            />
           ))}
         </div>
       </section>
 
+      {/* Tool Categories */}
       <section className="mt-14">
         <div className="mb-5">
           <h2 className="text-2xl font-bold tracking-tight text-white">
@@ -174,7 +229,10 @@ export default function ToolsPage() {
 
         <div className="grid gap-6 lg:grid-cols-3">
           {categoryCards.map((category) => (
-            <CategoryToolCard key={category.title} {...category} />
+            <CategoryToolCard
+              key={category.title}
+              {...category}
+            />
           ))}
         </div>
       </section>
