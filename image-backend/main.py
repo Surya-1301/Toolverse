@@ -40,6 +40,21 @@ ALLOWED_CONTENT_TYPES = {
     "image/webp",
 }
 
+rembg_session = None
+
+
+def get_rembg_session():
+    global rembg_session
+
+    if rembg_session is None:
+        from rembg import new_session
+
+        # u2netp is much lighter than the default u2net model and works better
+        # on small Render instances. The session is cached after first use.
+        rembg_session = new_session("u2netp")
+
+    return rembg_session
+
 
 @app.api_route("/", methods=["GET", "HEAD"])
 def root():
@@ -78,6 +93,7 @@ def health():
         "ok": True,
         "status": "healthy",
         "service": "Toolverse Image API",
+        "model": "u2netp",
         "routes": [
             "/ping",
             "/healthz",
@@ -118,11 +134,11 @@ async def remove_background(file: UploadFile = File(...)):
         )
 
     try:
-        # Lazy import keeps the server startup fast for Render port detection
-        # and avoids loading the background-removal model for health checks.
+        # Lazy import keeps server startup fast for Render port detection.
         from rembg import remove
 
-        output_image = remove(input_image)
+        session = get_rembg_session()
+        output_image = remove(input_image, session=session)
     except Exception as error:
         raise HTTPException(
             status_code=500,
