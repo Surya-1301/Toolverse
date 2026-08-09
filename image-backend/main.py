@@ -6,7 +6,6 @@ from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 from PIL import Image, UnidentifiedImageError
-from rembg import remove
 
 
 app = FastAPI(
@@ -28,7 +27,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=False,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "OPTIONS", "HEAD"],
     allow_headers=["*"],
 )
 
@@ -42,7 +41,7 @@ ALLOWED_CONTENT_TYPES = {
 }
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
     return {
         "ok": True,
@@ -56,7 +55,7 @@ def root():
     }
 
 
-@app.get("/ping")
+@app.api_route("/ping", methods=["GET", "HEAD"])
 def ping():
     return {
         "ok": True,
@@ -64,7 +63,7 @@ def ping():
     }
 
 
-@app.get("/healthz")
+@app.api_route("/healthz", methods=["GET", "HEAD"])
 def healthz():
     return {
         "ok": True,
@@ -73,7 +72,7 @@ def healthz():
     }
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "HEAD"])
 def health():
     return {
         "ok": True,
@@ -119,6 +118,10 @@ async def remove_background(file: UploadFile = File(...)):
         )
 
     try:
+        # Lazy import keeps the server startup fast for Render port detection
+        # and avoids loading the background-removal model for health checks.
+        from rembg import remove
+
         output_image = remove(input_image)
     except Exception as error:
         raise HTTPException(
