@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Download,
   Eraser,
   FileImage,
@@ -31,6 +33,18 @@ function baseName(file: File | null) {
 }
 
 type OutputFormat = "image/png" | "image/jpeg" | "image/webp";
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/image-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
+}
 
 const howToUseSteps = [
   {
@@ -228,14 +242,15 @@ export default function ImageConverterPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Converter
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Convert PNG, JPG, and WebP images in your browser. HEIC can be added
-          later with backend support.
+          Convert PNG, JPG, and WebP images in your browser.
         </p>
       </div>
 

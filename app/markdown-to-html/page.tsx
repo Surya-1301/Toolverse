@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Check,
-  Code2,
   Copy,
   Download,
   Eraser,
@@ -81,6 +82,18 @@ function markdownToHtml(markdown: string) {
   }
 
   return html.trim();
+}
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/conversion-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
 }
 
 const howToUseSteps = [
@@ -177,6 +190,8 @@ export default function MarkdownToHtmlPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Markdown to HTML
@@ -197,7 +212,7 @@ export default function MarkdownToHtmlPage() {
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
             placeholder="Paste Markdown here..."
           />
         </div>
@@ -208,29 +223,31 @@ export default function MarkdownToHtmlPage() {
               HTML output
             </label>
 
-            <button
-              onClick={copyOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
-            >
-              {copied ? (
-                <Check className="h-4 w-4" />
-              ) : (
-                <Copy className="h-4 w-4" />
-              )}
-              {copied ? "Copied" : "Copy"}
-            </button>
+           
           </div>
 
           <textarea
             readOnly
             value={output}
-            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
+            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
             placeholder="HTML output will appear here..."
           />
         </div>
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
+        <button
+          onClick={copyOutput}
+          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+        >
+          {copied ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+          {copied ? "Copied" : "Copy HTML"}
+        </button>
+
         <button
           onClick={downloadHtml}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Download,
   Eraser,
   ImageDown,
@@ -34,6 +36,18 @@ function getImageExtension(file: File) {
   if (file.type.includes("png")) return "png";
   if (file.type.includes("webp")) return "webp";
   return "jpg";
+}
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/image-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
 }
 
 const howToUseSteps = [
@@ -248,6 +262,8 @@ export default function ImageResizerPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Resizer

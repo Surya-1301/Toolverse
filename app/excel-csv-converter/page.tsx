@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Check,
   Copy,
   Download,
@@ -124,6 +126,18 @@ function htmlTableToCsv(html: string) {
         .join(",");
     })
     .join("\n");
+}
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/conversion-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
 }
 
 const howToUseSteps = [
@@ -307,6 +321,8 @@ export default function ExcelCsvConverterPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Excel to CSV / CSV to Excel
@@ -328,7 +344,7 @@ export default function ExcelCsvConverterPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Paste CSV or an HTML table here..."
-            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[440px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
           />
         </div>
 

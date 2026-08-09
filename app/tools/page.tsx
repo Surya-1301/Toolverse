@@ -103,32 +103,31 @@ function CategoryToolCard({
   return (
     <Link
       href={href}
-      className="group block rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05]"
+      className="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05]"
     >
-      <div className="mb-8 flex items-start justify-between gap-4">
-        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
           {icon}
         </div>
 
-        <span className="rounded-full bg-emerald-500/10 px-5 py-2 text-base font-semibold text-emerald-300">
+        <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-semibold text-emerald-300">
           Live
         </span>
       </div>
 
-      <h2 className="text-3xl font-bold tracking-tight text-white">{title}</h2>
+      <h2 className="text-xl font-bold tracking-tight text-white">{title}</h2>
 
-      <p className="mt-5 min-h-[108px] text-xl leading-9 text-slate-400">
+      <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400">
         {description}
       </p>
 
-      <div className="mt-8 inline-flex items-center gap-3 text-xl font-semibold text-violet-200">
+      <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-200">
         View tools
-        <ArrowRight className="h-6 w-6 transition group-hover:translate-x-1" />
+        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
       </div>
     </Link>
   );
 }
-
 export default function ToolsPage() {
   return (
     <Container className="py-12 sm:py-16">
@@ -150,10 +149,6 @@ export default function ToolsPage() {
           <h2 className="text-2xl font-bold tracking-tight text-white">
             Popular tools
           </h2>
-
-          <p className="mt-2 text-sm text-slate-400">
-            Quick access to your most used utilities.
-          </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -168,10 +163,6 @@ export default function ToolsPage() {
           <h2 className="text-2xl font-bold tracking-tight text-white">
             Tool categories
           </h2>
-
-          <p className="mt-2 text-sm text-slate-400">
-            Click a category card to open related tools.
-          </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-3">

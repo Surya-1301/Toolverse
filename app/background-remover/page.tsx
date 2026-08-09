@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Download,
   Eraser,
   ImageDown,
@@ -42,6 +44,18 @@ function downloadBlob(blob: Blob, filename: string) {
 
 function baseName(file: File | null) {
   return (file?.name || "image").replace(/\.[^/.]+$/, "");
+}
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/image-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
 }
 
 const howToUseSteps = [
@@ -139,7 +153,7 @@ export default function BackgroundRemoverPage() {
 
     if (!apiBaseUrl) {
       setError(
-        "Image API URL is missing. Add NEXT_PUBLIC_IMAGE_API_BASE_URL in Cloudflare Pages and redeploy.",
+        "Image API URL is missing. Add NEXT_PUBLIC_IMAGE_API_BASE_URL and redeploy.",
       );
       return;
     }
@@ -157,13 +171,21 @@ export default function BackgroundRemoverPage() {
       const formData = new FormData();
       formData.append("file", file);
 
+      const controller = new AbortController();
+      const timeoutId = window.setTimeout(() => {
+        controller.abort();
+      }, 120000);
+
       const response = await fetch(
         `${apiBaseUrl}/api/image/remove-background`,
         {
           method: "POST",
           body: formData,
+          signal: controller.signal,
         },
       );
+
+      window.clearTimeout(timeoutId);
 
       if (!response.ok) {
         let message = "Background removal failed. Please try another image.";
@@ -198,11 +220,13 @@ export default function BackgroundRemoverPage() {
       setOutputPreview("");
 
       const message =
-        caughtError instanceof TypeError
-          ? "Could not reach the image backend. Check Render URL, CORS, and Cloudflare NEXT_PUBLIC_IMAGE_API_BASE_URL."
-          : caughtError instanceof Error
-            ? caughtError.message
-            : "Could not remove background. Please try again.";
+        caughtError instanceof DOMException && caughtError.name === "AbortError"
+          ? "Background removal timed out. Please try again with a smaller or clearer image."
+          : caughtError instanceof TypeError
+            ? "Could not reach the image backend. Check Render URL, CORS, and NEXT_PUBLIC_IMAGE_API_BASE_URL."
+            : caughtError instanceof Error
+              ? caughtError.message
+              : "Could not remove background. Please try again.";
 
       setError(message);
     } finally {
@@ -230,6 +254,8 @@ export default function BackgroundRemoverPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Background Remover

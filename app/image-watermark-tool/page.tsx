@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Download,
   Eraser,
   ImageDown,
@@ -36,6 +38,18 @@ type WatermarkPosition =
   | "center"
   | "bottom-left"
   | "bottom-right";
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/image-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
+}
 
 const howToUseSteps = [
   {
@@ -358,6 +372,8 @@ export default function ImageWatermarkToolPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Watermark
@@ -535,6 +551,7 @@ export default function ImageWatermarkToolPage() {
                 <span className="font-semibold text-slate-300">File:</span>{" "}
                 {firstFile.name}
               </p>
+
               <p className="mt-1">
                 <span className="font-semibold text-slate-300">Mode:</span>{" "}
                 {useLogo ? "Logo watermark" : "Text watermark"}

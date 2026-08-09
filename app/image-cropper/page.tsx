@@ -1,7 +1,9 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Crop,
   Download,
   Eraser,
@@ -31,6 +33,18 @@ function baseName(file: File | null) {
 }
 
 type AspectRatio = "1:1" | "4:3" | "16:9" | "9:16";
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/image-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
+}
 
 const howToUseSteps = [
   {
@@ -258,6 +272,8 @@ export default function ImageCropperPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Cropper

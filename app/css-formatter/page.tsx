@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import {
+  ArrowLeft,
   Check,
   Code2,
   Copy,
@@ -51,6 +53,18 @@ function minifyCssCode(value: string) {
     .replace(/\s*([{}:;,])\s*/g, "$1")
     .replace(/;}/g, "}")
     .trim();
+}
+
+function BackToToolsLink() {
+  return (
+    <Link
+      href="/tools/formatter-tools"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+    >
+      <ArrowLeft className="h-4 w-4" />
+      Back to tools
+    </Link>
+  );
 }
 
 const howToUseSteps = [
@@ -151,6 +165,8 @@ export default function CssFormatterPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <BackToToolsLink />
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           CSS Formatter / Minifier
@@ -198,7 +214,7 @@ export default function CssFormatterPage() {
             readOnly
             value={output}
             placeholder="Output will appear here..."
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[440px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
           />
         </div>
       </div>
@@ -216,7 +232,7 @@ export default function CssFormatterPage() {
           onClick={minifyCss}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
-       <Minimize2 className="h-4 w-4" />
+          <Minimize2 className="h-4 w-4" />
           Minify CSS
         </button>
 
