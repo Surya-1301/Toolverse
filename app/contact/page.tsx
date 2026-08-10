@@ -1,11 +1,12 @@
-import type { Metadata } from "next";
+"use client";
+
+import { useEffect, useState, type FormEvent } from "react";
 import Link from "next/link";
 import {
   Bug,
   Clock,
   FileQuestion,
   Flag,
-  HelpCircle,
   LifeBuoy,
   Mail,
   MessageSquare,
@@ -13,12 +14,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Container } from "@/components/Container";
-
-export const metadata: Metadata = {
-  title: "Contact | Toolverse",
-  description:
-    "Contact Toolverse for support, feedback, bug reports, partnerships, or content-related questions.",
-};
 
 const contactOptions = [
   {
@@ -68,7 +63,66 @@ const responseNotes = [
   },
 ];
 
+const SUPPORT_EMAIL = "support.toolversee@gmail.com";
+
 export default function ContactPage() {
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+  const [status, setStatus] = useState("");
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    document.title = "Contact | Toolverse";
+  }, []);
+
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setStatus("");
+    setError("");
+
+    const name = form.name.trim();
+    const email = form.email.trim();
+    const subject = form.subject.trim();
+    const message = form.message.trim();
+
+    if (!name || !email || !subject || !message) {
+      setError("Please complete all fields before continuing.");
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+
+    const body = [
+      "TOOLVERSE CONTACT REQUEST",
+      "========================================",
+      "",
+      `Name: ${name}`,
+      `Email: ${email}`,
+      `Subject: ${subject}`,
+      "",
+      "Message:",
+      message,
+      "",
+      "========================================",
+      "Sent from the Toolverse Contact page.",
+    ].join("\n");
+
+    const mailto =
+      `mailto:${SUPPORT_EMAIL}` +
+      `?subject=${encodeURIComponent(`[Toolverse Contact] ${subject}`)}` +
+      `&body=${encodeURIComponent(body)}`;
+
+    setStatus("Your email application is opening. Review the message and click Send to complete delivery.");
+    window.location.href = mailto;
+  }
+
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-5xl">
@@ -172,6 +226,101 @@ export default function ContactPage() {
           })}
         </div>
 
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+              <Mail className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-white">
+                Send us a message
+              </h2>
+              <p className="mt-1 text-sm text-slate-400">
+                Clicking Send opens your email app with the message prepared.
+              </p>
+            </div>
+          </div>
+
+          {error && (
+            <div className="mb-5 rounded-2xl border border-red-400/20 bg-red-500/10 p-4 text-sm text-red-200">
+              {error}
+            </div>
+          )}
+
+          {status && (
+            <div className="mb-5 flex items-start gap-3 rounded-2xl border border-emerald-400/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+              <span className="mt-0.5">✓</span>
+              <span>{status}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <div>
+                <label htmlFor="contact-name" className="mb-2 block text-sm font-medium text-slate-200">
+                  Name
+                </label>
+                <input
+                  id="contact-name"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="contact-email" className="mb-2 block text-sm font-medium text-slate-200">
+                  Email
+                </label>
+                <input
+                  id="contact-email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+                  placeholder="you@example.com"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="contact-subject" className="mb-2 block text-sm font-medium text-slate-200">
+                Subject
+              </label>
+              <input
+                id="contact-subject"
+                value={form.subject}
+                onChange={(e) => setForm({ ...form, subject: e.target.value })}
+                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+                placeholder="How can we help?"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="contact-message" className="mb-2 block text-sm font-medium text-slate-200">
+                Message
+              </label>
+              <textarea
+                id="contact-message"
+                rows={7}
+                value={form.message}
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
+                className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+                placeholder="Describe your question, feedback, or issue..."
+              />
+            </div>
+
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+            >
+              <Mail className="h-4 w-4" />
+              Open Email to Send
+            </button>
+          </form>
+        </section>
+
         <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
           <p className="font-semibold text-white">Need to report abuse?</p>
           <p className="mt-2 text-violet-100/80">
@@ -182,7 +331,7 @@ export default function ContactPage() {
 
           <Link
             href="/report-abuse"
-            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="mt-4 inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
           >
             <Flag className="h-4 w-4" />
             Report abuse

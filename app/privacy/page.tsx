@@ -1,239 +1,432 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import {
   AlertTriangle,
-  BarChart3,
-  Clock,
+  CheckCircle2,
   Database,
-  EyeOff,
   FileText,
-  Globe,
+  KeyRound,
   LockKeyhole,
   Mail,
+  Scale,
   Server,
+  ShieldAlert,
   ShieldCheck,
-  Trash2,
+  UserCheck,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Toolverse",
   description:
-    "Read the Toolverse Privacy Policy to understand how our browser-first tools, uploads, logs, and shared content are handled.",
+    "Toolverse Privacy Policy explaining how personal data is collected, used, protected, stored, and deleted in accordance with applicable law.",
 };
 
-const lastUpdated = "July 31, 2026";
+const lastUpdated = "August 10, 2026";
+
+const supportEmail = "support.toolversee@gmail.com";
+
+/* ==========================================================================
+   PRIVACY HIGHLIGHTS
+   ========================================================================== */
 
 const highlights = [
   {
-    title: "Browser-first by design",
+    title: "Privacy-First",
     description:
-      "Where possible, tools process your input locally in your browser instead of sending it to our servers.",
+      "Many Toolverse tools are designed to process content directly in your browser whenever server processing is not required.",
     icon: ShieldCheck,
   },
   {
-    title: "No account required",
+    title: "DPDP Aligned",
     description:
-      "Most tools can be used without creating an account or providing personal details.",
-    icon: LockKeyhole,
+      "Our privacy practices are designed with the Digital Personal Data Protection Act, 2023 and applicable DPDP Rules in mind.",
+    icon: Scale,
   },
   {
-    title: "Shared content is intentional",
+    title: "Your Privacy Rights",
     description:
-      "Uploads, pastes, shortened links, and shared files may be stored only when needed to provide a shareable link.",
-    icon: Globe,
+      "Subject to applicable law, you may request access, correction, erasure, consent withdrawal, or grievance redressal.",
+    icon: UserCheck,
   },
 ];
 
+/* ==========================================================================
+   PRIVACY POLICY SECTIONS
+   ========================================================================== */
+
 const sections = [
   {
-    title: "1. Overview",
+    number: "01",
+    title: "Introduction",
     icon: FileText,
     content: [
-      "Toolverse provides lightweight online utilities for formatting, generating, compressing, uploading, sharing, and shortening content.",
-      "This Privacy Policy explains what information may be processed when you use Toolverse, how that information is used, and the choices you have.",
-      "By using Toolverse, you agree to the practices described in this policy.",
+      "Toolverse provides online utilities for working with PDFs, files, images, text, links, and other digital content.",
+      "This Privacy Policy explains how Toolverse may process personal data when you visit or use the website, use our tools, upload or share content, contact us, or submit a privacy or abuse report.",
+      "Toolverse aims to process personal data in a lawful, fair, transparent, and purpose-limited manner.",
+      "For users in India, this policy is intended to address the Digital Personal Data Protection Act, 2023 (DPDP Act) and the Digital Personal Data Protection Rules, 2025 (DPDP Rules), to the extent applicable and in force.",
     ],
   },
+
   {
-    title: "2. Browser-first tools",
-    icon: ShieldCheck,
-    content: [
-      "Many Toolverse tools are designed to work directly in your browser. Examples may include JSON formatting, QR generation, image compression, and similar utilities.",
-      "When a tool runs locally, your input is processed on your device and is not uploaded to our servers for that processing.",
-      "Some features require server processing or storage to work, such as creating public links, hosting images, sharing files, saving pastes, or shortening URLs.",
-    ],
-  },
-  {
-    title: "3. Information you provide",
+    number: "02",
+    title: "Personal Data We Collect",
     icon: Database,
     content: [
-      "You may provide content when using features such as Paste, Upload & Share, Image Host, File Share, URL Shortener, or similar tools.",
-      "Depending on the feature, submitted content may include text, URLs, images, PDFs, files, metadata such as file names and file sizes, and related technical details.",
-      "We use this information only to provide the requested tool functionality, such as generating a shareable page, storing a temporary file, or serving a download link.",
+      "The type of personal data processed depends on the Toolverse feature you use.",
+      "We may process information such as your name, email address, contact information, technical information, device information, IP or network information, timestamps, diagnostic information, and information you voluntarily provide.",
+      "If you use file-sharing or hosting features, the information may include files, PDFs, images, text, URLs, filenames, file sizes, expiry settings, and related identifiers.",
+      "We aim to collect and process only the information reasonably necessary for the relevant purpose.",
+      "You should not submit passwords, authentication codes, financial credentials, Aadhaar numbers, PAN numbers, medical records, or other highly sensitive information unless it is genuinely necessary.",
     ],
   },
+
   {
-    title: "4. Uploaded and shared content",
-    icon: Server,
+    number: "03",
+    title: "How We Use Personal Data",
+    icon: CheckCircle2,
     content: [
-      "When you upload or share content, that content may be stored so Toolverse can make it available through the generated link.",
-      "Anyone with a public share link may be able to view or download the content, depending on the tool used.",
-      "You should avoid uploading sensitive, confidential, private, or legally restricted content unless you are comfortable with the access model shown by the tool.",
+      "Toolverse may process personal data to provide and operate requested services.",
+      "We may use information to respond to support requests, privacy requests, and abuse reports.",
+      "We may also process technical information for security, fraud prevention, troubleshooting, service reliability, performance monitoring, and improvement.",
+      "Where consent is required, Toolverse aims to obtain consent for a specific and informed purpose.",
+      "Personal data will not intentionally be used for unrelated purposes unless another lawful basis or applicable legal requirement permits the processing.",
     ],
   },
+
   {
-    title: "5. Logs and analytics",
-    icon: BarChart3,
+    number: "04",
+    title: "Browser-First Processing",
+    icon: ShieldCheck,
     content: [
-      "We may collect basic technical information to operate, secure, and improve Toolverse.",
-      "This may include browser type, device type, referring page, approximate location derived from network information, pages visited, timestamps, error logs, and performance data.",
-      "We use this information to monitor reliability, troubleshoot issues, understand usage patterns, prevent abuse, and improve the service.",
+      "Many Toolverse utilities are designed to perform processing directly in your browser.",
+      "When a feature operates entirely in your browser, the content entered into that feature may remain on your device and may not be transmitted to Toolverse.",
+      "However, some services require server-side processing. This can include file sharing, image hosting, paste sharing, URL shortening, or other link-based services.",
+      "The actual processing method depends on the particular Toolverse feature you use.",
+      "Where server-side processing is required, the relevant content may be transmitted to and processed by Toolverse infrastructure or service providers used to operate the feature.",
     ],
   },
+
   {
-    title: "6. Cookies and local storage",
-    icon: EyeOff,
+    number: "05",
+    title: "Consent, Notice & Your Choices",
+    icon: KeyRound,
     content: [
-      "Toolverse may use cookies, local storage, or similar browser technologies to remember preferences, support tool functionality, improve performance, or maintain basic session behavior.",
-      "You can usually control cookies and local storage through your browser settings.",
-      "Disabling these technologies may affect how some tools work.",
+      "Where processing is based on consent, Toolverse aims to obtain consent through a clear affirmative action for a specified purpose.",
+      "Where applicable, you may withdraw consent using the method provided by Toolverse or by contacting us.",
+      "Withdrawal of consent does not affect processing that was lawfully carried out before withdrawal.",
+      "If a particular feature requires personal data to function, withdrawing consent may prevent continued use of that feature.",
+      "Where applicable law requires a privacy notice, Toolverse aims to explain what personal data is being requested, why it is required, and how you can exercise applicable rights.",
     ],
   },
+
   {
-    title: "7. Retention and expiry",
-    icon: Clock,
+    number: "06",
+    title: "Your Privacy Rights",
+    icon: UserCheck,
     content: [
-      "Some shared content may include an expiry option. When content expires, Toolverse may remove it or make it unavailable.",
-      "We may also delete inactive, expired, abusive, illegal, or unsupported content at any time.",
-      "Local browser-first tool inputs are generally not retained by us unless a feature explicitly requires upload, storage, or link generation.",
+      "Subject to applicable law and its conditions, you may have rights concerning your personal data.",
+      "These may include requesting access to information about processing, correction or completion of inaccurate personal data, and erasure of personal data where legally applicable.",
+      "Where processing is based on consent, you may also have the ability to withdraw that consent.",
+      "You may submit a privacy grievance if you believe your personal data has been processed improperly.",
+      "Where applicable, you may also exercise other rights available to a Data Principal under the DPDP framework.",
+      "Toolverse may require reasonable information to verify a request before disclosing, correcting, or deleting personal data.",
     ],
   },
+
   {
-    title: "8. Security",
+    number: "07",
+    title: "Security & Data Breaches",
     icon: LockKeyhole,
     content: [
-      "We use reasonable technical and organizational measures to protect Toolverse and the data needed to operate it.",
-      "No online service can guarantee absolute security, so you should use caution when uploading or sharing content.",
-      "If you believe you found a security issue or abusive content, please report it using the Report Abuse or Contact links.",
+      "Toolverse uses reasonable technical and organisational measures appropriate to the risks associated with the personal data it processes.",
+      "Security measures may include access controls, authentication controls, encryption or other protective technologies, monitoring, logging, backups, software maintenance, and security procedures.",
+      "No internet service can guarantee absolute security, so users should avoid submitting unnecessary sensitive information.",
+      "If Toolverse becomes aware of a personal data breach, we will take appropriate steps to investigate, contain, mitigate, and remediate the incident.",
+      "Where required by applicable law, Toolverse will provide notifications to the relevant authority and affected Data Principals in the manner and within the timelines prescribed by law.",
     ],
   },
+
   {
-    title: "9. Abuse prevention",
-    icon: AlertTriangle,
+    number: "08",
+    title: "Storage, Sharing & Retention",
+    icon: Server,
     content: [
-      "We may review, restrict, remove, or block content or activity that appears abusive, harmful, illegal, spammy, malicious, or in violation of our terms.",
-      "We may use technical signals, reports, and logs to investigate abuse and protect the service and its users.",
-      "Public sharing tools should not be used to distribute malware, phishing pages, illegal material, private data without permission, or harmful content.",
+      "Some Toolverse features require content to be stored on servers so that a shareable link or other service can be provided.",
+      "If you intentionally create a public or shareable resource, people who obtain the relevant link may be able to access the information depending on the feature.",
+      "You are responsible for ensuring that you have the necessary rights and permissions to upload or share content.",
+      "Toolverse does not intend to retain personal data indefinitely.",
+      "Information may be retained for as long as reasonably necessary for the purpose for which it was collected, security, fraud prevention, dispute resolution, legal compliance, or other lawful purposes.",
+      "Where applicable, shared files or content may automatically expire and be deleted according to the feature's retention settings.",
     ],
   },
+
   {
-    title: "10. Your choices",
-    icon: Trash2,
+    number: "09",
+    title: "Children, Third Parties & Legal Compliance",
+    icon: Scale,
     content: [
-      "You can choose not to use tools that require uploading or storing content.",
-      "Where expiry settings are available, you can choose a shorter retention period.",
-      "If you need help with content removal or privacy-related questions, contact us using the contact information below.",
+      "Where the DPDP Act provisions relating to children apply, Toolverse will handle children's personal data subject to the applicable statutory requirements.",
+      "Toolverse will not knowingly undertake prohibited tracking, behavioural monitoring, or targeted advertising involving children where such conduct is restricted by applicable law.",
+      "Toolverse may use third-party infrastructure or service providers for hosting, storage, security, analytics, communication, or other operational purposes.",
+      "Where third parties process personal data on behalf of Toolverse, appropriate contractual and technical safeguards are intended to be used as required by applicable law.",
+      "Toolverse may disclose information where necessary to comply with applicable law, lawful government requests, court orders, security requirements, fraud prevention, or enforcement of its Terms of Use.",
+      "Third-party websites and services linked from Toolverse operate under their own privacy policies.",
     ],
   },
+
   {
-    title: "11. Changes to this policy",
-    icon: FileText,
-    content: [
-      "We may update this Privacy Policy from time to time to reflect changes in our tools, practices, legal requirements, or operational needs.",
-      "When we make changes, we will update the “Last updated” date on this page.",
-      "Your continued use of Toolverse after changes are posted means you accept the updated policy.",
-    ],
-  },
-  {
-    title: "12. Contact",
+    number: "10",
+    title: "Privacy Requests, Grievances & Contact",
     icon: Mail,
     content: [
-      "If you have questions about this Privacy Policy, want to report an issue, or need help with content removal, please contact Toolverse through the Contact or Report Abuse pages.",
+      "You can contact Toolverse regarding personal-data access, correction, deletion, consent withdrawal, privacy concerns, or grievances.",
+      `Privacy requests may be sent to ${supportEmail}.`,
+      "When submitting a privacy request, provide enough information for Toolverse to understand and process the request, but do not unnecessarily include sensitive personal information.",
+      "Toolverse may request reasonable identity verification before acting on a privacy request.",
+      "We aim to handle privacy requests and grievances according to applicable law and the applicable provisions of the DPDP Act and DPDP Rules.",
+      "If applicable law provides a statutory escalation or complaint mechanism, your right to use that mechanism remains unaffected.",
+      "Toolverse may update this Privacy Policy when its services, data practices, security measures, or legal obligations change.",
     ],
   },
 ];
+
+/* ==========================================================================
+   PAGE
+   ========================================================================== */
 
 export default function PrivacyPage() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-5xl">
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div>
-              <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
-                Legal
-              </p>
 
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
-                Privacy Policy
-              </h1>
+        {/* ================================================================
+            HEADER
+        ================================================================ */}
 
-              <p className="mt-4 text-base text-slate-400">
-                Last updated: {lastUpdated}
-              </p>
-            </div>
+        <header className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8">
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm">
-              Toolverse is built around simple, fast, privacy-conscious tools.
-              This policy explains when data stays in your browser and when it
-              may be stored to power sharing features.
-            </div>
+          <div>
+            <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
+              Privacy & Data Protection
+            </p>
+
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+              Privacy Policy
+            </h1>
+
+            <p className="mt-4 text-base text-slate-400">
+              Last updated: {lastUpdated}
+            </p>
           </div>
 
+          {/* ================================================================
+              PRIVACY HIGHLIGHTS
+          ================================================================ */}
+
           <div className="mt-8 grid gap-4 md:grid-cols-3">
+
             {highlights.map((item) => {
               const Icon = item.icon;
 
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition duration-200 hover:border-violet-400/20 hover:bg-slate-950/70"
                 >
+
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                     <Icon className="h-5 w-5" />
                   </div>
 
-                  <h2 className="text-sm font-semibold text-white">
+                  <h2 className="text-base font-semibold text-white">
                     {item.title}
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-400">
                     {item.description}
                   </p>
+
                 </div>
               );
             })}
-          </div>
-        </div>
 
-        <div className="mt-8 space-y-5">
+          </div>
+
+        </header>
+
+        {/* ================================================================
+            DPDP NOTICE
+        ================================================================ */}
+
+        <section className="mt-8 rounded-3xl border border-blue-400/10 bg-blue-500/[0.04] p-6 sm:p-7">
+
+          <div className="flex items-start gap-4">
+
+            <Scale className="mt-1 h-6 w-6 shrink-0 text-blue-400" />
+
+            <div>
+
+              <h2 className="text-lg font-semibold text-white">
+                Digital Personal Data Protection
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                Toolverse is designed with the principles of the Digital
+                Personal Data Protection Act, 2023 and the Digital Personal
+                Data Protection Rules, 2025 in mind. The Act and Rules have
+                phased commencement provisions, so statutory rights,
+                obligations, procedures, and timelines apply to the extent
+                that the relevant provisions are in force and applicable to
+                the processing concerned.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* ================================================================
+            10 PRIVACY POINTS
+        ================================================================ */}
+
+        <main className="mt-8 space-y-5">
+
           {sections.map((section) => {
             const Icon = section.icon;
 
             return (
               <section
-                key={section.title}
-                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7"
+                key={section.number}
+                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-violet-400/20 sm:p-8"
               >
-                <div className="mb-5 flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
-                    <Icon className="h-5 w-5" />
+
+                <div className="flex items-start gap-4">
+
+                  {/* Number */}
+
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-600/15 text-sm font-bold text-violet-300 ring-1 ring-violet-400/20">
+                    {section.number}
                   </div>
 
-                  <h2 className="text-xl font-semibold tracking-tight text-white">
-                    {section.title}
-                  </h2>
+                  <div className="min-w-0 flex-1">
+
+                    {/* Heading */}
+
+                    <div className="flex items-center gap-3">
+
+                      <Icon className="h-5 w-5 shrink-0 text-violet-300" />
+
+                      <h2 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                        {section.title}
+                      </h2>
+
+                    </div>
+
+                    {/* Content */}
+
+                    <div className="mt-5 space-y-3">
+
+                      {section.content.map((paragraph, index) => (
+                        <div
+                          key={`${section.number}-${index}`}
+                          className="flex items-start gap-3"
+                        >
+
+                          <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-violet-400" />
+
+                          <p className="text-sm leading-7 text-slate-300 sm:text-base">
+                            {paragraph}
+                          </p>
+
+                        </div>
+                      ))}
+
+                    </div>
+
+                  </div>
+
                 </div>
 
-                <div className="space-y-3 text-base leading-8 text-slate-300">
-                  {section.content.map((paragraph) => (
-                    <p key={paragraph}>{paragraph}</p>
-                  ))}
-                </div>
               </section>
             );
           })}
-        </div>
+
+        </main>
+
+        {/* ================================================================
+            PRIVACY REQUEST BOX
+        ================================================================ */}
+
+        <section className="mt-8 rounded-3xl border border-violet-400/10 bg-violet-500/[0.04] p-6 sm:p-8">
+
+          <div className="flex items-start gap-4">
+
+            <UserCheck className="mt-1 h-6 w-6 shrink-0 text-violet-300" />
+
+            <div>
+
+              <h2 className="text-xl font-bold text-white">
+                Need to make a privacy request?
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-slate-300">
+                You can contact Toolverse for privacy questions, personal-data
+                requests, consent withdrawal, corrections, deletion requests,
+                or privacy grievances.
+              </p>
+
+              <div className="mt-5 flex flex-wrap gap-3">
+
+                <Link
+                  href="/contact"
+                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                >
+                  <Mail className="h-4 w-4" />
+                  Contact Toolverse
+                </Link>
+
+                <Link
+                  href="/report-abuse"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                >
+                  <ShieldAlert className="h-4 w-4" />
+                  Report Abuse
+                </Link>
+
+              </div>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* ================================================================
+            LEGAL NOTICE
+        ================================================================ */}
+
+        <footer className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+
+          <div className="flex items-start gap-3">
+
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
+
+            <p className="text-xs leading-6 text-slate-500">
+              This Privacy Policy describes Toolverse&apos;s intended privacy
+              practices and should be read together with the Terms of Use.
+              It does not constitute legal advice. The applicability of
+              particular provisions of the Digital Personal Data Protection
+              Act, 2023 and Digital Personal Data Protection Rules, 2025 may
+              depend on their commencement, the nature of the processing, and
+              other requirements under applicable law.
+            </p>
+
+          </div>
+
+        </footer>
+
       </div>
     </Container>
   );
