@@ -68,7 +68,31 @@ function HowToUseSection() {
         How to use JSON Formatter
       </h2>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Mobile: compact horizontal cards with cyan theme. */}
+      <div className="mt-8 space-y-4 sm:hidden">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="flex items-center gap-4 rounded-2xl border border-[#123f52] bg-[#0a0f21] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          >
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#0d536b] bg-[#092b40] text-[#63e5f7] shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
+              {step.icon}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h3 className="text-sm font-semibold leading-5 text-[#f4fbff]">
+                {step.title}
+              </h3>
+              <p className="mt-1 text-xs leading-5 text-[#8fa9b8]">
+                {step.description}
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop/tablet: preserve the original card layout. */}
+      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {howToUseSteps.map((step) => (
           <div
             key={step.title}

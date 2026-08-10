@@ -425,42 +425,113 @@ function UrlShortenerContent() {
         </div>
       </div>
 
-      <HowToUse
-        title="How to use URL Shortener"
-        subtitle=""
-        steps={[
-          {
-            title: "Paste URL",
-            description: "Enter a long URL to shorten.",
-            icon: <Link2 className="h-5 w-5" />,
-          },
-          {
-            title: "Choose alias",
-            description: "Optionally set a custom short slug.",
-            icon: <Link2 className="h-5 w-5" />,
-          },
-          {
-            title: "Set expiry",
-            description: "Choose how long the short link stays active.",
-            icon: <Clock className="h-5 w-5" />,
-          },
-          {
-            title: "Shorten",
-            description: "Create the short URL instantly.",
-            icon: <Send className="h-5 w-5" />,
-          },
-          {
-            title: "Copy link",
-            description: "Copy and share the generated short URL.",
-            icon: <Copy className="h-5 w-5" />,
-          },
-          {
-            title: "Track clicks",
-            description: "Refresh to see the latest click count.",
-            icon: <BarChart3 className="h-5 w-5" />,
-          },
-        ]}
-      />
+      {/* Desktop/tablet: keep the existing HowToUse layout. */}
+      <div className="hidden md:block">
+        <HowToUse
+          title="How to use URL Shortener"
+          subtitle=""
+          steps={[
+            {
+              title: "Paste URL",
+              description: "Enter a long URL to shorten.",
+              icon: <Link2 className="h-5 w-5" />,
+            },
+            {
+              title: "Choose alias",
+              description: "Optionally set a custom short slug.",
+              icon: <Link2 className="h-5 w-5" />,
+            },
+            {
+              title: "Set expiry",
+              description: "Choose how long the short link stays active.",
+              icon: <Clock className="h-5 w-5" />,
+            },
+            {
+              title: "Shorten",
+              description: "Create the short URL instantly.",
+              icon: <Send className="h-5 w-5" />,
+            },
+            {
+              title: "Copy link",
+              description: "Copy and share the generated short URL.",
+              icon: <Copy className="h-5 w-5" />,
+            },
+            {
+              title: "Track clicks",
+              description: "Refresh to see the latest click count.",
+              icon: <BarChart3 className="h-5 w-5" />,
+            },
+          ]}
+        />
+      </div>
+
+      {/* Mobile only: icon on the left, title and description on the right. */}
+      <section
+        className="mt-10 md:hidden"
+        aria-labelledby="mobile-how-to-use-title"
+      >
+        <div className="mx-auto max-w-xl">
+          <h2
+            id="mobile-how-to-use-title"
+            className="text-center text-2xl font-bold tracking-tight text-white"
+          >
+How to use URL Shortener
+          </h2>
+
+          <div className="mt-6 space-y-3">
+            {[
+              {
+                title: "Paste URL",
+                description: "Enter a long URL to shorten.",
+                icon: <Link2 className="h-5 w-5" />,
+              },
+              {
+                title: "Choose alias",
+                description: "Optionally set a custom short slug.",
+                icon: <Link2 className="h-5 w-5" />,
+              },
+              {
+                title: "Set expiry",
+                description: "Choose how long the short link stays active.",
+                icon: <Clock className="h-5 w-5" />,
+              },
+              {
+                title: "Shorten",
+                description: "Create the short URL instantly.",
+                icon: <Send className="h-5 w-5" />,
+              },
+              {
+                title: "Copy link",
+                description: "Copy and share the generated short URL.",
+                icon: <Copy className="h-5 w-5" />,
+              },
+              {
+                title: "Track clicks",
+                description: "Refresh to see the latest click count.",
+                icon: <BarChart3 className="h-5 w-5" />,
+              },
+            ].map((step) => (
+              <div
+                key={step.title}
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
+                  {step.icon}
+                </div>
+
+                <div className="min-w-0 flex-1 text-left">
+                  <h3 className="text-sm font-semibold text-white">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </Container>
   );
 }

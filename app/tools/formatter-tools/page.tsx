@@ -6,19 +6,19 @@ import { Container } from "@/components/Container";
 
 const tools = [
   {
-    title: "HTML Formatter / Minifier",
+    title: "HTML Formatter",
     description: "Format, minify, validate tags, and copy HTML output.",
     href: "/html-formatter",
     icon: <FileCode2 className="h-6 w-6" />,
   },
   {
-    title: "CSS Formatter / Minifier",
+    title: "CSS Formatter",
     description: "Format CSS, minify styles, remove comments, and copy output.",
     href: "/css-formatter",
     icon: <Code2 className="h-6 w-6" />,
   },
   {
-    title: "JavaScript Formatter / Minifier",
+    title: "JavaScript Formatter",
     description: "Beautify, format, minify, and copy JavaScript code.",
     href: "/javascript-formatter",
     icon: <Code2 className="h-6 w-6" />,

@@ -13,6 +13,8 @@ import {
   Upload,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+// PDF support requires: npm install pdf-lib
+import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -29,7 +31,121 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 function baseName(file: File | null) {
-  return (file?.name || "image").replace(/\.[^/.]+$/, "");
+  return (file?.name || "file").replace(/\.[^/.]+$/, "");
+}
+
+function isPdfFile(file: File) {
+  return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+}
+
+function isImageFile(file: File) {
+  return (
+    file.type === "image/png" ||
+    file.type === "image/jpeg" ||
+    file.type === "image/webp" ||
+    /\.(png|jpe?g|webp)$/i.test(file.name)
+  );
+}
+
+async function watermarkPdf(
+  file: File,
+  logoFile: File | null,
+  useLogo: boolean,
+  watermarkText: string,
+  position: WatermarkPosition,
+  opacity: number,
+) {
+  const pdfBytes = await file.arrayBuffer();
+  const pdfDoc = await PDFDocument.load(pdfBytes);
+  const pages = pdfDoc.getPages();
+
+  let logoImage:
+    | Awaited<ReturnType<typeof pdfDoc.embedPng>>
+    | Awaited<ReturnType<typeof pdfDoc.embedJpg>>
+    | null = null;
+
+  if (useLogo) {
+    if (!logoFile) {
+      throw new Error("Upload a logo image first.");
+    }
+
+    const logoBytes = await logoFile.arrayBuffer();
+
+    if (logoFile.type === "image/png" || /\.png$/i.test(logoFile.name)) {
+      logoImage = await pdfDoc.embedPng(logoBytes);
+    } else {
+      logoImage = await pdfDoc.embedJpg(logoBytes);
+    }
+  }
+
+  const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const opacityValue = Math.max(0.1, Math.min(1, opacity));
+
+  for (const page of pages) {
+    const { width, height } = page.getSize();
+
+    if (logoImage) {
+      const maxWidth = Math.max(60, width * 0.18);
+      const scale = Math.min(maxWidth / logoImage.width, maxWidth / logoImage.height);
+      const logoWidth = logoImage.width * scale;
+      const logoHeight = logoImage.height * scale;
+      const margin = 0;
+
+      let x = margin;
+      let y = margin;
+
+      if (position === "top-right" || position === "bottom-right") {
+        x = width - logoWidth - margin;
+      } else if (position === "center") {
+        x = (width - logoWidth) / 2;
+      }
+
+      if (position === "top-left" || position === "top-right") {
+        y = height - logoHeight - margin;
+      } else if (position === "center") {
+        y = (height - logoHeight) / 2;
+      }
+
+      page.drawImage(logoImage, {
+        x,
+        y,
+        width: logoWidth,
+        height: logoHeight,
+        opacity: opacityValue,
+      });
+    } else {
+      const text = watermarkText.trim() || "CONFIDENTIAL";
+      const fontSize = Math.max(18, Math.min(48, width / 18));
+      const textWidth = font.widthOfTextAtSize(text, fontSize);
+      const margin = 0;
+
+      let x = margin;
+      let y = margin;
+
+      if (position === "top-right" || position === "bottom-right") {
+        x = width - textWidth - margin;
+      } else if (position === "center") {
+        x = (width - textWidth) / 2;
+      }
+
+      if (position === "top-left" || position === "top-right") {
+        y = height - fontSize - margin;
+      } else if (position === "center") {
+        y = (height - fontSize) / 2;
+      }
+
+      page.drawText(text, {
+        x,
+        y,
+        size: fontSize,
+        font,
+        color: rgb(0, 0, 0),
+        opacity: opacityValue,
+      });
+    }
+  }
+
+  return await pdfDoc.save();
 }
 
 type WatermarkPosition =
@@ -88,10 +204,11 @@ function HowToUseSection() {
   return (
     <section className="mt-14">
       <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use Image Watermark
+        How to use How to use Image Watermark
       </h2>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Desktop / tablet layout — unchanged */}
+      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {howToUseSteps.map((step) => (
           <div
             key={step.title}
@@ -106,6 +223,30 @@ function HowToUseSection() {
             <p className="mt-3 text-sm leading-6 text-slate-400">
               {step.description}
             </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile-only cyan layout — icon left, content right */}
+      <div className="mt-6 grid gap-3 sm:hidden">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          >
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
+              {step.icon}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[14px] font-semibold leading-5 text-white">
+                {step.title}
+              </h3>
+
+              <p className="mt-1 text-[12px] leading-5 text-slate-400">
+                {step.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>
@@ -126,14 +267,27 @@ export default function ImageWatermarkToolPage() {
   const [error, setError] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
+  // PDF watermark settings. These mirror the image watermark controls.
+  const [useLogoForPdf, setUseLogoForPdf] = useState(false);
+  const [pdfWatermarkText, setPdfWatermarkText] = useState("Toolverse");
+  const [pdfPosition, setPdfPosition] =
+    useState<WatermarkPosition>("bottom-right");
+  const [pdfOpacity, setPdfOpacity] = useState(0.45);
+
   const firstFile = files[0] || null;
 
   function handleImages(event: React.ChangeEvent<HTMLInputElement>) {
-    const selectedFiles = Array.from(event.target.files || []);
+    const selectedFiles = Array.from(event.target.files || []).filter(
+      (file) => isImageFile(file) || isPdfFile(file),
+    );
 
     setFiles(selectedFiles);
     setPreviewUrl("");
-    setError("");
+    setError(
+      selectedFiles.length
+        ? ""
+        : "Choose PNG, JPG, WebP, or PDF files.",
+    );
 
     event.target.value = "";
   }
@@ -153,19 +307,19 @@ export default function ImageWatermarkToolPage() {
     contentWidth: number,
     contentHeight: number,
   ) {
-    const margin = 32;
-
+    // Edge-to-edge positioning: no padding between the watermark and
+    // the selected image edge.
     if (position === "top-left") {
       return {
-        x: margin,
-        y: margin + contentHeight,
+        x: 0,
+        y: contentHeight,
       };
     }
 
     if (position === "top-right") {
       return {
-        x: canvasWidth - contentWidth - margin,
-        y: margin + contentHeight,
+        x: canvasWidth - contentWidth,
+        y: contentHeight,
       };
     }
 
@@ -178,14 +332,14 @@ export default function ImageWatermarkToolPage() {
 
     if (position === "bottom-left") {
       return {
-        x: margin,
-        y: canvasHeight - margin,
+        x: 0,
+        y: canvasHeight,
       };
     }
 
     return {
-      x: canvasWidth - contentWidth - margin,
-      y: canvasHeight - margin,
+      x: canvasWidth - contentWidth,
+      y: canvasHeight,
     };
   }
 
@@ -249,13 +403,15 @@ export default function ImageWatermarkToolPage() {
       const fontSize = Math.max(28, Math.round(canvas.width / 18));
 
       ctx.font = `700 ${fontSize}px Arial`;
-      ctx.fillStyle = "#ffffff";
-      ctx.strokeStyle = "rgba(0, 0, 0, 0.45)";
+      ctx.fillStyle = "#000000";
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
       ctx.lineWidth = Math.max(2, Math.round(fontSize / 12));
 
       const metrics = ctx.measureText(watermarkText);
       const textWidth = metrics.width;
-      const textHeight = fontSize;
+      const textHeight =
+        (metrics.actualBoundingBoxAscent || fontSize * 0.8) +
+        (metrics.actualBoundingBoxDescent || fontSize * 0.2);
 
       const textPosition = getPosition(
         canvas.width,
@@ -264,8 +420,26 @@ export default function ImageWatermarkToolPage() {
         textHeight,
       );
 
-      ctx.strokeText(watermarkText, textPosition.x, textPosition.y);
-      ctx.fillText(watermarkText, textPosition.x, textPosition.y);
+      let textX = textPosition.x;
+      let textY = textPosition.y;
+
+      // Keep the visible glyphs inside the canvas while the watermark
+      // bounding box remains flush with the selected edge.
+      if (position === "top-left" || position === "top-right") {
+        textY = metrics.actualBoundingBoxAscent || fontSize * 0.8;
+      } else if (position === "bottom-left" || position === "bottom-right") {
+        textY =
+          canvas.height - (metrics.actualBoundingBoxDescent || fontSize * 0.2);
+      } else {
+        textY =
+          (canvas.height +
+            (metrics.actualBoundingBoxAscent || fontSize * 0.8) -
+            (metrics.actualBoundingBoxDescent || fontSize * 0.2)) /
+          2;
+      }
+
+      ctx.strokeText(watermarkText, textX, textY);
+      ctx.fillText(watermarkText, textX, textY);
     }
 
     return new Promise<Blob>((resolve, reject) => {
@@ -284,23 +458,62 @@ export default function ImageWatermarkToolPage() {
     });
   }
 
+  async function watermarkOnePdf(file: File) {
+    const pdfBytes = await watermarkPdf(
+      file,
+      logoFile,
+      useLogoForPdf,
+      pdfWatermarkText,
+      pdfPosition,
+      pdfOpacity,
+    );
+
+    // pdf-lib returns Uint8Array<ArrayBufferLike>. Copy it into a real
+    // ArrayBuffer so TypeScript accepts it as a BlobPart.
+    const pdfBuffer = new ArrayBuffer(pdfBytes.byteLength);
+    new Uint8Array(pdfBuffer).set(pdfBytes);
+
+    return new Blob([pdfBuffer], { type: "application/pdf" });
+  }
+
   async function generatePreview() {
     if (!firstFile) {
       setPreviewUrl("");
       return;
     }
 
-    if (useLogo && !logoFile) {
-      setPreviewUrl(URL.createObjectURL(firstFile));
-      return;
-    }
-
-    if (!useLogo && !watermarkText.trim()) {
-      setPreviewUrl(URL.createObjectURL(firstFile));
-      return;
-    }
-
     try {
+      if (isPdfFile(firstFile)) {
+        if (useLogoForPdf && !logoFile) {
+          setPreviewUrl("");
+          return;
+        }
+
+        if (!useLogoForPdf && !pdfWatermarkText.trim()) {
+          setPreviewUrl("");
+          return;
+        }
+
+        const blob = await watermarkOnePdf(firstFile);
+        const nextPreviewUrl = URL.createObjectURL(blob);
+
+        setPreviewUrl((oldUrl) => {
+          if (oldUrl) URL.revokeObjectURL(oldUrl);
+          return nextPreviewUrl;
+        });
+        return;
+      }
+
+      if (useLogo && !logoFile) {
+        setPreviewUrl(URL.createObjectURL(firstFile));
+        return;
+      }
+
+      if (!useLogo && !watermarkText.trim()) {
+        setPreviewUrl(URL.createObjectURL(firstFile));
+        return;
+      }
+
       const blob = await watermarkOneImage(firstFile);
       const nextPreviewUrl = URL.createObjectURL(blob);
 
@@ -309,7 +522,9 @@ export default function ImageWatermarkToolPage() {
         return nextPreviewUrl;
       });
     } catch {
-      setPreviewUrl(URL.createObjectURL(firstFile));
+      setPreviewUrl(
+        isPdfFile(firstFile) ? "" : URL.createObjectURL(firstFile),
+      );
     }
   }
 
@@ -320,21 +535,11 @@ export default function ImageWatermarkToolPage() {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [files, logoFile, watermarkText, position, opacity, useLogo]);
+  }, [files, logoFile, watermarkText, position, opacity, useLogo, pdfWatermarkText, pdfPosition, pdfOpacity, useLogoForPdf]);
 
   async function watermarkImages() {
     if (!files.length) {
-      setError("Upload one or more images first.");
-      return;
-    }
-
-    if (!useLogo && !watermarkText.trim()) {
-      setError("Enter watermark text first.");
-      return;
-    }
-
-    if (useLogo && !logoFile) {
-      setError("Upload a logo image first.");
+      setError("Upload one or more images or PDF files first.");
       return;
     }
 
@@ -343,15 +548,35 @@ export default function ImageWatermarkToolPage() {
       setIsProcessing(true);
 
       for (const file of files) {
-        const blob = await watermarkOneImage(file);
+        if (isPdfFile(file)) {
+          if (useLogoForPdf && !logoFile) {
+            throw new Error("Upload a logo image first for PDF watermarking.");
+          }
 
-        downloadBlob(blob, `${baseName(file)}-watermarked.png`);
+          if (!useLogoForPdf && !pdfWatermarkText.trim()) {
+            throw new Error("Enter PDF watermark text first.");
+          }
+
+          const blob = await watermarkOnePdf(file);
+          downloadBlob(blob, `${baseName(file)}-watermarked.pdf`);
+        } else {
+          if (useLogo && !logoFile) {
+            throw new Error("Upload a logo image first.");
+          }
+
+          if (!useLogo && !watermarkText.trim()) {
+            throw new Error("Enter watermark text first.");
+          }
+
+          const blob = await watermarkOneImage(file);
+          downloadBlob(blob, `${baseName(file)}-watermarked.png`);
+        }
       }
     } catch (caughtError) {
       setError(
         caughtError instanceof Error
           ? caughtError.message
-          : "Could not watermark images.",
+          : "Could not watermark the selected files.",
       );
     } finally {
       setIsProcessing(false);
@@ -365,6 +590,10 @@ export default function ImageWatermarkToolPage() {
     setPosition("bottom-right");
     setOpacity(0.45);
     setUseLogo(false);
+    setUseLogoForPdf(false);
+    setPdfWatermarkText("Toolverse");
+    setPdfPosition("bottom-right");
+    setPdfOpacity(0.45);
     setPreviewUrl("");
     setError("");
     setIsProcessing(false);
@@ -399,13 +628,13 @@ export default function ImageWatermarkToolPage() {
             </span>
 
             <span className="mt-2 text-sm leading-6 text-slate-500">
-              Allowed: PNG, JPG, or WebP. Batch watermark supported.
+              Allowed: PNG, JPG, WebP, or PDF. Batch watermark supported.
             </span>
 
             <input
               type="file"
               multiple
-              accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+              accept="image/png,image/jpeg,image/webp,application/pdf,.png,.jpg,.jpeg,.webp,.pdf"
               onChange={handleImages}
               className="hidden"
             />
@@ -443,6 +672,72 @@ export default function ImageWatermarkToolPage() {
               Logo selected: {logoFile.name}
             </p>
           ) : null}
+
+          <div className="mt-6 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4">
+            <h3 className="text-sm font-semibold text-cyan-100">
+              PDF watermark settings
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-slate-500">
+              These settings are used automatically when you upload a PDF.
+            </p>
+
+            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+              <label className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={useLogoForPdf}
+                  onChange={(event) => setUseLogoForPdf(event.target.checked)}
+                  className="h-4 w-4 accent-cyan-400"
+                />
+                Use logo for PDF
+              </label>
+
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-slate-400">
+                  PDF watermark text
+                </label>
+                <input
+                  value={pdfWatermarkText}
+                  onChange={(event) => setPdfWatermarkText(event.target.value)}
+                  disabled={useLogoForPdf}
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="CONFIDENTIAL"
+                />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-semibold text-slate-400">
+                  PDF position
+                </label>
+                <select
+                  value={pdfPosition}
+                  onChange={(event) =>
+                    setPdfPosition(event.target.value as WatermarkPosition)
+                  }
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-400"
+                >
+                  <option value="bottom-right">Bottom right</option>
+                  <option value="bottom-left">Bottom left</option>
+                  <option value="top-right">Top right</option>
+                  <option value="top-left">Top left</option>
+                  <option value="center">Center</option>
+                </select>
+              </div>
+            </div>
+
+            <label className="mt-4 block text-xs font-semibold text-slate-400">
+              PDF opacity: {Math.round(pdfOpacity * 100)}%
+              <input
+                type="range"
+                min="0.1"
+                max="1"
+                step="0.05"
+                value={pdfOpacity}
+                onChange={(event) => setPdfOpacity(Number(event.target.value))}
+                className="mt-2 w-full accent-cyan-400"
+              />
+            </label>
+          </div>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-3">
             <div>
@@ -524,23 +819,31 @@ export default function ImageWatermarkToolPage() {
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">Upload output</h2>
+            <h2 className="text-lg font-semibold text-white">Watermark output</h2>
 
             <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
               {previewUrl ? "Preview ready" : "Waiting"}
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center">
+          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-3 text-center">
             {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Watermark preview"
-                className="max-h-[380px] max-w-full rounded-xl object-contain"
-              />
+              firstFile && isPdfFile(firstFile) ? (
+                <iframe
+                  src={previewUrl}
+                  title="Watermarked PDF preview"
+                  className="h-[390px] w-full rounded-xl border border-white/10 bg-white"
+                />
+              ) : (
+                <img
+                  src={previewUrl}
+                  alt="Watermark preview"
+                  className="max-h-[380px] max-w-full rounded-xl object-contain"
+                />
+              )
             ) : (
               <p className="text-sm leading-6 text-slate-500">
-                Your watermarked image preview appears here after upload.
+                Your watermarked image or PDF preview appears here after upload.
               </p>
             )}
           </div>
@@ -554,7 +857,13 @@ export default function ImageWatermarkToolPage() {
 
               <p className="mt-1">
                 <span className="font-semibold text-slate-300">Mode:</span>{" "}
-                {useLogo ? "Logo watermark" : "Text watermark"}
+                {firstFile && isPdfFile(firstFile)
+                  ? useLogoForPdf
+                    ? "PDF logo watermark"
+                    : "PDF text watermark"
+                  : useLogo
+                    ? "Logo watermark"
+                    : "Text watermark"}
               </p>
             </div>
           ) : null}

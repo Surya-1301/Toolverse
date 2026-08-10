@@ -83,10 +83,11 @@ function HowToUseSection() {
   return (
     <section className="mt-14">
       <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use Image Cropper
+        How to use How to use Image Cropper
       </h2>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Desktop / tablet layout — unchanged */}
+      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {howToUseSteps.map((step) => (
           <div
             key={step.title}
@@ -101,6 +102,30 @@ function HowToUseSection() {
             <p className="mt-3 text-sm leading-6 text-slate-400">
               {step.description}
             </p>
+          </div>
+        ))}
+      </div>
+
+      {/* Mobile-only cyan layout — icon left, content right */}
+      <div className="mt-6 grid gap-3 sm:hidden">
+        {howToUseSteps.map((step) => (
+          <div
+            key={step.title}
+            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+          >
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
+              {step.icon}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h3 className="text-[14px] font-semibold leading-5 text-white">
+                {step.title}
+              </h3>
+
+              <p className="mt-1 text-[12px] leading-5 text-slate-400">
+                {step.description}
+              </p>
+            </div>
           </div>
         ))}
       </div>

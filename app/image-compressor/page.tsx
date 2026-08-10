@@ -507,43 +507,115 @@ export default function ImageCompressorPage() {
         </div>
       </div>
 
-      <HowToUse
-        title="How to use Image & PDF Compressor"
-        subtitle=""
-        steps={[
-          {
-            title: "Choose mode",
-            description: "Select Image or PDF compression.",
-            icon: <ImageDown className="h-5 w-5" />,
-          },
-          {
-            title: "Upload file",
-            description: "Choose an image or PDF from your device.",
-            icon: <Upload className="h-5 w-5" />,
-          },
-          {
-            title: "Set quality",
-            description: "Use the quality slider to control output size.",
-            icon: <ImageIcon className="h-5 w-5" />,
-          },
-          {
-            title: "Compress",
-            description:
-              "Images compress in-browser. PDFs compress through the Ghostscript backend.",
-            icon: <Loader2 className="h-5 w-5" />,
-          },
-          {
-            title: "Compare size",
-            description: "Review original and compressed file sizes.",
-            icon: <FileText className="h-5 w-5" />,
-          },
-          {
-            title: "Download",
-            description: "Save the optimized file to your device.",
-            icon: <Download className="h-5 w-5" />,
-          },
-        ]}
-      />
+      {/* Desktop/tablet: keep the existing HowToUse component unchanged. */}
+      <div className="hidden md:block">
+        <HowToUse
+          title="How to use Image & PDF Compressor"
+          subtitle=""
+          steps={[
+            {
+              title: "Choose mode",
+              description: "Select Image or PDF compression.",
+              icon: <ImageDown className="h-5 w-5" />,
+            },
+            {
+              title: "Upload file",
+              description: "Choose an image or PDF from your device.",
+              icon: <Upload className="h-5 w-5" />,
+            },
+            {
+              title: "Set quality",
+              description: "Use the quality slider to control output size.",
+              icon: <ImageIcon className="h-5 w-5" />,
+            },
+            {
+              title: "Compress",
+              description:
+                "Images compress in-browser. PDFs compress through the Ghostscript backend.",
+              icon: <Loader2 className="h-5 w-5" />,
+            },
+            {
+              title: "Compare size",
+              description: "Review original and compressed file sizes.",
+              icon: <FileText className="h-5 w-5" />,
+            },
+            {
+              title: "Download",
+              description: "Save the optimized file to your device.",
+              icon: <Download className="h-5 w-5" />,
+            },
+          ]}
+        />
+      </div>
+
+      {/* Mobile only: icon on the left, with title and description on the right. */}
+      <section
+        className="mt-10 md:hidden"
+        aria-labelledby="mobile-how-to-use-title"
+      >
+        <div className="mx-auto max-w-xl">
+          <h2
+            id="mobile-how-to-use-title"
+            className="text-center text-2xl font-bold tracking-tight text-white"
+          >
+            How to use Image & PDF Compressor
+          </h2>
+
+          <div className="mt-6 space-y-3">
+            {[
+              {
+                title: "Choose mode",
+                description: "Select Image or PDF compression.",
+                icon: <ImageDown className="h-5 w-5" />,
+              },
+              {
+                title: "Upload file",
+                description: "Choose an image or PDF from your device.",
+                icon: <Upload className="h-5 w-5" />,
+              },
+              {
+                title: "Set quality",
+                description: "Use the quality slider to control output size.",
+                icon: <ImageIcon className="h-5 w-5" />,
+              },
+              {
+                title: "Compress",
+                description:
+                  "Images compress in-browser. PDFs compress through the Ghostscript backend.",
+                icon: <Loader2 className="h-5 w-5" />,
+              },
+              {
+                title: "Compare size",
+                description: "Review original and compressed file sizes.",
+                icon: <FileText className="h-5 w-5" />,
+              },
+              {
+                title: "Download",
+                description: "Save the optimized file to your device.",
+                icon: <Download className="h-5 w-5" />,
+              },
+            ].map((step) => (
+              <div
+                key={step.title}
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
+                  {step.icon}
+                </div>
+
+                <div className="min-w-0 flex-1 text-left">
+                  <h3 className="text-sm font-semibold text-white">
+                    {step.title}
+                  </h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </Container>
   );
 }
