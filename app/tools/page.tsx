@@ -13,13 +13,15 @@ import {
   Text,
 } from "lucide-react";
 import Link from "next/link";
+
 import { Container } from "../../components/Container";
 import { ToolCard } from "../../components/ToolCard";
 
+/* ==========================================================================
+   POPULAR TOOLS
+   ========================================================================== */
+
 const popularTools = [
-  // -----------------------------
-  // Existing popular tools
-  // -----------------------------
   {
     title: "PDF Editor",
     description:
@@ -28,6 +30,7 @@ const popularTools = [
     icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "Upload & Share",
     description:
@@ -36,6 +39,7 @@ const popularTools = [
     icon: <FileUp className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "Image & PDF Compressor",
     description:
@@ -44,6 +48,7 @@ const popularTools = [
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "Paste",
     description:
@@ -52,6 +57,7 @@ const popularTools = [
     icon: <Text className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "URL Shortener",
     description:
@@ -60,7 +66,8 @@ const popularTools = [
     icon: <Link2 className="h-6 w-6" />,
     status: "live" as const,
   },
-   {
+
+  {
     title: "Background Remover",
     description:
       "Remove image backgrounds and download transparent PNG files.",
@@ -69,10 +76,6 @@ const popularTools = [
     status: "live" as const,
   },
 
-
-  // -----------------------------
-  // Image tools
-  // -----------------------------
   {
     title: "Image Converter",
     description:
@@ -81,6 +84,7 @@ const popularTools = [
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "Image Resizer",
     description:
@@ -89,6 +93,7 @@ const popularTools = [
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "Image Cropper",
     description:
@@ -97,6 +102,7 @@ const popularTools = [
     icon: <ImagePlus className="h-6 w-6" />,
     status: "live" as const,
   },
+
   {
     title: "Image Watermark",
     description:
@@ -105,7 +111,8 @@ const popularTools = [
     icon: <ImagePlus className="h-6 w-6" />,
     status: "live" as const,
   },
-    {
+
+  {
     title: "QR Generator",
     description:
       "Create downloadable QR codes for links, text, and files.",
@@ -113,8 +120,11 @@ const popularTools = [
     icon: <QrCode className="h-6 w-6" />,
     status: "live" as const,
   },
- 
 ];
+
+/* ==========================================================================
+   TOOL CATEGORIES
+   ========================================================================== */
 
 const categoryCards = [
   {
@@ -122,73 +132,266 @@ const categoryCards = [
     description:
       "Convert Markdown, HTML, YAML, JSON, CSV, and Excel-compatible files.",
     href: "/tools/conversion-tools",
-    icon: <FileCode2 className="h-6 w-6" />,
+    icon: <FileCode2 className="h-7 w-7" />,
     status: "live" as const,
   },
+
   {
     title: "Formatter & Minifier",
     description:
       "Format, validate, minify, clean, and copy developer-friendly code outputs.",
     href: "/tools/formatter-tools",
-    icon: <Code2 className="h-6 w-6" />,
+    icon: <Code2 className="h-7 w-7" />,
     status: "live" as const,
   },
+
   {
     title: "Text & Developer Tools",
     description:
       "Generate UUIDs, passwords, hashes, Base64, JWTs, regex matches, timestamps, URLs, and colors.",
     href: "/tools/text-developer-tools",
-    icon: <Code2 className="h-6 w-6" />,
+    icon: <Code2 className="h-7 w-7" />,
     status: "live" as const,
   },
 ];
+
+/* ==========================================================================
+   CATEGORY CARD
+   ========================================================================== */
 
 function CategoryToolCard({
   title,
   description,
   href,
   icon,
+  status = "live",
 }: {
   title: string;
   description: string;
   href: string;
   icon: React.ReactNode;
+  status?: "live" | "soon";
 }) {
+  const isLive = status === "live";
+
   return (
     <Link
       href={href}
-      className="group block rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05]"
+      className="
+        group
+        relative
+        block
+        overflow-hidden
+        rounded-2xl
+        border
+        border-white/10
+        bg-white/[0.03]
+        transition
+        duration-200
+
+        hover:-translate-y-1
+        hover:border-violet-400/40
+        hover:bg-white/[0.05]
+
+        max-sm:rounded-[28px]
+      "
     >
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
-          {icon}
+      {/* ================================================================
+          DESKTOP VERSION
+          Existing desktop design remains unchanged
+      ================================================================= */}
+
+      <div className="hidden p-6 sm:block">
+        {/* Icon + Status */}
+
+        <div className="mb-6 flex items-start justify-between gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
+            {icon}
+          </div>
+
+          <span
+            className={
+              isLive
+                ? "rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-semibold text-emerald-300"
+                : "rounded-full bg-amber-500/10 px-3 py-1 text-sm font-semibold text-amber-300"
+            }
+          >
+            {isLive ? "Live" : "Coming soon"}
+          </span>
         </div>
 
-        <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-semibold text-emerald-300">
-          Live
-        </span>
+        {/* Title */}
+
+        <h2 className="text-xl font-bold tracking-tight text-white">
+          {title}
+        </h2>
+
+        {/* Description */}
+
+        <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400">
+          {description}
+        </p>
+
+        {/* Action */}
+
+        <div
+          className={
+            isLive
+              ? "mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-200"
+              : "mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500"
+          }
+        >
+          {isLive ? "View tools" : "Launching soon"}
+
+          <ArrowRight
+            className={
+              isLive
+                ? "h-4 w-4 transition group-hover:translate-x-1"
+                : "h-4 w-4"
+            }
+          />
+        </div>
       </div>
 
-      <h2 className="text-xl font-bold tracking-tight text-white">
-        {title}
-      </h2>
+      {/* ================================================================
+          MOBILE VERSION
+          
+          EXACT STRUCTURE:
+          
+          ┌────────────────────────────────────┐
+          │                                    │
+          │  ┌─────────┐             Live      │
+          │  │         │                       │
+          │  │  ICON   │  Background Remover   │
+          │  │         │                       │
+          │  └─────────┘  Remove image         │
+          │               backgrounds and      │
+          │               download transparent │
+          │               PNG files.           │
+          │                                    │
+          │  View tools  →                     │
+          └────────────────────────────────────┘
+      ================================================================= */}
 
-      <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400">
-        {description}
-      </p>
+      <div className="sm:hidden p-5">
+        {/* ==============================================================
+            TOP AREA
+        ============================================================== */}
 
-      <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-200">
-        View tools
-        <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+        <div className="relative flex items-start gap-4">
+          {/* ============================================================
+              ICON
+          ============================================================ */}
+
+          <div
+            className="
+              flex
+              h-[76px]
+              w-[76px]
+              shrink-0
+              items-center
+              justify-center
+              rounded-[23px]
+              bg-violet-600/25
+              text-violet-200
+              ring-1
+              ring-violet-400/25
+            "
+          >
+            {icon}
+          </div>
+
+          {/* ============================================================
+              TITLE + DESCRIPTION
+          ============================================================ */}
+
+          <div
+            className="
+              min-w-0
+              flex-1
+              pr-12
+            "
+          >
+            {/* Title */}
+
+            <h2
+              className="
+                text-[21px]
+                font-bold
+                leading-[1.25]
+                tracking-tight
+                text-white
+              "
+            >
+              {title}
+            </h2>
+
+            {/* Description */}
+
+            <p
+              className="
+                mt-3
+                text-[16px]
+                leading-7
+                text-slate-400
+              "
+            >
+              {description}
+            </p>
+          </div>
+
+          {/* ============================================================
+              LIVE STATUS
+          ============================================================ */}
+
+          <span
+            className={
+              isLive
+                ? "absolute right-0 top-0 rounded-full bg-emerald-500/10 px-3 py-1.5 text-sm font-semibold text-emerald-300"
+                : "absolute right-0 top-0 rounded-full bg-amber-500/10 px-3 py-1.5 text-sm font-semibold text-amber-300"
+            }
+          >
+            {isLive ? "Live" : "Coming soon"}
+          </span>
+        </div>
+
+        {/* ==============================================================
+            MOBILE ACTION
+        ============================================================== */}
+
+        <div
+          className={
+            isLive
+              ? "mt-8 flex items-center gap-2 text-[16px] font-semibold text-violet-200"
+              : "mt-8 flex items-center gap-2 text-[16px] font-semibold text-slate-500"
+          }
+        >
+          {isLive ? "View tools" : "Launching soon"}
+
+          <ArrowRight
+            className={
+              isLive
+                ? "h-5 w-5 transition-transform group-hover:translate-x-1"
+                : "h-5 w-5"
+            }
+          />
+        </div>
       </div>
     </Link>
   );
 }
 
+/* ==========================================================================
+   TOOLS PAGE
+   ========================================================================== */
+
 export default function ToolsPage() {
   return (
     <Container className="py-12 sm:py-16">
-      {/* Page Header */}
+      {/* ================================================================
+          PAGE HEADER
+      ================================================================= */}
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Explore all tools
@@ -201,7 +404,10 @@ export default function ToolsPage() {
         </p>
       </div>
 
-      {/* Popular Tools */}
+      {/* ================================================================
+          POPULAR TOOLS
+      ================================================================= */}
+
       <section className="mt-12">
         <div className="mb-5">
           <h2 className="text-2xl font-bold tracking-tight text-white">
@@ -219,7 +425,10 @@ export default function ToolsPage() {
         </div>
       </section>
 
-      {/* Tool Categories */}
+      {/* ================================================================
+          TOOL CATEGORIES
+      ================================================================= */}
+
       <section className="mt-14">
         <div className="mb-5">
           <h2 className="text-2xl font-bold tracking-tight text-white">
@@ -227,7 +436,7 @@ export default function ToolsPage() {
           </h2>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {categoryCards.map((category) => (
             <CategoryToolCard
               key={category.title}

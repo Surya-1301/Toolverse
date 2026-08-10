@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type ToolCardProps = {
+type ToolCategoryCardProps = {
   title: string;
   description: string;
   href: string;
@@ -10,48 +10,68 @@ type ToolCardProps = {
   status?: "live" | "soon";
 };
 
-export function ToolCard({
+export function ToolCategoryCard({
   title,
   description,
   href,
   icon,
   status = "live",
-}: ToolCardProps) {
+}: ToolCategoryCardProps) {
   const isLive = status === "live";
-  const isExternal = /^https?:\/\//i.test(href);
 
-  const content = (
-    <div
+  return (
+    <Link
+      href={href}
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5 transition duration-200",
+        // ============================================================
+        // DESKTOP — KEEP CATEGORY CARD COMPACT
+        // ============================================================
+        "group relative block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5 transition duration-200",
 
+        // ============================================================
+        // MOBILE ONLY
+        // ============================================================
         "max-sm:rounded-[28px] max-sm:p-5",
 
         isLive &&
           "hover:-translate-y-1 hover:border-violet-500/60 hover:bg-white/[0.06] hover:shadow-2xl hover:shadow-violet-950/30",
       )}
     >
-      {/* Top gradient */}
+      {/* ============================================================
+          TOP GRADIENT
+      ============================================================ */}
 
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent opacity-0 transition group-hover:opacity-100" />
+      <div
+        className="
+          absolute
+          inset-x-0
+          top-0
+          h-px
+          bg-gradient-to-r
+          from-transparent
+          via-violet-400/60
+          to-transparent
+          opacity-0
+          transition
+          group-hover:opacity-100
+        "
+      />
 
       {/* ============================================================
-          ICON + STATUS
+          ICON + TITLE/DESCRIPTION + STATUS
       ============================================================ */}
 
       <div
         className="
           relative
-          mb-5
           flex
           items-start
-          justify-between
-          gap-4
-
-          max-sm:mb-0
+          gap-5
         "
       >
-        {/* Icon */}
+        {/* ==========================================================
+            ICON
+        ========================================================== */}
 
         <div
           className="
@@ -75,55 +95,73 @@ export function ToolCard({
           {icon}
         </div>
 
-        {/* Mobile title + description */}
+        {/* ==========================================================
+            TITLE + DESCRIPTION
+        ========================================================== */}
 
         <div
           className="
-            hidden
             min-w-0
             flex-1
-            max-sm:block
-            max-sm:pr-14
+            pr-14
           "
         >
+          {/* ========================================================
+              TITLE
+          ======================================================== */}
+
           <h3
             className="
-              text-[21px]
-              font-bold
-              leading-[1.25]
+              text-lg
+              font-semibold
+              leading-7
               tracking-tight
               text-white
+
+              max-sm:text-[21px]
+              max-sm:font-bold
+              max-sm:leading-[1.25]
             "
           >
             {title}
           </h3>
 
+          {/* ========================================================
+              DESCRIPTION
+          ======================================================== */}
+
           <p
             className="
-              mt-3
-              text-[16px]
-              leading-7
+              mt-2
+              min-h-12
+              text-sm
+              leading-6
               text-slate-400
+
+              max-sm:mt-3
+              max-sm:min-h-0
+              max-sm:text-[16px]
+              max-sm:leading-7
             "
           >
             {description}
           </p>
         </div>
 
-        {/* Status */}
+        {/* ==========================================================
+            STATUS
+        ========================================================== */}
 
         <span
           className={cn(
-            "rounded-full px-2.5 py-1 text-xs",
+            "absolute right-0 top-0 rounded-full px-2.5 py-1 text-xs font-semibold",
 
-            "max-sm:absolute",
+            // Mobile size
             "max-sm:right-0",
             "max-sm:top-0",
-            "max-sm:z-10",
             "max-sm:px-3",
             "max-sm:py-1.5",
             "max-sm:text-sm",
-            "max-sm:font-semibold",
 
             isLive
               ? "bg-emerald-500/10 text-emerald-300"
@@ -135,20 +173,6 @@ export function ToolCard({
       </div>
 
       {/* ============================================================
-          DESKTOP TITLE + DESCRIPTION
-      ============================================================ */}
-
-      <div className="max-sm:hidden">
-        <h3 className="text-lg font-semibold text-white">
-          {title}
-        </h3>
-
-        <p className="mt-2 min-h-12 text-sm leading-6 text-slate-400">
-          {description}
-        </p>
-      </div>
-
-      {/* ============================================================
           ACTION
       ============================================================ */}
 
@@ -156,6 +180,7 @@ export function ToolCard({
         className={cn(
           "mt-5 flex items-center gap-2 text-sm font-medium",
 
+          // Mobile
           "max-sm:mt-7",
           "max-sm:text-[16px]",
           "max-sm:font-semibold",
@@ -165,11 +190,11 @@ export function ToolCard({
             : "text-slate-600",
         )}
       >
-        {isLive ? "Open tool" : "Launching soon"}
+        {isLive ? "View tools" : "Launching soon"}
 
         <ArrowRight
           className={cn(
-            "h-4 w-4 transition",
+            "h-4 w-4 transition-transform duration-200",
 
             "max-sm:h-5",
             "max-sm:w-5",
@@ -178,45 +203,6 @@ export function ToolCard({
           )}
         />
       </div>
-    </div>
-  );
-
-  {/* ================================================================
-      COMING SOON
-  ================================================================= */}
-
-  if (!isLive) {
-    return (
-      <div className="cursor-not-allowed opacity-70">
-        {content}
-      </div>
-    );
-  }
-
-  {/* ================================================================
-      EXTERNAL
-  ================================================================= */}
-
-  if (isExternal) {
-    return (
-      <a
-        href={href}
-        target="_blank"
-        rel="noreferrer"
-        className="block"
-      >
-        {content}
-      </a>
-    );
-  }
-
-  {/* ================================================================
-      INTERNAL
-  ================================================================= */}
-
-  return (
-    <Link href={href} className="block">
-      {content}
     </Link>
   );
 }

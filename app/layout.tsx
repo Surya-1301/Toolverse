@@ -5,7 +5,7 @@ import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
-const siteUrl = "https://Toolverse.pages.dev";
+const siteUrl = "https://toolverse.pages.dev";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
