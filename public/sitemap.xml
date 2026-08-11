@@ -4,37 +4,127 @@
     <loc>https://toolversee.pages.dev/</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/tools</loc>
+    <loc>https://toolversee.pages.dev/background-remover</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/json-formatter</loc>
+    <loc>https://toolversee.pages.dev/base64-encoder-decoder</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/qr-generator</loc>
+    <loc>https://toolversee.pages.dev/color-converter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/contact</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/css-formatter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/csv-json-converter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/excel-csv-converter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/file-share</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/hash-generator</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/html-formatter</loc>
   </url>
   <url>
     <loc>https://toolversee.pages.dev/image-compressor</loc>
   </url>
   <url>
+    <loc>https://toolversee.pages.dev/image-converter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/image-cropper</loc>
+  </url>
+  <url>
     <loc>https://toolversee.pages.dev/image-host</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/image-resizer</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/image-watermark-tool</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/javascript-formatter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/json-formatter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/jwt-decoder</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/markdown-to-html</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/markdown-to-pdf</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/password-generator</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/paste</loc>
   </url>
   <url>
     <loc>https://toolversee.pages.dev/pdf-editor</loc>
   </url>
   <url>
+    <loc>https://toolversee.pages.dev/pdf-to-markdown</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/privacy</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/qr-generator</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/regex-tester</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/report-abuse</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/terms</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/timestamp-converter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/tools</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/url-parser</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/url-shortener</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/uuid-generator</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/yaml-json-converter</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/add-pages</loc>
+  </url>
+  <url>
     <loc>https://toolversee.pages.dev/pdf/compress</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/pdf/merge</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/pdf/sign</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/pdf/repair</loc>
+    <loc>https://toolversee.pages.dev/pdf/extract-images</loc>
   </url>
   <url>
     <loc>https://toolversee.pages.dev/pdf/header-footer</loc>
+  </url>
+  <url>
+    <loc>https://toolversee.pages.dev/pdf/merge</loc>
   </url>
   <url>
     <loc>https://toolversee.pages.dev/pdf/metadata-editor</loc>
@@ -43,36 +133,21 @@
     <loc>https://toolversee.pages.dev/pdf/pdf-to-text</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/pdf/extract-images</loc>
+    <loc>https://toolversee.pages.dev/pdf/repair</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/pdf/add-pages</loc>
+    <loc>https://toolversee.pages.dev/pdf/sign</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/pdf-to-markdown</loc>
+    <loc>https://toolversee.pages.dev/tools/conversion-tools</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/ocr-pdf</loc>
+    <loc>https://toolversee.pages.dev/tools/formatter-tools</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/file-share</loc>
+    <loc>https://toolversee.pages.dev/tools/image-tools</loc>
   </url>
   <url>
-    <loc>https://toolversee.pages.dev/paste</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/url-shortener</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/privacy</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/terms</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/contact</loc>
-  </url>
-  <url>
-    <loc>https://toolversee.pages.dev/report-abuse</loc>
+    <loc>https://toolversee.pages.dev/tools/text-developer-tools</loc>
   </url>
 </urlset>
