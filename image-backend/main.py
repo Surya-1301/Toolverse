@@ -45,13 +45,7 @@ def root():
     return {
         "ok": True,
         "service": "Toolverse Image API",
-        "provider": "remove.bg",
-        "routes": [
-            "/ping",
-            "/healthz",
-            "/health",
-            "/api/image/remove-background",
-        ],
+        "version": "1.0.0",
     }
 
 
@@ -78,14 +72,8 @@ def health():
         "ok": True,
         "status": "healthy",
         "service": "Toolverse Image API",
-        "provider": "remove.bg",
+        "version": "1.0.0",
         "hasApiKey": bool(os.getenv("REMOVEBG_API_KEY")),
-        "routes": [
-            "/ping",
-            "/healthz",
-            "/health",
-            "/api/image/remove-background",
-        ],
     }
 
 
