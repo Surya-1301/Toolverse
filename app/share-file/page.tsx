@@ -62,7 +62,7 @@ function ShareFileContent() {
   const [decrypting, setDecrypting] = useState(false);
 
   useEffect(() => {
-    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+    document.title = "Toolverse - Your All-in-One Utility Hub.";
     setKey(getEncryptionKeyFromHash());
   }, []);
 

@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Add Pages to PDF Online Free | ToolverseX",
+  title: "Add Pages to PDF Online Free | Toolverse",
   description:
-    "Insert pages from another PDF into an existing PDF online for free with ToolverseX.",
+    "Insert pages from another PDF into an existing PDF online for free with Toolverse.",
 };
 
 export default function AddPagesPdfPage() {

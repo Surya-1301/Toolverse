@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Compress PDF Online Free | ToolverseX",
+  title: "Compress PDF Online Free | Toolverse",
   description:
-    "Compress PDF files online for free. Reduce PDF file size quickly with ToolverseX.",
+    "Compress PDF files online for free. Reduce PDF file size quickly with Toolverse.",
 };
 
 export default function CompressPdfPage() {
@@ -20,7 +20,7 @@ export default function CompressPdfPage() {
         </h1>
 
         <p className="mt-5 text-base leading-8 text-slate-400">
-          Reduce PDF file size online with ToolverseX. Upload your PDF, choose a
+          Reduce PDF file size online with Toolverse. Upload your PDF, choose a
           compression level, and download the optimized file in seconds.
         </p>
 

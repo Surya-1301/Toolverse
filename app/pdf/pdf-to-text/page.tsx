@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "PDF to Text Online Free | ToolverseX",
+  title: "PDF to Text Online Free | Toolverse",
   description:
     "Extract text from PDF files online and download plain text output.",
 };

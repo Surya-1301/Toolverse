@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Sign PDF Online Free | ToolverseX",
+  title: "Sign PDF Online Free | Toolverse",
   description:
     "Sign PDF files online using typed signatures, uploaded signature images, or drawn signatures.",
 };

@@ -9,7 +9,7 @@ import {
 import { Container } from "@/components/Container";
 
 export const metadata: Metadata = {
-  title: "Toolverse - Free Online Tools for Developers and Creators",
+  title: "Toolverse - All-in-one online utility tools",
   description:
     "Use free online tools like JSON Formatter, QR Generator, Image Compressor, Paste, URL Shortener, Image Host, and File Share.",
 };

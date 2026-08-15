@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Extract Images from PDF Online | ToolverseX",
+  title: "Extract Images from PDF Online | Toolverse",
   description:
     "Extract embedded images from PDF files and download them as a ZIP file.",
 };

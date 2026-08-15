@@ -77,10 +77,7 @@ export function getPdfApiBaseCandidates() {
     normalizeConfiguredUrl(process.env.NEXT_PUBLIC_PDF_API_BASE_URL),
 
     // Main PDF backend.
-    "https://toolverse-pdf-api.onrender.com",
-
-    // Optional fallback if you deployed this too.
-    "https://toolversex-pdf-api.onrender.com",
+    "https://toolverse-pdf-api-i6av.onrender.com",
   ]);
 }
 

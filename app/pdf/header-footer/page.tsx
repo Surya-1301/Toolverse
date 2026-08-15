@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Add Header and Footer to PDF Online | ToolverseX",
+  title: "Add Header and Footer to PDF Online | Toolverse",
   description:
     "Add headers, footers, page numbers, dates, and filenames to PDF files online.",
 };

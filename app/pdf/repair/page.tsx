@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Repair PDF Online Free | ToolverseX",
+  title: "Repair PDF Online Free | Toolverse",
   description:
-    "Repair damaged or corrupted PDF files online with ToolverseX.",
+    "Repair damaged or corrupted PDF files online with Toolverse.",
 };
 
 export default function RepairPdfPage() {

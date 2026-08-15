@@ -2,9 +2,9 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Merge PDF Online Free | ToolverseX",
+  title: "Merge PDF Online Free | Toolverse",
   description:
-    "Merge multiple PDF files into one PDF online for free with ToolverseX.",
+    "Merge multiple PDF files into one PDF online for free with Toolverse.",
 };
 
 export default function MergePdfPage() {

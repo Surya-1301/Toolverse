@@ -6,8 +6,8 @@ Toolverse is a privacy-friendly collection of free online utilities for develope
 
 - Frontend: `https://toolversee.pages.dev`
 - Cloudflare Worker API: `https://toolversex-api.jethalalmirror.workers.dev`
-- PDF backend: `https://toolverse-pdf-api.onrender.com`
-- PDF backend health check: `https://toolverse-pdf-api.onrender.com/health`
+- PDF backend: `https://toolverse-pdf-api-i6av.onrender.com`
+- PDF backend health check: `https://toolverse-pdf-api-i6av.onrender.com/health`
 
 ## Features
 
@@ -153,7 +153,7 @@ Set these in local development and Cloudflare Pages production.
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=https://toolversex-api.jethalalmirror.workers.dev
-NEXT_PUBLIC_PDF_API_BASE_URL=https://toolverse-pdf-api.onrender.com
+NEXT_PUBLIC_PDF_API_BASE_URL=https://toolverse-pdf-api-i6av.onrender.com
 FILE_ENCRYPTION_KEY=replace-with-a-long-random-secret
 ```
 
@@ -267,7 +267,7 @@ Recommended Render settings:
 Health endpoint:
 
 ```txt
-https://toolverse-pdf-api.onrender.com/health
+https://toolverse-pdf-api-i6av.onrender.com/health
 ```
 
 Example response:
@@ -367,7 +367,7 @@ Used by PDF Editor and PDF conversion tools.
 Use UptimeRobot, Better Stack, or another uptime monitoring service to check the PDF backend health endpoint every 5 minutes:
 
 ```txt
-https://toolverse-pdf-api.onrender.com/health
+https://toolverse-pdf-api-i6av.onrender.com/health
 ```
 
 Recommended monitor settings:
@@ -404,6 +404,6 @@ npm run dev
 # Git commit all changes
 git status
 git add .
-git commit -m "Update ToolverseX"
+git commit -m "Update Toolverse"
 git push origin main
 ```

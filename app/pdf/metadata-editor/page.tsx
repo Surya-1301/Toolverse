@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Container } from "../../../components/Container";
 
 export const metadata = {
-  title: "Edit PDF Metadata Online Free | ToolverseX",
+  title: "Edit PDF Metadata Online Free | Toolverse",
   description:
     "Edit or remove PDF metadata including title, author, subject, keywords, creator, and producer.",
 };

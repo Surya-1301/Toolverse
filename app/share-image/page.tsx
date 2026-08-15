@@ -77,7 +77,7 @@ function ShareImageContent() {
   const [isDecrypting, setIsDecrypting] = useState(false);
 
   useEffect(() => {
-    document.title = "ToolverseX - Your All-in-One Utility Hub.";
+    document.title = "Toolverse - Your All-in-One Utility Hub.";
     setEncryptionKey(getEncryptionKeyFromHash());
   }, []);
 
