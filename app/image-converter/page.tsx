@@ -12,7 +12,6 @@ import {
   Upload,
   Wand2,
 } from "lucide-react";
-import heic2any from "heic2any";
 import { Container } from "@/components/Container";
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -33,7 +32,10 @@ function baseName(file: File | null) {
   return (file?.name || "image").replace(/\.[^/.]+$/, "");
 }
 
-type OutputFormat = "image/png" | "image/jpeg" | "image/webp";
+type OutputFormat =
+  | "image/png"
+  | "image/jpeg"
+  | "image/webp";
 
 function BackToToolsLink() {
   return (
@@ -47,38 +49,52 @@ function BackToToolsLink() {
   );
 }
 
+/* ==========================================================================
+   HOW TO USE
+========================================================================== */
+
 const howToUseSteps = [
   {
     title: "Upload image",
-    description: "Choose a PNG, JPG, WebP, HEIC, HEIF, or supported image file.",
+    description:
+      "Choose a PNG, JPG, WebP, HEIC, HEIF, or supported image file.",
     icon: <Upload className="h-5 w-5" />,
   },
   {
     title: "Choose format",
-    description: "Select PNG, JPG, or WebP as your output format.",
+    description:
+      "Select PNG, JPG, or WebP as your output format.",
     icon: <FileImage className="h-5 w-5" />,
   },
   {
     title: "Set quality",
-    description: "Use the quality slider to control output size and clarity.",
+    description:
+      "Use the quality slider to control output size and clarity.",
     icon: <SlidersHorizontal className="h-5 w-5" />,
   },
   {
     title: "Convert",
-    description: "Click convert image to generate the new output file.",
+    description:
+      "Click convert image to generate the new output file.",
     icon: <Wand2 className="h-5 w-5" />,
   },
   {
     title: "Preview output",
-    description: "Review the converted image in the output preview panel.",
+    description:
+      "Review the converted image in the output preview panel.",
     icon: <ImageDown className="h-5 w-5" />,
   },
   {
     title: "Download",
-    description: "Save the converted PNG, JPG, or WebP file to your device.",
+    description:
+      "Save the converted PNG, JPG, or WebP file to your device.",
     icon: <Download className="h-5 w-5" />,
   },
 ];
+
+/* ==========================================================================
+   HOW TO USE SECTION
+========================================================================== */
 
 function HowToUseSection() {
   return (
@@ -87,14 +103,40 @@ function HowToUseSection() {
         How to use Image Converter
       </h2>
 
-      {/* Desktop / tablet layout */}
+      {/* Desktop / Tablet */}
+
       <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {howToUseSteps.map((step) => (
           <div
             key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
+            className="
+              rounded-2xl
+              border
+              border-white/10
+              bg-white/[0.03]
+              p-5
+              transition-all
+              duration-200
+              hover:-translate-y-0.5
+              hover:border-cyan-400/20
+              hover:bg-white/[0.045]
+            "
           >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+            <div
+              className="
+                mb-5
+                flex
+                h-11
+                w-11
+                items-center
+                justify-center
+                rounded-xl
+                bg-cyan-500
+                text-white
+                shadow-lg
+                shadow-cyan-500/20
+              "
+            >
               {step.icon}
             </div>
 
@@ -109,14 +151,40 @@ function HowToUseSection() {
         ))}
       </div>
 
-      {/* Mobile-only cyan layout */}
+      {/* Mobile */}
+
       <div className="mt-6 grid gap-3 sm:hidden">
         {howToUseSteps.map((step) => (
           <div
             key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+            className="
+              flex
+              items-center
+              gap-4
+              rounded-2xl
+              border
+              border-cyan-400/10
+              bg-[#071522]
+              p-4
+              shadow-[0_8px_24px_rgba(0,0,0,0.18)]
+            "
           >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
+            <div
+              className="
+                flex
+                h-14
+                w-14
+                shrink-0
+                items-center
+                justify-center
+                rounded-2xl
+                border
+                border-cyan-400/10
+                bg-[#092B40]
+                text-[#63E5F7]
+                shadow-[0_0_18px_rgba(34,211,238,0.08)]
+              "
+            >
               {step.icon}
             </div>
 
@@ -136,22 +204,39 @@ function HowToUseSection() {
   );
 }
 
+/* ==========================================================================
+   PAGE
+========================================================================== */
+
 export default function ImageConverterPage() {
   const [file, setFile] = useState<File | null>(null);
   const [outputPreview, setOutputPreview] = useState("");
-  const [convertedBlob, setConvertedBlob] = useState<Blob | null>(null);
+  const [convertedBlob, setConvertedBlob] =
+    useState<Blob | null>(null);
 
-  const [format, setFormat] = useState<OutputFormat>("image/png");
+  const [format, setFormat] =
+    useState<OutputFormat>("image/png");
+
   const [quality, setQuality] = useState(0.9);
 
   const [error, setError] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing, setIsProcessing] =
+    useState(false);
+
+  /* ------------------------------------------------------------------------
+     OUTPUT EXTENSION
+  ------------------------------------------------------------------------ */
 
   function getOutputExtension() {
     if (format === "image/png") return "png";
     if (format === "image/webp") return "webp";
+
     return "jpg";
   }
+
+  /* ------------------------------------------------------------------------
+     HEIC CHECK
+  ------------------------------------------------------------------------ */
 
   function isHeicFile(inputFile: File) {
     const fileName = inputFile.name.toLowerCase();
@@ -164,8 +249,15 @@ export default function ImageConverterPage() {
     );
   }
 
-  function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
-    const nextFile = event.target.files?.[0] || null;
+  /* ------------------------------------------------------------------------
+     FILE HANDLER
+  ------------------------------------------------------------------------ */
+
+  function handleFile(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const nextFile =
+      event.target.files?.[0] || null;
 
     setError("");
     setFile(nextFile);
@@ -177,8 +269,16 @@ export default function ImageConverterPage() {
 
     setOutputPreview("");
 
+    /*
+     * Reset input value so the same file can be selected
+     * again after clearing.
+     */
     event.target.value = "";
   }
+
+  /* ------------------------------------------------------------------------
+     IMAGE CONVERSION
+  ------------------------------------------------------------------------ */
 
   async function convertImage() {
     if (!file) {
@@ -200,10 +300,17 @@ export default function ImageConverterPage() {
 
       /*
        * HEIC / HEIF files are not natively supported by most browsers.
-       * Convert them to PNG in the browser first using heic2any.
+       *
+       * IMPORTANT:
+       * heic2any is dynamically imported here instead of being imported
+       * at the top of the file. This prevents the package from being
+       * evaluated during Next.js server-side prerendering.
        */
       if (isHeicFile(file)) {
         try {
+          const { default: heic2any } =
+            await import("heic2any");
+
           const converted = await heic2any({
             blob: file,
             toType: "image/png",
@@ -214,61 +321,106 @@ export default function ImageConverterPage() {
             ? converted[0]
             : converted;
         } catch (heicError) {
-          console.error("HEIC conversion error:", heicError);
+          console.error(
+            "HEIC conversion error:",
+            heicError,
+          );
 
           setError(
             "Could not read this HEIC/HEIF image. Please make sure the file is valid and try again.",
           );
+
           setIsProcessing(false);
           return;
         }
       }
 
-      const sourceUrl = URL.createObjectURL(sourceBlob);
+      /* --------------------------------------------------------------------
+         LOAD SOURCE IMAGE
+      -------------------------------------------------------------------- */
+
+      const sourceUrl =
+        URL.createObjectURL(sourceBlob);
+
       const image = new Image();
 
       image.src = sourceUrl;
 
-      await new Promise<void>((resolve, reject) => {
-        image.onload = () => resolve();
-        image.onerror = () => reject(new Error("Image could not be loaded"));
-      });
+      await new Promise<void>(
+        (resolve, reject) => {
+          image.onload = () => resolve();
+
+          image.onerror = () =>
+            reject(
+              new Error(
+                "Image could not be loaded",
+              ),
+            );
+        },
+      );
 
       URL.revokeObjectURL(sourceUrl);
 
-      const canvas = document.createElement("canvas");
+      /* --------------------------------------------------------------------
+         CANVAS
+      -------------------------------------------------------------------- */
+
+      const canvas =
+        document.createElement("canvas");
 
       canvas.width = image.naturalWidth;
       canvas.height = image.naturalHeight;
 
-      const ctx = canvas.getContext("2d");
+      const ctx =
+        canvas.getContext("2d");
 
       if (!ctx) {
-        setError("Could not prepare image canvas.");
+        setError(
+          "Could not prepare image canvas.",
+        );
+
         setIsProcessing(false);
         return;
       }
 
       /*
        * JPEG does not support transparency.
-       * Fill transparent areas with white before converting.
+       * Fill transparent areas with white.
        */
       if (format === "image/jpeg") {
         ctx.fillStyle = "#ffffff";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillRect(
+          0,
+          0,
+          canvas.width,
+          canvas.height,
+        );
       }
 
-      ctx.drawImage(image, 0, 0);
+      ctx.drawImage(
+        image,
+        0,
+        0,
+      );
+
+      /* --------------------------------------------------------------------
+         CREATE OUTPUT
+      -------------------------------------------------------------------- */
 
       canvas.toBlob(
         (blob) => {
           if (!blob) {
-            setError("Could not convert image.");
+            setError(
+              "Could not convert image.",
+            );
+
             setIsProcessing(false);
             return;
           }
 
-          const nextPreview = URL.createObjectURL(blob);
+          const nextPreview =
+            URL.createObjectURL(blob);
 
           setConvertedBlob(blob);
           setOutputPreview(nextPreview);
@@ -278,7 +430,10 @@ export default function ImageConverterPage() {
         quality,
       );
     } catch (conversionError) {
-      console.error("Image conversion error:", conversionError);
+      console.error(
+        "Image conversion error:",
+        conversionError,
+      );
 
       setError(
         "Could not convert this image. Please make sure the file is valid and try again.",
@@ -288,14 +443,24 @@ export default function ImageConverterPage() {
     }
   }
 
+  /* ------------------------------------------------------------------------
+     DOWNLOAD
+  ------------------------------------------------------------------------ */
+
   function downloadConvertedImage() {
-    if (!convertedBlob || !file) return;
+    if (!convertedBlob || !file) {
+      return;
+    }
 
     downloadBlob(
       convertedBlob,
       `${baseName(file)}-converted.${getOutputExtension()}`,
     );
   }
+
+  /* ------------------------------------------------------------------------
+     CLEAR
+  ------------------------------------------------------------------------ */
 
   function clearAll() {
     if (outputPreview) {
@@ -311,29 +476,65 @@ export default function ImageConverterPage() {
     setIsProcessing(false);
   }
 
+  /* ------------------------------------------------------------------------
+     UI
+  ------------------------------------------------------------------------ */
+
   return (
     <Container className="py-12 sm:py-16">
       <BackToToolsLink />
 
+      {/* ====================================================================
+          HEADER
+      ==================================================================== */}
+
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
           Image Converter
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Convert PNG, JPG, WebP, HEIC, and HEIF images directly in your
-          browser.
+          Convert PNG, JPG, WebP, HEIC, and HEIF images
+          directly in your browser.
         </p>
       </div>
 
+      {/* ====================================================================
+          MAIN TOOL
+      ==================================================================== */}
+
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        {/* Upload / Settings */}
+        {/* ================================================================
+            UPLOAD / SETTINGS
+        ================================================================ */}
+
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="mb-4 text-lg font-semibold text-white">
             Upload image
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+          {/* Upload */}
+
+          <label
+            className="
+              flex
+              min-h-[230px]
+              cursor-pointer
+              flex-col
+              items-center
+              justify-center
+              rounded-2xl
+              border
+              border-dashed
+              border-white/15
+              bg-slate-950
+              p-6
+              text-center
+              transition
+              hover:border-violet-500/60
+              hover:bg-white/[0.03]
+            "
+          >
             <Upload className="mb-3 h-9 w-9 text-violet-300" />
 
             <span className="font-semibold text-white">
@@ -346,11 +547,25 @@ export default function ImageConverterPage() {
 
             <input
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.png,.jpg,.jpeg,.webp,.heic,.heif"
+              accept="
+                image/png,
+                image/jpeg,
+                image/webp,
+                image/heic,
+                image/heif,
+                .png,
+                .jpg,
+                .jpeg,
+                .webp,
+                .heic,
+                .heif
+              "
               onChange={handleFile}
               className="hidden"
             />
           </label>
+
+          {/* Selected file */}
 
           {file ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
@@ -362,13 +577,26 @@ export default function ImageConverterPage() {
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">Type:</span>{" "}
+                <span className="font-semibold text-slate-300">
+                  Type:
+                </span>{" "}
                 {file.type || "Unknown"}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-slate-300">
+                  Size:
+                </span>{" "}
+                {(file.size / 1024).toFixed(1)} KB
               </p>
             </div>
           ) : null}
 
+          {/* Settings */}
+
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {/* Output format */}
+
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-300">
                 Output format
@@ -377,15 +605,39 @@ export default function ImageConverterPage() {
               <select
                 value={format}
                 onChange={(event) =>
-                  setFormat(event.target.value as OutputFormat)
+                  setFormat(
+                    event.target.value as OutputFormat,
+                  )
                 }
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+                className="
+                  w-full
+                  rounded-xl
+                  border
+                  border-white/10
+                  bg-slate-950
+                  px-4
+                  py-3
+                  text-white
+                  outline-none
+                  transition
+                  focus:border-violet-500
+                "
               >
-                <option value="image/png">PNG</option>
-                <option value="image/jpeg">JPG</option>
-                <option value="image/webp">WebP</option>
+                <option value="image/png">
+                  PNG
+                </option>
+
+                <option value="image/jpeg">
+                  JPG
+                </option>
+
+                <option value="image/webp">
+                  WebP
+                </option>
               </select>
             </div>
+
+            {/* Quality */}
 
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-300">
@@ -398,11 +650,17 @@ export default function ImageConverterPage() {
                 max="1"
                 step="0.05"
                 value={quality}
-                onChange={(event) => setQuality(Number(event.target.value))}
+                onChange={(event) =>
+                  setQuality(
+                    Number(event.target.value),
+                  )
+                }
                 className="w-full accent-violet-500"
               />
             </div>
           </div>
+
+          {/* Error */}
 
           {error ? (
             <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
@@ -410,19 +668,56 @@ export default function ImageConverterPage() {
             </p>
           ) : null}
 
+          {/* Buttons */}
+
           <div className="mt-5 flex flex-wrap gap-3">
             <button
+              type="button"
               onClick={convertImage}
               disabled={isProcessing || !file}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              className="
+                inline-flex
+                items-center
+                gap-2
+                rounded-xl
+                bg-violet-600
+                px-4
+                py-2.5
+                text-sm
+                font-semibold
+                text-white
+                transition
+                hover:bg-violet-500
+                disabled:cursor-not-allowed
+                disabled:bg-slate-700
+                disabled:text-slate-400
+              "
             >
               <Wand2 className="h-4 w-4" />
-              {isProcessing ? "Converting..." : "Convert image"}
+
+              {isProcessing
+                ? "Converting..."
+                : "Convert image"}
             </button>
 
             <button
+              type="button"
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="
+                inline-flex
+                items-center
+                gap-2
+                rounded-xl
+                border
+                border-red-500/30
+                px-4
+                py-2.5
+                text-sm
+                font-semibold
+                text-red-300
+                transition
+                hover:bg-red-500/10
+              "
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -430,7 +725,10 @@ export default function ImageConverterPage() {
           </div>
         </div>
 
-        {/* Output */}
+        {/* ================================================================
+            OUTPUT
+        ================================================================ */}
+
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">
@@ -438,53 +736,115 @@ export default function ImageConverterPage() {
             </h2>
 
             <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
-              {outputPreview ? "Preview ready" : "Waiting"}
+              {outputPreview
+                ? "Preview ready"
+                : "Waiting"}
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center">
+          {/* Preview */}
+
+          <div
+            className="
+              flex
+              min-h-[420px]
+              items-center
+              justify-center
+              rounded-2xl
+              border
+              border-dashed
+              border-white/15
+              bg-slate-950
+              p-6
+              text-center
+            "
+          >
             {outputPreview ? (
               <img
                 src={outputPreview}
                 alt="Converted output preview"
-                className="max-h-[380px] max-w-full rounded-xl object-contain"
+                className="
+                  max-h-[380px]
+                  max-w-full
+                  rounded-xl
+                  object-contain
+                "
               />
             ) : (
               <p className="text-sm leading-6 text-slate-500">
-                Your converted image preview appears here after conversion.
+                Your converted image preview appears
+                here after conversion.
               </p>
             )}
           </div>
 
+          {/* Output details */}
+
           {convertedBlob && file ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
               <p>
-                <span className="font-semibold text-slate-300">Output:</span>{" "}
-                {baseName(file)}-converted.{getOutputExtension()}
+                <span className="font-semibold text-slate-300">
+                  Output:
+                </span>{" "}
+                {baseName(file)}-converted.
+                {getOutputExtension()}
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">Format:</span>{" "}
+                <span className="font-semibold text-slate-300">
+                  Format:
+                </span>{" "}
                 {getOutputExtension().toUpperCase()}
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">Size:</span>{" "}
-                {(convertedBlob.size / 1024).toFixed(1)} KB
+                <span className="font-semibold text-slate-300">
+                  Size:
+                </span>{" "}
+                {(convertedBlob.size / 1024).toFixed(
+                  1,
+                )}{" "}
+                KB
               </p>
             </div>
           ) : null}
 
+          {/* Download */}
+
           <button
+            type="button"
             onClick={downloadConvertedImage}
             disabled={!convertedBlob}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+            className="
+              mt-5
+              inline-flex
+              w-full
+              items-center
+              justify-center
+              gap-2
+              rounded-xl
+              bg-violet-600
+              px-4
+              py-2.5
+              text-sm
+              font-semibold
+              text-white
+              transition
+              hover:bg-violet-500
+              disabled:cursor-not-allowed
+              disabled:bg-slate-700
+              disabled:text-slate-400
+            "
           >
             <Download className="h-4 w-4" />
             Download converted image
           </button>
         </div>
       </div>
+
+      {/* ====================================================================
+          HOW TO USE
+      ==================================================================== */}
 
       <HowToUseSection />
     </Container>
