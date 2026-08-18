@@ -12,6 +12,7 @@ import {
   Upload,
   Wand2,
 } from "lucide-react";
+import heic2any from "heic2any";
 import { Container } from "@/components/Container";
 
 function downloadBlob(blob: Blob, filename: string) {
@@ -49,7 +50,7 @@ function BackToToolsLink() {
 const howToUseSteps = [
   {
     title: "Upload image",
-    description: "Choose a PNG, JPG, WebP, or supported image file.",
+    description: "Choose a PNG, JPG, WebP, HEIC, HEIF, or supported image file.",
     icon: <Upload className="h-5 w-5" />,
   },
   {
@@ -83,10 +84,10 @@ function HowToUseSection() {
   return (
     <section className="mt-14">
       <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use How to use Image Converter
+        How to use Image Converter
       </h2>
 
-      {/* Desktop / tablet layout — unchanged */}
+      {/* Desktop / tablet layout */}
       <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
         {howToUseSteps.map((step) => (
           <div
@@ -97,7 +98,9 @@ function HowToUseSection() {
               {step.icon}
             </div>
 
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+            <h3 className="text-sm font-semibold text-white">
+              {step.title}
+            </h3>
 
             <p className="mt-3 text-sm leading-6 text-slate-400">
               {step.description}
@@ -106,7 +109,7 @@ function HowToUseSection() {
         ))}
       </div>
 
-      {/* Mobile-only cyan layout — icon left, content right */}
+      {/* Mobile-only cyan layout */}
       <div className="mt-6 grid gap-3 sm:hidden">
         {howToUseSteps.map((step) => (
           <div
@@ -150,6 +153,17 @@ export default function ImageConverterPage() {
     return "jpg";
   }
 
+  function isHeicFile(inputFile: File) {
+    const fileName = inputFile.name.toLowerCase();
+
+    return (
+      inputFile.type === "image/heic" ||
+      inputFile.type === "image/heif" ||
+      fileName.endsWith(".heic") ||
+      fileName.endsWith(".heif")
+    );
+  }
+
   function handleFile(event: React.ChangeEvent<HTMLInputElement>) {
     const nextFile = event.target.files?.[0] || null;
 
@@ -172,16 +186,6 @@ export default function ImageConverterPage() {
       return;
     }
 
-    if (
-      file.type === "image/heic" ||
-      file.name.toLowerCase().endsWith(".heic")
-    ) {
-      setError(
-        "HEIC conversion needs backend support. Add a HEIC backend route later.",
-      );
-      return;
-    }
-
     try {
       setError("");
       setIsProcessing(true);
@@ -192,15 +196,48 @@ export default function ImageConverterPage() {
         setOutputPreview("");
       }
 
-      const image = new Image();
-      image.src = URL.createObjectURL(file);
+      let sourceBlob: Blob = file;
 
-      await new Promise((resolve, reject) => {
-        image.onload = resolve;
-        image.onerror = reject;
+      /*
+       * HEIC / HEIF files are not natively supported by most browsers.
+       * Convert them to PNG in the browser first using heic2any.
+       */
+      if (isHeicFile(file)) {
+        try {
+          const converted = await heic2any({
+            blob: file,
+            toType: "image/png",
+            quality: 1,
+          });
+
+          sourceBlob = Array.isArray(converted)
+            ? converted[0]
+            : converted;
+        } catch (heicError) {
+          console.error("HEIC conversion error:", heicError);
+
+          setError(
+            "Could not read this HEIC/HEIF image. Please make sure the file is valid and try again.",
+          );
+          setIsProcessing(false);
+          return;
+        }
+      }
+
+      const sourceUrl = URL.createObjectURL(sourceBlob);
+      const image = new Image();
+
+      image.src = sourceUrl;
+
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("Image could not be loaded"));
       });
 
+      URL.revokeObjectURL(sourceUrl);
+
       const canvas = document.createElement("canvas");
+
       canvas.width = image.naturalWidth;
       canvas.height = image.naturalHeight;
 
@@ -212,6 +249,10 @@ export default function ImageConverterPage() {
         return;
       }
 
+      /*
+       * JPEG does not support transparency.
+       * Fill transparent areas with white before converting.
+       */
       if (format === "image/jpeg") {
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -236,8 +277,13 @@ export default function ImageConverterPage() {
         format,
         quality,
       );
-    } catch {
-      setError("Could not convert this image. Please try another file.");
+    } catch (conversionError) {
+      console.error("Image conversion error:", conversionError);
+
+      setError(
+        "Could not convert this image. Please make sure the file is valid and try again.",
+      );
+
       setIsProcessing(false);
     }
   }
@@ -275,11 +321,13 @@ export default function ImageConverterPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Convert PNG, JPG, and WebP images in your browser.
+          Convert PNG, JPG, WebP, HEIC, and HEIF images directly in your
+          browser.
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
+        {/* Upload / Settings */}
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <h2 className="mb-4 text-lg font-semibold text-white">
             Upload image
@@ -293,12 +341,12 @@ export default function ImageConverterPage() {
             </span>
 
             <span className="mt-2 text-sm leading-6 text-slate-500">
-              Allowed: PNG, JPG, WebP, or HEIC.
+              Allowed: PNG, JPG, WebP, HEIC, or HEIF.
             </span>
 
             <input
               type="file"
-              accept="image/png,image/jpeg,image/webp,image/heic,.png,.jpg,.jpeg,.webp,.heic"
+              accept="image/png,image/jpeg,image/webp,image/heic,image/heif,.png,.jpg,.jpeg,.webp,.heic,.heif"
               onChange={handleFile}
               className="hidden"
             />
@@ -307,7 +355,9 @@ export default function ImageConverterPage() {
           {file ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
               <p>
-                <span className="font-semibold text-slate-300">Selected:</span>{" "}
+                <span className="font-semibold text-slate-300">
+                  Selected:
+                </span>{" "}
                 {file.name}
               </p>
 
@@ -363,7 +413,7 @@ export default function ImageConverterPage() {
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               onClick={convertImage}
-              disabled={isProcessing}
+              disabled={isProcessing || !file}
               className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
             >
               <Wand2 className="h-4 w-4" />
@@ -380,9 +430,12 @@ export default function ImageConverterPage() {
           </div>
         </div>
 
+        {/* Output */}
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">Upload output</h2>
+            <h2 className="text-lg font-semibold text-white">
+              Converted output
+            </h2>
 
             <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
               {outputPreview ? "Preview ready" : "Waiting"}
@@ -413,6 +466,11 @@ export default function ImageConverterPage() {
               <p className="mt-1">
                 <span className="font-semibold text-slate-300">Format:</span>{" "}
                 {getOutputExtension().toUpperCase()}
+              </p>
+
+              <p className="mt-1">
+                <span className="font-semibold text-slate-300">Size:</span>{" "}
+                {(convertedBlob.size / 1024).toFixed(1)} KB
               </p>
             </div>
           ) : null}

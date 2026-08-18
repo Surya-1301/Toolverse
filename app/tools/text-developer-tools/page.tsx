@@ -13,11 +13,31 @@ import {
   LockKeyhole,
   Palette,
   Regex,
+  TextCursorInput,
+  CaseSensitive,
 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 
 const tools = [
+  {
+    title: "Word Counter",
+    description: "Count words, characters, sentences, paragraphs, lines, and reading time instantly.",
+    href: "/word-counter",
+    icon: <TextCursorInput className="h-6 w-6" />,
+  },
+  {
+    title: "Character Counter",
+    description: "Count characters with and without spaces, plus letters, numbers, spaces, punctuation, and words.",
+    href: "/character-counter",
+    icon: <Hash className="h-6 w-6" />,
+  },
+  {
+    title: "Case Converter",
+    description: "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case.",
+    href: "/case-converter",
+    icon: <CaseSensitive className="h-6 w-6" />,
+  },
   {
     title: "UUID Generator",
     description: "Generate UUID v4 values in bulk and copy all results.",
@@ -136,8 +156,7 @@ export default function TextDeveloperToolsPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate UUIDs and passwords, hash text, encode Base64, decode JWTs,
-          test regex, convert timestamps, parse URLs, and convert colors.
+          Count and transform text, generate UUIDs and passwords, hash text, encode Base64, decode JWTs, test regex, convert timestamps, parse URLs, and convert colors.
         </p>
       </div>
 

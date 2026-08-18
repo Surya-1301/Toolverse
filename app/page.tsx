@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 
 import { Container } from "@/components/Container";
+import SmartInput from "@/components/SmartInput";
 
 export const metadata: Metadata = {
   title: "Toolverse - All-in-one online utility tools",
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
 
 /* ==========================================================================
    FEATURED CARDS
-   ========================================================================== */
+========================================================================== */
 
 const features = [
   {
@@ -41,18 +42,18 @@ const features = [
 
 /* ==========================================================================
    HOME PAGE
-   ========================================================================== */
+========================================================================== */
 
 export default function Home() {
   return (
     <section className="relative overflow-hidden">
-
-      {/* ================================================================
+      {/* ====================================================================
           BACKGROUND GLOW
-      ================================================================= */}
+      ==================================================================== */}
 
       <div
         className="
+          pointer-events-none
           absolute
           left-1/2
           top-0
@@ -68,6 +69,7 @@ export default function Home() {
 
       <div
         className="
+          pointer-events-none
           absolute
           right-0
           top-32
@@ -83,20 +85,19 @@ export default function Home() {
       <Container
         className="
           relative
-          py-20
+          py-16
           text-center
-          sm:py-28
+          sm:py-20
+          lg:py-24
         "
       >
-
-        {/* ================================================================
+        {/* ==================================================================
             BADGE
-        ================================================================= */}
+        ================================================================== */}
 
         <p
           className="
             mx-auto
-            mb-4
             inline-flex
             rounded-full
             border
@@ -105,91 +106,108 @@ export default function Home() {
             px-4
             py-1.5
             text-sm
+            font-medium
             text-violet-200
           "
         >
           Fast, free, privacy-friendly online tools
         </p>
 
-        {/* ================================================================
+        {/* ==================================================================
             HERO TITLE
-        ================================================================= */}
+        ================================================================== */}
 
         <h1
           className="
             mx-auto
-            max-w-4xl
+            mt-6
+            max-w-5xl
             text-4xl
             font-bold
+            leading-[1.05]
             tracking-tight
+            text-white
+            sm:mt-7
             sm:text-6xl
+            lg:text-7xl
           "
         >
           Your everyday utility toolkit for the web.
         </h1>
 
-        {/* ================================================================
+        {/* ==================================================================
             HERO DESCRIPTION
-        ================================================================= */}
+        ================================================================== */}
 
         <p
           className="
             mx-auto
             mt-6
-            max-w-2xl
+            max-w-3xl
             text-base
-            leading-8
+            leading-7
             text-slate-300
             sm:text-lg
+            sm:leading-8
           "
         >
-          Toolverse gives developers, creators, and everyday users clean
-          tools for formatting, generating, compressing, hosting, sharing,
-          and shortening.
+          Toolverse gives developers, creators, and everyday users clean tools
+          for formatting, generating, compressing, hosting, sharing, and
+          shortening.
         </p>
 
-        {/* ================================================================
-            HERO BUTTON
-        ================================================================= */}
+        {/* ==================================================================
+            SMART INPUT
+            Primary hero interaction
+        ================================================================== */}
 
-        <div
-          className="
-            mt-8
-            flex
-            flex-col
-            justify-center
-            gap-3
-            sm:flex-row
-          "
-        >
+        <div className="mx-auto mt-8 w-full max-w-3xl sm:mt-9">
+          <SmartInput />
+        </div>
+
+        {/* ==================================================================
+            EXPLORE ALL TOOLS
+        ================================================================== */}
+
+        <div className="mt-7 flex justify-center">
           <Link
             href="/tools"
             className="
+              inline-flex
+              items-center
+              justify-center
               rounded-xl
               bg-violet-600
-              px-6
-              py-3
+              px-7
+              py-3.5
               text-sm
               font-semibold
               text-white
               shadow-lg
               shadow-violet-600/20
-              transition
+              transition-all
+              duration-200
               hover:bg-violet-500
+              hover:shadow-violet-500/30
+              focus:outline-none
+              focus:ring-2
+              focus:ring-violet-400/50
+              focus:ring-offset-2
+              focus:ring-offset-slate-950
             "
           >
-            Explore tools
+            Explore all tools
           </Link>
         </div>
 
-        {/* ================================================================
+        {/* ==================================================================
             FEATURED CARDS
-        ================================================================= */}
+        ================================================================== */}
 
         <div
           className="
             mx-auto
-            mt-12
+            mt-14
             grid
             max-w-5xl
             gap-5
@@ -217,18 +235,15 @@ export default function Home() {
                   shadow-2xl
                   shadow-black/10
                   transition
-
                   hover:-translate-y-1
                   hover:border-violet-400/40
-
                   max-sm:rounded-[28px]
                   max-sm:p-5
                 "
               >
-
-                {/* ========================================================
-                    BACKGROUND GLOW
-                ======================================================== */}
+                {/* ==========================================================
+                    CARD BACKGROUND GLOW
+                ========================================================== */}
 
                 <div
                   className="
@@ -246,17 +261,11 @@ export default function Home() {
                   "
                 />
 
-                {/* ========================================================
+                {/* ==========================================================
                     DESKTOP VERSION
-
-                    Existing desktop layout:
-                    ICON
-                    TITLE
-                    DESCRIPTION
-                ======================================================== */}
+                ========================================================== */}
 
                 <div className="relative hidden sm:block">
-
                   {/* Icon */}
 
                   <div
@@ -283,48 +292,20 @@ export default function Home() {
 
                   {/* Title */}
 
-                  <h3
-                    className="
-                      text-base
-                      font-semibold
-                      text-white
-                    "
-                  >
+                  <h3 className="text-base font-semibold text-white">
                     {feature.title}
                   </h3>
 
                   {/* Description */}
 
-                  <p
-                    className="
-                      mt-2
-                      text-sm
-                      leading-6
-                      text-slate-400
-                    "
-                  >
+                  <p className="mt-2 text-sm leading-6 text-slate-400">
                     {feature.description}
                   </p>
                 </div>
 
-                {/* ========================================================
+                {/* ==========================================================
                     MOBILE VERSION
-
-                    EXACTLY:
-
-                    ┌────────────────────────────────────┐
-                    │                                    │
-                    │  ┌─────────┐                      │
-                    │  │         │  Browser-first tools │
-                    │  │  ICON   │                      │
-                    │  │         │  Use fast utilities  │
-                    │  └─────────┘  designed to work    │
-                    │               instantly with a     │
-                    │               clean, focused       │
-                    │               interface.           │
-                    │                                    │
-                    └────────────────────────────────────┘
-                ======================================================== */}
+                ========================================================== */}
 
                 <div
                   className="
@@ -335,10 +316,7 @@ export default function Home() {
                     sm:hidden
                   "
                 >
-
-                  {/* ======================================================
-                      MOBILE ICON
-                  ====================================================== */}
+                  {/* Mobile Icon */}
 
                   <div
                     className="
@@ -362,9 +340,7 @@ export default function Home() {
                     <Icon className="h-9 w-9" />
                   </div>
 
-                  {/* ======================================================
-                      MOBILE TITLE + DESCRIPTION
-                  ====================================================== */}
+                  {/* Mobile Content */}
 
                   <div
                     className="
@@ -373,9 +349,6 @@ export default function Home() {
                       pt-1
                     "
                   >
-
-                    {/* Title */}
-
                     <h3
                       className="
                         text-[20px]
@@ -388,8 +361,6 @@ export default function Home() {
                       {feature.title}
                     </h3>
 
-                    {/* Description */}
-
                     <p
                       className="
                         mt-3
@@ -400,16 +371,13 @@ export default function Home() {
                     >
                       {feature.description}
                     </p>
-
                   </div>
                 </div>
-
               </div>
             );
           })}
         </div>
-
       </Container>
     </section>
   );
-}
+} 
