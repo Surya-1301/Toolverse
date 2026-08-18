@@ -95,24 +95,6 @@ const popularTools = [
   },
 
   {
-    title: "Image Cropper",
-    description:
-      "Crop images by coordinates and download the cropped result.",
-    href: "/image-cropper",
-    icon: <ImagePlus className="h-6 w-6" />,
-    status: "live" as const,
-  },
-
-  {
-    title: "Image Watermark",
-    description:
-      "Add text or logo watermarks with position, opacity, and batch support.",
-    href: "/image-watermark-tool",
-    icon: <ImagePlus className="h-6 w-6" />,
-    status: "live" as const,
-  },
-
-  {
     title: "QR Generator",
     description:
       "Create downloadable QR codes for links, text, and files.",
