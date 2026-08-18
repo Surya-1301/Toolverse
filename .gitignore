@@ -1,5 +1,14 @@
 # dependencies
 node_modules
+pdf-backend/node_modules
+.venv
+image-backend/.venv
+
+# local build / runtime state
+.wrangler/state
+.kilo
+__pycache__
+*.pyc
 
 # Next.js
 .next
@@ -27,6 +36,7 @@ pnpm-debug.log*
 
 # system
 .DS_Store
+**/.DS_Store
 
 # misc
 .vercelx

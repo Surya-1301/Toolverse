@@ -11,9 +11,10 @@ const navLinks = [
     { href: "/file-share", label: "Upload" },
     { href: "/image-compressor", label: "Compress" },
     { href: "/paste", label: "Paste" },
-    { href: "/tools/conversion-tools", label: "Conversion tools" },
+    { href: "/qr-generator", label: "QR" },
     { href: "/tools/image-tools", label: "Image tools" },
-     { href: "/tools/text-developer-tools", label: "Developer tools" },
+    { href: "/tools/conversion-tools", label: "Conversion tools" },
+    { href: "/tools/text-developer-tools", label: "Developer tools" },
 ];
 
 export function Header() {
