@@ -80,6 +80,25 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Toolverse",
+  url: siteUrl,
+  description:
+    "Free online utility tools for formatting, generating, compressing, hosting, sharing, and shortening.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: `${siteUrl}/tools?q={search_term_string}`,
+    "query-input": "required name=search_term_string",
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Toolverse",
+    url: siteUrl,
+  },
+};
+
 const footerLinks = [
   {
     label: "Privacy",
@@ -110,6 +129,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
         <Script
           defer
