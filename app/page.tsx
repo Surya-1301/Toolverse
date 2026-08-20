@@ -1,9 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  FileUp,
   Gauge,
+  Hash,
+  ImageDown,
+  KeyRound,
   LockKeyhole,
   MonitorSmartphone,
+  QrCode,
+  Type,
 } from "lucide-react";
 
 import { Container } from "@/components/Container";
@@ -37,6 +43,49 @@ const features = [
     description:
       "Lightweight workflows help you format, compress, upload, and share faster.",
     icon: Gauge,
+  },
+];
+
+/* ==========================================================================
+   POPULAR TOOLS (Static for SEO crawlability)
+========================================================================== */
+
+const popularTools = [
+  {
+    title: "JSON Formatter",
+    description: "Format, validate, and beautify JSON data instantly.",
+    href: "/json-formatter",
+    icon: Type,
+  },
+  {
+    title: "QR Generator",
+    description: "Create downloadable QR codes for links, text, and files.",
+    href: "/qr-generator",
+    icon: QrCode,
+  },
+  {
+    title: "Image Compressor",
+    description: "Compress images in your browser with quality controls.",
+    href: "/image-compressor",
+    icon: ImageDown,
+  },
+  {
+    title: "File Share",
+    description: "Upload images or files and get temporary shareable links.",
+    href: "/file-share",
+    icon: FileUp,
+  },
+  {
+    title: "Password Generator",
+    description: "Generate strong, secure passwords instantly.",
+    href: "/password-generator",
+    icon: KeyRound,
+  },
+  {
+    title: "Hash Generator",
+    description: "Create MD5, SHA-1, SHA-256 hashes from any text.",
+    href: "/hash-generator",
+    icon: Hash,
   },
 ];
 
@@ -166,10 +215,50 @@ export default function Home() {
         </div>
 
         {/* ==================================================================
+            POPULAR TOOLS (Static for SEO crawlability)
+        ================================================================== */}
+
+        <div className="mx-auto mt-16 max-w-5xl">
+          <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+            Popular tools
+          </h2>
+          <p className="mt-3 text-base text-slate-400">
+            The most used free online tools — all browser-based, no signup required.
+          </p>
+
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {popularTools.map((tool) => {
+              const Icon = tool.icon;
+
+              return (
+                <Link
+                  key={tool.href}
+                  href={tool.href}
+                  className="group flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05]"
+                >
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-600 text-white transition group-hover:bg-violet-500">
+                    <Icon className="h-5 w-5" />
+                  </div>
+
+                  <div className="min-w-0">
+                    <h3 className="text-base font-semibold text-white">
+                      {tool.title}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-slate-400">
+                      {tool.description}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ==================================================================
             EXPLORE ALL TOOLS
         ================================================================== */}
 
-        <div className="mt-7 flex justify-center">
+        <div className="mt-10 flex justify-center">
           <Link
             href="/tools"
             className="
