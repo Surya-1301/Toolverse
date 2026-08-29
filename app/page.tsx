@@ -10,7 +10,7 @@ import { Container } from "@/components/Container";
 import SmartInput from "@/components/SmartInput";
 
 export const metadata: Metadata = {
-  title: "Toolverse - All-in-one online utility tools",
+  title: "Toolverse - All-in-one online utility tools.",
   description:
     "Use free online tools like JSON Formatter, QR Generator, Image Compressor, Paste, URL Shortener, Image Host, and File Share.",
 };
@@ -101,13 +101,13 @@ export default function Home() {
             inline-flex
             rounded-full
             border
-            border-violet-400/30
-            bg-violet-500/10
+            border-violet-300/40
+            bg-violet-500/15
             px-4
             py-1.5
             text-sm
             font-medium
-            text-violet-200
+            text-violet-100
           "
         >
           Fast, free, privacy-friendly online tools
@@ -158,42 +158,45 @@ export default function Home() {
 
         {/* ==================================================================
             SMART INPUT
-            Primary hero interaction
+            PRIMARY ACTION
         ================================================================== */}
 
-        <div className="mx-auto mt-8 w-full max-w-3xl sm:mt-9">
+        <div className="mx-auto mt-8 w-full max-w-3xl">
           <SmartInput />
         </div>
 
         {/* ==================================================================
             EXPLORE ALL TOOLS
+            SECONDARY ACTION
         ================================================================== */}
 
-        <div className="mt-7 flex justify-center">
+        <div className="mt-6 flex justify-center">
           <Link
             href="/tools"
             className="
               inline-flex
+              min-h-11
               items-center
               justify-center
               rounded-xl
               bg-violet-600
-              px-7
-              py-3.5
+              px-6
+              py-3
               text-sm
               font-semibold
               text-white
-              shadow-lg
-              shadow-violet-600/20
+              shadow-md
+              shadow-violet-600/15
               transition-all
               duration-200
               hover:bg-violet-500
-              hover:shadow-violet-500/30
+              hover:shadow-lg
+              hover:shadow-violet-500/20
               focus:outline-none
-              focus:ring-2
-              focus:ring-violet-400/50
-              focus:ring-offset-2
-              focus:ring-offset-slate-950
+              focus-visible:ring-2
+              focus-visible:ring-violet-400/70
+              focus-visible:ring-offset-2
+              focus-visible:ring-offset-slate-950
             "
           >
             Explore all tools
@@ -237,7 +240,7 @@ export default function Home() {
                   transition
                   hover:-translate-y-1
                   hover:border-violet-400/40
-                  max-sm:rounded-[28px]
+                  
                   max-sm:p-5
                 "
               >
@@ -266,8 +269,6 @@ export default function Home() {
                 ========================================================== */}
 
                 <div className="relative hidden sm:block">
-                  {/* Icon */}
-
                   <div
                     className="
                       mb-5
@@ -287,16 +288,15 @@ export default function Home() {
                       group-hover:text-violet-200
                     "
                   >
-                    <Icon className="h-6 w-6" />
+                    <Icon
+                      aria-hidden="true"
+                      className="h-6 w-6"
+                    />
                   </div>
 
-                  {/* Title */}
-
-                  <h3 className="text-base font-semibold text-white">
+                  <h2 className="text-base font-semibold text-white">
                     {feature.title}
-                  </h3>
-
-                  {/* Description */}
+                  </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-400">
                     {feature.description}
@@ -316,8 +316,6 @@ export default function Home() {
                     sm:hidden
                   "
                 >
-                  {/* Mobile Icon */}
-
                   <div
                     className="
                       flex
@@ -326,7 +324,7 @@ export default function Home() {
                       shrink-0
                       items-center
                       justify-center
-                      rounded-[23px]
+                      rounded-2xl
                       bg-violet-600/20
                       text-violet-300
                       ring-1
@@ -337,10 +335,11 @@ export default function Home() {
                       group-hover:text-violet-200
                     "
                   >
-                    <Icon className="h-9 w-9" />
+                    <Icon
+                      aria-hidden="true"
+                      className="h-9 w-9"
+                    />
                   </div>
-
-                  {/* Mobile Content */}
 
                   <div
                     className="
@@ -349,7 +348,7 @@ export default function Home() {
                       pt-1
                     "
                   >
-                    <h3
+                    <h2
                       className="
                         text-[20px]
                         font-bold
@@ -359,7 +358,7 @@ export default function Home() {
                       "
                     >
                       {feature.title}
-                    </h3>
+                    </h2>
 
                     <p
                       className="
@@ -380,4 +379,5 @@ export default function Home() {
       </Container>
     </section>
   );
-} 
+}
+
