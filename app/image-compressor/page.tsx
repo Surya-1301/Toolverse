@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useMemo, useState } from "react";
 import imageCompression from "browser-image-compression";
 import {
   ArrowLeft,
@@ -37,6 +38,7 @@ export default function ImageCompressorPage() {
 
   const [originalFile, setOriginalFile] = useState<File | null>(null);
   const [compressedFile, setCompressedFile] = useState<File | null>(null);
+  const [outputFileName, setOutputFileName] = useState("");
 
   const [originalPreview, setOriginalPreview] = useState("");
   const [compressedPreview, setCompressedPreview] = useState("");
@@ -59,6 +61,7 @@ export default function ImageCompressorPage() {
 
     setError("");
     setCompressedFile(null);
+    setOutputFileName("");
     setCompressedPreview("");
 
     if (!file) return;
@@ -66,6 +69,7 @@ export default function ImageCompressorPage() {
     if (mode === "image" && !file.type.startsWith("image/")) {
       setError("Please upload a valid image file.");
       setOriginalFile(null);
+      if (originalPreview) URL.revokeObjectURL(originalPreview);
       setOriginalPreview("");
       return;
     }
@@ -73,17 +77,13 @@ export default function ImageCompressorPage() {
     if (mode === "pdf" && file.type !== "application/pdf") {
       setError("Please upload a valid PDF file.");
       setOriginalFile(null);
+      if (originalPreview) URL.revokeObjectURL(originalPreview);
       setOriginalPreview("");
       return;
     }
 
     setOriginalFile(file);
-
-    if (mode === "image") {
-      setOriginalPreview(URL.createObjectURL(file));
-    } else {
-      setOriginalPreview("");
-    }
+    setPreviewUrl(setOriginalPreview, originalPreview, file);
   }
 
   async function compressImage(file: File) {
@@ -169,12 +169,11 @@ export default function ImageCompressorPage() {
           : await compressPdf(originalFile);
 
       setCompressedFile(compressed);
+      setOutputFileName(
+        compressed.name.replace(/\.(pdf|jpg|jpeg|png|webp)$/i, ""),
+      );
 
-      if (mode === "image") {
-        setCompressedPreview(URL.createObjectURL(compressed));
-      } else {
-        setCompressedPreview("");
-      }
+      setPreviewUrl(setCompressedPreview, compressedPreview, compressed);
 
       if (compressed.size >= originalFile.size) {
         setError(
@@ -209,6 +208,9 @@ export default function ImageCompressorPage() {
       originalFile?.name || (mode === "image" ? "image" : "document");
 
     const baseName = originalName.replace(/\.[^/.]+$/, "");
+    const selectedBaseName = outputFileName.trim()
+      ? outputFileName.trim()
+      : `${baseName}-compressed`;
 
     let extension = "jpg";
 
@@ -221,7 +223,7 @@ export default function ImageCompressorPage() {
     }
 
     link.href = url;
-    link.download = `${baseName}-compressed.${extension}`;
+    link.download = `${selectedBaseName}.${extension}`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -230,6 +232,9 @@ export default function ImageCompressorPage() {
   }
 
   function clearAll() {
+    if (originalPreview) URL.revokeObjectURL(originalPreview);
+    if (compressedPreview) URL.revokeObjectURL(compressedPreview);
+
     setOriginalFile(null);
     setCompressedFile(null);
     setOriginalPreview("");
@@ -237,6 +242,15 @@ export default function ImageCompressorPage() {
     setError("");
     setIsCompressing(false);
     setQuality(0.7);
+  }
+
+  function setPreviewUrl(
+    setter: Dispatch<SetStateAction<string>>,
+    previousUrl: string,
+    file: File,
+  ) {
+    if (previousUrl) URL.revokeObjectURL(previousUrl);
+    setter(URL.createObjectURL(file));
   }
 
   function switchMode(nextMode: Mode) {
@@ -394,18 +408,10 @@ export default function ImageCompressorPage() {
                 Clear
               </button>
 
-              {compressedFile ? (
-                <button
-                  type="button"
-                  onClick={downloadCompressedFile}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-sm font-semibold text-emerald-200 transition hover:bg-emerald-500/20"
-                >
-                  <Download className="h-4 w-4" />
-                  Download
-                </button>
-              ) : null}
             </div>
           </div>
+
+          <div className="min-w-0">
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
@@ -426,6 +432,12 @@ export default function ImageCompressorPage() {
                     src={originalPreview}
                     alt="Original preview"
                     className="max-h-[240px] w-full object-contain"
+                  />
+                ) : mode === "pdf" && originalPreview ? (
+                  <iframe
+                    src={originalPreview}
+                    title="Original PDF preview"
+                    className="h-[240px] w-full bg-white"
                   />
                 ) : originalFile ? (
                   <div className="break-all px-4 text-center text-sm text-slate-500">
@@ -465,6 +477,12 @@ export default function ImageCompressorPage() {
                     alt="Compressed preview"
                     className="max-h-[240px] w-full object-contain"
                   />
+                ) : mode === "pdf" && compressedPreview ? (
+                  <iframe
+                    src={compressedPreview}
+                    title="Compressed PDF preview"
+                    className="h-[240px] w-full bg-white"
+                  />
                 ) : compressedFile ? (
                   <div className="text-center text-sm text-slate-500">
                     {mode === "pdf" ? (
@@ -481,28 +499,56 @@ export default function ImageCompressorPage() {
                   </div>
                 )}
               </div>
+
             </div>
 
-            {compressedFile && originalFile ? (
-              <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 sm:col-span-2 lg:col-span-1 xl:col-span-2">
-                <p className="text-sm font-semibold text-emerald-200">
-                  File size reduced by {reductionPercentage}%
-                </p>
+          </div>
 
-                <p className="mt-1 text-sm text-emerald-100/80">
-                  {formatFileSize(originalFile.size)} →{" "}
-                  {formatFileSize(compressedFile.size)}
-                </p>
+          {compressedFile ? (
+            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-5 sm:p-6">
+              <label
+                htmlFor="compressed-output-name"
+                className="mb-3 block text-base font-semibold text-slate-300"
+              >
+                File name
+              </label>
 
-                {mode === "pdf" && reductionPercentage === 0 ? (
-                  <p className="mt-2 text-xs leading-5 text-emerald-100/70">
-                    This PDF may already be optimized. Try a lower quality
-                    value, or test with a scanned/image-heavy PDF for stronger
-                    compression.
-                  </p>
-                ) : null}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                <input
+                  id="compressed-output-name"
+                  type="text"
+                  value={outputFileName}
+                  onChange={(event) => setOutputFileName(event.target.value)}
+                  className="min-h-12 w-full min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-950 px-4 text-base text-white outline-none transition focus:border-violet-400/50"
+                  aria-describedby="compressed-output-file-size"
+                />
+
+                <button
+                  type="button"
+                  onClick={downloadCompressedFile}
+                  className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3 text-base font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-auto"
+                >
+                  <Download className="h-5 w-5" />
+                  Download
+                </button>
               </div>
-            ) : null}
+
+              <p
+                id="compressed-output-file-size"
+                className="mt-2 text-sm font-semibold text-slate-400"
+              >
+                {formatFileSize(compressedFile.size)}.{
+                  mode === "pdf"
+                    ? "pdf"
+                    : compressedFile.type.includes("png")
+                      ? "png"
+                      : compressedFile.type.includes("webp")
+                        ? "webp"
+                        : "jpg"
+                }
+              </p>
+            </div>
+          ) : null}
           </div>
         </div>
       </div>

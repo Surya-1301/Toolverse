@@ -110,7 +110,7 @@ export default function ContactPage() {
       message,
       "",
       "========================================",
-      "Sent from the Toolverse Contact page.",
+      "Sent from the Toolverse Contact page",
     ].join("\n");
 
     const mailto =
