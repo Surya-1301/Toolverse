@@ -284,7 +284,7 @@ export default function SmartInput() {
         <div
           className="
             relative
-            overflow-hidden
+            overflow-visible
             rounded-2xl
             border
             border-white/[0.09]
@@ -319,18 +319,19 @@ export default function SmartInput() {
               INPUT LABEL
           ============================================================ */}
 
-          <div
-            className="
-              pointer-events-none
-              absolute
-              left-5
-              top-4
-              z-10
-              flex
-              items-center
-              gap-2.5
-            "
-          >
+          {!value ? (
+            <div
+              className="
+                pointer-events-none
+                absolute
+                left-5
+                top-4
+                z-10
+                flex
+                items-center
+                gap-2.5
+              "
+            >
             <Search
               aria-hidden="true"
               className="
@@ -351,7 +352,8 @@ export default function SmartInput() {
             >
               Smart Toolverse input
             </span>
-          </div>
+            </div>
+          ) : null}
 
           {/* ============================================================
               TEXTAREA
@@ -389,68 +391,9 @@ export default function SmartInput() {
               sm:min-h-[174px]
               sm:text-base
 
-              md:pb-16
+              md:pb-[64px]
             "
           />
-
-          {/* ============================================================
-              DESKTOP / TABLET DROP IMAGE BUTTON
-
-              Positioned directly inside the input's
-              bottom-right corner from md upward.
-          ============================================================ */}
-
-          <button
-            type="button"
-            onClick={() =>
-              fileInputRef.current?.click()
-            }
-            aria-label="Upload an image"
-            className="
-              absolute
-              bottom-3
-              right-3
-              z-20
-              hidden
-              min-h-10
-              items-center
-              gap-2
-              rounded-xl
-              border
-              border-white/[0.10]
-              bg-[#080b1d]/90
-              px-3.5
-              py-2
-              text-xs
-              font-medium
-              text-slate-300
-              shadow-lg
-              shadow-black/10
-              backdrop-blur-md
-              transition-all
-              duration-200
-
-              hover:border-violet-400/30
-              hover:bg-[#0d1028]
-              hover:text-white
-              hover:shadow-violet-500/10
-
-              focus:outline-none
-              focus-visible:ring-2
-              focus-visible:ring-violet-400/60
-              focus-visible:ring-offset-2
-              focus-visible:ring-offset-[#030617]
-
-              md:inline-flex
-            "
-          >
-            <Upload
-              aria-hidden="true"
-              className="h-4 w-4"
-            />
-
-            <span>Drop image</span>
-          </button>
 
           {/* ============================================================
               MOBILE DROP IMAGE / COPY ROW
@@ -524,21 +467,32 @@ export default function SmartInput() {
                 onClick={copyInput}
                 className="
                   inline-flex
-                  min-h-9
+                  min-h-10
                   items-center
-                  gap-1.5
-                  rounded-lg
-                  px-2.5
-                  py-1.5
+                  gap-2
+                  rounded-xl
+                  border
+                  border-white/[0.10]
+                  bg-[#080b1d]/90
+                  px-3.5
+                  py-2
                   text-xs
                   font-medium
-                  text-slate-400
-                  transition
-                  hover:bg-white/[0.05]
+                  text-slate-300
+                  shadow-lg
+                  shadow-black/10
+                  backdrop-blur-md
+                  transition-all
+                  duration-200
+                  hover:border-violet-400/30
+                  hover:bg-[#0d1028]
                   hover:text-white
+                  hover:shadow-violet-500/10
                   focus:outline-none
                   focus-visible:ring-2
                   focus-visible:ring-violet-400/60
+                  focus-visible:ring-offset-2
+                  focus-visible:ring-offset-[#030617]
                 "
               >
                 {copied ? (
@@ -560,8 +514,7 @@ export default function SmartInput() {
           {/* ============================================================
               DESKTOP / TABLET COPY BUTTON
 
-              Kept near the lower-right corner beside the
-              upload action when text is present.
+              Kept in the lower-right corner when text is present.
           ============================================================ */}
 
           {value ? (
@@ -571,27 +524,35 @@ export default function SmartInput() {
               className="
                 absolute
                 bottom-3
-                right-[138px]
+                right-3
                 z-20
                 hidden
-                min-h-9
+                min-h-10
                 items-center
-                gap-1.5
-                rounded-lg
+                gap-2
+                rounded-xl
                 border
-                border-transparent
-                px-2.5
-                py-1.5
+                border-white/[0.10]
+                bg-[#080b1d]/90
+                px-3.5
+                py-2
                 text-xs
                 font-medium
-                text-slate-400
-                transition
-                hover:border-white/[0.08]
-                hover:bg-white/[0.05]
+                text-slate-300
+                shadow-lg
+                shadow-black/10
+                backdrop-blur-md
+                transition-all
+                duration-200
+                hover:border-violet-400/30
+                hover:bg-[#0d1028]
                 hover:text-white
+                hover:shadow-violet-500/10
                 focus:outline-none
                 focus-visible:ring-2
                 focus-visible:ring-violet-400/60
+                focus-visible:ring-offset-2
+                focus-visible:ring-offset-[#030617]
                 md:inline-flex
               "
             >
@@ -657,20 +618,83 @@ export default function SmartInput() {
         ================================================================ */}
 
         {!detection ? (
-          <p
+          <div
             className="
+              relative
+              flex
+              min-h-[64px]
+              items-center
+              justify-center
               px-3
-              pb-0.5
+              pb-1
               pt-2.5
-              text-center
-              text-xs
-              leading-5
-              text-slate-500
             "
           >
-            Paste anything and Toolverse will suggest
-            the right tool.
-          </p>
+            <p
+              className="
+                text-center
+                text-xs
+                leading-5
+                text-slate-500
+                md:pr-36
+              "
+            >
+              Paste anything and Toolverse will suggest
+              the right tool.
+            </p>
+
+            <button
+              type="button"
+              onClick={() =>
+                fileInputRef.current?.click()
+              }
+              aria-label="Upload an image"
+              className="
+                absolute
+                right-3
+                top-1/2
+                hidden
+                min-h-10
+                -translate-y-1/2
+                items-center
+                gap-2
+                rounded-xl
+                border
+                border-white/[0.10]
+                bg-[#080b1d]/90
+                px-3.5
+                py-2
+                text-xs
+                font-medium
+                text-slate-300
+                shadow-lg
+                shadow-black/10
+                backdrop-blur-md
+                transition-all
+                duration-200
+
+                hover:border-violet-400/30
+                hover:bg-[#0d1028]
+                hover:text-white
+                hover:shadow-violet-500/10
+
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-violet-400/60
+                focus-visible:ring-offset-2
+                focus-visible:ring-offset-[#030617]
+
+                md:inline-flex
+              "
+            >
+              <Upload
+                aria-hidden="true"
+                className="h-4 w-4"
+              />
+
+              <span>Drop image</span>
+            </button>
+          </div>
         ) : null}
 
         {/* ================================================================

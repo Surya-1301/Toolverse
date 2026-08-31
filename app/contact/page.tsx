@@ -63,7 +63,7 @@ const responseNotes = [
   },
 ];
 
-const SUPPORT_EMAIL = "support.toolversee@gmail.com";
+const SUPPORT_EMAIL = "contact.toolverse@gmail.com";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -100,9 +100,6 @@ export default function ContactPage() {
     }
 
     const body = [
-      "TOOLVERSE CONTACT REQUEST",
-      "========================================",
-      "",
       `Name: ${name}`,
       `Email: ${email}`,
       `Subject: ${subject}`,
@@ -195,7 +192,7 @@ export default function ContactPage() {
             <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
               <p className="text-sm text-slate-500">Recommended email format</p>
               <p className="mt-1 break-all font-mono text-sm text-slate-200">
-                support.toolversee@gmail.com
+                contact.toolverse@gmail.com
               </p>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { AlertTriangle, Mail } from "lucide-react";
 
-const SUPPORT_EMAIL = "support.toolversee@gmail.com";
+const SUPPORT_EMAIL = "abuse.toolversee@gmail.com";
 
 const reportTypes = [
   "Phishing or scams",
@@ -93,13 +93,6 @@ export default function ReportAbuseForm() {
     // ------------------------------------------------------------
 
     const body = `
-Toolverse Abuse Report
-======================
-
-REPORTER INFORMATION
---------------------
-Email: ${email}
-
 REPORT TYPE
 -----------
 ${reportType}
@@ -107,6 +100,10 @@ ${reportType}
 REPORTED TOOLVERSE RESOURCE
 ---------------------------
 ${reportedUrl}
+
+REPORTER INFORMATION
+--------------------
+Email: ${email}
 
 SUBJECT
 -------
