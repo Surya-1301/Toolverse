@@ -15,6 +15,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { BackButton } from "@/components/BackButton";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Toolverse",
@@ -198,6 +199,9 @@ const sections = [
 export default function PrivacyPage() {
   return (
     <Container className="py-12 sm:py-16">
+      <div className="mx-auto mb-6 max-w-5xl">
+        <BackButton />
+      </div>
       <div className="mx-auto max-w-5xl">
 
         {/* ================================================================
@@ -381,7 +385,7 @@ export default function PrivacyPage() {
 
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
                 >
                   <Mail className="h-4 w-4" />
                   Contact Toolverse

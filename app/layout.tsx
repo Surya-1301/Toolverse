@@ -3,6 +3,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
+import { BackButton } from "@/components/BackButton";
 import "./globals.css";
 
 const siteUrl = "https://toolversee.pages.dev";

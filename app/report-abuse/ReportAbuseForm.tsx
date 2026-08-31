@@ -303,7 +303,20 @@ where necessary.
         </div>
 
       </div>
+{/* Submit */}
 
+      <div className="mt-6">
+
+        <button
+          type="button"
+          onClick={handleSubmit}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+        >
+          <Mail className="h-4 w-4" />
+          Send abuse report
+        </button>
+
+        
       {/* Security notice */}
 
       <div className="mt-6 rounded-2xl border border-amber-400/10 bg-amber-500/[0.04] p-4">
@@ -327,18 +340,7 @@ where necessary.
 
       </div>
 
-      {/* Submit */}
-
-      <div className="mt-6">
-
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-red-500 px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 transition hover:-translate-y-0.5 hover:bg-red-400 hover:shadow-red-500/30 sm:w-auto"
-        >
-          <Mail className="h-4 w-4" />
-          Email abuse report
-        </button>
+      
 
       </div>
     </section>
