@@ -6,8 +6,10 @@ import {
   ImageDown,
   ImagePlus,
   RectangleHorizontal,
+  Shapes,
   Sparkles,
   SquareDashedBottom,
+  ZoomIn,
 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
@@ -65,6 +67,20 @@ const tools = [
       "Blur an entire photo or just a region to hide faces and sensitive details.",
     href: "/image-blur",
     icon: <Sparkles className="h-6 w-6" />,
+  },
+  {
+    title: "Image Upscaler",
+    description:
+      "Enlarge images up to 8× with smart interpolation and sharpening.",
+    href: "/image-upscaler",
+    icon: <ZoomIn className="h-6 w-6" />,
+  },
+  {
+    title: "Image Placeholder",
+    description:
+      "Generate crisp placeholder images of any size with text and colors.",
+    href: "/image-placeholder",
+    icon: <Shapes className="h-6 w-6" />,
   },
 ];
 

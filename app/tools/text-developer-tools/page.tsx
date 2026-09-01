@@ -3,11 +3,14 @@
 import {
   ArrowLeft,
   ArrowRight,
+  AtSign,
   AudioLines,
+  Banknote,
   Braces,
   Clock,
   Fingerprint,
   Gauge,
+  GitCompare,
   GitMerge,
   Globe2,
   Hash,
@@ -24,6 +27,7 @@ import {
   TextCursorInput,
   TextQuote,
   CaseSensitive,
+  WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
@@ -151,13 +155,6 @@ const tools = [
     icon: <AudioLines className="h-6 w-6" />,
   },
   {
-    title: "HTTP Status Codes",
-    description:
-      "Searchable reference for HTTP status codes grouped by response class.",
-    href: "/http-status-codes",
-    icon: <ShieldCheck className="h-6 w-6" />,
-  },
-  {
     title: "URL Redirect Checker",
     description:
       "Trace every redirect a URL makes and find where it finally lands.",
@@ -191,6 +188,34 @@ const tools = [
       "Generate random strings with custom character sets, length, and quantity.",
     href: "/random-string-generator",
     icon: <Shuffle className="h-6 w-6" />,
+  },
+  {
+    title: "Text Compare / Diff",
+    description:
+      "Compare two blocks of text side by side and see added, removed, and unchanged lines.",
+    href: "/text-compare",
+    icon: <GitCompare className="h-6 w-6" />,
+  },
+  {
+    title: "Credit Card Generator",
+    description:
+      "Generate test cards (number, expiry, name, CVV) or validate any card's checksum and brand.",
+    href: "/credit-card-generator",
+    icon: <WalletCards className="h-6 w-6" />,
+  },
+  {
+    title: "IBAN Validator",
+    description:
+      "Validate IBANs from 70+ countries with structure and mod-97 checksum checks.",
+    href: "/iban-validator",
+    icon: <Banknote className="h-6 w-6" />,
+  },
+  {
+    title: "Email & Phone Validator",
+    description:
+      "Check if an email address or phone number is well-formed, all locally.",
+    href: "/email-phone-validator",
+    icon: <AtSign className="h-6 w-6" />,
   },
 ];
 

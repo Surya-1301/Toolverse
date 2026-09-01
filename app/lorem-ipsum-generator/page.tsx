@@ -442,9 +442,17 @@ export default function LoremIpsumPage() {
               Generated text
             </label>
 
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
-              <FileText className="h-3.5 w-3.5" />
-              {output ? `${output.length} characters` : "Waiting"}
+            <span className="inline-flex items-center gap-2">
+              {output && (
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+                  <FileText className="h-3.5 w-3.5" />
+                  {output.length} chars
+                </span>
+              )}
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+                <TextQuote className="h-3.5 w-3.5" />
+                {output ? output.trim().split(/\s+/).filter(Boolean).length : 0} words
+              </span>
             </span>
           </div>
 
