@@ -1,6 +1,14 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, ImageDown, ImagePlus } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  ImageDown,
+  ImagePlus,
+  RectangleHorizontal,
+  Sparkles,
+  SquareDashedBottom,
+} from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 
@@ -36,6 +44,27 @@ const tools = [
     description: "Remove image backgrounds and download transparent PNG files.",
     href: "/background-remover",
     icon: <ImagePlus className="h-6 w-6" />,
+  },
+  {
+    title: "Favicon Generator",
+    description:
+      "Turn any image into every favicon size plus a ready-to-use manifest and HTML.",
+    href: "/favicon-generator",
+    icon: <SquareDashedBottom className="h-6 w-6" />,
+  },
+  {
+    title: "OG Image Generator",
+    description:
+      "Create 1200×630 social share cards with custom text, colors, and logo.",
+    href: "/og-image-generator",
+    icon: <RectangleHorizontal className="h-6 w-6" />,
+  },
+  {
+    title: "Blur Image",
+    description:
+      "Blur an entire photo or just a region to hide faces and sensitive details.",
+    href: "/image-blur",
+    icon: <Sparkles className="h-6 w-6" />,
   },
 ];
 

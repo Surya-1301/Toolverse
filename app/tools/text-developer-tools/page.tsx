@@ -3,17 +3,26 @@
 import {
   ArrowLeft,
   ArrowRight,
+  AudioLines,
   Braces,
   Clock,
-  Code2,
   Fingerprint,
+  Gauge,
+  GitMerge,
+  Globe2,
   Hash,
   KeyRound,
   Link2,
   LockKeyhole,
+  MapPin,
+  Network,
   Palette,
   Regex,
+  Send,
+  ShieldCheck,
+  Shuffle,
   TextCursorInput,
+  TextQuote,
   CaseSensitive,
 } from "lucide-react";
 import Link from "next/link";
@@ -98,6 +107,90 @@ const tools = [
       "Convert HEX, RGB, and HSL colors with preview and palette generation.",
     href: "/color-converter",
     icon: <Palette className="h-6 w-6" />,
+  },
+  {
+    title: "Lorem Ipsum Generator",
+    description:
+      "Generate classic placeholder text as paragraphs, sentences, or words with optional HTML tags.",
+    href: "/lorem-ipsum-generator",
+    icon: <TextQuote className="h-6 w-6" />,
+  },
+  {
+    title: "IP Address Lookup",
+    description:
+      "See your public IP address with location, network, and timezone details.",
+    href: "/ip-lookup",
+    icon: <Network className="h-6 w-6" />,
+  },
+  {
+    title: "SSL Certificate Checker",
+    description:
+      "Look up SSL/TLS certificates for any domain and check validity and expiry.",
+    href: "/ssl-checker",
+    icon: <ShieldCheck className="h-6 w-6" />,
+  },
+  {
+    title: "Duplicate Line Remover",
+    description:
+      "Remove duplicate or blank lines from text and copy the cleaned result.",
+    href: "/duplicate-line-remover",
+    icon: <GitMerge className="h-6 w-6" />,
+  },
+  {
+    title: "Password Strength Checker",
+    description:
+      "Analyze a password's entropy, crack time, and how to make it stronger.",
+    href: "/password-strength-checker",
+    icon: <Gauge className="h-6 w-6" />,
+  },
+  {
+    title: "Text to Speech",
+    description:
+      "Turn text into spoken audio using your browser's built-in voice engine.",
+    href: "/text-to-speech",
+    icon: <AudioLines className="h-6 w-6" />,
+  },
+  {
+    title: "HTTP Status Codes",
+    description:
+      "Searchable reference for HTTP status codes grouped by response class.",
+    href: "/http-status-codes",
+    icon: <ShieldCheck className="h-6 w-6" />,
+  },
+  {
+    title: "URL Redirect Checker",
+    description:
+      "Trace every redirect a URL makes and find where it finally lands.",
+    href: "/url-redirect-checker",
+    icon: <Link2 className="h-6 w-6" />,
+  },
+  {
+    title: "DNS Lookup",
+    description:
+      "Query A, AAAA, CNAME, MX, TXT, and NS records for any domain.",
+    href: "/dns-lookup",
+    icon: <Globe2 className="h-6 w-6" />,
+  },
+  {
+    title: "HTTP Request Tester",
+    description:
+      "Send HTTP requests to any API and inspect status, headers, and timing.",
+    href: "/http-request-tester",
+    icon: <Send className="h-6 w-6" />,
+  },
+  {
+    title: "Fake Address Generator",
+    description:
+      "Generate realistic fake addresses for testing with multiple locale presets.",
+    href: "/fake-address-generator",
+    icon: <MapPin className="h-6 w-6" />,
+  },
+  {
+    title: "Random String Generator",
+    description:
+      "Generate random strings with custom character sets, length, and quantity.",
+    href: "/random-string-generator",
+    icon: <Shuffle className="h-6 w-6" />,
   },
 ];
 

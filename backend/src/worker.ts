@@ -986,6 +986,134 @@ async function route(request: Request, env: Env) {
     );
   }
 
+  /**
+   * IP ADDRESS INFO
+   *
+   * Resolves the caller's public IP from Cloudflare's headers and augments
+   * it with geolocation + ASN data from `request.cf` (no outbound call).
+   */
+
+  if (pathname === "/api/ip" && request.method === "GET") {
+    const cf = (request as Request & { cf?: Record<string, unknown> }).cf;
+    const forwarded = request.headers.get("X-Forwarded-For") || "";
+    const publicIp =
+      request.headers.get("CF-Connecting-IP") ||
+      forwarded.split(",")[0].trim() ||
+      "";
+
+    return json({
+      ip: publicIp || null,
+      country: typeof cf?.country === "string" ? cf.country : null,
+      countryCode: typeof cf?.country === "string" ? cf.country : null,
+      city: typeof cf?.city === "string" ? cf.city : null,
+      region: typeof cf?.region === "string" ? cf.region : null,
+      regionCode: typeof cf?.regionCode === "string" ? cf.regionCode : null,
+      continent: typeof cf?.continent === "string" ? cf.continent : null,
+      latitude: typeof cf?.latitude === "string" ? cf.latitude : null,
+      longitude: typeof cf?.longitude === "string" ? cf.longitude : null,
+      timezone: typeof cf?.timezone === "string" ? cf.timezone : null,
+      postalCode: typeof cf?.postalCode === "string" ? cf.postalCode : null,
+      metroCode: typeof cf?.metroCode === "string" ? cf.metroCode : null,
+      asn: typeof cf?.asn === "number" || typeof cf?.asn === "string" ? String(cf.asn) : null,
+      asOrganization:
+        typeof cf?.asOrganization === "string" ? cf.asOrganization : null,
+      isp: typeof cf?.isp === "string" ? cf.isp : null,
+    });
+  }
+
+  /**
+   * SSL CERTIFICATE CHECKER
+   *
+   * Queries Certificate Transparency logs (crt.sh) for the certificate
+   * history of a domain and returns the deduped, most recent entries.
+   */
+
+  if (pathname === "/api/ssl" && request.method === "GET") {
+    const raw = url.searchParams.get("domain") || "";
+
+    const domain = raw
+      .trim()
+      .replace(/^https?:\/\//i, "")
+      .replace(/\/.*$/, "")
+      .toLowerCase();
+
+    if (!domain) {
+      return error("Please provide a domain (e.g. example.com).");
+    }
+
+    if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain)) {
+      return error("Please enter a valid domain name.");
+    }
+
+    let response: Response;
+
+    try {
+      response = await fetch(
+        `https://crt.sh/?q=%25.${encodeURIComponent(domain)}&output=json`,
+      );
+    } catch {
+      return error("Could not reach the certificate transparency service.", 502);
+    }
+
+    if (!response.ok) {
+      return error("Certificate transparency service is unavailable.", 502);
+    }
+
+    let entries: unknown;
+
+    try {
+      entries = JSON.parse(await response.text());
+    } catch {
+      return error("Unexpected response from certificate transparency service.");
+    }
+
+    if (!Array.isArray(entries)) {
+      return error("No certificate data returned for this domain.");
+    }
+
+    type CertEntry = {
+      issuer_name?: string;
+      common_name?: string;
+      name_value?: string;
+      not_before?: string;
+      not_after?: string;
+      serial_number?: string;
+    };
+
+    const seen = new Set<string>();
+    const certificates: CertEntry[] = [];
+
+    for (const rawEntry of entries as CertEntry[]) {
+      const key = [
+        rawEntry.common_name || "",
+        rawEntry.issuer_name || "",
+        rawEntry.not_after || "",
+      ].join("|");
+
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      certificates.push({
+        issuer_name: rawEntry.issuer_name || "",
+        common_name: rawEntry.common_name || "",
+        name_value: rawEntry.name_value || "",
+        not_before: rawEntry.not_before || "",
+        not_after: rawEntry.not_after || "",
+        serial_number: rawEntry.serial_number || "",
+      });
+    }
+
+    certificates.sort((a, b) =>
+      (b.not_before || "").localeCompare(a.not_before || ""),
+    );
+
+    return json({
+      domain,
+      certificateCount: certificates.length,
+      certificates: certificates.slice(0, 20),
+    });
+  }
+
   return notFound("Route not found.");
 }
 
