@@ -192,6 +192,8 @@ export default function CreditCardGeneratorPage() {
   const [brandChoice, setBrandChoice] = useState<Brand | "random">("random");
   const [card, setCard] = useState<GeneratedCard | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [copiedAll, setCopiedAll] = useState(false);
+  const [copiedJson, setCopiedJson] = useState(false);
   // Validate tab state
   const [validateInput, setValidateInput] = useState("");
   const [validCopied, setValidCopied] = useState(false);
@@ -204,6 +206,44 @@ export default function CreditCardGeneratorPage() {
     await navigator.clipboard.writeText(value);
     setCopiedField(key);
     setTimeout(() => setCopiedField(null), 1400);
+  }
+
+  function cardBlock(c: GeneratedCard) {
+    return [
+      `Card Number: ${c.number}`,
+      `Cardholder:  ${c.name}`,
+      `Expiry:      ${c.expiryLabel}`,
+      `CVV:         ${c.cvv}`,
+    ].join("\n");
+  }
+
+  function cardJson(c: GeneratedCard) {
+    return JSON.stringify(
+      {
+        type: "test_card",
+        brand: c.brand,
+        number: c.number.replace(/\s/g, ""),
+        name: c.name,
+        expiry: c.expiryLabel,
+        cvv: c.cvv,
+      },
+      null,
+      2,
+    );
+  }
+
+  async function copyAll() {
+    if (!card) return;
+    await navigator.clipboard.writeText(cardBlock(card));
+    setCopiedAll(true);
+    setTimeout(() => setCopiedAll(false), 1500);
+  }
+
+  async function copyCardJson() {
+    if (!card) return;
+    await navigator.clipboard.writeText(cardJson(card));
+    setCopiedJson(true);
+    setTimeout(() => setCopiedJson(false), 1500);
   }
 
   // Derived validation (computed during render, no effect needed).
@@ -379,8 +419,42 @@ export default function CreditCardGeneratorPage() {
               ))}
             </div>
 
+            {/* Developer JSON output */}
+            <div className="mt-5 rounded-xl border border-white/10 bg-slate-950">
+              <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  Developer · JSON
+                </p>
+                <button
+                  onClick={copyCardJson}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+                >
+                  {copiedJson ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                  {copiedJson ? "Copied" : "Copy JSON"}
+                </button>
+              </div>
+              <pre className="overflow-x-auto p-4 font-mono text-xs leading-5 text-cyan-300">
+                {cardJson(card)}
+              </pre>
+            </div>
+
             {/* Actions */}
             <div className="mt-4 flex flex-wrap gap-3">
+              <button
+                onClick={copyAll}
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              >
+                {copiedAll ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Copy className="h-4 w-4" />
+                )}
+                {copiedAll ? "Copied!" : "Copy all fields"}
+              </button>
               <button
                 onClick={regenerate}
                 className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"

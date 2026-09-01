@@ -34,22 +34,25 @@ import { Container } from "@/components/Container";
 
 const tools = [
   {
-    title: "Word Counter",
-    description: "Count words, characters, sentences, paragraphs, lines, and reading time instantly.",
-    href: "/word-counter",
-    icon: <TextCursorInput className="h-6 w-6" />,
+    title: "IP Address Lookup",
+    description:
+      "See your public IP address with location, network, and timezone details.",
+    href: "/ip-lookup",
+    icon: <Network className="h-6 w-6" />,
   },
   {
-    title: "Character Counter",
-    description: "Count characters with and without spaces, plus letters, numbers, spaces, punctuation, and words.",
-    href: "/character-counter",
-    icon: <Hash className="h-6 w-6" />,
+    title: "Credit Card Generator",
+    description:
+      "Generate test cards (number, expiry, name, CVV) or validate any card's checksum and brand.",
+    href: "/credit-card-generator",
+    icon: <WalletCards className="h-6 w-6" />,
   },
   {
-    title: "Case Converter",
-    description: "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case.",
-    href: "/case-converter",
-    icon: <CaseSensitive className="h-6 w-6" />,
+    title: "Fake Address Generator",
+    description:
+      "Generate realistic fake addresses for testing with multiple locale presets.",
+    href: "/fake-address-generator",
+    icon: <MapPin className="h-6 w-6" />,
   },
   {
     title: "UUID Generator",
@@ -85,6 +88,38 @@ const tools = [
     icon: <LockKeyhole className="h-6 w-6" />,
   },
   {
+    title: "Lorem Ipsum Generator",
+    description:
+      "Generate classic placeholder text as paragraphs, sentences, or words with optional HTML tags.",
+    href: "/lorem-ipsum-generator",
+    icon: <TextQuote className="h-6 w-6" />,
+  },
+  {
+    title: "URL Parser",
+    description:
+      "Parse protocol, domain, path, query params, hash, and copy formatted results.",
+    href: "/url-parser",
+    icon: <Link2 className="h-6 w-6" />,
+  },
+  {
+    title: "Word Counter",
+    description: "Count words, characters, sentences, paragraphs, lines, and reading time instantly.",
+    href: "/word-counter",
+    icon: <TextCursorInput className="h-6 w-6" />,
+  },
+  {
+    title: "Character Counter",
+    description: "Count characters with and without spaces, plus letters, numbers, spaces, punctuation, and words.",
+    href: "/character-counter",
+    icon: <Hash className="h-6 w-6" />,
+  },
+  {
+    title: "Case Converter",
+    description: "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case.",
+    href: "/case-converter",
+    icon: <CaseSensitive className="h-6 w-6" />,
+  },
+  {
     title: "Regex Tester",
     description:
       "Test regex patterns with flags, match highlighting, and match details.",
@@ -98,33 +133,13 @@ const tools = [
     href: "/timestamp-converter",
     icon: <Clock className="h-6 w-6" />,
   },
-  {
-    title: "URL Parser",
-    description:
-      "Parse protocol, domain, path, query params, hash, and copy formatted results.",
-    href: "/url-parser",
-    icon: <Link2 className="h-6 w-6" />,
-  },
+  
   {
     title: "Color Converter",
     description:
       "Convert HEX, RGB, and HSL colors with preview and palette generation.",
     href: "/color-converter",
     icon: <Palette className="h-6 w-6" />,
-  },
-  {
-    title: "Lorem Ipsum Generator",
-    description:
-      "Generate classic placeholder text as paragraphs, sentences, or words with optional HTML tags.",
-    href: "/lorem-ipsum-generator",
-    icon: <TextQuote className="h-6 w-6" />,
-  },
-  {
-    title: "IP Address Lookup",
-    description:
-      "See your public IP address with location, network, and timezone details.",
-    href: "/ip-lookup",
-    icon: <Network className="h-6 w-6" />,
   },
   {
     title: "SSL Certificate Checker",
@@ -175,13 +190,7 @@ const tools = [
     href: "/http-request-tester",
     icon: <Send className="h-6 w-6" />,
   },
-  {
-    title: "Fake Address Generator",
-    description:
-      "Generate realistic fake addresses for testing with multiple locale presets.",
-    href: "/fake-address-generator",
-    icon: <MapPin className="h-6 w-6" />,
-  },
+  
   {
     title: "Random String Generator",
     description:
@@ -196,13 +205,7 @@ const tools = [
     href: "/text-compare",
     icon: <GitCompare className="h-6 w-6" />,
   },
-  {
-    title: "Credit Card Generator",
-    description:
-      "Generate test cards (number, expiry, name, CVV) or validate any card's checksum and brand.",
-    href: "/credit-card-generator",
-    icon: <WalletCards className="h-6 w-6" />,
-  },
+  
   {
     title: "IBAN Validator",
     description:

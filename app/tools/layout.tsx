@@ -11,5 +11,5 @@ export default function ToolsLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return children;  
 }

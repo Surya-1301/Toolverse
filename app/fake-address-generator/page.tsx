@@ -52,7 +52,7 @@ const howToUseSteps = [
   },
   {
     title: "Copy or download",
-    description: "Copy to clipboard or download results as a CSV file.",
+    description: "Copy any address, copy all, or export the whole batch as CSV or JSON.",
     icon: <Copy className="h-5 w-5" />,
   },
   {
@@ -121,6 +121,7 @@ export default function FakeAddressGeneratorPage() {
   const [style, setStyle] = useState<"single" | "multi">("multi");
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [copied, setCopied] = useState(false);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   function generate() {
     const result = Array.from({ length: count }, () => selectedLocale.generate());
@@ -158,6 +159,31 @@ export default function FakeAddressGeneratorPage() {
     URL.revokeObjectURL(url);
   }
 
+  function downloadJson() {
+    if (!addresses.length) return;
+    const data = addresses.map((addr) => ({
+      street: addr.street,
+      secondary: addr.secondary ?? undefined,
+      city: addr.city,
+      state: addr.state ?? undefined,
+      zip: addr.zip,
+      country: addr.country,
+    }));
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `fake-addresses-${selectedLocale.key.toLowerCase()}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
+  async function copyOne(index: number) {
+    await navigator.clipboard.writeText(formatAddress(addresses[index], style));
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 1400);
+  }
+
   return (
     <Container className="py-12 sm:py-16">
       <BackToToolsLink />
@@ -178,7 +204,7 @@ export default function FakeAddressGeneratorPage() {
         {/* Locale picker */}
         <div>
           <label className="mb-2 block text-sm font-semibold text-slate-300">
-            Locale
+            Location
           </label>
           <div className="flex flex-wrap gap-2">
             {locales.map((loc) => (
@@ -274,13 +300,25 @@ export default function FakeAddressGeneratorPage() {
             <Download className="h-4 w-4" />
             CSV
           </button>
+
+          <button
+            onClick={downloadJson}
+            disabled={!addresses.length}
+            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+          >
+            <Download className="h-4 w-4" />
+            JSON
+          </button>
         </div>
 
         {/* Results */}
         {addresses.length > 0 ? (
           <div className="mt-6">
-            <p className="mb-2 text-sm font-semibold text-slate-300">
+            <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
+              <span>{selectedLocale.flag}</span>
               Generated {addresses.length} address{addresses.length > 1 ? "es" : ""}
+              <span className="text-slate-500">·</span>
+              <span className="text-slate-400">{selectedLocale.label}</span>
             </p>
             <div className="max-h-[500px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
               <ul className="divide-y divide-white/5">
@@ -303,13 +341,31 @@ export default function FakeAddressGeneratorPage() {
                         </code>
                       )}
                     </div>
-                    <button
-                      onClick={() => regenerateSingle(index)}
-                      aria-label={`Regenerate address ${index + 1}`}
-                      className="mt-0.5 shrink-0 text-slate-500 transition hover:text-white"
-                    >
-                      <RefreshCw className="h-4 w-4" />
-                    </button>
+                    <div className="mt-0.5 flex shrink-0 items-center gap-1">
+                      <button
+                        onClick={() => copyOne(index)}
+                        aria-label={`Copy address ${index + 1}`}
+                        className={[
+                          "rounded-md p-1.5 transition",
+                          copiedIndex === index
+                            ? "text-emerald-400"
+                            : "text-slate-500 hover:bg-white/5 hover:text-white",
+                        ].join(" ")}
+                      >
+                        {copiedIndex === index ? (
+                          <Check className="h-4 w-4" />
+                        ) : (
+                          <Copy className="h-4 w-4" />
+                        )}
+                      </button>
+                      <button
+                        onClick={() => regenerateSingle(index)}
+                        aria-label={`Regenerate address ${index + 1}`}
+                        className="rounded-md p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white"
+                      >
+                        <RefreshCw className="h-4 w-4" />
+                      </button>
+                    </div>
                   </li>
                 ))}
               </ul>

@@ -9,8 +9,10 @@ import {
   ImageDown,
   ImagePlus,
   Link2,
+  MapPin,
   QrCode,
   Text,
+  WalletCards,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -30,7 +32,6 @@ const popularTools = [
     icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
     title: "Upload & Share",
     description:
@@ -39,7 +40,6 @@ const popularTools = [
     icon: <FileUp className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
     title: "Image & PDF Compressor",
     description:
@@ -48,7 +48,6 @@ const popularTools = [
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
     title: "Paste",
     description:
@@ -57,7 +56,6 @@ const popularTools = [
     icon: <Text className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
     title: "URL Shortener",
     description:
@@ -66,7 +64,6 @@ const popularTools = [
     icon: <Link2 className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
     title: "Background Remover",
     description:
@@ -75,25 +72,22 @@ const popularTools = [
     icon: <ImagePlus className="h-6 w-6" />,
     status: "live" as const,
   },
-
-  {
-    title: "Image Converter",
+{
+    title: "Credit Card Generator",
     description:
-      "Convert PNG, JPG, and WebP images directly in your browser.",
-    href: "/image-converter",
-    icon: <ImageDown className="h-6 w-6" />,
+      "Generate test cards or validate any card's checksum and brand.",
+    href: "/credit-card-generator",
+    icon: <WalletCards className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
-    title: "Image Resizer",
+    title: "Fake Address Generator",
     description:
-      "Resize single or multiple images with aspect ratio and quality controls.",
-    href: "/image-resizer",
-    icon: <ImageDown className="h-6 w-6" />,
+      "Generate realistic fake addresses for testing with multiple locale presets.",
+    href: "/fake-address-generator",
+    icon: <MapPin className="h-6 w-6" />,
     status: "live" as const,
   },
-
   {
     title: "QR Generator",
     description:
