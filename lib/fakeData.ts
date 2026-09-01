@@ -1,8 +1,3 @@
-/* ==========================================================================
-   Fake data generators — deterministic-ish, browser-friendly.
-   All randomness uses Math.random for portability.
-   ========================================================================== */
-
 export type Address = {
   street: string;
   secondary?: string;
@@ -16,7 +11,7 @@ export type Locale = {
   key: string;
   label: string;
   flag: string;
-  generate: () => Address;
+  generate: (zipcode?: string) => Address;
 };
 
 /* --------------------------- shared helpers --------------------------- */
@@ -61,7 +56,7 @@ const US_STATES = [
 
 const US_ZIPS = ["10001", "90001", "60601", "77001", "33101", "02108", "48201", "20001"];
 
-function generateUsAddress(): Address {
+function generateUsAddress(zipcode?: string): Address {
   const state = pick(US_STATES);
   const secondary = Math.random() < 0.4 ? `Apt ${randInt(1, 200)}` : undefined;
 
@@ -70,7 +65,7 @@ function generateUsAddress(): Address {
     secondary,
     city: pick(US_CITIES),
     state,
-    zip: randomZip(US_ZIPS),
+    zip: zipcode || randomZip(US_ZIPS),
     country: "United States",
   };
 }
@@ -92,12 +87,12 @@ const GB_POSTCODES = [
   "BS1 4DG", "S1 2HE", "CF10 1AL", "EH1 1YZ", "NG1 2AA", "NE1 1SE",
 ] as const;
 
-function generateGbAddress(): Address {
+function generateGbAddress(zipcode?: string): Address {
   return {
     street: `${randInt(1, 240)} ${pick(GB_STREET_NAMES)} ${pick([...GB_STREET_NAMES].filter((s) => s.length < 9) as readonly string[])}`,
     city: pick(GB_CITIES),
     state: "",
-    zip: pick(GB_POSTCODES),
+    zip: zipcode || pick(GB_POSTCODES),
     country: "United Kingdom",
   };
 }
@@ -125,7 +120,7 @@ const AU_STATES = [
 
 const AU_POSTCODES = ["2000", "3000", "4000", "5000", "6000", "7000", "3010", "2042"];
 
-function generateAuAddress(): Address {
+function generateAuAddress(zipcode?: string): Address {
   const state = pick(AU_STATES);
   const secondary = Math.random() < 0.35 ? `Unit ${randInt(1, 60)}` : undefined;
 
@@ -134,7 +129,7 @@ function generateAuAddress(): Address {
     secondary,
     city: pick(AU_SUBURBS),
     state: state.name,
-    zip: randomZip(AU_POSTCODES),
+    zip: zipcode || randomZip(AU_POSTCODES),
     country: "Australia",
   };
 }
@@ -160,12 +155,12 @@ const CA_POSTCODES = [
   "R3B 1C3", "G1R 2A5", "B3H 3J2", "V8W 1X2",
 ] as const;
 
-function generateCaAddress(): Address {
+function generateCaAddress(zipcode?: string): Address {
   return {
     street: `${randInt(1, 999)} ${pick(CA_STREETS)} ${pick(["St", "Ave", "Rd", "Blvd", "Way", "Crescent"] as const)}`,
     city: pick(CA_CITIES),
     state: pick(CA_PROVINCES),
-    zip: pick(CA_POSTCODES),
+    zip: zipcode || pick(CA_POSTCODES),
     country: "Canada",
   };
 }
@@ -185,12 +180,12 @@ const DE_CITIES = [
 
 const DE_POSTCODES = ["10115", "20095", "80331", "50667", "60311", "70173", "40213", "04109"];
 
-function generateDeAddress(): Address {
+function generateDeAddress(zipcode?: string): Address {
   return {
     street: `${pick(DE_STREET_NAMES)} ${randInt(1, 200)}`,
     city: pick(DE_CITIES),
     state: "",
-    zip: pick(DE_POSTCODES),
+    zip: zipcode || pick(DE_POSTCODES),
     country: "Germany",
   };
 }
@@ -210,13 +205,306 @@ const FR_CITIES = [
 
 const FR_POSTCODES = ["75001", "69002", "13001", "31000", "06000", "44000", "67000", "33000"];
 
-function generateFrAddress(): Address {
+function generateFrAddress(zipcode?: string): Address {
   return {
     street: `${randInt(1, 200)} ${pick(FR_STREET_NAMES)}`,
     city: pick(FR_CITIES),
     state: "",
-    zip: pick(FR_POSTCODES),
+    zip: zipcode || pick(FR_POSTCODES),
     country: "France",
+  };
+}
+
+/* ------------------------------ JP ------------------------------ */
+
+const JP_PREFECTURES = [
+  "Tokyo", "Osaka", "Kanagawa", "Aichi", "Hyogo", "Hokkaido", "Fukuoka",
+  "Saitama", "Chiba", "Shizuoka",
+] as const;
+
+const JP_CITIES = [
+  "Shibuya", "Shinjuku", "Ginza", "Roppongi", "Akihabara", "Ikebukuro",
+  "Umeda", "Namba", "Tennoji", "Nakamura", "Sakae", "Fushimi",
+  "Sapporo", "Hakata", "Oita", "Naha",
+] as const;
+
+const JP_STREET_NAMES = [
+  "Dori", "Cho", "Machi", "Koji", "Zaka", "Bashi", "Toori", "Suji",
+] as const;
+
+const JP_POSTCODES = [
+  "150-0001", "160-0001", "104-0061", "106-0032", "101-0021", "170-0013",
+  "530-0001", "542-0076", "543-0001", "460-0001", "460-0008", "600-8001",
+  "060-0001", "810-0001", "870-0001", "900-0001",
+] as const;
+
+function generateJpAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(JP_CITIES)}-${randInt(1, 5)}-${randInt(1, 20)}-${randInt(1, 30)}`,
+    city: pick(JP_CITIES),
+    state: pick(JP_PREFECTURES),
+    zip: zipcode || pick(JP_POSTCODES),
+    country: "Japan",
+  };
+}
+
+/* ------------------------------ BR ------------------------------ */
+
+const BR_STREET_NAMES = [
+  "Rua das Flores", "Avenida Paulista", "Rua Augusta", "Rua Oscar Freire",
+  "Avenida Brasil", "Rua da Consolação", "Avenida Faria Lima", "Rua Haddock Lobo",
+  "Rua Bela Cintra", "Alameda Santos", "Rua Pamplona", "Avenida Rebouças",
+] as const;
+
+const BR_CITIES = [
+  "São Paulo", "Rio de Janeiro", "Brasília", "Salvador", "Fortaleza",
+  "Belo Horizonte", "Manaus", "Curitiba", "Recife", "Porto Alegre",
+] as const;
+
+const BR_STATES = [
+  "São Paulo", "Rio de Janeiro", "Distrito Federal", "Bahia", "Ceará",
+  "Minas Gerais", "Amazonas", "Paraná", "Pernambuco", "Rio Grande do Sul",
+] as const;
+
+const BR_POSTCODES = [
+  "01310-000", "20010-000", "70000-000", "40010-000", "60010-000",
+  "30110-000", "69010-000", "80010-000", "50010-000", "90010-000",
+] as const;
+
+function generateBrAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(BR_STREET_NAMES)}, ${randInt(1, 500)}`,
+    city: pick(BR_CITIES),
+    state: pick(BR_STATES),
+    zip: zipcode || pick(BR_POSTCODES),
+    country: "Brazil",
+  };
+}
+
+/* ------------------------------ IN ------------------------------ */
+
+const IN_STREET_NAMES = [
+  "MG Road", "Brigade Road", "Commercial Street", "Residency Road",
+  "Church Street", "Cunningham Road", "Lavelle Road", "Vittal Mallya Road",
+  "Nehru Road", "Gandhi Road", "Park Street", "Marine Drive",
+] as const;
+
+const IN_CITIES = [
+  "Bangalore", "Mumbai", "Delhi", "Hyderabad", "Chennai", "Kolkata",
+  "Pune", "Ahmedabad", "Jaipur", "Lucknow",
+] as const;
+
+const IN_STATES = [
+  "Karnataka", "Maharashtra", "Delhi", "Telangana", "Tamil Nadu",
+  "West Bengal", "Maharashtra", "Gujarat", "Rajasthan", "Uttar Pradesh",
+] as const;
+
+const IN_POSTCODES = [
+  "560001", "400001", "110001", "500001", "600001",
+  "700001", "411001", "380001", "302001", "226001",
+] as const;
+
+function generateInAddress(zipcode?: string): Address {
+  return {
+    street: `${randInt(1, 500)}, ${pick(IN_STREET_NAMES)}`,
+    city: pick(IN_CITIES),
+    state: pick(IN_STATES),
+    zip: zipcode || pick(IN_POSTCODES),
+    country: "India",
+  };
+}
+
+/* ------------------------------ MX ------------------------------ */
+
+const MX_STREET_NAMES = [
+  "Avenida de la Reforma", "Calle de la Palma", "Calle de Donceles",
+  "Avenida Insurgentes", "Calle de Madero", "Calle de Tacuba",
+  "Avenida Universidad", "Calle de Moneda", "Calle de Gante",
+  "Avenida Chapultepec", "Calle de Morelos", "Calle de Independencia",
+] as const;
+
+const MX_CITIES = [
+  "Ciudad de México", "Guadalajara", "Monterrey", "Puebla", "Tijuana",
+  "León", "Juárez", "Torreón", "Querétaro", "San Luis Potosí",
+] as const;
+
+const MX_STATES = [
+  "Ciudad de México", "Jalisco", "Nuevo León", "Puebla", "Baja California",
+  "Guanajuato", "Chihuahua", "Coahuila", "Querétaro", "San Luis Potosí",
+] as const;
+
+const MX_POSTCODES = [
+  "06000", "44100", "64000", "72000", "22000",
+  "37000", "32000", "27000", "76000", "78000",
+] as const;
+
+function generateMxAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(MX_STREET_NAMES)} ${randInt(1, 500)}`,
+    city: pick(MX_CITIES),
+    state: pick(MX_STATES),
+    zip: zipcode || pick(MX_POSTCODES),
+    country: "Mexico",
+  };
+}
+
+/* ------------------------------ IT ------------------------------ */
+
+const IT_STREET_NAMES = [
+  "Via Roma", "Via Milano", "Via Torino", "Via Napoli", "Via Venezia",
+  "Via Firenze", "Via Bologna", "Via Genova", "Via Palermo", "Via Catania",
+  "Corso Italia", "Corso Vittorio Emanuele", "Corso Buenos Aires",
+] as const;
+
+const IT_CITIES = [
+  "Roma", "Milano", "Napoli", "Torino", "Palermo", "Genova", "Bologna",
+  "Firenze", "Bari", "Catania", "Venezia", "Verona", "Messina",
+] as const;
+
+const IT_PROVINCES = [
+  "RM", "MI", "NA", "TO", "PA", "GE", "BO", "FI", "BA", "CT", "VE", "VR", "ME",
+] as const;
+
+const IT_POSTCODES = [
+  "00100", "20100", "80100", "10100", "90100", "16100", "40100",
+  "50100", "70100", "95100", "30100", "37100", "98100",
+] as const;
+
+function generateItAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(IT_STREET_NAMES)} ${randInt(1, 200)}`,
+    city: pick(IT_CITIES),
+    state: pick(IT_PROVINCES),
+    zip: zipcode || pick(IT_POSTCODES),
+    country: "Italy",
+  };
+}
+
+/* ------------------------------ ES ------------------------------ */
+
+const ES_STREET_NAMES = [
+  "Calle Mayor", "Calle de Alcalá", "Gran Vía", "Paseo de la Castellana",
+  "Calle de Serrano", "Calle de Fuencarral", "Calle de Preciados", "Calle del Carmen",
+  "Avenida Diagonal", "Calle de Balmes", "Paseo de Gracia", "Calle de Pelai",
+] as const;
+
+const ES_CITIES = [
+  "Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga",
+  "Murcia", "Palma", "Las Palmas", "Bilbao", "Alicante", "Córdoba",
+] as const;
+
+const ES_PROVINCES = [
+  "Madrid", "Barcelona", "Valencia", "Sevilla", "Zaragoza", "Málaga",
+  "Murcia", "Baleares", "Las Palmas", "Bizkaia", "Alicante", "Córdoba",
+] as const;
+
+const ES_POSTCODES = [
+  "28001", "08001", "46001", "41001", "50001", "29001",
+  "30001", "07001", "35001", "48001", "03001", "14001",
+] as const;
+
+function generateEsAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(ES_STREET_NAMES)} ${randInt(1, 200)}`,
+    city: pick(ES_CITIES),
+    state: pick(ES_PROVINCES),
+    zip: zipcode || pick(ES_POSTCODES),
+    country: "Spain",
+  };
+}
+
+/* ------------------------------ NL ------------------------------ */
+
+const NL_STREET_NAMES = [
+  "Damrak", "Kalverstraat", "Leidsestraat", "Haarlemmerstraat", "Spui",
+  "Nieuwendijk", "Rokin", "Herengracht", "Keizersgracht", "Prinsengracht",
+] as const;
+
+const NL_CITIES = [
+  "Amsterdam", "Rotterdam", "Den Haag", "Utrecht", "Eindhoven",
+  "Tilburg", "Groningen", "Almere", "Breda", "Nijmegen",
+] as const;
+
+const NL_PROVINCES = [
+  "Noord-Holland", "Zuid-Holland", "Zuid-Holland", "Utrecht", "Noord-Brabant",
+  "Noord-Brabant", "Groningen", "Flevoland", "Noord-Brabant", "Gelderland",
+] as const;
+
+const NL_POSTCODES = [
+  "1012", "3011", "2511", "3511", "5611",
+  "5011", "9711", "1311", "4811", "6511",
+] as const;
+
+function generateNlAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(NL_STREET_NAMES)} ${randInt(1, 200)}`,
+    city: pick(NL_CITIES),
+    state: pick(NL_PROVINCES),
+    zip: zipcode || pick(NL_POSTCODES),
+    country: "Netherlands",
+  };
+}
+
+/* ------------------------------ KR ------------------------------ */
+
+const KR_CITIES = [
+  "Seoul", "Busan", "Daegu", "Incheon", "Gwangju", "Daejeon", "Ulsan",
+  "Suwon", "Changwon", "Goyang", "Yongin", "Seongnam", "Bucheon",
+] as const;
+
+const KR_DISTRICTS = [
+  "Gangnam-gu", "Jung-gu", "Mapo-gu", "Seocho-gu", "Songpa-gu", "Yongsan-gu",
+  "Busanjin-gu", "Dalseo-gu", "Nam-gu", "Seo-gu", "Buk-gu", "Jung-gu",
+  "Nam-gu", "Jung-gu", "Wonmi-gu",
+] as const;
+
+const KR_STREET_NAMES = [
+  "Teheran-ro", "Gangnam-daero", "Sejong-daero", "Eulji-ro", "Toegye-ro",
+  "Jongno", "Myeongdong-gil", "Hongdae-ro", "Itaewon-ro", "Gangnam-ro",
+] as const;
+
+const KR_POSTCODES = [
+  "06234", "04524", "04157", "06625", "05554", "04376",
+  "47281", "42672", "61753", "22533", "41935", "35242",
+  "61184", "13524", "14547",
+] as const;
+
+function generateKrAddress(zipcode?: string): Address {
+  return {
+    street: `${pick(KR_STREET_NAMES)} ${randInt(1, 100)}-${randInt(1, 50)}`,
+    city: pick(KR_CITIES),
+    state: pick(KR_DISTRICTS),
+    zip: zipcode || pick(KR_POSTCODES),
+    country: "South Korea",
+  };
+}
+
+/* ------------------------------ SG ------------------------------ */
+
+const SG_STREET_NAMES = [
+  "Orchard Road", "Marina Bay", "Raffles Place", "Shenton Way", "Robinson Road",
+  "Chinatown", "Little India", "Kampong Glam", "Sentosa", "Holland Village",
+  "Tiong Bahru", "Clarke Quay", "Boat Quay", "Robertson Quay",
+] as const;
+
+const SG_DISTRICTS = [
+  "Central", "Marina", "Downtown", "Orchard", "Newton", "River Valley",
+  "Outram", "Bukit Merah", "Kallang", "Geylang", "Bedok", "Tampines",
+] as const;
+
+const SG_POSTCODES = [
+  "238872", "018983", "048623", "079118", "068896",
+  "059573", "208533", "199438", "398174", "389180",
+  "468912", "529234", "498317", "238260",
+] as const;
+
+function generateSgAddress(zipcode?: string): Address {
+  return {
+    street: `${randInt(1, 200)} ${pick(SG_STREET_NAMES)}`,
+    city: "Singapore",
+    state: pick(SG_DISTRICTS),
+    zip: zipcode || pick(SG_POSTCODES),
+    country: "Singapore",
   };
 }
 
@@ -225,10 +513,19 @@ function generateFrAddress(): Address {
 export const locales: Locale[] = [
   { key: "US", label: "United States", flag: "🇺🇸", generate: generateUsAddress },
   { key: "GB", label: "United Kingdom", flag: "🇬🇧", generate: generateGbAddress },
+  { key: "IN", label: "India", flag: "🇮🇳", generate: generateInAddress },
   { key: "AU", label: "Australia", flag: "🇦🇺", generate: generateAuAddress },
   { key: "CA", label: "Canada", flag: "🇨🇦", generate: generateCaAddress },
   { key: "DE", label: "Germany", flag: "🇩🇪", generate: generateDeAddress },
   { key: "FR", label: "France", flag: "🇫🇷", generate: generateFrAddress },
+  { key: "JP", label: "Japan", flag: "🇯🇵", generate: generateJpAddress },
+  { key: "BR", label: "Brazil", flag: "🇧🇷", generate: generateBrAddress },
+  { key: "MX", label: "Mexico", flag: "🇲🇽", generate: generateMxAddress },
+  { key: "IT", label: "Italy", flag: "🇮🇹", generate: generateItAddress },
+  { key: "ES", label: "Spain", flag: "🇪🇸", generate: generateEsAddress },
+  { key: "NL", label: "Netherlands", flag: "🇳🇱", generate: generateNlAddress },
+  { key: "KR", label: "South Korea", flag: "🇰🇷", generate: generateKrAddress },
+  { key: "SG", label: "Singapore", flag: "🇸🇬", generate: generateSgAddress },
 ];
 
 /* --------------------------- Formatting --------------------------- */

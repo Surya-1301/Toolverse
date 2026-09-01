@@ -13,6 +13,7 @@ import {
   MapPin,
   RefreshCw,
   Sparkles,
+  Search,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { type Locale, type Address, locales, formatAddress } from "@/lib/fakeData";
@@ -34,6 +35,11 @@ const howToUseSteps = [
     title: "Pick a locale",
     description: "Choose a country to generate addresses for.",
     icon: <Globe2 className="h-5 w-5" />,
+  },
+  {
+    title: "Enter zipcode (optional)",
+    description: "Enter a specific zipcode/pincode to generate addresses for that area.",
+    icon: <MapPin className="h-5 w-5" />,
   },
   {
     title: "Set count",
@@ -122,9 +128,10 @@ export default function FakeAddressGeneratorPage() {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [copied, setCopied] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
+  const [zipcode, setZipcode] = useState("");
 
   function generate() {
-    const result = Array.from({ length: count }, () => selectedLocale.generate());
+    const result = Array.from({ length: count }, () => selectedLocale.generate(zipcode.trim() || undefined));
     setAddresses(result);
     setCopied(false);
   }
@@ -132,7 +139,7 @@ export default function FakeAddressGeneratorPage() {
   function regenerateSingle(index: number) {
     setAddresses((prev) => {
       const next = [...prev];
-      next[index] = selectedLocale.generate();
+      next[index] = selectedLocale.generate(zipcode.trim() || undefined);
       return next;
     });
     setCopied(false);
@@ -214,6 +221,7 @@ export default function FakeAddressGeneratorPage() {
                 onClick={() => {
                   setSelectedLocale(loc);
                   setAddresses([]);
+                  setZipcode("");
                 }}
                 className={[
                   "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
@@ -227,6 +235,28 @@ export default function FakeAddressGeneratorPage() {
               </button>
             ))}
           </div>
+        </div>
+
+        {/* Zipcode/Pincode input */}
+        <div className="mt-5">
+          <label className="mb-2 block text-sm font-semibold text-slate-300">
+            Zipcode / Pincode (optional)
+          </label>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+            <input
+              type="text"
+              value={zipcode}
+              onChange={(e) => setZipcode(e.target.value)}
+              placeholder="Enter zipcode to generate addresses for a specific area"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition"
+            />
+          </div>
+          {zipcode && (
+            <p className="mt-1 text-xs text-slate-500">
+              Generating addresses for zipcode: <span className="font-mono text-slate-300">{zipcode}</span>
+            </p>
+          )}
         </div>
 
         {/* Count */}
