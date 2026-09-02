@@ -76,6 +76,7 @@ export default function BlurImagePage() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<{ offsetX: number; offsetY: number } | null>(null);
+  const [sourceUrl, setSourceUrl] = useState("");
 
   function loadImage(file: File) {
     if (!file) return;
@@ -84,9 +85,9 @@ export default function BlurImagePage() {
     const img = new Image();
     img.onload = () => {
       setSource(img);
+      setSourceUrl(objectUrl);
       setImageName(file.name.replace(/\.[^.]+$/, "") || "image");
       setPreviewUrl("");
-      URL.revokeObjectURL(objectUrl);
     };
     img.onerror = () => URL.revokeObjectURL(objectUrl);
     img.src = objectUrl;
@@ -180,6 +181,7 @@ export default function BlurImagePage() {
     const nextY = Math.min(Math.max(py - dragRef.current.offsetY, 0), 100 - region.h);
 
     setRegion((current) => ({ ...current, x: nextX, y: nextY }));
+    setPreviewUrl("");
   }
 
   function endDrag() {
@@ -187,9 +189,11 @@ export default function BlurImagePage() {
   }
 
   function clearAll() {
+    if (sourceUrl) URL.revokeObjectURL(sourceUrl);
     setSource(null);
     setImageName("");
     setPreviewUrl("");
+    setSourceUrl("");
     setRegion({ x: 25, y: 25, w: 50, h: 50 });
   }
 
@@ -203,8 +207,7 @@ export default function BlurImagePage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Blur an entire photo or just a region of it — hide faces, license
-          plates, or sensitive details before sharing.
+         Blur faces, license plates, personal information, or any sensitive area — instantly.
         </p>
       </div>
 
@@ -233,7 +236,7 @@ export default function BlurImagePage() {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={() => setMode("full")}
+                  onClick={() => { setMode("full"); setPreviewUrl(""); }}
                   className={[
                     "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                     mode === "full"
@@ -246,7 +249,7 @@ export default function BlurImagePage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setMode("region")}
+                  onClick={() => { setMode("region"); setPreviewUrl(""); }}
                   className={[
                     "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                     mode === "region"
@@ -270,7 +273,7 @@ export default function BlurImagePage() {
                 max="40"
                 step="1"
                 value={radius}
-                onChange={(event) => setRadius(Number(event.target.value))}
+                onChange={(event) => { setRadius(Number(event.target.value)); setPreviewUrl(""); }}
                 className="w-full accent-violet-500"
               />
               <p className="mt-2 text-xs text-slate-500">
@@ -294,12 +297,13 @@ export default function BlurImagePage() {
                         min="0"
                         max="100"
                         value={region[key]}
-                        onChange={(event) =>
+                        onChange={(event) => {
                           setRegion((current) => ({
                             ...current,
                             [key]: Number(event.target.value),
-                          }))
-                        }
+                          }));
+                          setPreviewUrl("");
+                        }}
                         className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none transition focus:border-violet-500"
                       />
                     </div>
@@ -362,7 +366,7 @@ export default function BlurImagePage() {
                 ) : (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={source.src}
+                    src={sourceUrl}
                     alt="Original preview"
                     className="pointer-events-none h-full w-full object-contain"
                   />
