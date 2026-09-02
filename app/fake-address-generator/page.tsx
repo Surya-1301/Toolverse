@@ -16,6 +16,7 @@ import {
   Search,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
 import { type Locale, type Address, locales, formatAddress } from "@/lib/fakeData";
 
 function BackToToolsLink() {
@@ -32,7 +33,7 @@ function BackToToolsLink() {
 
 const howToUseSteps = [
   {
-    title: "Pick a locale",
+    title: "Pick a location",
     description: "Choose a country to generate addresses for.",
     icon: <Globe2 className="h-5 w-5" />,
   },
@@ -40,11 +41,6 @@ const howToUseSteps = [
     title: "Enter zipcode (optional)",
     description: "Enter a specific zipcode/pincode to generate addresses for that area.",
     icon: <MapPin className="h-5 w-5" />,
-  },
-  {
-    title: "Set count",
-    description: "Generate one address or a batch of up to 50.",
-    icon: <Hash className="h-5 w-5" />,
   },
   {
     title: "Choose format",
@@ -68,53 +64,6 @@ const howToUseSteps = [
   },
 ];
 
-function HowToUseSection() {
-  return (
-    <section className="mt-14">
-      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use Fake Address Generator
-      </h2>
-
-      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-              {step.icon}
-            </div>
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {step.description}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-3 sm:hidden">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
-              {step.icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-[14px] font-semibold leading-5 text-white">
-                {step.title}
-              </h3>
-              <p className="mt-1 text-[12px] leading-5 text-slate-400">
-                {step.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 function addressToCsvRow(addr: Address): string {
   const fields = [addr.street, addr.secondary ?? "", addr.city, addr.state, addr.zip, addr.country];
@@ -201,9 +150,8 @@ export default function FakeAddressGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate realistic fake addresses for testing, prototyping, and demo
-          data. Choose a locale and get random street addresses with proper
-          formatting.
+          Generate realistic fake addresses for testing, demos, and prototypes. Select a locale and get randomly formatted street addresses.
+
         </p>
       </div>
 
@@ -402,16 +350,16 @@ export default function FakeAddressGeneratorPage() {
             </div>
           </div>
         ) : (
-          <div className="mt-6 flex min-h-[72px] items-center justify-center rounded-xl border border-dashed border-white/10">
-            <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500">
-              <ArrowRight className="h-4 w-4" />
-              Pick a locale and click Generate to create fake addresses.
-            </p>
+          <div className="">
           </div>
         )}
       </div>
+      <HowToUse
+        title="How to use Fake Address Generator"
+        subtitle=""
+        steps={howToUseSteps}
+      />
 
-      <HowToUseSection />
     </Container>
   );
 }

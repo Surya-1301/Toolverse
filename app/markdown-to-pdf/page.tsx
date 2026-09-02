@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
 
 function escapeHtml(value: string) {
   return value
@@ -95,58 +96,6 @@ const howToUseSteps = [
   },
 ];
 
-function HowToUseSection() {
-  return (
-    <section className="mt-14">
-      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use Markdown to PDF
-      </h2>
-      {/* Desktop/tablet: keep the existing card layout */}
-      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-              {step.icon}
-            </div>
-
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
-
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {step.description}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      {/* Mobile only: icon on the left, title + description on the right */}
-      <div className="mt-6 space-y-4 sm:hidden">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="flex items-start gap-4 rounded-2xl border border-[#183b4f] bg-[#0b0e1f] p-4"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#0d526b] bg-[#09283c] text-[#65e4f7] shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
-              {step.icon}
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold leading-5 text-[#f4fbff]">
-                {step.title}
-              </h3>
-
-              <p className="mt-1.5 text-xs leading-5 text-[#8fa9b8]">
-                {step.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 export default function MarkdownToPdfPage() {
   const [input, setInput] = useState("");
@@ -253,8 +202,12 @@ export default function MarkdownToPdfPage() {
           Clear
         </button>
       </div>
+      <HowToUse
+        title="How to use Markdown to PDF"
+        subtitle=""
+        steps={howToUseSteps}
+      />
 
-      <HowToUseSection />
     </Container>
   );
 }

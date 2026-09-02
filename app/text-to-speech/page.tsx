@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -15,6 +16,7 @@ import {
   Volume2,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
 
 function BackToToolsLink() {
   return (
@@ -56,58 +58,12 @@ const howToUseSteps = [
   },
   {
     title: "Stays private",
-    description: "Everything runs locally — the text never leaves your device.",
+    description:
+      "Everything runs locally — the text never leaves your device.",
     icon: <Volume2 className="h-5 w-5" />,
   },
 ];
 
-function HowToUseSection() {
-  return (
-    <section className="mt-14">
-      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use Text to Speech
-      </h2>
-
-      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-              {step.icon}
-            </div>
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {step.description}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-3 sm:hidden">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
-              {step.icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-[14px] font-semibold leading-5 text-white">
-                {step.title}
-              </h3>
-              <p className="mt-1 text-[12px] leading-5 text-slate-400">
-                {step.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 const DEFAULT_TEXT =
   "Welcome to Toolverse. This text is being spoken using your browser's built-in speech engine, right on your device.";
@@ -136,42 +92,90 @@ export default function TextToSpeechPage() {
 
     function loadVoices() {
       const available = window.speechSynthesis.getVoices();
-      if (available.length) {
-        setVoices(available);
-        if (!voiceUri || !available.some((voice) => voice.voiceURI === voiceUri)) {
-          setVoiceUri(available[0]?.voiceURI || "");
-        }
+
+      if (!available.length) {
+        return;
       }
+
+      /*
+       * Some browsers/platforms can return duplicate voices
+       * with the same voiceURI. React requires unique keys,
+       * and voiceURI is also what we use as the select value.
+       *
+       * Keep only the first occurrence of each voiceURI.
+       */
+      const uniqueVoices = Array.from(
+        new Map(
+          available.map((voice) => [
+            voice.voiceURI,
+            voice,
+          ]),
+        ).values(),
+      );
+
+      setVoices(uniqueVoices);
+
+      setVoiceUri((currentVoiceUri) => {
+        const currentStillExists = uniqueVoices.some(
+          (voice) => voice.voiceURI === currentVoiceUri,
+        );
+
+        if (currentStillExists) {
+          return currentVoiceUri;
+        }
+
+        return uniqueVoices[0]?.voiceURI ?? "";
+      });
     }
 
     loadVoices();
-    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+
+    window.speechSynthesis.addEventListener(
+      "voiceschanged",
+      loadVoices,
+    );
 
     return () => {
-      window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
+      window.speechSynthesis.removeEventListener(
+        "voiceschanged",
+        loadVoices,
+      );
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supported]);
 
-  const selectedVoice = useMemo(
-    () => voices.find((voice) => voice.voiceURI === voiceUri) || null,
-    [voices, voiceUri],
-  );
+  const selectedVoice = useMemo(() => {
+    return (
+      voices.find(
+        (voice) => voice.voiceURI === voiceUri,
+      ) ?? null
+    );
+  }, [voices, voiceUri]);
 
   function stopSpeech() {
-    if (!supported) return;
+    if (!supported) {
+      return;
+    }
+
     window.speechSynthesis.cancel();
+
     setSpeaking(false);
     setPaused(false);
   }
 
   function speak() {
-    if (!supported || !text.trim()) return;
+    if (!supported || !text.trim()) {
+      return;
+    }
 
     window.speechSynthesis.cancel();
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    if (selectedVoice) utterance.voice = selectedVoice;
+    const utterance =
+      new SpeechSynthesisUtterance(text);
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
+    }
+
     utterance.rate = rate;
     utterance.pitch = pitch;
 
@@ -179,12 +183,20 @@ export default function TextToSpeechPage() {
       setSpeaking(true);
       setPaused(false);
     };
-    utterance.onresume = () => setPaused(false);
-    utterance.onpause = () => setPaused(true);
+
+    utterance.onresume = () => {
+      setPaused(false);
+    };
+
+    utterance.onpause = () => {
+      setPaused(true);
+    };
+
     utterance.onend = () => {
       setSpeaking(false);
       setPaused(false);
     };
+
     utterance.onerror = () => {
       setSpeaking(false);
       setPaused(false);
@@ -194,21 +206,32 @@ export default function TextToSpeechPage() {
   }
 
   function togglePause() {
-    if (!supported) return;
+    if (!supported) {
+      return;
+    }
 
     if (paused) {
       window.speechSynthesis.resume();
-    } else if (speaking) {
+      return;
+    }
+
+    if (speaking) {
       window.speechSynthesis.pause();
     }
   }
 
+  function resetSettings() {
+    setRate(1);
+    setPitch(1);
+  }
+
   useEffect(() => {
     return () => {
-      if (supported) window.speechSynthesis.cancel();
+      if (supported) {
+        window.speechSynthesis.cancel();
+      }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [supported]);
 
   return (
     <Container className="py-12 sm:py-16">
@@ -220,8 +243,9 @@ export default function TextToSpeechPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Turn written text into spoken audio using your browser&apos;s
-          built-in speech engine — completely offline and private.
+          Turn written text into spoken audio using your
+          browser&apos;s built-in speech engine —
+          completely offline and private.
         </p>
       </div>
 
@@ -229,15 +253,17 @@ export default function TextToSpeechPage() {
         {unsupported ? (
           <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-6 text-center">
             <p className="text-sm leading-6 text-amber-200">
-              Your browser does not support the Web Speech API. Try Chrome,
-              Edge, or Safari.
+              Your browser does not support the Web
+              Speech API. Try Chrome, Edge, or Safari.
             </p>
           </div>
         ) : (
           <>
             <textarea
               value={text}
-              onChange={(event) => setText(event.target.value)}
+              onChange={(event) =>
+                setText(event.target.value)
+              }
               rows={6}
               placeholder="Type or paste text to speak..."
               className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
@@ -245,126 +271,188 @@ export default function TextToSpeechPage() {
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label
+                  htmlFor="tts-voice"
+                  className="mb-2 block text-sm font-semibold text-slate-300"
+                >
                   Voice{" "}
                   <span className="font-normal text-slate-500">
                     ({voices.length} available)
                   </span>
                 </label>
+
                 <select
+                  id="tts-voice"
                   value={voiceUri}
-                  onChange={(event) => setVoiceUri(event.target.value)}
+                  onChange={(event) =>
+                    setVoiceUri(event.target.value)
+                  }
                   className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
                 >
-                  {voices.map((voice) => (
-                    <option key={voice.voiceURI} value={voice.voiceURI}>
-                      {voice.name} ({voice.lang})
-                      {voice.default ? " · Default" : ""}
+                  {voices.length === 0 ? (
+                    <option value="">
+                      Loading voices...
                     </option>
-                  ))}
+                  ) : (
+                    voices.map((voice) => (
+                      <option
+                        key={voice.voiceURI}
+                        value={voice.voiceURI}
+                      >
+                        {voice.name} ({voice.lang})
+                        {voice.default
+                          ? " · Default"
+                          : ""}
+                      </option>
+                    ))
+                  )}
                 </select>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label
+                    htmlFor="tts-rate"
+                    className="mb-2 block text-sm font-semibold text-slate-300"
+                  >
                     Rate: {rate.toFixed(2)}×
                   </label>
+
                   <input
+                    id="tts-rate"
                     type="range"
                     min="0.5"
                     max="2"
                     step="0.1"
                     value={rate}
-                    onChange={(event) => setRate(Number(event.target.value))}
+                    onChange={(event) =>
+                      setRate(
+                        Number(event.target.value),
+                      )
+                    }
                     className="w-full accent-violet-500"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label
+                    htmlFor="tts-pitch"
+                    className="mb-2 block text-sm font-semibold text-slate-300"
+                  >
                     Pitch: {pitch.toFixed(2)}
                   </label>
+
                   <input
+                    id="tts-pitch"
                     type="range"
-                    min="0.5"
+                    min="0"
                     max="2"
                     step="0.1"
                     value={pitch}
-                    onChange={(event) => setPitch(Number(event.target.value))}
+                    onChange={(event) =>
+                      setPitch(
+                        Number(event.target.value),
+                      )
+                    }
                     className="w-full accent-violet-500"
                   />
                 </div>
               </div>
             </div>
 
-            <div className="mt-5 flex flex-wrap items-center gap-3">
+            <div className="mt-6 flex flex-wrap gap-3">
               <button
+                type="button"
                 onClick={speak}
                 disabled={!text.trim()}
-                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <Play className="h-4 w-4" />
                 Speak
               </button>
 
               <button
+                type="button"
                 onClick={togglePause}
-                disabled={!speaking && !paused}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                disabled={!speaking}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {paused ? (
-                  <>
-                    <Play className="h-4 w-4" />
-                    Resume
-                  </>
+                  <Play className="h-4 w-4" />
                 ) : (
-                  <>
-                    <Pause className="h-4 w-4" />
-                    Pause
-                  </>
+                  <Pause className="h-4 w-4" />
                 )}
+
+                {paused ? "Resume" : "Pause"}
               </button>
 
               <button
+                type="button"
                 onClick={stopSpeech}
-                disabled={!speaking && !paused}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                disabled={!speaking}
+                className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Square className="h-4 w-4" />
                 Stop
               </button>
 
               <button
-                onClick={() => {
-                  stopSpeech();
-                  setText("");
-                }}
-                className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                type="button"
+                onClick={() => setText("")}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
               </button>
 
-              <span
-                className={[
-                  "ml-auto inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold",
-                  speaking && !paused
-                    ? "bg-emerald-500/10 text-emerald-300"
-                    : paused
-                      ? "bg-amber-500/10 text-amber-300"
-                      : "bg-slate-800 text-slate-400",
-                ].join(" ")}
+              <button
+                type="button"
+                onClick={resetSettings}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
-                {paused ? "Paused" : speaking ? "Speaking" : "Idle"}
-              </span>
+                <RotateCcw className="h-4 w-4" />
+                Reset
+              </button>
+            </div>
+
+            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Status
+                  </p>
+
+                  <p className="mt-1 text-sm font-medium text-slate-200">
+                    {speaking
+                      ? paused
+                        ? "Paused"
+                        : "Speaking..."
+                      : "Ready"}
+                  </p>
+                </div>
+
+                <div className="text-right">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    Voice
+                  </p>
+
+                  <p className="mt-1 max-w-[240px] truncate text-sm text-slate-300">
+                    {selectedVoice
+                      ? `${selectedVoice.name} (${selectedVoice.lang})`
+                      : "System default"}
+                  </p>
+                </div>
+              </div>
             </div>
           </>
         )}
       </div>
+      <HowToUse
+        title="How to use Text to Speech"
+        subtitle=""
+        steps={howToUseSteps}
+      />
 
-      <HowToUseSection />
     </Container>
   );
 }

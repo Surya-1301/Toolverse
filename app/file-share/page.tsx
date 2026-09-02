@@ -487,6 +487,24 @@ export default function FileSharePage() {
                 "Copy the generated share link. Anyone with that full link can open and decrypt the file.",
               icon: <Copy className="h-5 w-5" />,
             },
+            {
+              title: "Set an expiry",
+              description:
+                "Optionally limit how long the link stays available.",
+              icon: <LockKeyhole className="h-5 w-5" />,
+            },
+            {
+              title: "Track downloads",
+              description:
+                "See how many times the file was accessed and when it expires.",
+              icon: <FileUp className="h-5 w-5" />,
+            },
+            {
+              title: "Share another",
+              description:
+                "Upload a new file without reloading the page.",
+              icon: <ExternalLink className="h-5 w-5" />,
+            },
           ]}
         />
       </div>

@@ -35,7 +35,7 @@ import Link from "next/link";
 import { Container } from "@/components/Container";
 
 const tools = [
-  {
+  {   
     title: "IP Address Lookup",
     description:
       "See your public IP address with location, network, and timezone details.",
@@ -76,18 +76,18 @@ const tools = [
     icon: <Fingerprint className="h-6 w-6" />,
   },
   {
+    title: "Random String Generator",
+    description:
+      "Generate random strings with custom character sets, length, and quantity.",
+    href: "/random-string-generator",
+    icon: <Shuffle className="h-6 w-6" />,
+  },
+  {
     title: "Base64 Encoder / Decoder",
     description:
       "Convert text and files to Base64, or decode Base64 back to text and files.",
     href: "/base64-encoder-decoder",
     icon: <Braces className="h-6 w-6" />,
-  },
-  {
-    title: "URL Encode / Decode",
-    description:
-      "Encode and decode text for safe use in URLs and query strings.",
-    href: "/url-encode-decode",
-    icon: <Percent className="h-6 w-6" />,
   },
   {
     title: "JWT Decoder",
@@ -104,13 +104,6 @@ const tools = [
     icon: <TextQuote className="h-6 w-6" />,
   },
   {
-    title: "URL Parser",
-    description:
-      "Parse protocol, domain, path, query params, hash, and copy formatted results.",
-    href: "/url-parser",
-    icon: <Link2 className="h-6 w-6" />,
-  },
-  {
     title: "Text Counter",
     description:
       "Count words, characters, letters, numbers, spaces, punctuation, sentences, paragraphs, lines, and reading time — all in one place.",
@@ -122,6 +115,20 @@ const tools = [
     description: "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case.",
     href: "/case-converter",
     icon: <CaseSensitive className="h-6 w-6" />,
+  },
+  {
+    title: "Duplicate Line Remover",
+    description:
+      "Remove duplicate or blank lines from text and copy the cleaned result.",
+    href: "/duplicate-line-remover",
+    icon: <GitMerge className="h-6 w-6" />,
+  },
+  {
+    title: "Color Converter",
+    description:
+      "Convert HEX, RGB, and HSL colors with preview and palette generation.",
+    href: "/color-converter",
+    icon: <Palette className="h-6 w-6" />,
   },
   {
     title: "Regex Tester",
@@ -137,27 +144,12 @@ const tools = [
     href: "/timestamp-converter",
     icon: <Clock className="h-6 w-6" />,
   },
-  
-  {
-    title: "Color Converter",
+   {
+    title: "URL Tools",
     description:
-      "Convert HEX, RGB, and HSL colors with preview and palette generation.",
-    href: "/color-converter",
-    icon: <Palette className="h-6 w-6" />,
-  },
-  {
-    title: "SSL Certificate Checker",
-    description:
-      "Look up SSL/TLS certificates for any domain and check validity and expiry.",
-    href: "/ssl-checker",
-    icon: <ShieldCheck className="h-6 w-6" />,
-  },
-  {
-    title: "Duplicate Line Remover",
-    description:
-      "Remove duplicate or blank lines from text and copy the cleaned result.",
-    href: "/duplicate-line-remover",
-    icon: <GitMerge className="h-6 w-6" />,
+      "Parse URL components, encode or decode text, and trace redirect chains in one place.",
+    href: "/url-tools",
+    icon: <Link2 className="h-6 w-6" />,
   },
   {
     title: "Password Strength Checker",
@@ -181,13 +173,6 @@ const tools = [
     icon: <Waves className="h-6 w-6" />,
   },
   {
-    title: "URL Redirect Checker",
-    description:
-      "Trace every redirect a URL makes and find where it finally lands.",
-    href: "/url-redirect-checker",
-    icon: <Link2 className="h-6 w-6" />,
-  },
-  {
     title: "Domain Lookup",
     description:
       "Query DNS records or look up WHOIS ownership, registrar, status, and dates in one place.",
@@ -200,14 +185,6 @@ const tools = [
       "Full-featured API client — build requests with params, headers, auth, and body. Save to collections and view history.",
     href: "/http-request-tester",
     icon: <Send className="h-6 w-6" />,
-  },
-  
-  {
-    title: "Random String Generator",
-    description:
-      "Generate random strings with custom character sets, length, and quantity.",
-    href: "/random-string-generator",
-    icon: <Shuffle className="h-6 w-6" />,
   },
   {
     title: "Text Compare / Diff",
@@ -280,8 +257,7 @@ export default function TextDeveloperToolsPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Count and transform text, generate UUIDs and passwords, hash text, encode Base64, decode JWTs, test regex, convert timestamps, parse URLs, and convert colors.
-        </p>
+         Count, transform, encode, decode, hash, generate, and convert text, UUIDs, passwords, URLs, timestamps, colors, and more.        </p>
       </div>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">

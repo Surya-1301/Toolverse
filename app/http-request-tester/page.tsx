@@ -29,6 +29,7 @@ import {
   X,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
 
 /* ==========================================================================
    TYPES
@@ -159,41 +160,9 @@ const howToUseSteps = [
   { title: "Configure request", description: "Set params, headers, auth, and body from the tabs.", icon: <Settings2 className="h-5 w-5" /> },
   { title: "Send & inspect", description: "Fire the request and check status, headers, and body.", icon: <Play className="h-5 w-5" /> },
   { title: "Save for later", description: "Save requests to collections or revisit from history.", icon: <Database className="h-5 w-5" /> },
+  { title: "Copy the response", description: "Copy response bodies or headers straight to your clipboard.", icon: <Copy className="h-5 w-5" /> },
 ];
 
-function HowToUseSection() {
-  return (
-    <section className="mt-14">
-      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use API Tester
-      </h2>
-      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-5">
-        {howToUseSteps.map((step) => (
-          <div key={step.title} className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-              {step.icon}
-            </div>
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-400">{step.description}</p>
-          </div>
-        ))}
-      </div>
-      <div className="mt-6 grid gap-3 sm:hidden">
-        {howToUseSteps.map((step) => (
-          <div key={step.title} className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
-              {step.icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-[14px] font-semibold leading-5 text-white">{step.title}</h3>
-              <p className="mt-1 text-[12px] leading-5 text-slate-400">{step.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 /* ==========================================================================
    PARAM EDITOR COMPONENT
@@ -696,15 +665,11 @@ export default function HttpRequestTesterPage() {
 
       {/* Header */}
       <div className="mx-auto max-w-3xl text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-violet-500/10 px-4 py-1.5 text-sm font-semibold text-violet-300 ring-1 ring-violet-400/20">
-          <Send className="h-4 w-4" />
-          API Tester
-        </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           API Tester
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400">
-          A full-featured API client in your browser. Build requests with params, headers, auth, and body — then inspect the response with timing and size info. Save requests to collections for reuse.
+Build API requests with params, headers, auth, and body, inspect responses, and save requests for reuse.
         </p>
       </div>
 
@@ -1097,7 +1062,12 @@ export default function HttpRequestTesterPage() {
 
       {/* How to use */}
       <div className="mx-auto max-w-6xl">
-        <HowToUseSection />
+      <HowToUse
+        title="How to use API Tester"
+        subtitle=""
+        steps={howToUseSteps}
+      />
+
       </div>
     </Container>
   );

@@ -152,9 +152,8 @@ export default function TextComparePage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Compare two blocks of text side by side and instantly see what was
-          added, removed, or left unchanged — perfect for reviewing edits, configs,
-          or code. Everything runs locally in your browser.
+          Compare text side by side to instantly spot added, removed, and unchanged. Runs locally in your browser.
+
         </p>
       </div>
 
@@ -353,11 +352,7 @@ export default function TextComparePage() {
           </div>
         </div>
       ) : (
-        <div className="mt-8 flex min-h-[120px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center">
-          <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500">
-            <FileDiff className="h-4 w-4" />
-            Paste text on both sides to see the differences highlighted here.
-          </p>
+        <div className="">
         </div>
       )}
 

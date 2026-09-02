@@ -15,6 +15,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
 
 function removeCssComments(value: string) {
   return value.replace(/\/\*[\s\S]*?\*\//g, "");
@@ -100,58 +101,6 @@ const howToUseSteps = [
   },
 ];
 
-function HowToUseSection() {
-  return (
-    <section className="mt-14">
-      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use CSS Formatter / Minifier
-      </h2>
-
-      {/* Mobile: compact horizontal cards with cyan theme. */}
-      <div className="mt-8 space-y-4 sm:hidden">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-[#123f52] bg-[#0a0f21] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#0d536b] bg-[#092b40] text-[#63e5f7] shadow-[0_8px_20px_rgba(0,0,0,0.2)]">
-              {step.icon}
-            </div>
-
-            <div className="min-w-0 flex-1">
-              <h3 className="text-sm font-semibold leading-5 text-[#f4fbff]">
-                {step.title}
-              </h3>
-              <p className="mt-1 text-xs leading-5 text-[#8fa9b8]">
-                {step.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop/tablet: preserve the original card layout. */}
-      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-3">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-              {step.icon}
-            </div>
-
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
-
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {step.description}
-            </p>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 export default function CssFormatterPage() {
   const [input, setInput] = useState("");
@@ -275,8 +224,12 @@ export default function CssFormatterPage() {
           Clear
         </button>
       </div>
+      <HowToUse
+        title="How to use CSS Formatter / Minifier"
+        subtitle=""
+        steps={howToUseSteps}
+      />
 
-      <HowToUseSection />
     </Container>
   );
 }

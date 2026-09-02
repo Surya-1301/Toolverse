@@ -5,21 +5,27 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Building2,
+  CalendarDays,
   Check,
   Clock,
   Copy,
   Fingerprint,
   Globe2,
   Loader2,
+  LockKeyhole,
   Mail,
   MapPin,
   Network,
   Search,
   Server,
+  Eraser,
   ShieldCheck,
+  ShieldX,
   User,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
+import { fetchApi } from "@/lib/apiBase";
 
 function BackToToolsLink() {
   return (
@@ -44,13 +50,13 @@ const howToUseSteps = [
     icon: <Globe2 className="h-5 w-5" />,
   },
   {
-    title: "Pick DNS or WHOIS",
-    description: "Query DNS records or look up ownership via RDAP.",
+    title: "Pick DNS, WHOIS, or SSL",
+    description: "Query records, look up ownership, or check the TLS certificate.",
     icon: <Server className="h-5 w-5" />,
   },
   {
     title: "Review results",
-    description: "See records, registrar, status, dates, and contacts.",
+    description: "See records, registrar, dates, contacts, and cert validity.",
     icon: <Network className="h-5 w-5" />,
   },
   {
@@ -58,61 +64,24 @@ const howToUseSteps = [
     description: "Copy the results to your clipboard in one click.",
     icon: <Copy className="h-5 w-5" />,
   },
+  {
+    title: "Spot expiring certs",
+    description: "Catch certificates rolling over before they break TLS.",
+    icon: <ShieldCheck className="h-5 w-5" />,
+  },
+  {
+    title: "Look up another",
+    description: "Search a new domain without reloading the page.",
+    icon: <Search className="h-5 w-5" />,
+  },
 ];
 
-function HowToUseSection() {
-  return (
-    <section className="mt-14">
-      <h2 className="text-center text-3xl font-bold tracking-tight text-white sm:text-4xl">
-        How to use Domain Lookup
-      </h2>
-
-      <div className="mt-8 hidden gap-4 sm:grid sm:grid-cols-2 lg:grid-cols-4">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5"
-          >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
-              {step.icon}
-            </div>
-            <h3 className="text-sm font-semibold text-white">{step.title}</h3>
-            <p className="mt-3 text-sm leading-6 text-slate-400">
-              {step.description}
-            </p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-3 sm:hidden">
-        {howToUseSteps.map((step) => (
-          <div
-            key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
-          >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
-              {step.icon}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-[14px] font-semibold leading-5 text-white">
-                {step.title}
-              </h3>
-              <p className="mt-1 text-[12px] leading-5 text-slate-400">
-                {step.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 /* ==========================================================================
    MODE
 ========================================================================== */
 
-type LookupMode = "dns" | "whois";
+type LookupMode = "whois" | "dns" | "ssl";
 
 /* ==========================================================================
    DNS TYPES & LOGIC
@@ -149,6 +118,55 @@ type WhoisResult = {
   technical: Contact | null;
   raw: string;
 };
+
+/* ==========================================================================
+   SSL / TLS TYPES
+   ========================================================================== */
+
+type Certificate = {
+  issuer_name: string;
+  common_name: string;
+  name_value: string;
+  not_before: string;
+  not_after: string;
+  serial_number: string;
+};
+
+type CertResult = {
+  domain: string;
+  certificateCount: number;
+  certificates: Certificate[];
+};
+
+function sslFormatDate(value: string) {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return value;
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(date);
+}
+
+function certDaysUntil(value: string) {
+  if (!value) return null;
+  const target = new Date(value).getTime();
+  if (isNaN(target)) return null;
+  return Math.ceil((target - Date.now()) / (1000 * 60 * 60 * 24));
+}
+
+function certStatus(cert: Certificate) {
+  const days = certDaysUntil(cert.not_after);
+  const expiryMs = new Date(cert.not_after).getTime();
+
+  if (isNaN(expiryMs)) {
+    return { label: "Unknown", className: "bg-slate-800 text-slate-300", Dot: ShieldCheck };
+  }
+  if (expiryMs < Date.now()) {
+    return { label: "Expired", className: "bg-red-500/10 text-red-300 ring-red-500/30", Dot: ShieldX };
+  }
+  if (days !== null && days <= 30) {
+    return { label: `Expires in ${days} days`, className: "bg-amber-500/10 text-amber-300 ring-amber-500/30", Dot: ShieldCheck };
+  }
+  return { label: "Valid", className: "bg-emerald-500/10 text-emerald-300 ring-emerald-500/30", Dot: ShieldCheck };
+}
 
 type JCard = Array<string | Record<string, unknown>>;
 
@@ -328,6 +346,10 @@ export default function DomainLookupPage() {
   const [whoisResult, setWhoisResult] = useState<WhoisResult | null>(null);
   const [showRaw, setShowRaw] = useState(false);
 
+  /* ---- SSL state ---- */
+  const [sslResult, setSslResult] = useState<CertResult | null>(null);
+  const [sslCopied, setSslCopied] = useState("");
+
   /* ---- Shared state ---- */
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -338,6 +360,15 @@ export default function DomainLookupPage() {
     setError("");
     setRecords([]);
     setWhoisResult(null);
+    setSslResult(null);
+  }
+
+  function clearAll() {
+    setDomain("");
+    setRecords([]);
+    setWhoisResult(null);
+    setSslResult(null);
+    setError("");
   }
 
   /* ---- DNS lookup ---- */
@@ -441,9 +472,47 @@ export default function DomainLookupPage() {
     setLoading(false);
   }
 
+  /* ---- SSL lookup ---- */
+  async function sslLookup() {
+    const host = cleanHost(domain);
+    if (!host) return;
+    setLoading(true);
+    setError("");
+    setSslResult(null);
+
+    try {
+      const response = await fetchApi(`/api/ssl?domain=${encodeURIComponent(host)}`, {
+        cache: "no-store",
+      });
+      const text = await response.text();
+      let json: (CertResult & { error?: string }) | null = null;
+      try {
+        json = text ? JSON.parse(text) : null;
+      } catch {
+        json = null;
+      }
+
+      if (!response.ok) {
+        setError(json?.error || `Could not check the certificate. Backend returned ${response.status}.`);
+        return;
+      }
+      setSslResult(json);
+    } catch (caughtError) {
+      console.error(caughtError);
+      setError(
+        caughtError instanceof Error
+          ? `Could not check the certificate: ${caughtError.message}`
+          : "Could not check the certificate from the backend.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function runLookup() {
     if (mode === "dns") void dnsLookup();
-    else void whoisLookup();
+    else if (mode === "whois") void whoisLookup();
+    else void sslLookup();
   }
 
   /* ---- Copy ---- */
@@ -490,6 +559,23 @@ export default function DomainLookupPage() {
     return map[action] || action;
   }
 
+  /* ---- SSL copy ---- */
+  async function copySsl(serial: string) {
+    const cert = sslResult?.certificates.find((c) => c.serial_number === serial);
+    if (!cert) return;
+    const text = [
+      `Domain: ${sslResult?.domain}`,
+      `Common name: ${cert.common_name}`,
+      `Issuer: ${cert.issuer_name}`,
+      `Valid from: ${sslFormatDate(cert.not_before)}`,
+      `Expires: ${sslFormatDate(cert.not_after)}`,
+      `Serial: ${cert.serial_number}`,
+    ].join("\n");
+    await navigator.clipboard.writeText(text);
+    setSslCopied(serial);
+    setTimeout(() => setSslCopied(""), 1500);
+  }
+
   return (
     <Container className="py-12 sm:py-16">
       <BackToToolsLink />
@@ -524,6 +610,15 @@ export default function DomainLookupPage() {
           >
             <Server className="h-4 w-4" />
             DNS
+          </button>
+          <button
+            onClick={() => switchMode("ssl")}
+            className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
+              mode === "ssl" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <LockKeyhole className="h-4 w-4" />
+            SSL
           </button>
         </div>
 
@@ -701,9 +796,131 @@ export default function DomainLookupPage() {
             )}
           </div>
         )}
+
+        {/* ===== SSL results ===== */}
+        {mode === "ssl" && sslResult && (
+          <div className="mt-6 space-y-5">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+                <LockKeyhole className="h-5 w-5 text-violet-300" />
+                {sslResult.domain}
+              </h2>
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
+                {sslResult.certificateCount} cert{sslResult.certificateCount === 1 ? "" : "s"} found
+              </span>
+            </div>
+
+            {sslResult.certificates.length ? (
+              <div className="space-y-4">
+                {sslResult.certificates.map((cert, index) => {
+                  const info = certStatus(cert);
+                  return (
+                    <div
+                      key={`${cert.serial_number}-${index}`}
+                      className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5"
+                    >
+                      <div className="flex flex-wrap items-center justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="break-all text-sm font-bold text-white">
+                            {cert.common_name}
+                          </p>
+                          <p className="mt-0.5 break-all text-xs text-slate-500">
+                            {cert.name_value}
+                          </p>
+                        </div>
+                        <span
+                          className={[
+                            "inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ring-1",
+                            info.className,
+                          ].join(" ")}
+                        >
+                          <info.Dot className="h-3.5 w-3.5" />
+                          {info.label}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            <Building2 className="h-3.5 w-3.5" />
+                            Issuer
+                          </p>
+                          <p className="mt-1 break-words text-xs font-semibold text-slate-200">
+                            {cert.issuer_name || "—"}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            <CalendarDays className="h-3.5 w-3.5" />
+                            Valid from
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-200">
+                            {sslFormatDate(cert.not_before)}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            <CalendarDays className="h-3.5 w-3.5" />
+                            Expires
+                          </p>
+                          <p className="mt-1 text-xs font-semibold text-slate-200">
+                            {sslFormatDate(cert.not_after)}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            <Fingerprint className="h-3.5 w-3.5" />
+                            Serial
+                          </p>
+                          <button
+                            onClick={() => copySsl(cert.serial_number)}
+                            className="mt-1 inline-flex max-w-full items-center gap-1.5 text-xs font-semibold text-slate-300 transition hover:text-white"
+                          >
+                            <span className="truncate">
+                              {sslCopied === cert.serial_number ? "Copied!" : cert.serial_number || "—"}
+                            </span>
+                            {sslCopied !== cert.serial_number ? (
+                              <Copy className="h-3.5 w-3.5 shrink-0" />
+                            ) : (
+                              <Check className="h-3.5 w-3.5 shrink-0" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-white/10 bg-slate-950 p-6 text-center">
+                <p className="text-sm leading-6 text-slate-400">
+                  No certificates were found for this domain.
+                </p>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      <HowToUseSection />
+      {/* Clear button */}
+      {domain && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={clearAll}
+            className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          >
+            <Eraser className="h-4 w-4" />
+            Clear
+          </button>
+        </div>
+      )}
+
+      <HowToUse
+        title="How to use Domain Lookup"
+        subtitle=""
+        steps={howToUseSteps}
+      />
+
     </Container>
   );
 }
