@@ -994,6 +994,58 @@ async function route(request: Request, env: Env) {
    */
 
   if (pathname === "/api/ip" && request.method === "GET") {
+    const requested = url.searchParams.get("ip")?.trim() || "";
+
+    // If a specific IP was requested, look it up via a public geo-IP service.
+    if (requested) {
+      const ip = requested
+        .replace(/^\[?/, "")
+        .replace(/\]?$/, "")
+        .replace(/^::ffff:/, "");
+
+      try {
+        const res = await fetch(`https://ipwho.is/${encodeURIComponent(ip)}`, {
+          headers: { Accept: "application/json" },
+        });
+        const j = (await res.json()) as Record<string, unknown>;
+
+        if (j.success === false) {
+          return error(
+            typeof j.message === "string" ? j.message : "Invalid IP address.",
+            400,
+          );
+        }
+
+        const connection = (j.connection || {}) as Record<string, unknown>;
+        return json({
+          ip: typeof j.ip === "string" ? j.ip : ip,
+          country: typeof j.country === "string" ? j.country : null,
+          countryCode: typeof j.country_code === "string" ? j.country_code : null,
+          city: typeof j.city === "string" ? j.city : null,
+          region: typeof j.region === "string" ? j.region : null,
+          regionCode: typeof j.region_code === "string" ? j.region_code : null,
+          continent: typeof j.continent === "string" ? j.continent : null,
+          latitude: typeof j.latitude === "number" || typeof j.latitude === "string" ? String(j.latitude) : null,
+          longitude: typeof j.longitude === "number" || typeof j.longitude === "string" ? String(j.longitude) : null,
+          timezone:
+            typeof j.timezone === "object" && j.timezone && typeof (j.timezone as { id?: unknown }).id === "string"
+              ? (j.timezone as { id: string }).id
+              : null,
+          postalCode: typeof j.postal === "string" ? j.postal : null,
+          metroCode: null,
+          asn:
+            typeof connection.asn === "number" || typeof connection.asn === "string"
+              ? String(connection.asn)
+              : null,
+          asOrganization:
+            typeof connection.org === "string" ? connection.org : null,
+          isp: typeof connection.isp === "string" ? connection.isp : null,
+        });
+      } catch {
+        return error("Could not look up that IP address.", 502);
+      }
+    }
+
     const cf = (request as Request & { cf?: Record<string, unknown> }).cf;
     const forwarded = request.headers.get("X-Forwarded-For") || "";
     const publicIp =

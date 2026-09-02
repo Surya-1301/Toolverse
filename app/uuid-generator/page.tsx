@@ -187,29 +187,24 @@ export default function UuidGeneratorPage() {
       </div>
 
       <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-        <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-end">
-          <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
-              Number of UUIDs
-            </label>
+        <label className="mb-2 block text-sm font-semibold text-slate-300">
+          Number of UUIDs
+        </label>
 
-            <input
-              type="number"
-              min="1"
-              max="1000"
-              value={count}
-              onChange={(event) => setCount(Number(event.target.value))}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
-            />
-
-            <p className="mt-2 text-xs text-slate-500">
-              Generate between 1 and 1000 UUID v4 values.
-            </p>
-          </div>
+        <div className="flex gap-3">
+          <input
+            type="number"
+            min="1"
+            max="1000"
+            value={count}
+            onChange={(event) => setCount(Number(event.target.value))}
+            onKeyDown={(e) => { if (e.key === "Enter") generateUuids(); }}
+            className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+          />
 
           <button
             onClick={generateUuids}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
           >
             <RefreshCw className="h-4 w-4" />
             Generate
@@ -218,7 +213,7 @@ export default function UuidGeneratorPage() {
           <button
             onClick={copyAll}
             disabled={!uuids.length}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
           >
             {copiedAll ? (
               <Check className="h-4 w-4" />
@@ -228,6 +223,10 @@ export default function UuidGeneratorPage() {
             {copiedAll ? "Copied" : "Copy all"}
           </button>
         </div>
+
+        <p className="mt-2 text-xs text-slate-500">
+          Generate between 1 and 1000 UUID v4 values.
+        </p>
 
         <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-4">
           {uuids.length ? (

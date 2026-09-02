@@ -1,0 +1,8 @@
+{
+  // Tailwind CSS v4 uses custom at-rules like @theme, @utility, @apply, etc.
+  // The built-in CSS language server doesn't recognize them, which produces
+  // false-positive "Unknown at rule" warnings. These settings suppress that
+  // noise without disabling real CSS linting.
+  "css.lint.unknownAtRules": "ignore",
+  "scss.lint.unknownAtRules": "ignore"
+}

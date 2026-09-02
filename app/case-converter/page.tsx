@@ -397,7 +397,7 @@ export default function CaseConverterPage() {
           "
         >
           Quickly convert text between uppercase, lowercase,
-          title, sentence, camel, snake, kebab, and more.
+          title, sentence, camel, snake, kebab.
         </p>
       </div>
 

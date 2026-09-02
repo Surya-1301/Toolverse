@@ -269,8 +269,8 @@ export default function CreditCardGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate realistic test cards or validate any number&apos;s checksum
-          and brand — all locally, for testing forms and checkouts.
+          Generate realistic test cards or validate any number&apos;s checksum - 
+          for testing forms and checkouts.
         </p>
       </div>
 
@@ -304,8 +304,7 @@ export default function CreditCardGeneratorPage() {
           <>
             {/* Brand selector */}
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-            Card brand
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
           </p>
           <div className="flex flex-wrap gap-2">
             {SELECTABLE_BRANDS.map((b) => (

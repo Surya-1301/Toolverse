@@ -20,6 +20,7 @@ import {
   MapPin,
   Network,
   Palette,
+  Percent,
   Regex,
   Send,
   ShieldCheck,
@@ -28,6 +29,7 @@ import {
   TextQuote,
   CaseSensitive,
   WalletCards,
+  Waves,
 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
@@ -81,6 +83,13 @@ const tools = [
     icon: <Braces className="h-6 w-6" />,
   },
   {
+    title: "URL Encode / Decode",
+    description:
+      "Encode and decode text for safe use in URLs and query strings.",
+    href: "/url-encode-decode",
+    icon: <Percent className="h-6 w-6" />,
+  },
+  {
     title: "JWT Decoder",
     description:
       "Decode JWT header and payload locally, inspect expiry, and avoid server upload.",
@@ -102,15 +111,10 @@ const tools = [
     icon: <Link2 className="h-6 w-6" />,
   },
   {
-    title: "Word Counter",
-    description: "Count words, characters, sentences, paragraphs, lines, and reading time instantly.",
-    href: "/word-counter",
-    icon: <TextCursorInput className="h-6 w-6" />,
-  },
-  {
-    title: "Character Counter",
-    description: "Count characters with and without spaces, plus letters, numbers, spaces, punctuation, and words.",
-    href: "/character-counter",
+    title: "Text Counter",
+    description:
+      "Count words, characters, letters, numbers, spaces, punctuation, sentences, paragraphs, lines, and reading time — all in one place.",
+    href: "/text-counter",
     icon: <Hash className="h-6 w-6" />,
   },
   {
@@ -170,6 +174,13 @@ const tools = [
     icon: <AudioLines className="h-6 w-6" />,
   },
   {
+    title: "Audio Converter",
+    description:
+      "Convert audio between MP3, WAV, and WebM right in your browser.",
+    href: "/audio-converter",
+    icon: <Waves className="h-6 w-6" />,
+  },
+  {
     title: "URL Redirect Checker",
     description:
       "Trace every redirect a URL makes and find where it finally lands.",
@@ -177,16 +188,16 @@ const tools = [
     icon: <Link2 className="h-6 w-6" />,
   },
   {
-    title: "DNS Lookup",
+    title: "Domain Lookup",
     description:
-      "Query A, AAAA, CNAME, MX, TXT, and NS records for any domain.",
-    href: "/dns-lookup",
+      "Query DNS records or look up WHOIS ownership, registrar, status, and dates in one place.",
+    href: "/domain-lookup",
     icon: <Globe2 className="h-6 w-6" />,
   },
   {
-    title: "HTTP Request Tester",
+    title: "API Tester",
     description:
-      "Send HTTP requests to any API and inspect status, headers, and timing.",
+      "Full-featured API client — build requests with params, headers, auth, and body. Save to collections and view history.",
     href: "/http-request-tester",
     icon: <Send className="h-6 w-6" />,
   },
