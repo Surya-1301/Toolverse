@@ -76,6 +76,12 @@ export default function BlurImagePage() {
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const dragRef = useRef<{ offsetX: number; offsetY: number } | null>(null);
+  const resizeRef = useRef<{
+    handle: string;
+    startMouseX: number;
+    startMouseY: number;
+    startRegion: { x: number; y: number; w: number; h: number };
+  } | null>(null);
   const [sourceUrl, setSourceUrl] = useState("");
 
   function loadImage(file: File) {
@@ -155,6 +161,10 @@ export default function BlurImagePage() {
     event: React.PointerEvent<HTMLDivElement>,
     rect: DOMRect,
   ) {
+    // If a resize handle was clicked, don't start a move drag
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-resize-handle]")) return;
+
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     const px = (x / rect.width) * 100;
@@ -170,12 +180,57 @@ export default function BlurImagePage() {
     event: React.PointerEvent<HTMLDivElement>,
     rect: DOMRect,
   ) {
+    const mx = event.clientX - rect.left;
+    const my = event.clientY - rect.top;
+
+    if (resizeRef.current) {
+      const r = resizeRef.current;
+      const dxPct = ((mx - r.startMouseX) / rect.width) * 100;
+      const dyPct = ((my - r.startMouseY) / rect.height) * 100;
+      const s = r.startRegion;
+      const min = 5;
+      let nx = s.x, ny = s.y, nw = s.w, nh = s.h;
+      const h = r.handle;
+
+      if (h === "se") {
+        nw = Math.max(min, s.w + dxPct);
+        nh = Math.max(min, s.h + dyPct);
+      } else if (h === "sw") {
+        nw = Math.max(min, s.w - dxPct);
+        nh = Math.max(min, s.h + dyPct);
+        nx = s.x + s.w - nw;
+      } else if (h === "ne") {
+        nw = Math.max(min, s.w + dxPct);
+        nh = Math.max(min, s.h - dyPct);
+        ny = s.y + s.h - nh;
+      } else if (h === "nw") {
+        nw = Math.max(min, s.w - dxPct);
+        nh = Math.max(min, s.h - dyPct);
+        nx = s.x + s.w - nw;
+        ny = s.y + s.h - nh;
+      } else if (h === "n") {
+        nh = Math.max(min, s.h - dyPct);
+        ny = s.y + s.h - nh;
+      } else if (h === "s") {
+        nh = Math.max(min, s.h + dyPct);
+      } else if (h === "w") {
+        nw = Math.max(min, s.w - dxPct);
+        nx = s.x + s.w - nw;
+      } else if (h === "e") {
+        nw = Math.max(min, s.w + dxPct);
+      }
+
+      nx = Math.max(0, Math.min(nx, 100 - nw));
+      ny = Math.max(0, Math.min(ny, 100 - nh));
+      setRegion({ x: nx, y: ny, w: nw, h: nh });
+      setPreviewUrl("");
+      return;
+    }
+
     if (!dragRef.current) return;
 
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const px = (x / rect.width) * 100;
-    const py = (y / rect.height) * 100;
+    const px = (mx / rect.width) * 100;
+    const py = (my / rect.height) * 100;
 
     const nextX = Math.min(Math.max(px - dragRef.current.offsetX, 0), 100 - region.w);
     const nextY = Math.min(Math.max(py - dragRef.current.offsetY, 0), 100 - region.h);
@@ -186,6 +241,18 @@ export default function BlurImagePage() {
 
   function endDrag() {
     dragRef.current = null;
+    resizeRef.current = null;
+  }
+
+  function onResizePointerDown(handle: string, event: React.PointerEvent) {
+    event.stopPropagation();
+    event.preventDefault();
+    resizeRef.current = {
+      handle,
+      startMouseX: event.clientX,
+      startMouseY: event.clientY,
+      startRegion: { ...region },
+    };
   }
 
   function clearAll() {
@@ -352,7 +419,7 @@ export default function BlurImagePage() {
           <div>
             <p className="mb-2 text-sm font-semibold text-slate-300">Preview</p>
             <div
-              className="relative w-full touch-none select-none overflow-hidden rounded-2xl border border-white/10 bg-slate-950"
+              className="relative w-full touch-none select-none rounded-2xl border border-white/10 bg-slate-950"
               style={{ aspectRatio: source ? `${source.naturalWidth}/${source.naturalHeight}` : "4/3" }}
             >
               {source ? (
@@ -402,6 +469,48 @@ export default function BlurImagePage() {
                   onPointerUp={endDrag}
                   onPointerLeave={endDrag}
                 >
+                  {/* Resize handles — corners */}
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("nw", e)}
+                    className="absolute -left-1.5 -top-1.5 h-3 w-3 cursor-nwse-resize rounded-sm bg-white/80 hover:bg-white"
+                  />
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("ne", e)}
+                    className="absolute -right-1.5 -top-1.5 h-3 w-3 cursor-nesw-resize rounded-sm bg-white/80 hover:bg-white"
+                  />
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("se", e)}
+                    className="absolute -bottom-1.5 -right-1.5 h-3 w-3 cursor-nwse-resize rounded-sm bg-white/80 hover:bg-white"
+                  />
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("sw", e)}
+                    className="absolute -bottom-1.5 -left-1.5 h-3 w-3 cursor-nesw-resize rounded-sm bg-white/80 hover:bg-white"
+                  />
+                  {/* Resize handles — edges */}
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("n", e)}
+                    className="absolute left-1/2 top-0 h-1.5 w-8 -translate-x-1/2 cursor-ns-resize rounded-sm bg-white/60 hover:bg-white"
+                  />
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("s", e)}
+                    className="absolute bottom-0 left-1/2 h-1.5 w-8 -translate-x-1/2 cursor-ns-resize rounded-sm bg-white/60 hover:bg-white"
+                  />
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("w", e)}
+                    className="absolute left-0 top-1/2 h-8 w-1.5 -translate-y-1/2 cursor-ew-resize rounded-sm bg-white/60 hover:bg-white"
+                  />
+                  <span
+                    data-resize-handle
+                    onPointerDown={(e) => onResizePointerDown("e", e)}
+                    className="absolute right-0 top-1/2 h-8 w-1.5 -translate-y-1/2 cursor-ew-resize rounded-sm bg-white/60 hover:bg-white"
+                  />
                   <span className="pointer-events-none absolute -top-7 left-0 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
                     Sharp region
                   </span>
