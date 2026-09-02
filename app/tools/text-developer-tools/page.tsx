@@ -216,21 +216,13 @@ const tools = [
     href: "/text-compare",
     icon: <GitCompare className="h-6 w-6" />,
   },
-  
   {
-    title: "IBAN Validator",
-    description:
-      "Validate IBANs from 70+ countries with structure and mod-97 checksum checks.",
-    href: "/iban-validator",
-    icon: <Banknote className="h-6 w-6" />,
-  },
-  {
-    title: "Email & Phone Validator",
-    description:
-      "Check if an email address or phone number is well-formed, all locally.",
-    href: "/email-phone-validator",
-    icon: <AtSign className="h-6 w-6" />,
-  },
+  title: "Email, Phone & IBAN Validator",
+  description:
+    "Validate emails, phone numbers, and IBANs in one private, local tool.",
+  href: "/email-phone-iban-validator",
+  icon: <ShieldCheck className="h-6 w-6" />,
+},
 ];
 
 function RelatedToolCard({

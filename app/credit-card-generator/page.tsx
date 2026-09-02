@@ -12,6 +12,7 @@ import {
   CreditCard,
   Eraser,
   Fingerprint,
+  Hash,
   Lock,
   RefreshCw,
   ScanLine,
@@ -132,23 +133,127 @@ function pick<T>(list: T[]): T {
   return list[Math.floor(Math.random() * list.length)];
 }
 
+/* --------------------------------------------------------------------------
+   BIN / IIN SUPPORT — generate cards from a specific issuer prefix
+   -------------------------------------------------------------------------- */
+
+/* A BIN is normally 6-8 digits. Capping at 12 keeps room for the random body
+   and the Luhn check digit for every supported network. */
+const MAX_BIN_LENGTH = 12;
+
+/* The length real issuers actually use for each network. `BRANDS[].lengths`
+   also contains legacy/rare lengths (e.g. 13-digit Visa), which are fine for
+   random cards but wrong when the user pins a real BIN. */
+const PRIMARY_LENGTHS: Record<Brand, number> = {
+  Visa: 16,
+  Mastercard: 16,
+  "American Express": 15,
+  Discover: 16,
+  JCB: 16,
+  "Diners Club": 14,
+  UnionPay: 16,
+};
+
+const BIN_PRESETS: { label: string; bin: string }[] = [
+  { label: "Visa · 411111", bin: "411111" },
+  { label: "Mastercard · 555555", bin: "555555" },
+  { label: "Mastercard 2-series · 222300", bin: "222300" },
+  { label: "Amex · 378282", bin: "378282" },
+  { label: "Discover · 601111", bin: "601111" },
+  { label: "JCB · 353011", bin: "353011" },
+  { label: "UnionPay · 621843", bin: "621843" },
+];
+
+function sanitizeBin(value: string): string {
+  return value.replace(/\D/g, "").slice(0, MAX_BIN_LENGTH);
+}
+
+/* Length of the full card number produced for a given prefix. Falls back to
+   "prefix + one check digit" when the prefix is already too long. */
+function cardLengthFor(brand: Brand | null, prefixLength: number): number {
+  const preferred = brand ? PRIMARY_LENGTHS[brand] : 16;
+
+  if (preferred > prefixLength) return preferred;
+
+  const alternative = (brand ? BRANDS.find((b) => b.name === brand)!.lengths : [16])
+    .filter((length) => length > prefixLength)
+    .sort((a, b) => a - b)[0];
+
+  return alternative ?? prefixLength + 1;
+}
+
+type BinInfo = {
+  bin: string;
+  brand: Brand | null;
+  /** Total length of the card numbers this prefix will produce. */
+  length: number;
+  notes: string[];
+};
+
+function analyzeBin(value: string): BinInfo | null {
+  const bin = sanitizeBin(value);
+  if (!bin) return null;
+
+  const brand = detectBrand(bin);
+  const length = cardLengthFor(brand, bin.length);
+  const notes: string[] = [];
+
+  if (bin.length < 6) {
+    notes.push("A BIN/IIN is normally 6-8 digits — shorter prefixes still work.");
+  }
+
+  if (!brand) {
+    notes.push("This prefix doesn't match a known network, so 16-digit numbers are used.");
+  }
+
+  if (length === bin.length + 1) {
+    notes.push("The prefix is long, so only a check digit is appended.");
+  }
+
+  return { bin, brand, length, notes };
+}
+
+type CardBrand = Brand | "Unknown";
+
 type GeneratedCard = {
-  brand: Brand;
+  brand: CardBrand;
   number: string; // grouped digits
+  bin: string; // prefix the number was built from
+  binPinned: boolean; // true when the user supplied the BIN
   name: string;
   expiryLabel: string; // MM/YY
   cvv: string;
 };
 
-function generateCard(brandChoice: Brand | "random"): GeneratedCard {
-  const brand: Brand =
-    brandChoice === "random"
+function generateCard(
+  brandChoice: Brand | "random",
+  binValue = "",
+): GeneratedCard {
+  const bin = sanitizeBin(binValue);
+
+  /* An explicit BIN wins over the brand buttons — the network is inferred
+     from the prefix instead. */
+  const detected: Brand | null = bin
+    ? detectBrand(bin)
+    : brandChoice === "random"
       ? pick(BRANDS).name
       : brandChoice;
 
-  const info = BRANDS.find((b) => b.name === brand)!;
-  const length = pick(info.lengths);
-  const prefix = BRAND_PREFIXES[brand];
+  const brand: CardBrand = detected ?? "Unknown";
+
+  const prefix = bin || BRAND_PREFIXES[detected ?? "Visa"];
+
+  /* Without a pinned BIN, keep the original behaviour of varying the length
+     across the network's valid lengths. */
+  const candidateLengths = (
+    detected ? BRANDS.find((b) => b.name === detected)!.lengths : [16]
+  ).filter((candidate) => candidate > prefix.length);
+
+  const length =
+    bin || candidateLengths.length === 0
+      ? cardLengthFor(detected, prefix.length)
+      : pick(candidateLengths);
+
   const body = prefix + randomDigits(length - prefix.length - 1);
   const number = groupDigits(body + luhnCheckDigit(body));
 
@@ -161,11 +266,19 @@ function generateCard(brandChoice: Brand | "random"): GeneratedCard {
 
   const cvv = brand === "American Express" ? randomDigits(4) : randomDigits(3);
 
-  return { brand, number, name, expiryLabel, cvv };
+  return {
+    brand,
+    number,
+    bin: prefix,
+    binPinned: Boolean(bin),
+    name,
+    expiryLabel,
+    cvv,
+  };
 }
 
 /* Card brand accent colors for the visual preview. */
-const BRAND_ACCENTS: Record<Brand, string> = {
+const BRAND_ACCENTS: Record<CardBrand, string> = {
   Visa: "from-blue-600 via-blue-700 to-indigo-900",
   Mastercard: "from-orange-500 via-red-600 to-rose-900",
   "American Express": "from-cyan-600 via-sky-700 to-blue-900",
@@ -173,6 +286,7 @@ const BRAND_ACCENTS: Record<Brand, string> = {
   JCB: "from-emerald-600 via-green-700 to-slate-900",
   "Diners Club": "from-violet-600 via-purple-700 to-slate-900",
   UnionPay: "from-rose-600 via-red-700 to-slate-900",
+  Unknown: "from-slate-600 via-slate-700 to-slate-900",
 };
 
 function BackToToolsLink() {
@@ -190,16 +304,27 @@ function BackToToolsLink() {
 export default function CreditCardGeneratorPage() {
   const [tab, setTab] = useState<"generate" | "validate">("generate");
   const [brandChoice, setBrandChoice] = useState<Brand | "random">("random");
+  const [bin, setBin] = useState("");
   const [card, setCard] = useState<GeneratedCard | null>(null);
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [copiedAll, setCopiedAll] = useState(false);
   const [copiedJson, setCopiedJson] = useState(false);
-  // Validate tab state
   const [validateInput, setValidateInput] = useState("");
   const [validCopied, setValidCopied] = useState(false);
 
+  const binInfo = analyzeBin(bin);
+
   function regenerate() {
-    setCard(generateCard(brandChoice));
+    setCard(generateCard(brandChoice, bin));
+  }
+
+  function applyBin(value: string) {
+    const next = sanitizeBin(value);
+    setBin(next);
+
+    // Keep the brand chips in sync with whatever network the BIN belongs to.
+    const detected = detectBrand(next);
+    setBrandChoice(next && detected ? detected : "random");
   }
 
   async function copyField(key: string, value: string) {
@@ -214,6 +339,7 @@ export default function CreditCardGeneratorPage() {
       `Cardholder:  ${c.name}`,
       `Expiry:      ${c.expiryLabel}`,
       `CVV:         ${c.cvv}`,
+      `BIN:         ${c.bin}`,
     ].join("\n");
   }
 
@@ -222,6 +348,7 @@ export default function CreditCardGeneratorPage() {
       {
         type: "test_card",
         brand: c.brand,
+        bin: c.bin,
         number: c.number.replace(/\s/g, ""),
         name: c.name,
         expiry: c.expiryLabel,
@@ -269,8 +396,8 @@ export default function CreditCardGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate realistic test cards or validate any number&apos;s checksum - 
-          for testing forms and checkouts.
+          Generate realistic test cards from any BIN/IIN prefix, or validate any
+          number&apos;s checksum — for testing forms and checkouts.
         </p>
       </div>
 
@@ -304,17 +431,20 @@ export default function CreditCardGeneratorPage() {
           <>
             {/* Brand selector */}
         <div>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
           </p>
           <div className="flex flex-wrap gap-2">
             {SELECTABLE_BRANDS.map((b) => (
               <button
                 key={b.key}
                 type="button"
-                onClick={() => setBrandChoice(b.key)}
+                onClick={() => {
+                  setBrandChoice(b.key);
+                  setBin("");
+                }}
                 className={[
                   "rounded-xl border px-3 py-2 text-xs font-semibold transition",
-                  brandChoice === b.key
+                  brandChoice === b.key && !bin
                     ? "border-violet-500 bg-violet-600/20 text-white"
                     : "border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10 hover:text-white",
                 ].join(" ")}
@@ -322,6 +452,87 @@ export default function CreditCardGeneratorPage() {
                 {b.label}
               </button>
             ))}
+          </div>
+        </div>
+
+        {/* BIN / IIN input */}
+        <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
+          <label
+            htmlFor="bin-input"
+            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+          >
+            <Hash className="h-3.5 w-3.5" />
+            BIN / IIN prefix (optional)
+          </label>
+
+          <input
+            id="bin-input"
+            value={bin}
+            onChange={(event) => applyBin(event.target.value)}
+            inputMode="numeric"
+            autoComplete="off"
+            spellCheck={false}
+            maxLength={MAX_BIN_LENGTH}
+            placeholder="411111"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 font-mono text-lg tracking-widest text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500"
+          />
+
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            Enter an issuer prefix to generate cards on that exact BIN. Leave it
+            empty to use the selected network.
+          </p>
+
+          {binInfo ? (
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs text-slate-400">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-slate-300">
+                <CreditCard className="h-3.5 w-3.5" />
+                {binInfo.brand ?? "Unknown network"}
+              </span>
+
+              <span>
+                {binInfo.bin.length} digit prefix
+              </span>
+
+              <span>
+                Card length: {binInfo.length} digits
+              </span>
+            </div>
+          ) : null}
+
+          {binInfo?.notes.length ? (
+            <p className="mt-2 text-xs leading-5 text-amber-300/80">
+              {binInfo.notes.join(" ")}
+            </p>
+          ) : null}
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            {BIN_PRESETS.map((preset) => (
+              <button
+                key={preset.bin}
+                type="button"
+                onClick={() => applyBin(preset.bin)}
+                className={[
+                  "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition",
+                  bin === preset.bin
+                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    : "border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10 hover:text-white",
+                ].join(" ")}
+              >
+                <ScanLine className="h-3.5 w-3.5" />
+                {preset.label}
+              </button>
+            ))}
+
+            {bin ? (
+              <button
+                type="button"
+                onClick={() => applyBin("")}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/10"
+              >
+                <Eraser className="h-3.5 w-3.5" />
+                Clear BIN
+              </button>
+            ) : null}
           </div>
         </div>
 
@@ -386,6 +597,12 @@ export default function CreditCardGeneratorPage() {
                   { key: "name", label: "Cardholder name", value: card.name, icon: <User className="h-4 w-4" /> },
                   { key: "expiry", label: "Expiry date", value: card.expiryLabel, icon: <BadgeDollarSign className="h-4 w-4" /> },
                   { key: "cvv", label: "CVV", value: card.cvv, icon: <Fingerprint className="h-4 w-4" /> },
+                  {
+                    key: "bin",
+                    label: card.binPinned ? "BIN / IIN" : "Issuer prefix",
+                    value: card.bin,
+                    icon: <Hash className="h-4 w-4" />,
+                  },
                 ] as { key: string; label: string; value: string; icon: React.ReactNode }[]
               ).map((field) => (
                 <div
@@ -416,29 +633,6 @@ export default function CreditCardGeneratorPage() {
                   </button>
                 </div>
               ))}
-            </div>
-
-            {/* Developer JSON output */}
-            <div className="mt-5 rounded-xl border border-white/10 bg-slate-950">
-              <div className="flex items-center justify-between border-b border-white/10 px-4 py-2.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
-                  Developer · JSON
-                </p>
-                <button
-                  onClick={copyCardJson}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
-                >
-                  {copiedJson ? (
-                    <Check className="h-3.5 w-3.5" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                  {copiedJson ? "Copied" : "Copy JSON"}
-                </button>
-              </div>
-              <pre className="overflow-x-auto p-4 font-mono text-xs leading-5 text-cyan-300">
-                {cardJson(card)}
-              </pre>
             </div>
 
             {/* Actions */}
@@ -474,7 +668,7 @@ export default function CreditCardGeneratorPage() {
           <div className="mt-5 flex min-h-[120px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center">
             <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500">
               <WalletCards className="h-4 w-4" />
-              Pick a brand (or leave it on Random) and generate your test card.
+              Pick a brand, or enter a BIN/IIN prefix, then generate your test card.
             </p>
           </div>
         )}
@@ -552,20 +746,7 @@ export default function CreditCardGeneratorPage() {
               </div>
             )}
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {VALIDATE_EXAMPLES.map((example) => (
-                <button
-                  key={example.label}
-                  type="button"
-                  onClick={() => setValidateInput(example.value)}
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
-                >
-                  <ScanLine className="h-3.5 w-3.5" />
-                  {example.label}
-                </button>
-              ))}
-            </div>
-
+            
             <div className="mt-5 flex flex-wrap gap-3">
               <button
                 onClick={copyValidated}
@@ -603,13 +784,18 @@ export default function CreditCardGeneratorPage() {
               icon: <CreditCard className="h-5 w-5" />,
             },
             {
+              title: "Or enter a BIN",
+              description: "Type an issuer prefix (6-8 digits) to build cards on that exact BIN.",
+              icon: <Hash className="h-5 w-5" />,
+            },
+            {
               title: "Generate a card",
               description: "Creates a valid Luhn number, future expiry, name, and CVV.",
               icon: <Wand2 className="h-5 w-5" />,
             },
             {
               title: "Copy each field",
-              description: "Copy the number, name, expiry, or CVV with one click.",
+              description: "Copy the number, name, expiry, CVV, or BIN with one click.",
               icon: <Copy className="h-5 w-5" />,
             },
             {
