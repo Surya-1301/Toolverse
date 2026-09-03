@@ -235,7 +235,7 @@ export default function JsonXmlConverterPage() {
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
 
-  function jsonToXml() {
+  function handleJsonToXml() {
     try {
       setError("");
 
@@ -381,7 +381,7 @@ export default function JsonXmlConverterPage() {
 
       <div className="mt-5 flex flex-wrap gap-3">
         <button
-          onClick={jsonToXml}
+          onClick={handleJsonToXml}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Wand2 className="h-4 w-4" />
