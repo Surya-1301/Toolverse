@@ -539,6 +539,197 @@ export function SharedViewer({ mode }: SharedViewerProps) {
   }
 
   // ============ IMAGE VIEW ============
+  // Shared images use the same compact presentation as the shared-file page,
+  // with image preview + image-specific share actions.
+  if (mode === "share" && isImage) {
+    return (
+      <Container className="min-h-[calc(100vh-180px)] py-16 sm:py-20">
+        <div className="mx-auto max-w-[800px]">
+          {isLoading ? (
+            <ViewerLoading />
+          ) : error ? (
+            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200">
+              {error}
+            </div>
+          ) : record ? (
+            <section
+              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+              aria-label="Shared image"
+            >
+              <div className="p-7 sm:p-8">
+                <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px]">
+                  Shared Image
+                </h1>
+
+                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base">
+                  {record.encrypted
+                    ? "This image was encrypted before upload. Use the key in the share link to decrypt it in your browser."
+                    : "This image is ready to view and share."}
+                </p>
+
+                <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Stored type
+                    </p>
+                    <p className="mt-2 truncate text-[15px] text-slate-200">
+                      {record.mimeType || "image/*"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      {record.encrypted ? "Encrypted size" : "Image size"}
+                    </p>
+                    <p className="mt-2 text-[15px] text-slate-200">
+                      {formatFileSize(displaySize)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Created
+                    </p>
+                    <p className="mt-2 text-[15px] text-slate-200">
+                      {formatDate(record.createdAt)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Expires
+                    </p>
+                    <p className="mt-2 text-[15px] text-slate-200">
+                      {formatExpiry(record.expiresAt)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* IMAGE PREVIEW */}
+                <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5">
+                  {record.encrypted ? (
+                    decryptedImageUrl ? (
+                      <div className="rounded-[16px] bg-black/20 p-3">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={decryptedImageUrl}
+                          alt={displayName || "Decrypted shared image"}
+                          className="mx-auto max-h-[55vh] max-w-full rounded-xl object-contain"
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex min-h-[220px] items-center justify-center rounded-[16px] border border-dashed border-white/10 px-6 text-center text-sm text-slate-500">
+                        Decrypt the image below to preview it securely in your
+                        browser.
+                      </div>
+                    )
+                  ) : imageSrc && !imageFailed ? (
+                    <div className="rounded-[16px] bg-black/20 p-3">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={imageSrc}
+                        alt={record.originalName || "Shared image"}
+                        onError={() => setImageFailed(true)}
+                        className="mx-auto max-h-[55vh] max-w-full rounded-xl object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                      Could not display this image.
+                    </div>
+                  )}
+                </div>
+
+                {/* ENCRYPTION */}
+                {record.encrypted ? (
+                  <div className="mt-6 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
+                    <label className="block text-[15px] font-semibold text-emerald-100">
+                      Encryption key
+                    </label>
+
+                    <input
+                      type="text"
+                      value={encryptionKey}
+                      onChange={(event) => setEncryptionKey(event.target.value)}
+                      aria-label="Encryption key"
+                      spellCheck={false}
+                      autoComplete="off"
+                      className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30"
+                      placeholder="Encryption key from share link"
+                    />
+
+                    {decryptError ? (
+                      <p
+                        className="mt-3 text-sm leading-5 text-red-300"
+                        role="alert"
+                      >
+                        {decryptError}
+                      </p>
+                    ) : null}
+
+                    <button
+                      type="button"
+                      onClick={() => decryptImage(record, encryptionKey)}
+                      disabled={!encryptionKey || isDecrypting}
+                      className="mt-3 inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-500 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {isDecrypting ? (
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                      ) : (
+                        <Eye className="h-5 w-5" />
+                      )}
+                      {isDecrypting ? "Decrypting..." : "Decrypt & view image"}
+                    </button>
+                  </div>
+                ) : null}
+
+                {/* IMAGE ACTIONS */}
+                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-[1.15fr_0.85fr_1fr]">
+                  <button
+                    type="button"
+                    onClick={() => copyValue("markdown")}
+                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05]"
+                  >
+                    {copied === "markdown" ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      <Copy className="h-5 w-5" />
+                    )}
+                    {copied === "markdown" ? "Copied" : "Copy Markdown"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => copyValue("html")}
+                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05]"
+                  >
+                    {copied === "html" ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      <Copy className="h-5 w-5" />
+                    )}
+                    {copied === "html" ? "Copied" : "Copy HTML"}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={downloadImage}
+                    disabled={record.encrypted && !decryptedImageUrl}
+                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-5 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-violet-600/55 disabled:text-slate-400"
+                  >
+                    <Download className="h-5 w-5" />
+                    Download image
+                  </button>
+                </div>
+              </div>
+            </section>
+          ) : null}
+        </div>
+      </Container>
+    );
+  }
+
+  // Owner image view keeps the existing dashboard-style presentation.
   if (isImage) {
     return (
       <Container className="py-12 sm:py-16">
@@ -668,7 +859,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       className="mx-auto max-h-[75vh] max-w-full object-contain"
                     />
                   ) : (
-                    <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-100">
+                    <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-amber-100">
                       <p className="font-semibold">Encrypted image</p>
                       <p className="mt-2 text-amber-100/80">
                         This image needs the key from the share link to display.
