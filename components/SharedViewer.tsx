@@ -425,6 +425,119 @@ export function SharedViewer({ mode }: SharedViewerProps) {
   const displaySize =
     typeof decryptedSize === "number" ? decryptedSize : record?.size || 0;
 
+  // ============ SHARED FILE VIEW ============
+  // Keep shared non-image files on their dedicated, minimal presentation.
+  // This avoids exposing owner controls such as Direct, Copy page, upload, etc.
+  if (mode === "share" && !isImage) {
+    return (
+      <Container className="min-h-[calc(100vh-180px)] py-16 sm:py-20">
+        <div className="mx-auto max-w-[800px]">
+          {isLoading ? (
+            <ViewerLoading />
+          ) : error ? (
+            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200">
+              {error}
+            </div>
+          ) : record ? (
+            <section
+              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+              aria-label="Shared file"
+            >
+              <div className="p-7 sm:p-8">
+                <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px]">
+                  Shared File
+                </h1>
+
+                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base">
+                  This file was encrypted before upload. Use the key in the share
+                  link to decrypt it in your browser.
+                </p>
+
+                <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Stored type
+                    </p>
+                    <p className="mt-2 truncate text-[15px] text-slate-200">
+                      {record.mimeType || "application/octet-stream"}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Encrypted size
+                    </p>
+                    <p className="mt-2 text-[15px] text-slate-200">
+                      {formatFileSize(record.size)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Created
+                    </p>
+                    <p className="mt-2 text-[15px] text-slate-200">
+                      {formatDate(record.createdAt)}
+                    </p>
+                  </div>
+
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <p className="text-[13px] font-medium text-slate-500">
+                      Expires
+                    </p>
+                    <p className="mt-2 text-[15px] text-slate-200">
+                      {formatExpiry(record.expiresAt)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-6 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
+                  <label className="block text-[15px] font-semibold text-emerald-100">
+                    Encryption key
+                  </label>
+
+                  <input
+                    type="text"
+                    value={encryptionKey}
+                    onChange={(event) => setEncryptionKey(event.target.value)}
+                    aria-label="Encryption key"
+                    spellCheck={false}
+                    autoComplete="off"
+                    className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30"
+                    placeholder="Encryption key from share link"
+                  />
+
+                  {decryptError ? (
+                    <p
+                      className="mt-3 text-sm leading-5 text-red-300"
+                      role="alert"
+                    >
+                      {decryptError}
+                    </p>
+                  ) : null}
+
+                  <button
+                    type="button"
+                    onClick={decryptAndDownloadFile}
+                    disabled={!encryptionKey || isDecrypting}
+                    className="mt-3 inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-500 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {isDecrypting ? (
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                    ) : (
+                      <Download className="h-5 w-5" />
+                    )}
+                    {isDecrypting ? "Decrypting..." : "Decrypt & download"}
+                  </button>
+                </div>
+              </div>
+            </section>
+          ) : null}
+        </div>
+      </Container>
+    );
+  }
+
   // ============ IMAGE VIEW ============
   if (isImage) {
     return (
