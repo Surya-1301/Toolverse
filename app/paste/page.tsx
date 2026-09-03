@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
+  BarChart3,
   Check,
   Clock,
   Code2,
@@ -74,6 +75,31 @@ export default function PastePage() {
   const [isCreating, setIsCreating] = useState(false);
   const [isCheckingAlias, setIsCheckingAlias] = useState(false);
   const [copied, setCopied] = useState<CopyType>("");
+
+  const [recentPastes, setRecentPastes] = useState<PasteResult[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("toolverse-recent-pastes");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("toolverse-recent-pastes", JSON.stringify(recentPastes));
+    } catch {
+      // ignore storage errors
+    }
+  }, [recentPastes]);
+
+  function addRecentPaste(paste: PasteResult) {
+    setRecentPastes((prev) => {
+      const filtered = prev.filter((p) => p.id !== paste.id);
+      return [paste, ...filtered].slice(0, 10);
+    });
+  }
 
   function resetResultState() {
     setResult(null);
@@ -220,6 +246,7 @@ export default function PastePage() {
       setResult(data);
       setPasteUrl(fullPasteUrl);
       setRawUrl(fullRawUrl);
+      addRecentPaste(data);
     } catch (caughtError) {
       console.error(caughtError);
       setError(
@@ -274,8 +301,7 @@ export default function PastePage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">Paste</h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Create or open quick shareable notes using a readable paste alias.
-        </p>
+        Drop a note, choose a memorable alias, and share it instantly.        </p>
       </div>
 
       <div className="mx-auto mt-10 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
@@ -482,6 +508,88 @@ export default function PastePage() {
             </p>
           </div>
         ) : null}
+{/* Recent Pastes Stats (persisted per-browser) */}
+      {recentPastes.length > 0 ? (
+        <div className="mx-auto mt-16 max-w-6xl">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">
+                Recent Pastes
+              </h3>
+            </div>
+
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-white/10 text-slate-500">
+                    <th className="px-3 py-2 font-medium">ID</th>
+                    <th className="px-3 py-2 font-medium">Expires</th>
+                    <th className="px-3 py-2 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {recentPastes.map((paste, i) => (
+                    <tr key={i} className="text-slate-300">
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                        {paste.id}
+                      </td>
+                      <td className="px-3 py-2">
+                        {formatExpiry(paste.expiresAt)}
+                      </td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-1">
+                          <a
+                            href={`${window.location.origin}/paste-view?id=${paste.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                          >
+                            Open
+                          </a>
+                          <a
+                            href={apiUrl(`/raw/${paste.id}`)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                          >
+                            Raw
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setRecentPastes((prev) =>
+                                prev.filter((p) => p.id !== paste.id),
+                              )
+                            }
+                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-xs text-slate-500">
+                Stored in your browser. {recentPastes.length} saved paste
+                {recentPastes.length === 1 ? "" : "s"}.
+              </p>
+              <button
+                type="button"
+                onClick={() => setRecentPastes([])}
+                className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
+              >
+                Clear all
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
       </div>
 
       {/* Desktop/tablet: keep the existing HowToUse layout. */}
@@ -534,7 +642,7 @@ export default function PastePage() {
             id="mobile-how-to-use-title"
             className="text-center text-2xl font-bold tracking-tight text-white"
           >
-How to use Paste
+          How to use Paste
           </h2>
 
           <div className="mt-6 space-y-3">

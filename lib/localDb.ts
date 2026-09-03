@@ -38,6 +38,13 @@ export type FileRecord = {
   r2Key?: string;
 };
 
+export type ClickLog = {
+  timestamp: string;
+  referer: string | null;
+  userAgent: string | null;
+  ip: string | null;
+};
+
 export type LinkRecord = {
   id?: string;
   slug: string;
@@ -49,6 +56,7 @@ export type LinkRecord = {
   expiresAt: string | null;
   clicks?: number;
   visits?: number;
+  clickLogs?: ClickLog[];
   [key: string]: unknown;
 };
 

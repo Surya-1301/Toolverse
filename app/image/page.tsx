@@ -4,14 +4,19 @@ import Link from "next/link";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import {
+  BarChart3,
   Check,
   Copy,
   Download,
   ExternalLink,
+  Eye,
+  Image as ImageIcon,
   Loader2,
   Plus,
+  Shield,
 } from "lucide-react";
 import { Container } from "@/components/Container";
+import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { apiUrl, fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 import {
@@ -84,6 +89,36 @@ function ImageContent() {
   const [decryptError, setDecryptError] = useState("");
   const [isDecrypting, setIsDecrypting] = useState(false);
 
+  const [recentImages, setRecentImages] = useState<
+    { id: string; name: string; views: number }[]
+  >(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("toolverse-recent-images");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("toolverse-recent-images", JSON.stringify(recentImages));
+    } catch {
+      // ignore storage errors
+    }
+  }, [recentImages]);
+
+  function trackImage(img: ImageRecord) {
+    setRecentImages((prev) => {
+      const filtered = prev.filter((r) => r.id !== img.id);
+      return [
+        { id: img.id, name: img.originalName, views: img.views },
+        ...filtered,
+      ].slice(0, 20);
+    });
+  }
+
   useEffect(() => {
     document.title = "Toolverse - Your All-in-One Utility Hub.";
     setEncryptionKey(getEncryptionKeyFromHash());
@@ -142,6 +177,7 @@ function ImageContent() {
         }
 
         setImage(data);
+        trackImage(data);
       } catch (caughtError) {
         console.error(caughtError);
         setError(
@@ -482,6 +518,168 @@ function ImageContent() {
           </>
         ) : null}
       </div>
+
+      {/* Desktop/tablet HowToUse */}
+      <div className="hidden md:block">
+        <HowToUse
+          title="How to use Image Viewer"
+          subtitle=""
+          steps={[
+            {
+              title: "Upload image",
+              description: "Share an image via the upload page to get a link.",
+              icon: <ImageIcon className="h-5 w-5" />,
+            },
+            {
+              title: "View image",
+              description: "Open the hosted link to see your image instantly.",
+              icon: <Eye className="h-5 w-5" />,
+            },
+            {
+              title: "Copy embed codes",
+              description: "Copy page, Markdown, or HTML embed links.",
+              icon: <Copy className="h-5 w-5" />,
+            },
+            {
+              title: "Download",
+              description: "Save the original image to your device.",
+              icon: <Download className="h-5 w-5" />,
+            },
+            {
+              title: "Encrypted images",
+              description: "Enter the key to decrypt private images.",
+              icon: <Shield className="h-5 w-5" />,
+            },
+          ]}
+        />
+      </div>
+
+      {/* Mobile HowToUse */}
+      <section className="mt-10 md:hidden" aria-labelledby="mobile-image-howto-title">
+        <div className="mx-auto max-w-xl">
+          <h2
+            id="mobile-image-howto-title"
+            className="text-center text-2xl font-bold tracking-tight text-white"
+          >
+            How to use Image Viewer
+          </h2>
+          <div className="mt-6 space-y-3">
+            {[
+              {
+                title: "Upload image",
+                description: "Share an image via the upload page to get a link.",
+                icon: <ImageIcon className="h-5 w-5" />,
+              },
+              {
+                title: "View image",
+                description: "Open the hosted link to see your image instantly.",
+                icon: <Eye className="h-5 w-5" />,
+              },
+              {
+                title: "Copy embed codes",
+                description: "Copy page, Markdown, or HTML embed links.",
+                icon: <Copy className="h-5 w-5" />,
+              },
+              {
+                title: "Download",
+                description: "Save the original image to your device.",
+                icon: <Download className="h-5 w-5" />,
+              },
+              {
+                title: "Encrypted images",
+                description: "Enter the key to decrypt private images.",
+                icon: <Shield className="h-5 w-5" />,
+              },
+            ].map((step) => (
+              <div
+                key={step.title}
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+              >
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
+                  {step.icon}
+                </div>
+                <div className="min-w-0 flex-1 text-left">
+                  <h3 className="text-sm font-semibold text-white">{step.title}</h3>
+                  <p className="mt-1 text-xs leading-5 text-slate-400">{step.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Recent Images Stats (persisted per-browser) */}
+      {recentImages.length > 0 ? (
+        <div className="mx-auto mt-16 max-w-6xl">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">
+                Recent Images
+              </h3>
+            </div>
+
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-white/10 text-slate-500">
+                    <th className="px-3 py-2 font-medium">Name</th>
+                    <th className="px-3 py-2 font-medium">Views</th>
+                    <th className="px-3 py-2 font-medium">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {recentImages.map((img) => (
+                    <tr key={img.id} className="text-slate-300">
+                      <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
+                        {img.name || img.id}
+                      </td>
+                      <td className="px-3 py-2 text-slate-500">{img.views}</td>
+                      <td className="px-3 py-2">
+                        <div className="flex items-center gap-1">
+                          <a
+                            href={`/image?id=${img.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                          >
+                            View
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setRecentImages((prev) =>
+                                prev.filter((r) => r.id !== img.id),
+                              )
+                            }
+                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-xs text-slate-500">
+                Stored in your browser. {recentImages.length} saved image
+                {recentImages.length === 1 ? "" : "s"}.
+              </p>
+              <button
+                type="button"
+                onClick={() => setRecentImages([])}
+                className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
+              >
+                Clear all
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </Container>
   );
 }

@@ -37,6 +37,9 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "Image has expired." }, { status: 410 });
   }
 
+  image.views = (image.views ?? 0) + 1;
+  await saveImages(images);
+
   return NextResponse.json(
     {
       id: image.id,

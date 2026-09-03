@@ -300,6 +300,12 @@ function ShareImageContent() {
                     ? decryptedName || "Encrypted image"
                     : image.originalName}
                 </p>
+
+                {typeof image.views === "number" ? (
+                  <p className="mt-2 inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">
+                    {image.views} view{image.views === 1 ? "" : "s"}
+                  </p>
+                ) : null}
               </div>
 
               <div className="flex flex-wrap gap-3 sm:justify-end">

@@ -212,16 +212,24 @@ function PasteEditor() {
                 Paste ID: {paste.id}
               </p>
 
-              <div
-                className={`shrink-0 rounded-full px-3 py-1 text-xs ${
-                  saveStatus === "error"
-                    ? "bg-red-500/10 text-red-300"
-                    : saveStatus === "saving"
-                      ? "bg-violet-500/10 text-violet-300"
-                      : "bg-emerald-500/10 text-emerald-300"
-                }`}
-              >
-                {getSaveLabel()}
+              <div className="flex shrink-0 items-center gap-2">
+                {typeof paste.views === "number" && paste.views > 0 ? (
+                  <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">
+                    {paste.views} view{paste.views === 1 ? "" : "s"}
+                  </span>
+                ) : null}
+
+                <div
+                  className={`rounded-full px-3 py-1 text-xs ${
+                    saveStatus === "error"
+                      ? "bg-red-500/10 text-red-300"
+                      : saveStatus === "saving"
+                        ? "bg-violet-500/10 text-violet-300"
+                        : "bg-emerald-500/10 text-emerald-300"
+                  }`}
+                >
+                  {getSaveLabel()}
+                </div>
               </div>
             </div>
 

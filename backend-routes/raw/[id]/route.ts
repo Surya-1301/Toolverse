@@ -35,6 +35,9 @@ export async function GET(_request: Request, context: RouteContext) {
     });
   }
 
+  paste.views = (paste.views ?? 0) + 1;
+  await savePastes(pastes);
+
   return new Response(paste.content, {
     status: 200,
     headers: noIndexHeaders,

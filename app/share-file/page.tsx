@@ -202,6 +202,12 @@ function ShareFileContent() {
               link to decrypt it in your browser.
             </p>
 
+            {typeof file.downloads === "number" ? (
+              <p className="mt-3 inline-flex items-center rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">
+                {file.downloads} download{file.downloads === 1 ? "" : "s"}
+              </p>
+            ) : null}
+
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
               <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
                 <p className="text-xs text-slate-500">Stored type</p>

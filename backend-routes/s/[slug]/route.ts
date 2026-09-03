@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { isExpired } from "@/lib/expiry";
-import { getLinks, saveLinks } from "@/lib/localDb";
+import { getLinks, saveLinks, type ClickLog } from "@/lib/localDb";
 
 type RouteContext = {
   params: Promise<{
@@ -8,7 +8,7 @@ type RouteContext = {
   }>;
 };
 
-export async function GET(_request: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const { slug } = await context.params;
 
   const links = await getLinks();
@@ -35,6 +35,23 @@ export async function GET(_request: Request, context: RouteContext) {
   }
 
   link.clicks = (link.clicks ?? 0) + 1;
+
+  const clickLog: ClickLog = {
+    timestamp: new Date().toISOString(),
+    referer: request.headers.get("referer") || request.headers.get("referrer") || null,
+    userAgent: request.headers.get("user-agent") || null,
+    ip: request.headers.get("x-forwarded-for") || request.headers.get("cf-connecting-ip") || null,
+  };
+
+  if (!Array.isArray(link.clickLogs)) {
+    link.clickLogs = [];
+  }
+  link.clickLogs.push(clickLog);
+
+  if (link.clickLogs.length > 500) {
+    link.clickLogs = link.clickLogs.slice(-500);
+  }
+
   await saveLinks(links);
 
   return NextResponse.redirect(destination);

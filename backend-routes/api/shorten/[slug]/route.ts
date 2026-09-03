@@ -34,5 +34,6 @@ export async function GET(_request: Request, context: RouteContext) {
     createdAt: link.createdAt,
     expiresAt: link.expiresAt,
     clicks: link.clicks,
+    clickLogs: Array.isArray(link.clickLogs) ? link.clickLogs.slice(-50) : [],
   });
 }

@@ -37,6 +37,9 @@ export async function GET(_request: Request, context: RouteContext) {
     return NextResponse.json({ error: "File has expired." }, { status: 410 });
   }
 
+  fileRecord.downloads = (fileRecord.downloads ?? 0) + 1;
+  await saveFiles(files);
+
   return NextResponse.json(
     {
       id: fileRecord.id,

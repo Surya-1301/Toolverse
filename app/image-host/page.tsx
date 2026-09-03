@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import {
+  BarChart3,
   Check,
   Clock,
   Code2,
@@ -46,6 +47,15 @@ export default function ImageHostPage() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [copied, setCopied] = useState<CopyType>("");
+
+  const [recentImages, setRecentImages] = useState<UploadResult[]>([]);
+
+  function addRecentImage(image: UploadResult) {
+    setRecentImages((prev) => {
+      const filtered = prev.filter((i) => i.id !== image.id);
+      return [image, ...filtered].slice(0, 5);
+    });
+  }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const selectedFile = event.target.files?.[0];
@@ -124,6 +134,7 @@ export default function ImageHostPage() {
       const fullDirectUrl = `${backendOrigin}/api/image/${data.id}/direct`;
 
       setResult(data);
+      addRecentImage(data);
       setPageUrl(fullPageUrl);
       setDirectUrl(fullDirectUrl);
     } catch (caughtError) {
@@ -490,6 +501,7 @@ export default function ImageHostPage() {
           },
         ]}
       />
+
     </Container>
   );
 }

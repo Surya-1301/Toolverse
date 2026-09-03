@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 import { NextResponse } from "next/server";
-import { getImages } from "@/lib/localDb";
+import { getImages, saveImages } from "@/lib/localDb";
 import { isExpired } from "@/lib/expiry";
 
 type RouteContext = {
@@ -33,6 +33,9 @@ export async function GET(_request: Request, context: RouteContext) {
   if (isExpired(image.expiresAt)) {
     return NextResponse.json({ error: "Image has expired." }, { status: 410 });
   }
+
+  image.views = (image.views ?? 0) + 1;
+  await saveImages(images);
 
   const extension = getExtensionFromMimeType(image.mimeType);
 

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import {
   ArrowLeft,
+  BarChart3,
   Check,
   Copy,
   Eraser,
@@ -65,6 +66,15 @@ export default function FileSharePage() {
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const [recentFiles, setRecentFiles] = useState<UploadResult[]>([]);
+
+  function addRecentFile(file: UploadResult) {
+    setRecentFiles((prev) => {
+      const filtered = prev.filter((f) => f.id !== file.id);
+      return [file, ...filtered].slice(0, 5);
+    });
+  }
 
   function resetResultState() {
     setResult(null);
@@ -200,6 +210,7 @@ export default function FileSharePage() {
 
       setUploadKind(kind);
       setResult(data);
+      addRecentFile(data);
 
       setOwnerUrl(`${frontendOrigin}${ownerPath}${keyHash}`);
       setUserUrl(`${frontendOrigin}${userPath}${keyHash}`);
@@ -462,6 +473,58 @@ export default function FileSharePage() {
           )}
         </div>
       </div>
+
+      {/* Recent Files Stats */}
+      {recentFiles.length > 0 ? (
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <BarChart3 className="h-5 w-5 text-violet-400" />
+            <h3 className="text-sm font-semibold text-white">
+              Recent Files
+            </h3>
+          </div>
+
+          <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/10 text-slate-500">
+                  <th className="px-3 py-2 font-medium">ID</th>
+                  <th className="px-3 py-2 font-medium">Expires</th>
+                  <th className="hidden px-3 py-2 font-medium sm:table-cell">
+                    Downloads
+                  </th>
+                  <th className="px-3 py-2 font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {recentFiles.map((file, i) => (
+                  <tr key={i} className="text-slate-300">
+                    <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                      {file.id}
+                    </td>
+                    <td className="px-3 py-2">
+                      {formatExpiry(file.expiresAt)}
+                    </td>
+                    <td className="hidden px-3 py-2 sm:table-cell text-slate-500">
+                      —
+                    </td>
+                    <td className="px-3 py-2">
+                      <a
+                        href={`/share-file?id=${file.id}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                      >
+                        Open
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
 
       {/* Desktop/tablet: keep the existing HowToUse card layout. */}
       <div className="hidden md:block">

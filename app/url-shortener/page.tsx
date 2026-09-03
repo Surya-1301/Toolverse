@@ -19,6 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
+import { type ClickLog } from "@/lib/localDb";
 
 function BackToToolsLink() {
   return (
@@ -81,6 +82,7 @@ function UrlShortenerContent() {
   const [isCreating, setIsCreating] = useState(false);
   const [copied, setCopied] = useState(false);
   const [clicks, setClicks] = useState<number | null>(null);
+  const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
 
   useEffect(() => {
     if (searchParams.get("error") === "expired") {
@@ -179,6 +181,7 @@ function UrlShortenerContent() {
       let data:
         | {
             clicks?: number;
+            clickLogs?: ClickLog[];
             error?: string;
           }
         | null = null;
@@ -199,6 +202,7 @@ function UrlShortenerContent() {
       }
 
       setClicks(typeof data?.clicks === "number" ? data.clicks : 0);
+      setClickLogs(Array.isArray(data?.clickLogs) ? data.clickLogs : []);
     } catch (caughtError) {
       console.error(caughtError);
       setError(
@@ -218,6 +222,7 @@ function UrlShortenerContent() {
     setError("");
     setCopied(false);
     setClicks(null);
+    setClickLogs([]);
   }
 
   function formatExpiry(value: string | null) {
@@ -241,7 +246,7 @@ function UrlShortenerContent() {
           URL Shortener
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Turn long URLs into short, clean, shareable links.
+          Shrink long URLs into clean, memorable links you can share anywhere.
         </p>
       </div>
 
@@ -393,6 +398,176 @@ function UrlShortenerContent() {
                   <p className="mt-1 text-white">
                     {formatExpiry(result.expiresAt)}
                   </p>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Click Stats */}
+          {clicks !== null && clicks > 0 && clickLogs.length > 0 ? (
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+              <div className="mb-4 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-violet-400" />
+                <h3 className="text-sm font-semibold text-white">
+                  Click Statistics
+                </h3>
+                <span className="ml-auto rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs font-semibold text-violet-300">
+                  {clicks} total
+                </span>
+              </div>
+
+              {/* Clicks by date */}
+              {(() => {
+                const byDate: Record<string, number> = {};
+                for (const log of clickLogs) {
+                  const day = log.timestamp.slice(0, 10);
+                  byDate[day] = (byDate[day] || 0) + 1;
+                }
+                const sortedDates = Object.entries(byDate)
+                  .sort(([a], [b]) => b.localeCompare(a))
+                  .slice(0, 7);
+
+                if (sortedDates.length === 0) return null;
+
+                const maxCount = Math.max(...sortedDates.map(([, c]) => c), 1);
+
+                return (
+                  <div className="mb-4">
+                    <p className="mb-2 text-xs font-medium text-slate-400">
+                      Clicks by date
+                    </p>
+                    <div className="space-y-1.5">
+                      {sortedDates.map(([date, count]) => (
+                        <div key={date} className="flex items-center gap-2">
+                          <span className="w-20 shrink-0 text-right font-mono text-[11px] text-slate-500">
+                            {date.slice(5)}
+                          </span>
+                          <div className="relative h-4 flex-1 overflow-hidden rounded bg-white/5">
+                            <div
+                              className="absolute inset-y-0 left-0 rounded bg-violet-500/40"
+                              style={{
+                                width: `${Math.round((count / maxCount) * 100)}%`,
+                              }}
+                            />
+                          </div>
+                          <span className="w-8 text-right font-mono text-[11px] text-slate-400">
+                            {count}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Top referrers */}
+              {(() => {
+                const refCounts: Record<string, number> = {};
+                for (const log of clickLogs) {
+                  const ref = log.referer
+                    ? new URL(log.referer).hostname
+                    : "Direct / No referer";
+                  refCounts[ref] = (refCounts[ref] || 0) + 1;
+                }
+                const topRefs = Object.entries(refCounts)
+                  .sort(([, a], [, b]) => b - a)
+                  .slice(0, 5);
+
+                if (topRefs.length === 0) return null;
+
+                return (
+                  <div className="mb-4">
+                    <p className="mb-2 text-xs font-medium text-slate-400">
+                      Top referrers
+                    </p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {topRefs.map(([ref, count]) => (
+                        <span
+                          key={ref}
+                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-slate-300"
+                        >
+                          {ref}
+                          <span className="font-mono text-violet-400">
+                            {count}
+                          </span>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Recent clicks */}
+              <div>
+                <p className="mb-2 text-xs font-medium text-slate-400">
+                  Recent clicks
+                </p>
+                <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+                  <table className="w-full text-left text-xs">
+                    <thead>
+                      <tr className="border-b border-white/10 text-slate-500">
+                        <th className="px-3 py-2 font-medium">Time</th>
+                        <th className="px-3 py-2 font-medium">Referrer</th>
+                        <th className="hidden px-3 py-2 font-medium sm:table-cell">
+                          Device
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {[...clickLogs].reverse().slice(0, 20).map((log, i) => {
+                        const time = new Date(log.timestamp);
+                        const timeStr = time.toLocaleTimeString("en", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        });
+                        const dateStr = time.toLocaleDateString("en", {
+                          month: "short",
+                          day: "numeric",
+                        });
+
+                        let refHost = "Direct";
+                        try {
+                          if (log.referer) {
+                            refHost = new URL(log.referer).hostname;
+                          }
+                        } catch {
+                          refHost = log.referer || "Unknown";
+                        }
+
+                        let device = "Unknown";
+                        if (log.userAgent) {
+                          const ua = log.userAgent.toLowerCase();
+                          if (ua.includes("mobile") || ua.includes("android"))
+                            device = "📱 Mobile";
+                          else if (ua.includes("tablet") || ua.includes("ipad"))
+                            device = "📱 Tablet";
+                          else if (
+                            ua.includes("chrome") ||
+                            ua.includes("firefox") ||
+                            ua.includes("safari") ||
+                            ua.includes("edge")
+                          )
+                            device = "🖥️ Desktop";
+                          else if (ua.includes("curl") || ua.includes("bot"))
+                            device = "🤖 Bot";
+                        }
+
+                        return (
+                          <tr key={i} className="text-slate-300">
+                            <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-slate-400">
+                              {dateStr} {timeStr}
+                            </td>
+                            <td className="max-w-[150px] truncate px-3 py-2">
+                              {refHost}
+                            </td>
+                            <td className="hidden px-3 py-2 sm:table-cell">
+                              {device}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

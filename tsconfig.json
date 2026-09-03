@@ -33,7 +33,6 @@
   "exclude": [
     "node_modules",
     "backend",
-    "backend-routes",
     ".next",
     ".open-next",
     "out"
