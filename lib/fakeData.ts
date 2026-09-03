@@ -538,3 +538,104 @@ export function formatAddress(address: Address, style: "single" | "multi"): stri
 
   return style === "multi" ? lines.join("\n") : lines.join(", ");
 }
+
+/* --------------------------- Fake user --------------------------- */
+
+export type FakeUser = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  username: string;
+  avatar: string;
+  dob: string;
+  gender: "Male" | "Female";
+};
+
+const FIRST_NAMES = [
+  "James", "Mary", "John", "Patricia", "Robert", "Jennifer", "Michael", "Linda",
+  "William", "Elizabeth", "David", "Barbara", "Richard", "Susan", "Joseph",
+  "Jessica", "Thomas", "Sarah", "Charles", "Karen", "Christopher", "Lisa",
+  "Daniel", "Nancy", "Matthew", "Betty", "Anthony", "Margaret", "Mark",
+  "Sandra", "Donald", "Ashley", "Steven", "Kimberly", "Paul", "Emily",
+  "Andrew", "Donna", "Joshua", "Michelle", "Kenneth", "Carol", "Kevin",
+  "Amanda", "Brian", "Dorothy", "George", "Melissa", "Timothy", "Deborah",
+  "Ronald", "Stephanie", "Edward", "Rebecca", "Jason", "Sharon", "Jeffrey",
+  "Laura", "Ryan", "Cynthia", "Jacob", "Kathleen", "Gary", "Amy", "Nicholas",
+  "Angela", "Eric", "Shirley", "Jonathan", "Anna", "Stephen", "Brenda",
+  "Larry", "Pamela", "Justin", "Emma", "Scott", "Nicole", "Brandon",
+  "Helen", "Benjamin", "Samantha", "Samuel", "Katherine", "Gregory", "Christine",
+  "Alexander", "Debra", "Patrick", "Rachel", "Jack", "Carolyn", "Dennis",
+  "Janet", "Jerry", "Catherine", "Tyler", "Maria", "Aaron", "Heather",
+] as const;
+
+const LAST_NAMES = [
+  "Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller",
+  "Davis", "Rodriguez", "Martinez", "Hernandez", "Lopez", "Gonzalez",
+  "Wilson", "Anderson", "Thomas", "Taylor", "Moore", "Jackson", "Martin",
+  "Lee", "Perez", "Thompson", "White", "Harris", "Sanchez", "Clark",
+  "Ramirez", "Lewis", "Robinson", "Walker", "Young", "Allen", "King",
+  "Wright", "Scott", "Torres", "Nguyen", "Hill", "Flores", "Green",
+  "Adams", "Nelson", "Baker", "Hall", "Rivera", "Campbell", "Mitchell",
+  "Carter", "Roberts", "Gomez", "Phillips", "Evans", "Turner", "Diaz",
+  "Parker", "Cruz", "Edwards", "Collins", "Reyes", "Stewart", "Morris",
+  "Morales", "Murphy", "Cook", "Rogers", "Gutierrez", "Ortiz", "Morgan",
+  "Cooper", "Peterson", "Bailey", "Reed", "Kelly", "Howard", "Ramos",
+  "Kim", "Cox", "Ward", "Richardson", "Watson", "Brooks", "Chavez",
+  "Wood", "James", "Bennett", "Gray", "Mendoza", "Ruiz", "Hughes",
+  "Price", "Alvarez", "Castillo", "Sanders", "Patel", "Myers", "Long",
+  "Ross", "Foster", "Jimenez", "Powell",
+] as const;
+
+const EMAIL_DOMAINS = [
+  "gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com",
+  "protonmail.com", "mail.com", "zoho.com", "aol.com", "gmx.com",
+] as const;
+
+const USERNAME_SUFFIXES = [
+  "dev", "coder", "pro", "fan", "lover", "guru", "expert", "wiz",
+  "master", "genius", "star", "fox", "wolf", "tiger", "eagle", "hawk",
+  "king", "queen", "ace", "lion", "bear", "panda", "ninja", "hero",
+] as const;
+
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randomDateFormat(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+export function generateUser(): FakeUser {
+  const gender: "Male" | "Female" = Math.random() < 0.5 ? "Male" : "Female";
+  const firstName = pick(FIRST_NAMES);
+  const lastName = pick(LAST_NAMES);
+  const usernameSuffix = pick(USERNAME_SUFFIXES);
+  const username = `${firstName.toLowerCase()}${lastName.toLowerCase()}${randomInt(1, 999)}_${usernameSuffix}`;
+  const domain = pick(EMAIL_DOMAINS);
+  const email = `${firstName.toLowerCase()}.${lastName.toLowerCase()}${randomInt(1, 999)}@${domain}`;
+
+  const countryCode = pick(["+1", "+44", "+91", "+61", "+1", "+49", "+33", "+81", "+55", "+52", "+39", "+34", "+31", "+82", "+65"] as const);
+  const phone = `${countryCode} ${randomInt(200, 999)}-${randomInt(100, 999)}-${randomInt(1000, 9999)}`;
+
+  const now = new Date();
+  const age = randomInt(18, 70);
+  const dobDate = new Date(now.getFullYear() - age, randomInt(0, 11), randomInt(1, 28));
+
+  const avatarSeed = `${firstName}-${lastName}-${randomInt(1, 999)}`;
+  const avatar = `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(avatarSeed)}`;
+
+  return {
+    firstName,
+    lastName,
+    email,
+    phone,
+    username,
+    avatar,
+    dob: randomDateFormat(dobDate),
+    gender,
+  };
+}

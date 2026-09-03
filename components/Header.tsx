@@ -2,49 +2,32 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 import { Container } from "./Container";
 
-const navLinks = [
-  {
-    href: "https://pdfverse.pages.dev/",
-    label: "PDF",
-  },
-  {
-    href: "/file-share",
-    label: "Upload",
-  },
-  {
-    href: "/image-compressor",
-    label: "Compress",
-  },
-  {
-    href: "/paste",
-    label: "Paste",
-  },
-  {
-    href: "/qr-generator",
-    label: "QR",
-  },
-  {
-    href: "/tools/image-tools",
-    label: "Image tools",
-  },
-  {
-    href: "/tools/conversion-tools",
-    label: "Conversion tools",
-  },
-  {
-    href: "/tools/text-developer-tools",
-    label: "Developer tools",
-  },
+const mainLinks = [
+  { href: "https://pdfverse.pages.dev/", label: "PDF" },
+  { href: "/file-share", label: "Upload" },
+  { href: "/image-compressor", label: "Compress" },
+  { href: "/paste", label: "Paste" },
+  { href: "/qr-generator", label: "QR" },
+  { href: "/url-shortener", label: "Shorten" },
+];
+
+const toolLinks = [
+  { href: "/tools/image-tools", label: "Image tools" },
+  { href: "/tools/conversion-tools", label: "Conversion tools" },
+  { href: "/tools/formatter-tools", label: "Formatter tools" },
+  { href: "/tools/text-developer-tools", label: "Developer tools" },
 ];
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] =
     useState(false);
+const [isToolsOpen, setIsToolsOpen] =
+  useState(false);
 
   return (
     <header
@@ -134,7 +117,7 @@ export function Header() {
             md:flex
           "
         >
-          {navLinks.map((link) => (
+          {mainLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -155,6 +138,82 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setIsToolsOpen((open) => !open)}
+              className="
+                flex
+                items-center
+                gap-1
+                rounded-lg
+                px-3.5
+                py-2
+                transition
+                hover:bg-white/10
+                hover:text-white
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-violet-400/50
+                focus-visible:ring-offset-1
+                focus-visible:ring-offset-slate-950
+              "
+              aria-expanded={isToolsOpen}
+              aria-haspopup="true"
+            >
+              Tools
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  isToolsOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {isToolsOpen ? (
+              <div
+                className="
+                  absolute
+                  right-0
+                  top-full
+                  z-50
+                  mt-2
+                  w-48
+                  rounded-xl
+                  border
+                  border-white/10
+                  bg-slate-900/95
+                  p-2
+                  text-sm
+                  text-slate-200
+                  shadow-2xl
+                  shadow-black/20
+                "
+                role="menu"
+              >
+                {toolLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsToolsOpen(false)}
+                    className="
+                      block
+                      rounded-lg
+                      px-3
+                      py-2
+                      transition
+                      hover:bg-white/10
+                      hover:text-white
+                      focus:outline-none
+                      focus-visible:ring-2
+                      focus-visible:ring-violet-400/50
+                    "
+                    role="menuitem"
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
+            ) : null}
+          </div>
         </nav>
 
         {/* ================================================================
@@ -230,7 +289,7 @@ export function Header() {
               shadow-black/20
             "
           >
-            {navLinks.map((link) => (
+            {mainLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -254,6 +313,87 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/url-shortener"
+              onClick={() => setIsMenuOpen(false)}
+              className="
+                rounded-xl
+                px-3
+                py-3
+                text-center
+                font-medium
+                transition
+                hover:bg-white/10
+                hover:text-white
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-violet-400/50
+              "
+            >
+              Shorten
+            </Link>
+            <div className="col-span-2">
+              <button
+                type="button"
+                onClick={() => setIsToolsOpen((open) => !open)}
+                className="
+                  flex
+                  w-full
+                  items-center
+                  justify-center
+                  gap-1
+                  rounded-xl
+                  px-3
+                  py-3
+                  font-medium
+                  transition
+                  hover:bg-white/10
+                  hover:text-white
+                  focus:outline-none
+                  focus-visible:ring-2
+                  focus-visible:ring-violet-400/50
+                "
+                aria-expanded={isToolsOpen}
+                aria-haspopup="true"
+              >
+                Tools
+                <ChevronDown
+                  className={`h-4 w-4 transition-transform ${
+                    isToolsOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+              {isToolsOpen ? (
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {toolLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => {
+                        setIsToolsOpen(false);
+                        setIsMenuOpen(false);
+                      }}
+                      className="
+                        rounded-xl
+                        px-3
+                        py-3
+                        text-center
+                        font-medium
+                        transition
+                        hover:bg-white/10
+                        hover:text-white
+                        focus:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-violet-400/50
+                      "
+                      role="menuitem"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </nav>
         </Container>
       ) : null}

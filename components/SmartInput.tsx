@@ -411,7 +411,7 @@ export default function SmartInput() {
               flex
               min-h-[52px]
               items-center
-              justify-between
+              justify-end
               gap-3
               border-t
               border-white/[0.055]
@@ -421,46 +421,6 @@ export default function SmartInput() {
               md:hidden
             "
           >
-            <button
-              type="button"
-              onClick={() =>
-                fileInputRef.current?.click()
-              }
-              aria-label="Upload an image"
-              className="
-                inline-flex
-                min-h-9
-                items-center
-                gap-2
-                rounded-lg
-                border
-                border-white/[0.10]
-                bg-white/[0.025]
-                px-3
-                py-1.5
-                text-xs
-                font-medium
-                text-slate-300
-                transition-all
-                duration-200
-                hover:border-violet-400/25
-                hover:bg-white/[0.055]
-                hover:text-white
-                focus:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-violet-400/60
-                focus-visible:ring-offset-2
-                focus-visible:ring-offset-[#030617]
-              "
-            >
-              <Upload
-                aria-hidden="true"
-                className="h-3.5 w-3.5"
-              />
-
-              <span>Drop image</span>
-            </button>
-
             {value ? (
               <button
                 type="button"
@@ -509,6 +469,46 @@ export default function SmartInput() {
                 )}
               </button>
             ) : null}
+
+            <button
+              type="button"
+              onClick={() =>
+                fileInputRef.current?.click()
+              }
+              aria-label="Upload an image"
+              className="
+                inline-flex
+                min-h-9
+                items-center
+                gap-2
+                rounded-lg
+                border
+                border-white/[0.10]
+                bg-white/[0.025]
+                px-3
+                py-1.5
+                text-xs
+                font-medium
+                text-slate-300
+                transition-all
+                duration-200
+                hover:border-violet-400/25
+                hover:bg-white/[0.055]
+                hover:text-white
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-violet-400/60
+                focus-visible:ring-offset-2
+                focus-visible:ring-offset-[#030617]
+              "
+            >
+              <Upload
+                aria-hidden="true"
+                className="h-3.5 w-3.5"
+              />
+
+              <span>Drop image</span>
+            </button>
           </div>
 
           {/* ============================================================

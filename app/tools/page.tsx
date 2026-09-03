@@ -83,7 +83,7 @@ const popularTools = [
   {
     title: "Fake Address Generator",
     description:
-      "Generate realistic fake addresses for testing with multiple locale presets.",
+      "Generate realistic fake addresses with user profiles (name, email, phone) for testing with multiple locale presets.",
     href: "/fake-address-generator",
     icon: <MapPin className="h-6 w-6" />,
     status: "live" as const,

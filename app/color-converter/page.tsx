@@ -552,7 +552,7 @@ export default function ColorConverterPage() {
 
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-          Color Converter
+         RGB ↔ HEX Converter
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
@@ -820,7 +820,7 @@ export default function ColorConverterPage() {
         </div>
       </div>
       <HowToUse
-        title="How to use Color Converter"
+        title="How to use RGB ↔ HEX Converter"
         subtitle=""
         steps={howToUseSteps}
       />

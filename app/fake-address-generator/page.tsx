@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { type Locale, type Address, locales, formatAddress } from "@/lib/fakeData";
+import { type Locale, type Address, type FakeUser, locales, formatAddress, generateUser } from "@/lib/fakeData";
 
 function BackToToolsLink() {
   return (
@@ -34,7 +34,7 @@ function BackToToolsLink() {
 const howToUseSteps = [
   {
     title: "Pick a location",
-    description: "Choose a country to generate addresses for.",
+    description: "Choose a country to generate addresses and user profiles for.",
     icon: <Globe2 className="h-5 w-5" />,
   },
   {
@@ -49,24 +49,27 @@ const howToUseSteps = [
   },
   {
     title: "Generate",
-    description: "Click the button to produce fresh fake addresses.",
+    description: "Click the button to produce fresh fake addresses with user profiles.",
     icon: <RefreshCw className="h-5 w-5" />,
   },
   {
     title: "Copy or download",
-    description: "Copy any address, copy all, or export the whole batch as CSV or JSON.",
+    description: "Copy any address or profile, copy all, or export as CSV or JSON.",
     icon: <Copy className="h-5 w-5" />,
   },
   {
     title: "Stays private",
-    description: "All addresses are generated locally in your browser.",
+    description: "All addresses and user data are generated locally in your browser.",
     icon: <Sparkles className="h-5 w-5" />,
   },
 ];
 
 
-function addressToCsvRow(addr: Address): string {
-  const fields = [addr.street, addr.secondary ?? "", addr.city, addr.state, addr.zip, addr.country];
+function addressToCsvRow(addr: Address, user: FakeUser): string {
+  const fields = [
+    user.firstName, user.lastName, user.email, user.phone, user.username,
+    addr.street, addr.secondary ?? "", addr.city, addr.state, addr.zip, addr.country,
+  ];
   return fields.map((f) => `"${f.replace(/"/g, '""')}"`).join(",");
 }
 
@@ -75,13 +78,16 @@ export default function FakeAddressGeneratorPage() {
   const [count, setCount] = useState(5);
   const [style, setStyle] = useState<"single" | "multi">("multi");
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [users, setUsers] = useState<FakeUser[]>([]);
   const [copied, setCopied] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [zipcode, setZipcode] = useState("");
 
   function generate() {
     const result = Array.from({ length: count }, () => selectedLocale.generate(zipcode.trim() || undefined));
+    const userResult = Array.from({ length: count }, () => generateUser());
     setAddresses(result);
+    setUsers(userResult);
     setCopied(false);
   }
 
@@ -91,12 +97,23 @@ export default function FakeAddressGeneratorPage() {
       next[index] = selectedLocale.generate(zipcode.trim() || undefined);
       return next;
     });
+    setUsers((prev) => {
+      const next = [...prev];
+      next[index] = generateUser();
+      return next;
+    });
     setCopied(false);
   }
 
   async function copyAll() {
     if (!addresses.length) return;
-    const text = addresses.map((a) => formatAddress(a, style)).join("\n\n");
+    const text = addresses.map((a, i) => {
+      const user = users[i];
+      const userBlock = user
+        ? `${user.firstName} ${user.lastName} (${user.gender})\n${user.username} | ${user.email} | ${user.phone}\nDOB: ${user.dob}`
+        : "";
+      return userBlock ? `${userBlock}\n${formatAddress(a, style)}` : formatAddress(a, style);
+    }).join("\n\n");
     await navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
@@ -104,8 +121,8 @@ export default function FakeAddressGeneratorPage() {
 
   function downloadCsv() {
     if (!addresses.length) return;
-    const header = "Street,Secondary,City,State,Zip,Country";
-    const rows = addresses.map(addressToCsvRow);
+    const header = "First Name,Last Name,Email,Phone,Username,Street,Secondary,City,State,Zip,Country";
+    const rows = addresses.map((a, i) => addressToCsvRow(a, users[i]));
     const blob = new Blob([header, "\n", rows.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -117,13 +134,25 @@ export default function FakeAddressGeneratorPage() {
 
   function downloadJson() {
     if (!addresses.length) return;
-    const data = addresses.map((addr) => ({
-      street: addr.street,
-      secondary: addr.secondary ?? undefined,
-      city: addr.city,
-      state: addr.state ?? undefined,
-      zip: addr.zip,
-      country: addr.country,
+    const data = addresses.map((addr, i) => ({
+      user: {
+        firstName: users[i].firstName,
+        lastName: users[i].lastName,
+        email: users[i].email,
+        phone: users[i].phone,
+        username: users[i].username,
+        avatar: users[i].avatar,
+        dob: users[i].dob,
+        gender: users[i].gender,
+      },
+      address: {
+        street: addr.street,
+        secondary: addr.secondary ?? undefined,
+        city: addr.city,
+        state: addr.state ?? undefined,
+        zip: addr.zip,
+        country: addr.country,
+      },
     }));
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -135,7 +164,12 @@ export default function FakeAddressGeneratorPage() {
   }
 
   async function copyOne(index: number) {
-    await navigator.clipboard.writeText(formatAddress(addresses[index], style));
+    const user = users[index];
+    const addressText = formatAddress(addresses[index], style);
+    const text = user
+      ? `${user.firstName} ${user.lastName} (${user.gender})\n${user.email} | ${user.phone}\n${addressText}`
+      : addressText;
+    await navigator.clipboard.writeText(text);
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 1400);
   }
@@ -150,8 +184,7 @@ export default function FakeAddressGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate realistic fake addresses for testing, demos, and prototypes. Select a locale and get randomly formatted street addresses.
-
+            Generate realistic fake user profiles with addresses, names, emails, and phone numbers. Choose a locale and get random formatted details for testing and demos.
         </p>
       </div>
 
@@ -294,58 +327,90 @@ export default function FakeAddressGeneratorPage() {
           <div className="mt-6">
             <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
               <span>{selectedLocale.flag}</span>
-              Generated {addresses.length} address{addresses.length > 1 ? "es" : ""}
+              Generated {addresses.length} profile{addresses.length > 1 ? "s" : ""} &amp; address{addresses.length > 1 ? "es" : ""}
               <span className="text-slate-500">·</span>
               <span className="text-slate-400">{selectedLocale.label}</span>
             </p>
-            <div className="max-h-[500px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+            <div className="max-h-[600px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
               <ul className="divide-y divide-white/5">
-                {addresses.map((addr, index) => (
-                  <li key={index} className="flex items-start gap-3 px-4 py-3">
-                    <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-violet-600/20 text-xs font-bold text-violet-300">
-                      {index + 1}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      {style === "multi" ? (
-                        <div className="font-mono text-sm leading-6 text-slate-100">
-                          <div>{addr.street}</div>
-                          {addr.secondary ? <div>{addr.secondary}</div> : null}
-                          <div>{addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.zip}</div>
-                          <div>{addr.country}</div>
-                        </div>
-                      ) : (
-                        <code className="block break-all font-mono text-sm text-slate-100">
-                          {formatAddress(addr, "single")}
-                        </code>
-                      )}
-                    </div>
-                    <div className="mt-0.5 flex shrink-0 items-center gap-1">
-                      <button
-                        onClick={() => copyOne(index)}
-                        aria-label={`Copy address ${index + 1}`}
-                        className={[
-                          "rounded-md p-1.5 transition",
-                          copiedIndex === index
-                            ? "text-emerald-400"
-                            : "text-slate-500 hover:bg-white/5 hover:text-white",
-                        ].join(" ")}
-                      >
-                        {copiedIndex === index ? (
-                          <Check className="h-4 w-4" />
+                {addresses.map((addr, index) => {
+                  const user = users[index];
+                  return (
+                    <li key={index} className="flex items-start gap-3 px-4 py-4">
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-violet-600/20 text-xs font-bold text-violet-300">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        {/* User profile */}
+                        {user ? (
+                          <div className="mb-3 flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={user.avatar}
+                              alt={`${user.firstName} ${user.lastName} avatar`}
+                              className="h-10 w-10 shrink-0 rounded-full bg-white/10"
+                            />
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-bold text-white">
+                                {user.firstName} {user.lastName}
+                                <span className="ml-2 text-xs font-normal text-slate-400">
+                                  {user.gender}
+                                </span>
+                              </p>
+                              <p className="truncate text-xs text-slate-400">
+                                @{user.username}
+                              </p>
+                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
+                                <span className="truncate">{user.email}</span>
+                                <span>{user.phone}</span>
+                                <span>DOB: {user.dob}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ) : null}
+
+                        {/* Address */}
+                        {style === "multi" ? (
+                          <div className="font-mono text-sm leading-6 text-slate-100">
+                            <div>{addr.street}</div>
+                            {addr.secondary ? <div>{addr.secondary}</div> : null}
+                            <div>{addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.zip}</div>
+                            <div>{addr.country}</div>
+                          </div>
                         ) : (
-                          <Copy className="h-4 w-4" />
+                          <code className="block break-all font-mono text-sm text-slate-100">
+                            {formatAddress(addr, "single")}
+                          </code>
                         )}
-                      </button>
-                      <button
-                        onClick={() => regenerateSingle(index)}
-                        aria-label={`Regenerate address ${index + 1}`}
-                        className="rounded-md p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white"
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </li>
-                ))}
+                      </div>
+                      <div className="mt-0.5 flex shrink-0 items-center gap-1">
+                        <button
+                          onClick={() => copyOne(index)}
+                          aria-label={`Copy profile and address ${index + 1}`}
+                          className={[
+                            "rounded-md p-1.5 transition",
+                            copiedIndex === index
+                              ? "text-emerald-400"
+                              : "text-slate-500 hover:bg-white/5 hover:text-white",
+                          ].join(" ")}
+                        >
+                          {copiedIndex === index ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={() => regenerateSingle(index)}
+                          aria-label={`Regenerate profile and address ${index + 1}`}
+                          className="rounded-md p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white"
+                        >
+                          <RefreshCw className="h-4 w-4" />
+                        </button>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
@@ -355,7 +420,7 @@ export default function FakeAddressGeneratorPage() {
         )}
       </div>
       <HowToUse
-        title="How to use Fake Address Generator"
+        title="How to use Fake Address & User Generator"
         subtitle=""
         steps={howToUseSteps}
       />

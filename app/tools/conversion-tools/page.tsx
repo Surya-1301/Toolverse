@@ -5,8 +5,12 @@ import {
   ArrowRight,
   Braces,
   FileCode2,
+  FileImage,
   FilePenLine,
   FileSpreadsheet,
+  FileType2,
+  Palette,
+  Regex,
   Table2,
 } from "lucide-react";
 import Link from "next/link";
@@ -42,6 +46,31 @@ const tools = [
     description: "Convert CSV into Excel-compatible files and download results.",
     href: "/excel-csv-converter",
     icon: <FileSpreadsheet className="h-6 w-6" />,
+  },
+  {
+    title: "RGB ↔ HEX Converter",
+    description: "Convert between HEX, RGB, and HSL color formats instantly.",
+    href: "/color-converter",
+    icon: <Palette className="h-6 w-6" />,
+  },
+  {
+    title: "Regex Tester",
+    description:
+      "Test regex patterns with flags, match highlighting, and match details.",
+    href: "/regex-tester",
+    icon: <Regex className="h-6 w-6" />,
+  },
+  {
+    title: "JSON ↔ XML Converter",
+    description: "Convert JSON to XML or XML to JSON with validation errors.",
+    href: "/json-xml-converter",
+    icon: <FileType2 className="h-6 w-6" />,
+  },
+  {
+    title: "Image to Base64 Converter",
+    description: "Convert images to Base64 strings and decode them back instantly.",
+    href: "/image-to-base64",
+    icon: <FileImage className="h-6 w-6" />,
   },
 ];
 
@@ -101,8 +130,8 @@ export default function ConversionToolsPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Convert Markdown, HTML, YAML, JSON, CSV, and Excel-compatible files
-          with quick browser-based utilities.
+          Convert Markdown, HTML, YAML, JSON, CSV, Excel files, and color
+          formats.
         </p>
       </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Braces, Code2, FileCode2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Braces, Code2, Database, FileCode2, FileType2 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 
@@ -28,6 +28,18 @@ const tools = [
     description: "Format, validate, and minify JSON instantly in your browser.",
     href: "/json-formatter",
     icon: <Braces className="h-6 w-6" />,
+  },
+  {
+    title: "SQL Formatter",
+    description: "Format, beautify, and minify SQL queries with proper indentation.",
+    href: "/sql-formatter",
+    icon: <Database className="h-6 w-6" />,
+  },
+  {
+    title: "TypeScript Formatter",
+    description: "Beautify, format, and minify TypeScript code and type definitions.",
+    href: "/typescript-formatter",
+    icon: <FileType2 className="h-6 w-6" />,
   },
 ];
 
@@ -88,7 +100,7 @@ export default function FormatterToolsPage() {
 
         <p className="mt-4 text-base leading-7 text-slate-400">
           Format, validate, minify, clean, and copy developer-friendly HTML,
-          CSS, JavaScript, and JSON outputs.
+          CSS, JavaScript, JSON, SQL, and TypeScript outputs.
         </p>
       </div>
 

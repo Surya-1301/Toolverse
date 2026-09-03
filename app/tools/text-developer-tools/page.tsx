@@ -52,7 +52,7 @@ const tools = [
   {
     title: "Fake Address Generator",
     description:
-      "Generate realistic fake addresses for testing with multiple locale presets.",
+      "Generate realistic fake addresses with full user profiles (name, email, phone) for testing with multiple locale presets.",
     href: "/fake-address-generator",
     icon: <MapPin className="h-6 w-6" />,
   },
@@ -122,20 +122,6 @@ const tools = [
       "Remove duplicate or blank lines from text and copy the cleaned result.",
     href: "/duplicate-line-remover",
     icon: <GitMerge className="h-6 w-6" />,
-  },
-  {
-    title: "Color Converter",
-    description:
-      "Convert HEX, RGB, and HSL colors with preview and palette generation.",
-    href: "/color-converter",
-    icon: <Palette className="h-6 w-6" />,
-  },
-  {
-    title: "Regex Tester",
-    description:
-      "Test regex patterns with flags, match highlighting, and match details.",
-    href: "/regex-tester",
-    icon: <Regex className="h-6 w-6" />,
   },
   {
     title: "Timestamp Converter",
