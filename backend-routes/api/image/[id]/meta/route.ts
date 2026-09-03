@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { getImages, saveImages } from "@/lib/localDb";
-import { isExpired } from "@/lib/expiry";
 
 type RouteContext = {
   params: Promise<{
@@ -8,47 +6,27 @@ type RouteContext = {
   }>;
 };
 
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  "https://toolversex-api.jethalalmirror.workers.dev";
+
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
 
-  const images = await getImages();
-  const image = images.find((item) => item.id === id);
+  const response = await fetch(`${API_BASE}/api/image/${id}/meta`, {
+    method: "GET",
+    cache: "no-store",
+  });
 
-  if (!image) {
-    return NextResponse.json({ error: "Image not found." }, { status: 404 });
-  }
+  const text = await response.text();
 
-  if (isExpired(image.expiresAt)) {
-    const activeImages = images.filter((item) => item.id !== id);
-    await saveImages(activeImages);
-
-    return NextResponse.json({ error: "Image has expired." }, { status: 410 });
-  }
-
-  image.views += 1;
-  await saveImages(images);
-
-  return NextResponse.json(
-    {
-      id: image.id,
-      originalName: image.originalName,
-      mimeType: image.mimeType,
-      size: image.size,
-      width: image.width,
-      height: image.height,
-      createdAt: image.createdAt,
-      expiresAt: image.expiresAt,
-      views: image.views,
-
-      // Important fix:
-      // Always return a valid direct image endpoint.
-      directUrl: image.directUrl || `/api/image/${image.id}/direct`,
+  return new NextResponse(text, {
+    status: response.status,
+    headers: {
+      "Content-Type":
+        response.headers.get("Content-Type") || "application/json",
+      "Cache-Control": "no-store",
+      "X-Robots-Tag": "noindex, nofollow",
     },
-    {
-      headers: {
-        "Cache-Control": "no-store",
-        "X-Robots-Tag": "noindex, nofollow",
-      },
-    }
-  );
+  });
 }

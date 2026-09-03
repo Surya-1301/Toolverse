@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   BarChart3,
@@ -65,9 +65,27 @@ export default function FileSharePage() {
 
   const [error, setError] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadStep, setUploadStep] = useState("");
   const [copied, setCopied] = useState(false);
 
   const [recentFiles, setRecentFiles] = useState<UploadResult[]>([]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("toolverse-recent-uploads");
+      if (stored) setRecentFiles(JSON.parse(stored));
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("toolverse-recent-uploads", JSON.stringify(recentFiles));
+    } catch {
+      // ignore storage errors
+    }
+  }, [recentFiles]);
 
   function addRecentFile(file: UploadResult) {
     setRecentFiles((prev) => {
@@ -82,6 +100,7 @@ export default function FileSharePage() {
     setUserUrl("");
     setDirectUrl("");
     setCopied(false);
+    setUploadStep("");
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -124,6 +143,7 @@ export default function FileSharePage() {
       }
 
       setIsUploading(true);
+      setUploadStep("Encrypting file…");
 
       const kind = getUploadKind(file);
       const endpoint =
@@ -137,9 +157,11 @@ export default function FileSharePage() {
         !encrypted.encryptedMetadata
       ) {
         setError("Could not create encryption metadata. Please try again.");
+        setUploadStep("");
         return;
       }
 
+      setUploadStep("Uploading…");
       const formData = new FormData();
 
       formData.append("file", encrypted.encryptedFile);
@@ -167,6 +189,7 @@ export default function FileSharePage() {
         body: formData,
       });
 
+      setUploadStep("Finalizing…");
       const responseText = await response.text();
 
       let data: (UploadResult & { error?: string }) | null = null;
@@ -195,13 +218,9 @@ export default function FileSharePage() {
       const backendOrigin = getApiBaseUrl();
       const keyHash = `#key=${encodeURIComponent(encrypted.key)}`;
 
-      const ownerPath =
-        kind === "image" ? `/image?id=${data.id}` : `/file?id=${data.id}`;
+      const ownerPath = `/file?id=${data.id}`;
 
-      const userPath =
-        kind === "image"
-          ? `/share-image?id=${data.id}`
-          : `/share-file?id=${data.id}`;
+      const userPath = `/share-file?id=${data.id}`;
 
       const directPath =
         kind === "image"
@@ -211,6 +230,7 @@ export default function FileSharePage() {
       setUploadKind(kind);
       setResult(data);
       addRecentFile(data);
+      setUploadStep("");
 
       setOwnerUrl(`${frontendOrigin}${ownerPath}${keyHash}`);
       setUserUrl(`${frontendOrigin}${userPath}${keyHash}`);
@@ -224,6 +244,7 @@ export default function FileSharePage() {
       );
     } finally {
       setIsUploading(false);
+      setUploadStep("");
     }
   }
 
@@ -363,7 +384,7 @@ export default function FileSharePage() {
               ) : (
                 <Upload className="h-4 w-4" />
               )}
-              {isUploading ? "Encrypting & uploading..." : "Upload & share"}
+              {isUploading ? (uploadStep || "Working…") : "Upload & share"}
             </button>
 
             <button
@@ -465,66 +486,94 @@ export default function FileSharePage() {
                   {copied ? "Copied" : "Copy user"}
                 </button>
               </div>
+                
             </div>
           ) : (
             <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950/60 p-6 text-center text-sm text-slate-500">
               Your encrypted share link appears here after upload.
             </div>
           )}
+
+          {/* Recent Uploads Stats */}
+          {recentFiles.length > 0 ? (
+            <div className="mt-6">
+              <div className="mb-4 flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-violet-400" />
+                <h3 className="text-sm font-semibold text-white">
+                  Recent Uploads
+                </h3>
+              </div>
+
+              <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+                <table className="w-full text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-white/10 text-slate-500">
+                      <th className="px-3 py-2 font-medium">ID</th>
+                      <th className="hidden px-25 py-2 text-center font-medium sm:table-cell">
+                        Expires
+                      </th>
+                      <th className="px-15 py-2 text-right font-medium">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {recentFiles.map((r) => (
+                      <tr key={r.id} className="text-slate-300">
+                        <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                          {r.id}
+                        </td>
+                        <td className="hidden px-3 py-2 text-center text-slate-500 sm:table-cell">
+                          {r.expiresAt
+                            ? new Intl.DateTimeFormat("en", {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                              }).format(new Date(r.expiresAt))
+                            : "Never"}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <a
+                              href={`/file?id=${r.id}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                            >
+                              View
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setRecentFiles((prev) =>
+                                  prev.filter((x) => x.id !== r.id),
+                                )
+                              }
+                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between">
+                <p className="text-xs text-slate-500">
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setRecentFiles([])}
+                  className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
+                >
+                  Clear all
+                </button>
+              </div>
+            </div>
+          ) : null}
+          
         </div>
       </div>
-
-      {/* Recent Files Stats */}
-      {recentFiles.length > 0 ? (
-        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <div className="mb-4 flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-violet-400" />
-            <h3 className="text-sm font-semibold text-white">
-              Recent Files
-            </h3>
-          </div>
-
-          <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-white/10 text-slate-500">
-                  <th className="px-3 py-2 font-medium">ID</th>
-                  <th className="px-3 py-2 font-medium">Expires</th>
-                  <th className="hidden px-3 py-2 font-medium sm:table-cell">
-                    Downloads
-                  </th>
-                  <th className="px-3 py-2 font-medium">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {recentFiles.map((file, i) => (
-                  <tr key={i} className="text-slate-300">
-                    <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
-                      {file.id}
-                    </td>
-                    <td className="px-3 py-2">
-                      {formatExpiry(file.expiresAt)}
-                    </td>
-                    <td className="hidden px-3 py-2 sm:table-cell text-slate-500">
-                      —
-                    </td>
-                    <td className="px-3 py-2">
-                      <a
-                        href={`/share-file?id=${file.id}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
-                      >
-                        Open
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
 
       {/* Desktop/tablet: keep the existing HowToUse card layout. */}
       <div className="hidden md:block">
@@ -602,6 +651,24 @@ export default function FileSharePage() {
                 description:
                   "Copy the generated share link. Anyone with that full link can open and decrypt the file.",
                 icon: <Copy className="h-5 w-5" />,
+              },
+              {
+                title: "Set an expiry",
+                description:
+                  "Optionally limit how long the link stays available.",
+                icon: <LockKeyhole className="h-5 w-5" />,
+              },
+              {
+                title: "Track downloads",
+                description:
+                  "See how many times the file was accessed and when it expires.",
+                icon: <FileUp className="h-5 w-5" />,
+              },
+              {
+                title: "Share another",
+                description:
+                  "Upload a new file without reloading the page.",
+                icon: <ExternalLink className="h-5 w-5" />,
               },
             ].map((step) => (
               <div

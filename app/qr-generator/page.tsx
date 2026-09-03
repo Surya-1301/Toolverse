@@ -164,9 +164,7 @@ function QrGeneratorContent() {
       }
 
       const frontendOrigin = window.location.origin;
-      const fullUrl = isImage
-        ? `${frontendOrigin}/share-image?id=${data.id}`
-        : `${frontendOrigin}/share-file?id=${data.id}`;
+      const fullUrl = `${frontendOrigin}/share-file?id=${data.id}`;
 
       setText(fullUrl);
     } catch (caughtError) {

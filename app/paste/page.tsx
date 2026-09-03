@@ -524,8 +524,8 @@ export default function PastePage() {
                 <thead>
                   <tr className="border-b border-white/10 text-slate-500">
                     <th className="px-3 py-2 font-medium">ID</th>
-                    <th className="px-3 py-2 font-medium">Expires</th>
-                    <th className="px-3 py-2 font-medium">Actions</th>
+                    <th className="px-74 py-2 text-center font-medium">Expires</th>
+                    <th className="px-20 py-2 text-right font-medium">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -534,11 +534,11 @@ export default function PastePage() {
                       <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
                         {paste.id}
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2 text-center">
                         {formatExpiry(paste.expiresAt)}
                       </td>
-                      <td className="px-3 py-2">
-                        <div className="flex items-center gap-1">
+                      <td className="px-3 py-2 text-right">
+                        <div className="flex items-center justify-end gap-1">
                           <a
                             href={`${window.location.origin}/paste-view?id=${paste.id}`}
                             target="_blank"
@@ -576,8 +576,6 @@ export default function PastePage() {
 
             <div className="mt-4 flex items-center justify-between">
               <p className="text-xs text-slate-500">
-                Stored in your browser. {recentPastes.length} saved paste
-                {recentPastes.length === 1 ? "" : "s"}.
               </p>
               <button
                 type="button"
