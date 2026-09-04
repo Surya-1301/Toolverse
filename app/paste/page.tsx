@@ -399,33 +399,7 @@ export default function PastePage() {
             {error}
           </div>
         ) : null}
-
-        <div className="mt-5 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={createPaste}
-            disabled={isCreating}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {isCreating ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
-            {isCreating ? "Creating..." : "Create paste"}
-          </button>
-
-          <button
-            type="button"
-            onClick={clearAll}
-            className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
-          >
-            <Eraser className="h-4 w-4" />
-            Clear
-          </button>
-        </div>
-
-        {result ? (
+{result ? (
           <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
             <p className="text-sm font-semibold text-emerald-200">
               Paste created successfully
@@ -442,20 +416,11 @@ export default function PastePage() {
                   className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
                 />
               </div>
-
               <div>
-                <label className="mb-1 block text-xs text-slate-400">
-                  Raw text
-                </label>
-                <input
-                  value={rawUrl}
-                  readOnly
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
-                />
               </div>
             </div>
 
-            <div className="mt-4 grid gap-3 sm:grid-cols-4">
+            <div className="mt-0 grid gap-3 sm:grid-cols-2">
               <a
                 href={pasteUrl}
                 target="_blank"
@@ -465,21 +430,10 @@ export default function PastePage() {
                 Open
                 <ExternalLink className="h-4 w-4" />
               </a>
-
-              <a
-                href={rawUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-              >
-                Raw
-                <ExternalLink className="h-4 w-4" />
-              </a>
-
               <button
                 type="button"
                 onClick={() => copyValue("page")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
               >
                 {copied === "page" ? (
                   <Check className="h-4 w-4" />
@@ -488,29 +442,38 @@ export default function PastePage() {
                 )}
                 {copied === "page" ? "Copied" : "Copy page"}
               </button>
-
-              <button
-                type="button"
-                onClick={() => copyValue("raw")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-              >
-                {copied === "raw" ? (
-                  <Check className="h-4 w-4" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-                {copied === "raw" ? "Copied" : "Copy raw"}
-              </button>
             </div>
-
-            <p className="mt-3 text-xs text-emerald-100/80">
-              Expires: {formatExpiry(result.expiresAt)}
-            </p>
           </div>
         ) : null}
+
+        <div className="mt-4 flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={createPaste}
+            disabled={isCreating}
+            className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {isCreating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {isCreating ? "Creating..." : "Create paste"}
+          </button>
+
+          <button
+            type="button"
+            onClick={clearAll}
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:flex-none sm:justify-start"
+          >
+            <Eraser className="h-4 w-4" />
+            Clear
+          </button>
+        </div>
+
 {/* Recent Pastes Stats (persisted per-browser) */}
       {recentPastes.length > 0 ? (
-        <div className="mx-auto mt-16 max-w-6xl">
+        <div className="mx-auto mt-5 max-w-6xl">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
             <div className="mb-4 flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-violet-400" />
@@ -524,7 +487,7 @@ export default function PastePage() {
                 <thead>
                   <tr className="border-b border-white/10 text-slate-500">
                     <th className="px-3 py-2 font-medium">ID</th>
-                    <th className="px-74 py-2 text-center font-medium">Expires</th>
+                    <th className="hidden px-74 py-2 text-center font-medium sm:table-cell">Expires</th>
                     <th className="px-20 py-2 text-right font-medium">Actions</th>
                   </tr>
                 </thead>
@@ -534,7 +497,7 @@ export default function PastePage() {
                       <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
                         {paste.id}
                       </td>
-                      <td className="px-3 py-2 text-center">
+                      <td className="hidden px-3 py-2 text-center sm:table-cell">
                         {formatExpiry(paste.expiresAt)}
                       </td>
                       <td className="px-3 py-2 text-right">
@@ -543,7 +506,7 @@ export default function PastePage() {
                             href={`${window.location.origin}/paste-view?id=${paste.id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1"
                           >
                             Open
                           </a>
@@ -551,7 +514,7 @@ export default function PastePage() {
                             href={apiUrl(`/raw/${paste.id}`)}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1"
                           >
                             Raw
                           </a>
@@ -562,7 +525,7 @@ export default function PastePage() {
                                 prev.filter((p) => p.id !== paste.id),
                               )
                             }
-                            className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1"
                           >
                             Remove
                           </button>

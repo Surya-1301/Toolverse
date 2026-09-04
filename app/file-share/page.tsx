@@ -390,7 +390,7 @@ export default function FileSharePage() {
             <button
               type="button"
               onClick={clearAll}
-              className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:flex-none sm:justify-start"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -399,20 +399,29 @@ export default function FileSharePage() {
         </div>
 
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center justify-between gap-3">
             <h2 className="font-semibold">
               {result ? "Share links ready" : "Upload output"}
             </h2>
 
-            <span
-              className={`rounded-full px-2.5 py-1 text-xs ${
-                result
-                  ? "bg-emerald-500/10 text-emerald-300"
-                  : "bg-slate-500/10 text-slate-400"
-              }`}
-            >
-              {result ? "Encrypted" : "Waiting"}
-            </span>
+            <div className="flex items-center gap-2">
+              {isUploading ? (
+                <span className="hidden items-center gap-2 rounded-full bg-violet-500/10 px-2.5 py-1 text-xs text-violet-300 md:inline-flex">
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  {uploadStep || "Working…"}
+                </span>
+              ) : null}
+
+              <span
+                className={`rounded-full px-2.5 py-1 text-xs ${
+                  result
+                    ? "bg-emerald-500/10 text-emerald-300"
+                    : "bg-slate-500/10 text-slate-400"
+                }`}
+              >
+                {result ? "Encrypted" : "Waiting"}
+              </span>
+            </div>
           </div>
 
           {result ? (
@@ -435,17 +444,6 @@ export default function FileSharePage() {
                   </label>
                   <input
                     value={userUrl}
-                    readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
-                  />
-                </div>
-
-                <div>
-                  <label className="mb-1 block text-xs text-slate-400">
-                    Encrypted direct URL
-                  </label>
-                  <input
-                    value={directUrl}
                     readOnly
                     className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
                   />
@@ -476,7 +474,7 @@ export default function FileSharePage() {
                 <button
                   type="button"
                   onClick={copyUserUrl}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl  border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

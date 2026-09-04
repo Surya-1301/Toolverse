@@ -84,6 +84,34 @@ function UrlShortenerContent() {
   const [clicks, setClicks] = useState<number | null>(null);
   const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
 
+  const [recentUrls, setRecentUrls] = useState<ShortUrlResult[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const stored = localStorage.getItem("toolverse-recent-urls");
+      return stored ? JSON.parse(stored) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "toolverse-recent-urls",
+        JSON.stringify(recentUrls),
+      );
+    } catch {
+      // ignore storage errors
+    }
+  }, [recentUrls]);
+
+  function addRecentUrl(shortened: ShortUrlResult) {
+    setRecentUrls((prev) => {
+      const filtered = prev.filter((u) => u.slug !== shortened.slug);
+      return [shortened, ...filtered].slice(0, 10);
+    });
+  }
+
   useEffect(() => {
     if (searchParams.get("error") === "expired") {
       setError("That short URL has expired.");
@@ -144,6 +172,7 @@ function UrlShortenerContent() {
       setShortUrl(fullUrl);
       setResult(data);
       setClicks(data.clicks);
+      addRecentUrl(data);
     } catch (caughtError) {
       console.error(caughtError);
       setError(
@@ -264,10 +293,6 @@ function UrlShortenerContent() {
               type="url"
               className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
             />
-
-            <p className="mt-2 text-xs text-slate-500">
-              Must start with http:// or https://
-            </p>
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
@@ -291,10 +316,6 @@ function UrlShortenerContent() {
                   className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
                 />
               </div>
-
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                3-30 characters: letters, numbers, hyphens.
-              </p>
             </div>
 
             <div>
@@ -313,10 +334,6 @@ function UrlShortenerContent() {
                   </option>
                 ))}
               </select>
-
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                Expired links are removed when opened.
-              </p>
             </div>
           </div>
 
@@ -342,7 +359,7 @@ function UrlShortenerContent() {
                 <button
                   type="button"
                   onClick={copyShortUrl}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10  px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -353,7 +370,7 @@ function UrlShortenerContent() {
                 </button>
               </div>
 
-              <div className="mt-4 grid gap-3 sm:grid-cols-4">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <a
                   href={shortUrl}
                   target="_blank"
@@ -364,15 +381,6 @@ function UrlShortenerContent() {
                   <ExternalLink className="h-4 w-4" />
                 </a>
 
-                <button
-                  type="button"
-                  onClick={refreshStats}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                >
-                  <BarChart3 className="h-4 w-4" />
-                  Refresh
-                </button>
-
                 <Link
                   href={qrHref}
                   className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -380,25 +388,10 @@ function UrlShortenerContent() {
                   <QrCode className="h-4 w-4" />
                   QR
                 </Link>
-
-                <div className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200">
-                  <Clock className="h-4 w-4" />
-                  {clicks ?? 0}
-                </div>
               </div>
 
               <div className="mt-4 grid gap-2 text-xs text-emerald-100/80 sm:grid-cols-2">
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-slate-400">Alias</p>
-                  <p className="mt-1 text-white">/s/{result.slug}</p>
-                </div>
-
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-3">
-                  <p className="text-slate-400">Expires</p>
-                  <p className="mt-1 text-white">
-                    {formatExpiry(result.expiresAt)}
-                  </p>
-                </div>
+               
               </div>
             </div>
           ) : null}
@@ -591,14 +584,97 @@ function UrlShortenerContent() {
             <button
               type="button"
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:flex-none sm:justify-start"
             >
               <Eraser className="h-4 w-4" />
               Clear
             </button>
+            
+          </div>
+          {/* Recent Shortened URLs (persisted per-browser) */}
+      {recentUrls.length > 0 ? (
+        <div className="mx-auto mt5 max-w-6xl">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="mb-4 flex items-center gap-2">
+              <Link2 className="h-5 w-5 text-violet-400" />
+              <h3 className="text-sm font-semibold text-white">
+                Recent Shortened URLs
+              </h3>
+            </div>
+
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-white/10 text-slate-500">
+                    <th className="px-3 py-2 font-medium">Slug</th>
+                    <th className="hidden px-3 py-2 text-center font-medium sm:table-cell">
+                      Expires
+                    </th>
+                    <th className="px-1 py-2 text-right font-medium">
+                      Clicks
+                    </th>
+                    <th className="px-15 py-2 text-right font-medium">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {recentUrls.map((shortened) => (
+                    <tr key={shortened.slug} className="text-slate-300">
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                        /s/{shortened.slug}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-3 py-2 text-center sm:table-cell">
+                        {formatExpiry(shortened.expiresAt)}
+                      </td>
+                      <td className="px-5 py-2 text-right">
+                        {shortened.clicks}
+                      </td>
+                      <td className="px-3 py-2 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <a
+                            href={`${window.location.origin}/go?slug=${shortened.slug}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                          >
+                            Open
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setRecentUrls((prev) =>
+                                prev.filter((u) => u.slug !== shortened.slug),
+                              )
+                            }
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="mt-4 flex items-center justify-between">
+              <p className="text-xs text-slate-500"></p>
+              <button
+                type="button"
+                onClick={() => setRecentUrls([])}
+                className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
+              >
+                Clear all
+              </button>
+            </div>
           </div>
         </div>
+      ) : null}
+        </div>
       </div>
+
 
       {/* Desktop/tablet: keep the existing HowToUse layout. */}
       <div className="hidden md:block">
