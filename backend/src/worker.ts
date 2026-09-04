@@ -147,34 +147,16 @@ async function route(request: Request, env: Env) {
   }
 
   /**
-   * LIVE UPLOAD STATS
+   * PASTE COUNT
    */
 
-  if (pathname === "/api/upload/stats" && request.method === "GET") {
-    const [filesResult, imagesResult] = await Promise.all([
-      env.DB.prepare(
-        "SELECT COUNT(*) AS count, COALESCE(SUM(size), 0) AS storage, COALESCE(SUM(downloads), 0) AS downloads FROM files",
-      ).first<{
-        count: number | string;
-        storage: number | string;
-        downloads: number | string;
-      }>(),
-      env.DB.prepare(
-        "SELECT COUNT(*) AS count, COALESCE(SUM(size), 0) AS storage, COALESCE(SUM(views), 0) AS views FROM images",
-      ).first<{
-        count: number | string;
-        storage: number | string;
-        views: number | string;
-      }>(),
-    ]);
+  if (pathname === "/api/paste/count" && request.method === "GET") {
+    const result = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM pastes",
+    ).first<{ count: number | string }>();
 
     return json({
-      filesHosted:
-        Number(filesResult?.count || 0) + Number(imagesResult?.count || 0),
-      totalViews:
-        Number(filesResult?.downloads || 0) + Number(imagesResult?.views || 0),
-      storageUsed:
-        Number(filesResult?.storage || 0) + Number(imagesResult?.storage || 0),
+      count: Number(result?.count || 0),
     });
   }
 
@@ -525,6 +507,45 @@ async function route(request: Request, env: Env) {
       .run();
 
     return Response.redirect(link.original_url, 302);
+  }
+
+  /**
+   * UPLOAD & SHARE STATS
+   * Exact totals from the database for the Upload & Share page.
+   */
+
+  if (pathname === "/api/upload/stats" && request.method === "GET") {
+    const [filesResult, imagesResult] = await Promise.all([
+      env.DB.prepare(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(size), 0) AS size, COALESCE(SUM(downloads), 0) AS downloads FROM files",
+      ).first<{
+        count: number | string;
+        size: number | string;
+        downloads: number | string;
+      }>(),
+      env.DB.prepare(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(size), 0) AS size, COALESCE(SUM(views), 0) AS views FROM images",
+      ).first<{
+        count: number | string;
+        size: number | string;
+        views: number | string;
+      }>(),
+    ]);
+
+    const filesCount = Number(filesResult?.count || 0);
+    const imagesCount = Number(imagesResult?.count || 0);
+    const filesSize = Number(filesResult?.size || 0);
+    const imagesSize = Number(imagesResult?.size || 0);
+    const fileDownloads = Number(filesResult?.downloads || 0);
+    const imageViews = Number(imagesResult?.views || 0);
+
+    return json({
+      filesHosted: filesCount + imagesCount,
+      totalViews: fileDownloads + imageViews,
+      storageUsed: filesSize + imagesSize,
+      files: filesCount,
+      images: imagesCount,
+    });
   }
 
   /**
