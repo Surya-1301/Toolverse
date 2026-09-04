@@ -11,7 +11,6 @@ import {
   ExternalLink,
   Eye,
   FileDown,
-  FileText,
   Image as ImageIcon,
   Loader2,
   Plus,
@@ -994,7 +993,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <div className="mb-4 flex items-center gap-2">
                           <BarChart3 className="h-5 w-5 text-violet-400" />
                           <h3 className="text-sm font-semibold text-white">
-                            Recent Uploads
+                            Recent Images
                           </h3>
                         </div>
 
@@ -1032,13 +1031,13 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                     ? `${r.downloads} dl`
                                     : "—"}
                               </td>
-                              <td className="px-3 py-2 text-right">
-                                <div className="flex items-center justify-end gap-1">
+                              <td className="px-2 py-2 text-right sm:px-4 lg:px-6">
+                                <div className="flex items-center justify-end gap-1 whitespace-nowrap">
                                   <a
                                     href={`/file?id=${r.id}`}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="rounded-lg border border-white/10 px-2.5 py-1 text-[12px] text-slate-500 hover:bg-white/5"
+                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
                                   >
                                     View
                                   </a>
@@ -1049,7 +1048,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                         prev.filter((x) => x.id !== r.id),
                                       )
                                     }
-                                    className="rounded-lg border border-white/10 px-2.5 py-1 text-[12px] text-slate-500 hover:bg-white/5"
+                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
                                   >
                                     Remove
                                   </button>
@@ -1095,117 +1094,102 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           </div>
         ) : record ? (
           <>
-            <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-              <div>
+            {(mode === "share" || isPdf) ? (
+              <div className="mb-8">
                 <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                  {mode === "owner"
-                    ? isPdf
-                      ? "Hosted PDF"
-                      : "Hosted File"
-                    : "Shared File"}
+                  {mode === "owner" && isPdf ? "Hosted PDF" : "Shared File"}
                 </h1>
-
-                <p className="mt-3 break-all text-sm text-slate-400">
-                  ID: {record.id}
-                </p>
               </div>
+            ) : null}
 
-              <div className="flex flex-wrap gap-3 lg:justify-end">
-                {mode === "owner" ? (
-                  <Link
-                    href="/file-share"
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Upload new
-                  </Link>
-                ) : null}
+            <div className="mx-auto max-w-[800px]">
+              <section
+                className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+                aria-label={mode === "owner" ? "Hosted file details" : "Shared file details"}
+              >
+                <div className="p-7 sm:p-8">
+                  <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                    <div className="min-w-0 text-center sm:text-left">
+                      <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px]">
+                        Hosted File
+                      </h2>
 
-                {mode === "owner" ? (
-                  <>
-                    <a
-                      href={getDownloadUrl()}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Direct
-                    </a>
+                      <p className="mt-2 text-[15px] leading-6 text-slate-400">
+                        {isPdf
+                          ? "This PDF is ready to open or download."
+                          : "This file is securely stored and ready to download."}
+                      </p>
+                    </div>
 
-                    <button
-                      type="button"
-                      onClick={() => copyValue("page")}
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                    >
-                      {copied === "page" ? (
-                        <Check className="h-4 w-4" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                      {copied === "page" ? "Copied" : "Copy page"}
-                    </button>
-                  </>
-                ) : null}
+                    {mode === "owner" ? (
+                        <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 sm:justify-end md:-translate-y-2 lg:-translate-y-3">                        <Link
+                          href="/file-share"
+                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Upload new
+                        </Link>
 
-                <button
-                  type="button"
-                  onClick={downloadFile}
-                  className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-                >
-                  <Download className="h-4 w-4" />
-                  {isPdf ? "Download PDF" : "Download file"}
-                </button>
-              </div>
-            </div>
+                        <button
+                          type="button"
+                          onClick={() => copyValue("page")}
+                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                        >
+                          {copied === "page" ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                          {copied === "page" ? "Copied" : "Copy page"}
+                        </button>
+                      </div>
+                    ) : null}
+                  </div>
 
-            <div className="mb-5 flex flex-wrap gap-3 text-sm">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {record.mimeType}
-              </span>
+                  <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                      <p className="text-[13px] font-medium text-slate-500">File name</p>
+                      <p className="mt-2 truncate text-[15px] text-slate-200">
+                        {record.originalName || record.mimeType || "Untitled file"}
+                      </p>
+                    </div>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                {formatFileSize(record.size)}
-              </span>
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                      <p className="text-[13px] font-medium text-slate-500">File size</p>
+                      <p className="mt-2 text-[15px] text-slate-200">
+                        {formatFileSize(record.size)}
+                      </p>
+                    </div>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Created: {formatDate(record.createdAt)}
-              </span>
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                      <p className="text-[13px] font-medium text-slate-500">Created</p>
+                      <p className="mt-2 text-[15px] text-slate-200">
+                        {formatDate(record.createdAt)}
+                      </p>
+                    </div>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                Expires: {formatExpiry(record.expiresAt)}
-              </span>
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                      <p className="text-[13px] font-medium text-slate-500">Expires</p>
+                      <p className="mt-2 text-[15px] text-slate-200">
+                        {formatExpiry(record.expiresAt)}
+                      </p>
+                    </div>
+                  </div>
 
-              {typeof record.downloads === "number" ? (
-                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                  {record.downloads} downloads
-                </span>
-              ) : null}
-            </div>
-
-            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <h2 className="break-all text-xl font-semibold text-white">
-                {record.originalName}
-              </h2>
-
-              <p className="mt-2 text-sm text-slate-400">
-                {mode === "owner"
-                  ? isPdf
-                    ? "This PDF is ready to open or download."
-                    : "This file is ready to download."
-                  : "This file was encrypted before upload. Use the key in the share link to decrypt it."}
-              </p>
-
-              {mode === "owner" ? (
-                <button
-                  type="button"
-                  onClick={downloadFile}
-                  className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
-                >
-                  <Download className="h-4 w-4" />
-                  {isPdf ? "Download PDF" : "Download file"}
-                </button>
-              ) : null}
+                  {mode === "owner" ? (
+                    <div className="mt-5 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
+                      <button
+                        type="button"
+                        onClick={downloadFile}
+                        className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                      >
+                        <Download className="h-4 w-4" />
+                        {isPdf ? "Open / Download PDF" : "Download file"}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </section>
             </div>
 
             {mode === "share" ? (
@@ -1258,12 +1242,12 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     <table className="w-full text-left text-xs">
                       <thead>
                         <tr className="border-b border-white/10 text-slate-500">
-                          <th className="px-1 py-2 font-medium">Name</th>
+                          <th className="px-5 py-2 font-medium">Name</th>
                           <th className="hidden px-3 py-2 font-medium sm:table-cell">
                             Size
                           </th>
-                          <th className="px-2 py-2 text-right font-medium">Downloads</th>
-                          <th className="px-15 py-2 text-right font-medium">Actions</th>
+                          <th className="px-2 py-2 text-right font-medium sm:px-6 lg:px-8">Downloads</th>
+                          <th className="px-10 py-2 text-right font-medium sm:px-15 lg:px-17">Actions</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5">
@@ -1277,18 +1261,18 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                               <td className="hidden px-2 py-2 text-slate-500 sm:table-cell">
                                 {formatFileSize(r.size)}
                               </td>
-                              <td className="px-10 py-2 text-right text-slate-500">
+                              <td className="px-8 py-2 text-right text-slate-500 sm:px-15 lg:px-15">
                                 {typeof r.downloads === "number"
                                   ? r.downloads
                                   : "-"}
                               </td>
-                              <td className="px-3 py-2 text-right">
-                                <div className="flex items-center justify-end gap-1">
+                              <td className="px-2 py-2 text-right sm:px-4 lg:px-6">
+                                <div className="flex items-center justify-end gap-1 whitespace-nowrap">
                                   <a
                                     href={`/file?id=${r.id}`}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="rounded-lg border border-white/10 px-2.5 py-1 text-[12px] text-slate-500 hover:bg-white/5"
+                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
                                   >
                                     View
                                   </a>
@@ -1299,7 +1283,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                         prev.filter((x) => x.id !== r.id),
                                       )
                                     }
-                                    className="rounded-lg border border-white/10 px-2.5 py-1 text-[12px] text-slate-500 hover:bg-white/5"
+                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
                                   >
                                     Remove
                                   </button>
