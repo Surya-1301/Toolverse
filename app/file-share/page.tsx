@@ -68,6 +68,12 @@ export default function FileSharePage() {
   const [uploadStep, setUploadStep] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const [uploadStats, setUploadStats] = useState<{
+    filesHosted: number;
+    totalViews: number;
+    storageUsed: number;
+  } | null>(null);
+
   const [recentFiles, setRecentFiles] = useState<UploadResult[]>([]);
 
   useEffect(() => {
@@ -86,6 +92,47 @@ export default function FileSharePage() {
       // ignore storage errors
     }
   }, [recentFiles]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUploadStats() {
+      try {
+        const response = await fetchApi("/api/upload/stats", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          filesHosted?: number;
+          totalViews?: number;
+          storageUsed?: number;
+        };
+
+        if (
+          !cancelled &&
+          typeof data.filesHosted === "number" &&
+          typeof data.totalViews === "number" &&
+          typeof data.storageUsed === "number"
+        ) {
+          setUploadStats({
+            filesHosted: data.filesHosted,
+            totalViews: data.totalViews,
+            storageUsed: data.storageUsed,
+          });
+        }
+      } catch {
+        // Keep the stats section hidden if the backend is unavailable.
+      }
+    }
+
+    loadUploadStats();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function addRecentFile(file: UploadResult) {
     setRecentFiles((prev) => {
@@ -690,6 +737,53 @@ export default function FileSharePage() {
           </div>
         </div>
       </section>
+
+      {/* Live upload statistics: exact values from the backend database. */}
+      {uploadStats ? (
+        <section
+          className="mx-auto mt-16 max-w-6xl"
+          aria-label="Upload statistics"
+        >
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-8 sm:py-12">
+            <p className="text-xs font-mono font-medium tracking-[0.28em] text-slate-500">
+              LIVE STATS
+            </p>
+
+            <div className="mt-8 grid gap-10 sm:grid-cols-3 sm:gap-6">
+              <div className="flex flex-col items-center">
+                <div className="text-3xl" aria-hidden="true">📁</div>
+                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                  {uploadStats.filesHosted.toLocaleString("en-IN")}
+                </div>
+                <p className="mt-3 text-base text-slate-500 sm:text-lg">
+                  Files hosted
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="text-3xl" aria-hidden="true">👁️</div>
+                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                  {uploadStats.totalViews.toLocaleString("en-IN")}
+                </div>
+                <p className="mt-3 text-base text-slate-500 sm:text-lg">
+                  Total views
+                </p>
+              </div>
+
+              <div className="flex flex-col items-center">
+                <div className="text-3xl" aria-hidden="true">💾</div>
+                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                  {formatFileSize(uploadStats.storageUsed)}
+                </div>
+                <p className="mt-3 text-base text-slate-500 sm:text-lg">
+                  Storage used
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+      ) : null}
+      
     </Container>
   );
 }

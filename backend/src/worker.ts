@@ -147,6 +147,38 @@ async function route(request: Request, env: Env) {
   }
 
   /**
+   * LIVE UPLOAD STATS
+   */
+
+  if (pathname === "/api/upload/stats" && request.method === "GET") {
+    const [filesResult, imagesResult] = await Promise.all([
+      env.DB.prepare(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(size), 0) AS storage, COALESCE(SUM(downloads), 0) AS downloads FROM files",
+      ).first<{
+        count: number | string;
+        storage: number | string;
+        downloads: number | string;
+      }>(),
+      env.DB.prepare(
+        "SELECT COUNT(*) AS count, COALESCE(SUM(size), 0) AS storage, COALESCE(SUM(views), 0) AS views FROM images",
+      ).first<{
+        count: number | string;
+        storage: number | string;
+        views: number | string;
+      }>(),
+    ]);
+
+    return json({
+      filesHosted:
+        Number(filesResult?.count || 0) + Number(imagesResult?.count || 0),
+      totalViews:
+        Number(filesResult?.downloads || 0) + Number(imagesResult?.views || 0),
+      storageUsed:
+        Number(filesResult?.storage || 0) + Number(imagesResult?.storage || 0),
+    });
+  }
+
+  /**
    * PASTE CREATE
    */
 

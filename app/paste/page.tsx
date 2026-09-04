@@ -72,27 +72,64 @@ export default function PastePage() {
   const [rawUrl, setRawUrl] = useState("");
 
   const [error, setError] = useState("");
+  const [pasteCount, setPasteCount] = useState<number | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [isCheckingAlias, setIsCheckingAlias] = useState(false);
   const [copied, setCopied] = useState<CopyType>("");
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const [recentPastes, setRecentPastes] = useState<PasteResult[]>([]);
 
-  const [recentPastes, setRecentPastes] = useState<PasteResult[]>(() => {
-    if (typeof window === "undefined") return [];
+  // Hydrate browser-only state after the first client render so the server
+  // and client produce identical HTML during hydration.
+  useEffect(() => {
     try {
       const stored = localStorage.getItem("toolverse-recent-pastes");
-      return stored ? JSON.parse(stored) : [];
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setRecentPastes(parsed);
+      }
     } catch {
-      return [];
+      // ignore storage errors
+    } finally {
+      setHasHydrated(true);
     }
-  });
+  }, []);
 
   useEffect(() => {
+    if (!hasHydrated) return;
     try {
       localStorage.setItem("toolverse-recent-pastes", JSON.stringify(recentPastes));
     } catch {
       // ignore storage errors
     }
-  }, [recentPastes]);
+  }, [recentPastes, hasHydrated]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadPasteCount() {
+      try {
+        const response = await fetchApi("/api/paste/count", {
+          cache: "no-store",
+        });
+
+        if (!response.ok) return;
+
+        const data = (await response.json()) as { count?: number };
+        if (!cancelled && typeof data.count === "number") {
+          setPasteCount(data.count);
+        }
+      } catch {
+        // Keep the counter hidden until the backend responds.
+      }
+    }
+
+    loadPasteCount();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function addRecentPaste(paste: PasteResult) {
     setRecentPastes((prev) => {
@@ -472,7 +509,7 @@ export default function PastePage() {
         </div>
 
 {/* Recent Pastes Stats (persisted per-browser) */}
-      {recentPastes.length > 0 ? (
+      {hasHydrated && recentPastes.length > 0 ? (
         <div className="mx-auto mt-5 max-w-6xl">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
             <div className="mb-4 flex items-center gap-2">
@@ -660,6 +697,25 @@ export default function PastePage() {
           </div>
         </div>
       </section>
+
+      {/* Exact paste count from the backend database. */}
+      {pasteCount !== null ? (
+        <section className="mx-auto mt-6 max-w-6xl" aria-label="Paste statistics">
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0d2427] via-[#10242f] to-[#111827] px-6 py-12 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-10 sm:py-16">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/10">
+              <FileText className="h-6 w-6" />
+            </div>
+
+            <div className="mt-6 text-[72px] font-extrabold leading-none tracking-[-0.05em] text-cyan-400 sm:text-[88px]">
+              {pasteCount.toLocaleString("en-IN")}
+            </div>
+
+            <p className="mt-5 text-lg font-semibold text-slate-400 sm:text-2xl">
+              Pastes created on Toolverse till now !
+            </p>
+          </div>
+        </section>
+      ) : null}
     </Container>
   );
 }
