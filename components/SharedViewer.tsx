@@ -799,10 +799,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
     );
   }
 
-  // Owner image view keeps the existing dashboard-style presentation.
+  // ============ OWNER IMAGE VIEW ============
   if (isImage) {
     return (
-      <Container className="py-12 sm:py-16">
+      <Container className="py-8 sm:py-12">
         <div className="mx-auto max-w-6xl">
           {isLoading ? (
             <ViewerLoading />
@@ -812,177 +812,172 @@ export function SharedViewer({ mode }: SharedViewerProps) {
             </div>
           ) : record ? (
             <>
-              <div className="mb-8 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                  <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                    {mode === "owner" ? "Hosted Image" : "Shared Image"}
-                  </h1>
+              <div className="mx-auto max-w-[800px]">
+                <section
+                  className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+                  aria-label="Hosted image details"
+                >
+                  <div className="p-7 sm:p-8">
+                    <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+                      <div className="min-w-0 text-center sm:text-left">
+                        <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px]">
+                          Hosted Image
+                        </h2>
 
-                  <p className="mt-3 break-all text-sm text-slate-400">
-                    ID: {record.id}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-3 lg:justify-end">
-                  {mode === "owner" ? (
-                    <Link
-                      href="/file-share"
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                    >
-                      <Plus className="h-4 w-4" />
-                      Upload new
-                    </Link>
-                  ) : null}
-
-                  {mode === "owner" && !record.encrypted ? (
-                    <a
-                      href={getDirectUrl()}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                      Direct
-                    </a>
-                  ) : null}
-
-                  {mode === "owner" ? (
-                    <>
-                    </>
-                  ) : null}
-
-                  <button
-                    type="button"
-                    onClick={() => copyValue("markdown")}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                  >
-                    {copied === "markdown" ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                    {copied === "markdown" ? "Copied" : "Copy Markdown"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => copyValue("html")}
-                    className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
-                  >
-                    {copied === "html" ? (
-                      <Check className="h-4 w-4" />
-                    ) : (
-                      <Copy className="h-4 w-4" />
-                    )}
-                    {copied === "html" ? "Copied" : "Copy HTML"}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={downloadImage}
-                    disabled={record.encrypted && !decryptedImageUrl}
-                    className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <Download className="h-4 w-4" />
-                    Download image
-                  </button>
-                </div>
-              </div>
-
-              <div className="mb-5 flex flex-wrap gap-3 text-sm">
-                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                  {displayMimeType}
-                </span>
-
-                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                  {formatFileSize(displaySize)}
-                </span>
-
-                {record.width && record.height ? (
-                  <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                    {record.width} × {record.height}
-                  </span>
-                ) : null}
-
-                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                  Created: {formatDate(record.createdAt)}
-                </span>
-
-                <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                  Expires: {formatExpiry(record.expiresAt)}
-                </span>
-
-                {typeof record.views === "number" ? (
-                  <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
-                    {record.views} views
-                  </span>
-                ) : null}
-              </div>
-
-              <div className="overflow-hidden rounded-3xl border border-white/10 bg-slate-950 p-4">
-                {record.encrypted ? (
-                  decryptedImageUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={decryptedImageUrl}
-                      alt={displayName || "Decrypted image"}
-                      className="mx-auto max-h-[75vh] max-w-full object-contain"
-                    />
-                  ) : (
-                    <div className="rounded-2xl border border-green-500/30 bg-green-500/10 p-4 text-sm text-amber-100">
-                      <p className="font-semibold">Encrypted image</p>
-                      <p className="mt-2 text-amber-100/80">
-                        This image needs the key from the share link to display.
-                      </p>
-
-                      <input
-                        value={encryptionKey}
-                        onChange={(event) =>
-                          setEncryptionKey(event.target.value)
-                        }
-                        placeholder="Paste encryption key"
-                        className="mt-4 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none"
-                      />
-
-                      <button
-                        type="button"
-                        onClick={() => decryptImage(record, encryptionKey)}
-                        disabled={!encryptionKey || isDecrypting}
-                        className="mt-3 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
-                      >
-                        {isDecrypting ? "Decrypting..." : "Decrypt image"}
-                      </button>
-
-                      {decryptError ? (
-                        <p className="mt-3 text-sm text-red-200">
-                          {decryptError}
+                        <p className="mt-2 text-[15px] leading-6 text-slate-400">
+                          This image is securely stored and ready to view or download.
                         </p>
-                      ) : null}
+                      </div>
+
+                      {mode === "owner" ? (
+                        <div className="grid w-full shrink-0 grid-cols-2 items-center gap-4 md:w-auto md:flex md:flex-row md:justify-end md:gap-2 md:-translate-y-2 lg:-translate-y-3">                        <Link
+                          href="/file-share"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                        >
+                          <Plus className="h-4 w-4" />
+                          Upload new
+                        </Link>
+
+                        {!record.encrypted ? (
+                          <a
+                            href={getDirectUrl()}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                            Direct
+                          </a>
+                        ) : null}
+
+                        <button
+                          type="button"
+                          onClick={() => copyValue("page")}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                        >
+                          {copied === "page" ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                          {copied === "page" ? "Copied" : "Copy page"}
+                        </button>
+                      </div>
+                    ) : null}
                     </div>
-                  )
-                ) : imageSrc && !imageFailed ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={imageSrc}
-                    alt={record.originalName}
-                    onError={() => setImageFailed(true)}
-                    className="mx-auto max-h-[75vh] max-w-full object-contain"
-                  />
-                ) : (
-                  <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
-                    Could not display this image.
+
+                    <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
+                        <p className="text-[13px] font-medium text-slate-500">File name</p>
+                        <p className="mt-2 truncate text-[15px] text-slate-200">
+                          {displayName || record.originalName || record.mimeType || "Untitled image"}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
+                        <p className="text-[13px] font-medium text-slate-500">Image size</p>
+                        <p className="mt-2 text-[15px] text-slate-200">
+                          {formatFileSize(displaySize)}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
+                        <p className="text-[13px] font-medium text-slate-500">Created</p>
+                        <p className="mt-2 text-[15px] text-slate-200">
+                          {formatDate(record.createdAt)}
+                        </p>
+                      </div>
+
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
+                        <p className="text-[13px] font-medium text-slate-500">Expires</p>
+                        <p className="mt-2 text-[15px] text-slate-200">
+                          {formatExpiry(record.expiresAt)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5">
+                      {record.encrypted ? (
+                        decryptedImageUrl ? (
+                          <div className="rounded-[16px] bg-black/20 p-3">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={decryptedImageUrl}
+                              alt={displayName || "Decrypted hosted image"}
+                              className="mx-auto max-h-[65vh] max-w-full rounded-xl object-contain"
+                            />
+                          </div>
+                        ) : (
+                          <div className="rounded-[16px] border border-dashed border-white/10 px-6 py-12 text-center text-sm text-slate-500">
+                            Decrypt the image below to preview it securely in your browser.
+                          </div>
+                        )
+                      ) : imageSrc && !imageFailed ? (
+                        <div className="rounded-[16px] bg-black/20 p-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={imageSrc}
+                            alt={record.originalName || "Hosted image"}
+                            onError={() => setImageFailed(true)}
+                            className="mx-auto max-h-[65vh] max-w-full rounded-xl object-contain"
+                          />
+                        </div>
+                      ) : (
+                        <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                          Could not display this image.
+                        </div>
+                      )}
+                    </div>
+
+                    {record.encrypted ? (
+                      <div className="">
+                        
+                        {decryptError ? (
+                          <p className="">
+                            {decryptError}
+                          </p>
+                        ) : null}
+
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-1">
+                          <button
+                            type="button"
+                            onClick={downloadImage}
+                            disabled={!decryptedImageUrl}
+                            className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <Download className="h-5 w-5" />
+                            Download image
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-6 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
+                        <button
+                          type="button"
+                          onClick={downloadImage}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download image
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => copyValue("markdown")}
+                      className="hidden"
+                    >
+                      {copied === "markdown" ? (
+                        <Check className="h-5 w-5" />
+                      ) : (
+                        <Copy className="h-5 w-5" />
+                      )}
+                      {copied === "markdown" ? "Copied" : "Copy Markdown"}
+                    </button>
                   </div>
-                )}
+                </section>
               </div>
-
-              {mode === "owner" ? (
-                <div className="">
-                </div>
-              ) : null}
-            </>
-          ) : null}
-
-         
 
               {mode === "owner" ? (
                 <>
@@ -998,82 +993,90 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         </div>
 
                         <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
-                          <table className="w-full text-left text-xs">
-                        <thead>
-                          <tr className="border-b border-white/10 text-slate-500">
-                            <th className="px-3 py-2 font-medium">Name</th>
-                            <th className="hidden px-3 py-2 font-medium sm:table-cell">
-                              Kind
-                            </th>
-                            <th className="hidden px-5 py-2 text-right font-medium sm:table-cell">
-                              Size
-                            </th>
-                            <th className="px-10 py-2 text-right font-medium">Count</th>
-                            <th className="px-14 py-2 text-right font-medium">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                          {recentFiles.map((r) => (
-                            <tr key={r.id} className="text-slate-300">
-                              <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
-                                {r.name || r.id}
-                              </td>
-                              <td className="hidden px-3 py-2 text-slate-500 capitalize sm:table-cell">
-                                {r.kind}
-                              </td>
-                              <td className="hidden px-3 py-2 text-right text-slate-500 sm:table-cell">
-                                {formatFileSize(r.size)}
-                              </td>
-                              <td className="px-11 py-2 text-right text-slate-500">
-                                {typeof r.views === "number"
-                                  ? `${r.views} views`
-                                  : typeof r.downloads === "number"
-                                    ? `${r.downloads} dl`
-                                    : "—"}
-                              </td>
-                              <td className="px-2 py-2 text-right sm:px-4 lg:px-6">
-                                <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                                  <a
-                                    href={`/file?id=${r.id}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
-                                  >
-                                    View
-                                  </a>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setRecentFiles((prev) =>
-                                        prev.filter((x) => x.id !== r.id),
-                                      )
-                                    }
-                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          <table className="w-full table-fixed text-left text-xs sm:table-auto">
+                            <thead>
+                              <tr className="border-b border-white/10 text-slate-500">
+                                <th className="w-[52%] px-3 py-2 font-medium sm:w-auto">Name</th>
+                                <th className="hidden px-3 py-2 font-medium sm:table-cell">
+                                  Kind
+                                </th>
+                                <th className="hidden px-5 py-2 text-right font-medium sm:table-cell">
+                                  Size
+                                </th>
+                                <th className="w-[16%] px-1.5 py-2 text-center font-medium sm:w-auto sm:px-10 sm:text-right">
+                                  <span className="inline-block -translate-x-5 sm:translate-x-0">
+                                    Count
+                                  </span>
+                                </th>
+                                <th className="w-[32%] px-1.5 py-2 text-center font-medium sm:w-auto sm:px-14 sm:text-right">
+                                  Actions
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                              {recentFiles.map((r) => (
+                                <tr key={r.id} className="text-slate-300">
+                                  <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
+                                    {r.name || r.id}
+                                  </td>
+                                  <td className="hidden px-3 py-2 text-slate-500 capitalize sm:table-cell">
+                                    {r.kind}
+                                  </td>
+                                  <td className="hidden px-3 py-2 text-right text-slate-500 sm:table-cell">
+                                    {formatFileSize(r.size)}
+                                  </td>
+                                  <td className="w-[16%] px-1.5 py-2 text-center text-slate-500 sm:w-auto sm:px-11 sm:text-right">
+                                    <span className="inline-block -translate-x-5 whitespace-nowrap sm:translate-x-0">
+                                      {typeof r.views === "number"
+                                        ? `${r.views} views`
+                                        : typeof r.downloads === "number"
+                                          ? `${r.downloads} dl`
+                                          : "—"}
+                                    </span>
+                                  </td>
+                                  <td className="w-[32%] px-1.5 py-2 text-center sm:w-auto sm:px-2 sm:text-right sm:px-4 lg:px-6">
+                                    <div className="flex items-center justify-center gap-1 whitespace-nowrap sm:justify-end">
+                                      <a
+                                        href={`/file?id=${r.id}`}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
+                                      >
+                                        View
+                                      </a>
+                                      <button
+                                        type="button"
+                                        onClick={() =>
+                                          setRecentFiles((prev) =>
+                                            prev.filter((x) => x.id !== r.id),
+                                          )
+                                        }
+                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
 
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="text-xs text-slate-500">
-                       
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setRecentFiles([])}
-                        className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
-                      >
-                        Clear all
-                      </button>
+                        <div className="mt-4 flex items-center justify-between">
+                          <p className="text-xs text-slate-500"></p>
+                          <button
+                            type="button"
+                            onClick={() => setRecentFiles([])}
+                            className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
+                          >
+                            Clear all
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
+                  ) : null}
+                </>
               ) : null}
             </>
           ) : null}
@@ -1122,9 +1125,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     </div>
 
                     {mode === "owner" ? (
-                        <div className="flex shrink-0 flex-wrap items-center justify-center gap-2 sm:justify-end md:-translate-y-2 lg:-translate-y-3">                        <Link
+                        <div className="grid w-full shrink-0 grid-cols-2 items-center gap-4 md:w-auto md:flex md:flex-row md:justify-end md:gap-2 md:-translate-y-2 lg:-translate-y-3">                        <Link
                           href="/file-share"
-                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
                         >
                           <Plus className="h-4 w-4" />
                           Upload new
@@ -1133,7 +1136,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <button
                           type="button"
                           onClick={() => copyValue("page")}
-                          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
                         >
                           {copied === "page" ? (
                             <Check className="h-4 w-4" />
@@ -1147,28 +1150,28 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
 
                   <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                      <p className="text-[13px] font-medium text-slate-500">File name</p>
-                      <p className="mt-2 truncate text-[15px] text-slate-200">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
+                        <p className="text-[13px] font-medium text-slate-500">File name</p>
+                        <p className="mt-2 truncate text-[15px] text-slate-200">
                         {record.originalName || record.mimeType || "Untitled file"}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
                       <p className="text-[13px] font-medium text-slate-500">File size</p>
                       <p className="mt-2 text-[15px] text-slate-200">
                         {formatFileSize(record.size)}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
                       <p className="text-[13px] font-medium text-slate-500">Created</p>
                       <p className="mt-2 text-[15px] text-slate-200">
                         {formatDate(record.createdAt)}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
                       <p className="text-[13px] font-medium text-slate-500">Expires</p>
                       <p className="mt-2 text-[15px] text-slate-200">
                         {formatExpiry(record.expiresAt)}
@@ -1177,7 +1180,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
 
                   {mode === "owner" ? (
-                    <div className="mt-5 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
+                    <div className="mt-5 ">
                       <button
                         type="button"
                         onClick={downloadFile}
