@@ -83,18 +83,27 @@ function UrlShortenerContent() {
   const [copied, setCopied] = useState(false);
   const [clicks, setClicks] = useState<number | null>(null);
   const [clickLogs, setClickLogs] = useState<ClickLog[]>([]);
+  const [urlStats, setUrlStats] = useState<{ total: number; clicks: number; active: number } | null>(null);
 
-  const [recentUrls, setRecentUrls] = useState<ShortUrlResult[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const stored = localStorage.getItem("toolverse-recent-urls");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const [recentUrls, setRecentUrls] = useState<ShortUrlResult[]>([]);
 
   useEffect(() => {
+    try {
+      const stored = localStorage.getItem("toolverse-recent-urls");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) setRecentUrls(parsed);
+      }
+    } catch {
+      // ignore storage errors
+    } finally {
+      setHasHydrated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!hasHydrated) return;
     try {
       localStorage.setItem(
         "toolverse-recent-urls",
@@ -103,7 +112,33 @@ function UrlShortenerContent() {
     } catch {
       // ignore storage errors
     }
-  }, [recentUrls]);
+  }, [recentUrls, hasHydrated]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadUrlStats() {
+      try {
+        const response = await fetchApi("/api/shorten/stats", { cache: "no-store" });
+        if (!response.ok) return;
+
+        const data = (await response.json()) as {
+          total?: number;
+          clicks?: number;
+          active?: number;
+        };
+
+        if (!cancelled && typeof data.total === "number" && typeof data.clicks === "number" && typeof data.active === "number") {
+          setUrlStats({ total: data.total, clicks: data.clicks, active: data.active });
+        }
+      } catch {
+        // Keep stats unavailable if the endpoint is unreachable.
+      }
+    }
+
+    loadUrlStats();
+    return () => { cancelled = true; };
+  }, []);
 
   function addRecentUrl(shortened: ShortUrlResult) {
     setRecentUrls((prev) => {
@@ -592,8 +627,8 @@ function UrlShortenerContent() {
             
           </div>
           {/* Recent Shortened URLs (persisted per-browser) */}
-      {recentUrls.length > 0 ? (
-        <div className="mx-auto mt5 max-w-6xl">
+      {hasHydrated && recentUrls.length > 0 ? (
+        <div className="mx-auto mt-5 max-w-6xl">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
             <div className="mb-4 flex items-center gap-2">
               <Link2 className="h-5 w-5 text-violet-400" />
@@ -780,6 +815,47 @@ How to use URL Shortener
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Live URL shortener statistics */}
+      <section
+        className="mx-auto mt-16 max-w-6xl"
+        aria-label="URL shortener statistics"
+      >
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-10 sm:py-12">
+          <div className="mb-8 text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
+            Live stats
+          </div>
+
+          <div className="grid gap-10 sm:grid-cols-3 sm:gap-6">
+            <div>
+              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                {urlStats === null ? "…" : urlStats.total.toLocaleString("en-IN")}
+              </div>
+              <p className="mt-4 text-base text-slate-400 sm:text-lg">
+                URLs shortened
+              </p>
+            </div>
+
+            <div>
+              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                {urlStats === null ? "…" : urlStats.clicks.toLocaleString("en-IN")}
+              </div>
+              <p className="mt-4 text-base text-slate-400 sm:text-lg">
+                Total clicks
+              </p>
+            </div>
+
+            <div>
+              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                {urlStats === null ? "…" : urlStats.active.toLocaleString("en-IN")}
+              </div>
+              <p className="mt-4 text-base text-slate-400 sm:text-lg">
+                Active links
+              </p>
+            </div>
           </div>
         </div>
       </section>

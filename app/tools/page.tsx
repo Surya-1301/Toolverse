@@ -12,6 +12,8 @@ import {
   MapPin,
   QrCode,
   Text,
+  Wrench,
+  Sparkles,
   WalletCards,
 } from "lucide-react";
 import Link from "next/link";
@@ -83,7 +85,7 @@ const popularTools = [
   {
     title: "Fake Address Generator",
     description:
-      "Generate realistic fake addresses with user profiles (name, email, phone) for testing with multiple locale presets.",
+      "Generate realistic fake addresses with user profiles (name, email, phone) for testing.",
     href: "/fake-address-generator",
     icon: <MapPin className="h-6 w-6" />,
     status: "live" as const,
@@ -117,7 +119,7 @@ const categoryCards = [
     description:
       "Format, validate, minify, clean, and copy developer-friendly code outputs.",
     href: "/tools/formatter-tools",
-    icon: <Code2 className="h-7 w-7" />,
+    icon: <Sparkles className="h-7 w-7" />,
     status: "live" as const,
   },
 
@@ -126,7 +128,7 @@ const categoryCards = [
     description:
       "Generate UUIDs, passwords, hashes, Base64, JWTs, regex matches, timestamps, URLs, and colors.",
     href: "/tools/text-developer-tools",
-    icon: <Code2 className="h-7 w-7" />,
+    icon: <Wrench className="h-7 w-7" />,
     status: "live" as const,
   },
 ];

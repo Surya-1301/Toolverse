@@ -701,12 +701,12 @@ export default function PastePage() {
       {/* Exact paste count from the backend database. */}
       {pasteCount !== null ? (
         <section className="mx-auto mt-6 max-w-6xl" aria-label="Paste statistics">
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-[#0d2427] via-[#10242f] to-[#111827] px-6 py-12 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-10 sm:py-16">
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-8 sm:py-12">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/10">
               <FileText className="h-6 w-6" />
             </div>
 
-            <div className="mt-6 text-[72px] font-extrabold leading-none tracking-[-0.05em] text-cyan-400 sm:text-[88px]">
+            <div className="mt-6 text-[72px] font-extrabold leading-none tracking-[-0.05em] text-white-400 sm:text-[88px]">
               {pasteCount.toLocaleString("en-IN")}
             </div>
 

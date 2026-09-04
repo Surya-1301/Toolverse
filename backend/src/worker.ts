@@ -359,6 +359,43 @@ async function route(request: Request, env: Env) {
   }
 
   /**
+   * URL SHORTENER GLOBAL STATS
+   * Exact totals from the links table for the URL Shortener page.
+   */
+
+  if (pathname === "/api/shorten/stats" && request.method === "GET") {
+    const stats = await env.DB.prepare(
+      `
+      SELECT
+        COUNT(*) AS total,
+        COALESCE(SUM(clicks), 0) AS clicks,
+        COALESCE(
+          SUM(
+            CASE
+              WHEN expires_at IS NULL OR expires_at > ? THEN 1
+              ELSE 0
+            END
+          ),
+          0
+        ) AS active
+      FROM links
+      `,
+    )
+      .bind(new Date().toISOString())
+      .first<{
+        total: number | string;
+        clicks: number | string;
+        active: number | string;
+      }>();
+
+    return json({
+      total: Number(stats?.total || 0),
+      clicks: Number(stats?.clicks || 0),
+      active: Number(stats?.active || 0),
+    });
+  }
+
+  /**
    * URL SHORTENER CREATE
    */
 
