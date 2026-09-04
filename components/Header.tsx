@@ -313,25 +313,6 @@ const [isToolsOpen, setIsToolsOpen] =
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/url-shortener"
-              onClick={() => setIsMenuOpen(false)}
-              className="
-                rounded-xl
-                px-3
-                py-3
-                text-center
-                font-medium
-                transition
-                hover:bg-white/10
-                hover:text-white
-                focus:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-violet-400/50
-              "
-            >
-              Shorten
-            </Link>
             <div className="col-span-2">
               <button
                 type="button"

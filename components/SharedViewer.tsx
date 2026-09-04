@@ -318,6 +318,31 @@ export function SharedViewer({ mode }: SharedViewerProps) {
     }
   }
 
+  // Decrypt only the metadata to reveal the original file/image name,
+  // as soon as an encryption key is available (no full download needed).
+  async function decryptMetadataName(current: HostedRecord, key: string) {
+    if (!current.encryption || !key || decryptedName) return;
+
+    try {
+      const metadata = await decryptEncryptedMetadataWithKey(
+        current.encryption.encryptedMetadata,
+        key,
+        current.encryption.metadataIv,
+      );
+      setDecryptedName(metadata.originalName);
+    } catch {
+      // Invalid or incomplete key — ignore, we just won't reveal the name yet.
+    }
+  }
+
+  // Reveal the original name as soon as a key is supplied (URL hash or typed).
+  useEffect(() => {
+    if (record?.encrypted && encryptionKey && !decryptedName) {
+      decryptMetadataName(record, encryptionKey);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [record, encryptionKey, decryptedName]);
+
   async function copyValue(type: CopyType) {
     if (!record) return;
 
@@ -385,6 +410,8 @@ export function SharedViewer({ mode }: SharedViewerProps) {
         new Blob([decryptedBlob], { type: metadata.mimeType }),
       );
 
+      setDecryptedName(metadata.originalName);
+
       const link = document.createElement("a");
       link.href = url;
       link.download = metadata.originalName || record.id;
@@ -430,7 +457,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
   // This avoids exposing owner controls such as Direct, Copy page, upload, etc.
   if (mode === "share" && !isImage) {
     return (
-      <Container className="min-h-[calc(100vh-180px)] py-16 sm:py-20">
+      <Container className="min-h-[calc(100vh-180px)] py-5 sm:py-20">
         <div className="mx-auto max-w-[800px]">
           {isLoading ? (
             <ViewerLoading />
@@ -443,7 +470,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
               className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
               aria-label="Shared file"
             >
-              <div className="p-7 sm:p-8">
+              <div className="p-7 text-center sm:p-8 sm:text-left">
                 <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px]">
                   Shared File
                 </h1>
@@ -456,10 +483,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                 <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                   <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
                     <p className="text-[13px] font-medium text-slate-500">
-                      Stored type
+                      File name
                     </p>
                     <p className="mt-2 truncate text-[15px] text-slate-200">
-                      {record.mimeType || "application/octet-stream"}
+                      {decryptedName || record.originalName || record.mimeType || "application/octet-stream"}
                     </p>
                   </div>
 
@@ -539,11 +566,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
   }
 
   // ============ IMAGE VIEW ============
-  // Shared images use the same compact presentation as the shared-file page,
-  // with image preview + image-specific share actions.
   if (mode === "share" && isImage) {
     return (
-      <Container className="min-h-[calc(100vh-180px)] py-16 sm:py-20">
+      <Container className="min-h-[calc(100vh-180px)] py-5 sm:py-20">
         <div className="mx-auto max-w-[800px]">
           {isLoading ? (
             <ViewerLoading />
@@ -556,10 +581,41 @@ export function SharedViewer({ mode }: SharedViewerProps) {
               className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
               aria-label="Shared image"
             >
-              <div className="p-7 sm:p-8">
-                <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px]">
-                  Shared Image
-                </h1>
+              <div className="p-7 text-center sm:p-8 sm:text-left">
+                <div className="flex items-center justify-between gap-4">
+                  <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px]">
+                    Shared Image
+                  </h1>
+
+                  {/* Copy buttons - desktop/tablet only, right corner */}
+                  <div className="hidden shrink-0 items-center gap-2 sm:flex">
+                    <button
+                      type="button"
+                      onClick={() => copyValue("markdown")}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05]"
+                    >
+                      {copied === "markdown" ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                      {copied === "markdown" ? "Copied" : "Copy Markdown"}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => copyValue("html")}
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05]"
+                    >
+                      {copied === "html" ? (
+                        <Check className="h-4 w-4" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                      {copied === "html" ? "Copied" : "Copy HTML"}
+                    </button>
+                  </div>
+                </div>
 
                 <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base">
                   {record.encrypted
@@ -570,10 +626,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                 <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                   <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
                     <p className="text-[13px] font-medium text-slate-500">
-                      Stored type
+                      File name
                     </p>
                     <p className="mt-2 truncate text-[15px] text-slate-200">
-                      {record.mimeType || "image/*"}
+                      {decryptedName || record.originalName || record.mimeType || "image/*"}
                     </p>
                   </div>
 
@@ -667,28 +723,41 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       </p>
                     ) : null}
 
-                    <button
-                      type="button"
-                      onClick={() => decryptImage(record, encryptionKey)}
-                      disabled={!encryptionKey || isDecrypting}
-                      className="mt-3 inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-500 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {isDecrypting ? (
-                        <Loader2 className="h-5 w-5 animate-spin" />
-                      ) : (
-                        <Eye className="h-5 w-5" />
-                      )}
-                      {isDecrypting ? "Decrypting..." : "Decrypt & view image"}
-                    </button>
+                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <button
+                        type="button"
+                        onClick={() => decryptImage(record, encryptionKey)}
+                        disabled={!encryptionKey || isDecrypting}
+                        className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-500 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {isDecrypting ? (
+                          <Loader2 className="h-5 w-5 animate-spin" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                        {isDecrypting ? "Decrypting..." : "Decrypt & view image"}
+                      </button>
+
+                      {/* Download - desktop/tablet only, adjacent to decrypt */}
+                      <button
+                        type="button"
+                        onClick={downloadImage}
+                        disabled={!decryptedImageUrl}
+                        className="hidden h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-4 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-violet-600/55 disabled:text-slate-400 sm:inline-flex"
+                      >
+                        <Download className="h-5 w-5" />
+                        Download image
+                      </button>
+                    </div>
                   </div>
                 ) : null}
 
                 {/* IMAGE ACTIONS */}
-                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-[1.15fr_0.85fr_1fr]">
+                <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-1">
                   <button
                     type="button"
                     onClick={() => copyValue("markdown")}
-                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05]"
+                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05] sm:hidden"
                   >
                     {copied === "markdown" ? (
                       <Check className="h-5 w-5" />
@@ -701,7 +770,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   <button
                     type="button"
                     onClick={() => copyValue("html")}
-                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05]"
+                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05] sm:hidden"
                   >
                     {copied === "html" ? (
                       <Check className="h-5 w-5" />
@@ -715,7 +784,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     type="button"
                     onClick={downloadImage}
                     disabled={record.encrypted && !decryptedImageUrl}
-                    className="inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-5 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-violet-600/55 disabled:text-slate-400"
+                    className={`inline-flex h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-5 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-violet-600/55 disabled:text-slate-400 ${
+                      record.encrypted ? "sm:hidden" : ""
+                    }`}
                   >
                     <Download className="h-5 w-5" />
                     Download image
