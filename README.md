@@ -11,17 +11,77 @@ Toolverse is a privacy-friendly collection of free online utilities for develope
 
 ## Features
 
+### Share & Hosting
+
+- Upload & Share — share images, PDFs, and general files with client-side encryption
+- Paste — share text/code snippets with syntax highlighting
+- URL Shortener — shorten, track clicks, and set expiry
+- Image Host — host images with shareable links
+- File Viewer (owner dashboard) — manage hosted files, images, and recent uploads
+
 ### General tools
 
+Categorized throughout the app, but the main set includes:
+
+**Conversion tools**
+
+- Markdown to PDF
+- Markdown to HTML
+- YAML ↔ JSON Converter
+- CSV ↔ JSON Converter
+- Excel to CSV / CSV to Excel
+- RGB ↔ HEX color converter
+- Regex Tester
+- JSON ↔ XML Converter
+- Image to Base64 Converter
+
+**Image tools**
+
+- Image Converter
+- Image Resizer
+- Image Cropper
+- Image Watermark Tool
+- Background Remover
+- Favicon Generator
+- OG Image Generator
+- Blur Image
+- Image Upscaler
+- Image Placeholder
+
+**Formatter tools**
+
+- HTML Formatter
+- CSS Formatter
+- JavaScript Formatter
 - JSON Formatter
+- SQL Formatter
+- TypeScript Formatter
+
+**Text & developer tools**
+
+- IP Address Lookup
+- Credit Card Generator
+- Fake Address Generator
+- UUID Generator
+- Password Generator
+- Hash Generator
+- Random String Generator
+- Base64 Encoder / Decoder
+- JWT Decoder
+- Lorem Ipsum Generator
+- Text Counter
+- Case Converter
+- Duplicate Line Remover
+- Timestamp Converter
+- URL Tools
+- Password Strength Checker
+- Text to Speech
+- Audio Converter
+- Domain Lookup (WHOIS + DNS)
+- API Tester (HTTP request tester)
+- Text Compare / Diff
+- Email, Phone & IBAN Validator
 - QR Generator
-- Image Compressor
-- Paste sharing
-- URL Shortener
-- Image Host
-- Upload & Share for images, PDFs, and general files
-- OCR PDF
-- PDF to Markdown
 
 ### PDF Editor
 
@@ -78,8 +138,15 @@ The PDF Editor groups tools into Organize, Convert to PDF, Convert from PDF, Edi
 - TypeScript
 - Tailwind CSS
 - `pdf-lib` for browser-side PDF editing
+- `pdfjs-dist` for PDF rendering/parsing
 - `qrcode` for QR generation
-- `browser-image-compression` for image compression
+- `browser-image-compression` for image compression / resizing
+- `heic2any` for HEIC image conversion
+- `lamejs` for browser-side MP3 encoding
+- `sharp` for server-side image processing (image backend)
+- `xlsx` for Excel/CSV conversion
+- `@dnd-kit` for drag-and-drop interactions
+- `bcryptjs` for hashing
 - `lucide-react` icons
 
 ### Cloudflare Worker API
@@ -120,28 +187,35 @@ Heavy PDF operations run in a separate Node/Express backend, intended for Render
 ```txt
 app/                         Next.js app routes
   page.tsx                   Home page
-  tools/page.tsx             All tools page
-  pdf-editor/page.tsx        Main PDF editor UI
-  json-formatter/            JSON Formatter
-  qr-generator/              QR Generator
-  image-compressor/          Image Compressor
-  paste/                     Paste creator
-  paste-view/                Paste viewer
+  tools/                     Tools index + category pages
+  pdf-editor/                Main PDF editor UI
+  paste/, paste-view/        Paste creator + viewer
   url-shortener/             URL Shortener
-  file-share/                Upload & Share
+  file-share/                Upload & Share (images, PDFs, files)
   image-host/                Image Host
-  ocr-pdf/                   OCR PDF tool
+  file/                      Owner file/image dashboard
+  share-file/                Shared-file viewer (SharedViewer)
+  go/                        Short-link redirect
   pdf-to-markdown/           PDF to Markdown tool
+  ... many more tool routes   (converters, formatters, image & text tools)
 
 components/                  Shared UI components
+  SharedViewer.tsx           Unified shared file/image viewer
 lib/                         Shared frontend helpers
-public/                      Static assets, manifest, sitemap
+public/                      Static assets, icons
+types/                       Ambient TS types
+data/                        Local data fixtures
+uploads/                     Local upload staging
 
 backend/                     Cloudflare Worker API
   src/worker.ts              Worker routes
   schema.sql                 D1 database schema
   wrangler.jsonc             Worker config
 
+backend-routes/              Worker route references
+backend-config-backup/       Backup of open-next/wrangler config
+image-backend/               Python image-processing backend
+  main.py                    FastAPI-style image endpoints
 pdf-backend/                 Express PDF backend
   server.js                  PDF API routes
   Dockerfile                 Render/Docker runtime
