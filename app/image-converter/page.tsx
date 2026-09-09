@@ -564,7 +564,7 @@ export default function ImageConverterPage() {
 
           {/* Buttons */}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
             <button
               type="button"
               onClick={convertImage}
@@ -598,8 +598,10 @@ export default function ImageConverterPage() {
               type="button"
               onClick={clearAll}
               className="
+                flex-1
                 inline-flex
                 items-center
+                justify-center
                 gap-2
                 rounded-xl
                 border

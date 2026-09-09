@@ -295,7 +295,7 @@ export default function RandomStringGeneratorPage() {
         </div>
 
         {/* Actions */}
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
           <button
             onClick={regenerate}
             disabled={!charset.length}

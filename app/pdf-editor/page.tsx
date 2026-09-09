@@ -129,6 +129,7 @@ type OutputFile = {
   kind: OutputKind;
   previewText?: string;
   compressionStats?: CompressionStats;
+  compressionWarning?: string;
 };
 
 type CompareResult = {
@@ -535,6 +536,7 @@ function createFileOutput(
   name: string,
   blob: Blob,
   compressionStats?: CompressionStats,
+  compressionWarning?: string,
 ): OutputFile {
   return {
     name,
@@ -542,6 +544,7 @@ function createFileOutput(
     size: blob.size,
     kind: "file",
     compressionStats,
+    compressionWarning,
   };
 }
 
@@ -645,6 +648,25 @@ function getCompressionStats(response: Response): CompressionStats | undefined {
     savedPercent,
     usedCompressed: compressionUsed === "compressed",
   };
+}
+
+function parseTargetBytes(
+  enabled: boolean,
+  value: string,
+  unit: "KB" | "MB",
+) {
+  if (!enabled || !value.trim()) return null;
+
+  const parsed = Number(value);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+
+  return unit === "MB" ? parsed * 1024 * 1024 : parsed * 1024;
+}
+
+function formatTargetBytes(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / 1024).toFixed(0)} KB`;
 }
 
 function parseFormAssignments(input: string) {
@@ -828,6 +850,12 @@ function PdfEditorPageContent() {
   const [insertAfterPage, setInsertAfterPage] = useState("1");
   const [rotation, setRotation] = useState("90");
   const [compressionQuality, setCompressionQuality] = useState("0.6");
+  const [compressionUseTargetSize, setCompressionUseTargetSize] =
+    useState(false);
+  const [compressionTargetValue, setCompressionTargetValue] = useState("");
+  const [compressionTargetUnit, setCompressionTargetUnit] = useState<
+    "KB" | "MB"
+  >("KB");
   const [pageNumberPosition, setPageNumberPosition] = useState("bottom-center");
   const [watermarkText, setWatermarkText] = useState("CONFIDENTIAL");
   const [watermarkOpacity, setWatermarkOpacity] = useState(0.25);
@@ -1032,6 +1060,9 @@ function PdfEditorPageContent() {
     setInsertAfterPage("1");
     setRotation("90");
     setCompressionQuality("0.6");
+    setCompressionUseTargetSize(false);
+    setCompressionTargetValue("");
+    setCompressionTargetUnit("KB");
     setPageNumberPosition("bottom-center");
     setWatermarkText("CONFIDENTIAL");
     setWatermarkOpacity(0.25);
@@ -2057,36 +2088,93 @@ function PdfEditorPageContent() {
     const file = files[0];
     if (!file) throw new Error("Upload one PDF file first.");
 
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("quality", compressionQuality);
+    const targetBytes = parseTargetBytes(
+      compressionUseTargetSize,
+      compressionTargetValue,
+      compressionTargetUnit,
+    );
 
-    const response = await fetchPdfApi("/api/pdf/compress", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(
-        await getApiErrorMessage(
-          response,
-          "Could not compress this PDF. Please try again.",
-        ),
-      );
+    if (compressionUseTargetSize && targetBytes === null) {
+      throw new Error("Enter a valid target size greater than 0.");
     }
 
-    const compressionStats = getCompressionStats(response);
-    const blob = await response.blob();
-    const contentDisposition = response.headers.get("content-disposition");
+    const attemptQualities =
+      targetBytes !== null
+        ? [...new Set([Number(compressionQuality), 0.35, 0.1])]
+        : [Number(compressionQuality)];
 
-    return {
-      blob,
-      name: fileNameFromDisposition(
-        contentDisposition,
-        makeDownloadName(file, "compressed"),
-      ),
-      compressionStats,
-    };
+    let best: {
+      blob: Blob;
+      name: string;
+      compressionStats?: CompressionStats;
+    } | null = null;
+
+    for (const attemptQuality of attemptQualities) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("quality", String(attemptQuality));
+
+      const response = await fetchPdfApi("/api/pdf/compress", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(
+          await getApiErrorMessage(
+            response,
+            "Could not compress this PDF. Please try again.",
+          ),
+        );
+      }
+
+      const compressionStats = getCompressionStats(response);
+      const blob = await response.blob();
+      const contentDisposition = response.headers.get("content-disposition");
+
+      const result = {
+        blob,
+        name: fileNameFromDisposition(
+          contentDisposition,
+          makeDownloadName(file, "compressed"),
+        ),
+        compressionStats: {
+          ...compressionStats,
+          originalSize: compressionStats?.originalSize ?? file.size,
+          compressedSize: compressionStats?.compressedSize ?? blob.size,
+          savedBytes:
+            compressionStats?.savedBytes ??
+            Math.max(file.size - blob.size, 0),
+          savedPercent:
+            compressionStats?.savedPercent ??
+            (file.size > 0
+              ? Math.round(
+                  (Math.max(file.size - blob.size, 0) / file.size) * 100,
+                )
+              : 0),
+          usedCompressed:
+            compressionStats?.usedCompressed ?? blob.size < file.size,
+        } satisfies CompressionStats,
+      };
+
+      best = result;
+
+      if (targetBytes === null || blob.size <= targetBytes) {
+        break;
+      }
+    }
+
+    if (best === null) {
+      throw new Error("Could not compress this PDF. Please try again.");
+    }
+
+    let compressionWarning: string | undefined;
+
+    if (targetBytes !== null && best.blob.size > targetBytes) {
+      compressionWarning = `Target size of ${formatTargetBytes(targetBytes)} could not be reached. Smallest result: ${formatFileSize(best.blob.size)}. Try a larger target or a higher compression level.`;
+    }
+
+    return { ...best, compressionWarning };
   }
 
   async function officeToPdf() {
@@ -2757,6 +2845,7 @@ function PdfEditorPageContent() {
           result.name,
           result.blob,
           result.compressionStats,
+          result.compressionWarning,
         );
       }
 
@@ -2834,6 +2923,18 @@ function PdfEditorPageContent() {
       );
     }
 
+    if (
+      mode === "compress-pdf" &&
+      compressionUseTargetSize &&
+      compressionTargetValue.trim() &&
+      !(
+        Number.isFinite(Number(compressionTargetValue)) &&
+        Number(compressionTargetValue) > 0
+      )
+    ) {
+      return false;
+    }
+
     return hasMainFile;
   })();
 
@@ -2893,6 +2994,18 @@ function PdfEditorPageContent() {
       !hasDrawnSignature
     ) {
       return "Type, upload, or draw a signature first.";
+    }
+
+    if (
+      mode === "compress-pdf" &&
+      compressionUseTargetSize &&
+      compressionTargetValue.trim() &&
+      !(
+        Number.isFinite(Number(compressionTargetValue)) &&
+        Number(compressionTargetValue) > 0
+      )
+    ) {
+      return "Enter a valid target size greater than 0.";
     }
 
     if (!hasMainFile && !isHtmlMode && !isImageMode) {
@@ -3396,23 +3509,84 @@ function PdfEditorPageContent() {
               ) : null}
 
               {mode === "compress-pdf" || mode === "batch-compress" ? (
-                <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
-                    Compression level
-                  </label>
-                  <select
-                    value={compressionQuality}
-                    onChange={(event) =>
-                      setCompressionQuality(event.target.value)
-                    }
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
-                  >
-                    <option value="0.85">Low compression / high quality</option>
-                    <option value="0.6">Balanced</option>
-                    <option value="0.35">
-                      High compression / smaller file
-                    </option>
-                  </select>
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                      Compression level
+                    </label>
+                    <select
+                      value={compressionQuality}
+                      onChange={(event) =>
+                        setCompressionQuality(event.target.value)
+                      }
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                    >
+                      <option value="0.85">Low compression / high quality</option>
+                      <option value="0.6">Balanced</option>
+                      <option value="0.35">
+                        High compression / smaller file
+                      </option>
+                    </select>
+                  </div>
+
+                  {mode === "compress-pdf" ? (
+                    <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+                      <label className="flex cursor-pointer items-center gap-3">
+                        <input
+                          type="checkbox"
+                          checked={compressionUseTargetSize}
+                          onChange={(event) =>
+                            setCompressionUseTargetSize(event.target.checked)
+                          }
+                          className="h-4 w-4 accent-violet-500"
+                        />
+
+                        <span className="text-sm font-medium text-slate-300">
+                          Compress to target size
+                        </span>
+                      </label>
+
+                      {compressionUseTargetSize ? (
+                        <div className="mt-3 flex items-stretch gap-2">
+                          <input
+                            type="number"
+                            min="0.001"
+                            step="any"
+                            inputMode="decimal"
+                            value={compressionTargetValue}
+                            onChange={(event) =>
+                              setCompressionTargetValue(event.target.value)
+                            }
+                            placeholder={
+                              compressionTargetUnit === "MB"
+                                ? "e.g. 2"
+                                : "e.g. 500"
+                            }
+                            className="min-h-10 w-full min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                          />
+
+                          <select
+                            value={compressionTargetUnit}
+                            onChange={(event) =>
+                              setCompressionTargetUnit(
+                                event.target.value as "KB" | "MB",
+                              )
+                            }
+                            className="min-h-10 shrink-0 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-violet-500"
+                          >
+                            <option value="KB">KB</option>
+                            <option value="MB">MB</option>
+                          </select>
+                        </div>
+                      ) : null}
+
+                      <p className="mt-2 text-xs leading-5 text-slate-500">
+                        {compressionUseTargetSize
+                          ? "The PDF will be compressed until it fits below this size when possible."
+                          : "Optionally set a target file size instead of using the compression level."}
+                      </p>
+                    </div>
+                  ) : null}
                 </div>
               ) : null}
 
@@ -4002,7 +4176,7 @@ function PdfEditorPageContent() {
                 </div>
               ) : null}
 
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
                 <button
                   type="button"
                   onClick={processPdf}
@@ -4128,6 +4302,12 @@ function PdfEditorPageContent() {
                               original PDF was returned.
                             </p>
                           ) : null}
+                        </div>
+                      ) : null}
+
+                      {output.compressionWarning ? (
+                        <div className="mt-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 text-left text-sm text-amber-200">
+                          {output.compressionWarning}
                         </div>
                       ) : null}
                     </div>

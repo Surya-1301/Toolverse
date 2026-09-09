@@ -483,7 +483,7 @@ export default function PastePage() {
           </div>
         ) : null}
 
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 flex flex-col sm:flex-row gap-3 w-full">
           <button
             type="button"
             onClick={createPaste}

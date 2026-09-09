@@ -209,10 +209,10 @@ export default function UuidGeneratorPage() {
           )}
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
           <button
             onClick={clearAll}
-            className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
           >
             <Eraser className="h-4 w-4" />
             Clear

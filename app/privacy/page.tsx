@@ -381,7 +381,7 @@ export default function PrivacyPage() {
                 or privacy grievances.
               </p>
 
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
 
                 <Link
                   href="/contact"

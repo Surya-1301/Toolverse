@@ -288,7 +288,7 @@ function QrGeneratorContent() {
             </div>
           ) : null}
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-col sm:flex-row gap-3 w-full">
             
 
             <button

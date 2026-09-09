@@ -33,6 +33,19 @@ function BackToToolsLink() {
 
 type Mode = "image" | "pdf";
 
+function targetBytesFromInput(value: string, unit: "KB" | "MB") {
+  const parsed = Number(value);
+
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+
+  return unit === "MB" ? parsed * 1024 * 1024 : parsed * 1024;
+}
+
+function formatTargetSize(bytes: number) {
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / 1024).toFixed(0)} KB`;
+}
+
 export default function ImageCompressorPage() {
   const [mode, setMode] = useState<Mode>("image");
 
@@ -43,9 +56,13 @@ export default function ImageCompressorPage() {
   const [originalPreview, setOriginalPreview] = useState("");
   const [compressedPreview, setCompressedPreview] = useState("");
 
-  const [quality, setQuality] = useState(0.7);
+  const [targetSizeValue, setTargetSizeValue] = useState("");
+  const [targetSizeUnit, setTargetSizeUnit] = useState<"KB" | "MB">("KB");
+  const [targetSizeHit, setTargetSizeHit] = useState(false);
   const [isCompressing, setIsCompressing] = useState(false);
-  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState<
+    { type: "success" | "warning" | "error"; message: string } | null
+  >(null);
 
   const reductionPercentage = useMemo(() => {
     if (!originalFile || !compressedFile) return 0;
@@ -59,7 +76,7 @@ export default function ImageCompressorPage() {
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
-    setError("");
+    setFeedback(null);
     setCompressedFile(null);
     setOutputFileName("");
     setCompressedPreview("");
@@ -67,7 +84,10 @@ export default function ImageCompressorPage() {
     if (!file) return;
 
     if (mode === "image" && !file.type.startsWith("image/")) {
-      setError("Please upload a valid image file.");
+      setFeedback({
+        type: "error",
+        message: "Please upload a valid image file.",
+      });
       setOriginalFile(null);
       if (originalPreview) URL.revokeObjectURL(originalPreview);
       setOriginalPreview("");
@@ -75,7 +95,10 @@ export default function ImageCompressorPage() {
     }
 
     if (mode === "pdf" && file.type !== "application/pdf") {
-      setError("Please upload a valid PDF file.");
+      setFeedback({
+        type: "error",
+        message: "Please upload a valid PDF file.",
+      });
       setOriginalFile(null);
       if (originalPreview) URL.revokeObjectURL(originalPreview);
       setOriginalPreview("");
@@ -86,21 +109,69 @@ export default function ImageCompressorPage() {
     setPreviewUrl(setOriginalPreview, originalPreview, file);
   }
 
-  async function compressImage(file: File) {
-    const options = {
-      maxSizeMB: 2,
-      maxWidthOrHeight: 1920,
-      useWebWorker: true,
-      initialQuality: quality,
-    };
+  async function compressImage(file: File, targetBytes: number) {
+    let smallest: File | null = null;
 
-    return imageCompression(file, options);
+    // Sweep quality AND max dimensions so the target is actually reachable.
+    const dimensionSteps = [1920, 1600, 1280, 1024, 768, 512];
+    const qualitySteps = [1.0, 0.8, 0.6, 0.4, 0.2, 0.1];
+
+    for (const maxWidthOrHeight of dimensionSteps) {
+      for (const attemptQuality of qualitySteps) {
+        const options = {
+          maxSizeMB: targetBytes / (1024 * 1024),
+          maxWidthOrHeight,
+          useWebWorker: true,
+          initialQuality: attemptQuality,
+        };
+
+        const compressed = await imageCompression(file, options);
+
+        if (!smallest || compressed.size < smallest.size) {
+          smallest = compressed;
+        }
+
+        if (compressed.size <= targetBytes) return compressed;
+      }
+    }
+
+    return smallest ?? file;
   }
 
-  async function compressPdf(file: File) {
+  async function compressPdf(file: File, targetBytes: number) {
+    let bestBlob: Blob | null = null;
+
+    const qualities = [0.6, 0.35, 0.1];
+
+    for (const attemptQuality of qualities) {
+      try {
+        const { blob } = await requestPdfCompression(file, attemptQuality);
+
+        if (!bestBlob || blob.size < bestBlob.size) {
+          bestBlob = blob;
+        }
+
+        if (blob.size <= targetBytes) {
+          break;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (!bestBlob) {
+      throw new Error(
+        "Could not compress PDF. Please check the PDF compression backend.",
+      );
+    }
+
+    return buildCompressedPdfFile(file, bestBlob);
+  }
+
+  async function requestPdfCompression(file: File, pdfQuality: number) {
     const formData = new FormData();
     formData.append("file", file);
-    formData.append("quality", String(quality));
+    formData.append("quality", String(pdfQuality));
 
     let response: Response;
 
@@ -140,6 +211,10 @@ export default function ImageCompressorPage() {
       throw new Error("Compressed PDF is empty. Please try another PDF.");
     }
 
+    return { blob };
+  }
+
+  function buildCompressedPdfFile(file: File, blob: Blob) {
     return new File(
       [blob],
       file.name.replace(/\.pdf$/i, "") + "-compressed.pdf",
@@ -151,22 +226,55 @@ export default function ImageCompressorPage() {
 
   async function compressFile() {
     if (!originalFile) {
-      setError(
-        mode === "image"
-          ? "Please upload an image first."
-          : "Please upload a PDF first.",
+      setFeedback({
+        type: "error",
+        message:
+          mode === "image"
+            ? "Please upload an image first."
+            : "Please upload a PDF first.",
+      });
+      return;
+    }
+
+    if (!targetSizeValue.trim()) {
+      setFeedback({
+        type: "error",
+        message: "Enter a target file size in KB or MB.",
+      });
+      return;
+    }
+
+    const targetBytes = targetBytesFromInput(targetSizeValue, targetSizeUnit);
+
+    if (targetBytes === null) {
+      setFeedback({
+        type: "error",
+        message: "Enter a valid target size greater than 0.",
+      });
+      return;
+    }
+
+    // Already under target — compression isn't needed.
+    if (originalFile.size <= targetBytes) {
+      setCompressedFile(originalFile);
+      setOutputFileName(
+        originalFile.name.replace(/\.(pdf|jpg|jpeg|png|webp)$/i, ""),
       );
+      setPreviewUrl(setCompressedPreview, compressedPreview, originalFile);
+      setTargetSizeHit(true);
+      setFeedback(null);
       return;
     }
 
     try {
-      setError("");
+      setFeedback(null);
       setIsCompressing(true);
+      setTargetSizeHit(false);
 
       const compressed =
         mode === "image"
-          ? await compressImage(originalFile)
-          : await compressPdf(originalFile);
+          ? await compressImage(originalFile, targetBytes)
+          : await compressPdf(originalFile, targetBytes);
 
       setCompressedFile(compressed);
       setOutputFileName(
@@ -175,21 +283,35 @@ export default function ImageCompressorPage() {
 
       setPreviewUrl(setCompressedPreview, compressedPreview, compressed);
 
-      if (compressed.size >= originalFile.size) {
-        setError(
-          mode === "pdf"
-            ? "This PDF could not be reduced much. It may already be optimized, or the backend returned the original because compression would increase file size."
-            : "This image could not be reduced much. Try lowering the quality.",
-        );
+      if (compressed.size > targetBytes) {
+        setTargetSizeHit(false);
+        setFeedback({
+          type: "warning",
+          message: `Couldn't quite reach ${formatTargetSize(targetBytes)} — smallest result is ${formatFileSize(compressed.size)}. Try a larger target size.`,
+        });
+      } else {
+        setTargetSizeHit(true);
+
+        if (compressed.size >= originalFile.size) {
+          setFeedback({
+            type: "warning",
+            message:
+              mode === "pdf"
+                ? "This PDF could not be reduced much. It may already be optimized."
+                : "This image could not be reduced much. Try a larger target size.",
+          });
+        }
       }
     } catch (caughtError) {
-      setError(
-        caughtError instanceof Error
-          ? caughtError.message
-          : mode === "image"
-            ? "Could not compress this image. Please try another image."
-            : "Could not compress this PDF. Please try another PDF.",
-      );
+      setFeedback({
+        type: "error",
+        message:
+          caughtError instanceof Error
+            ? caughtError.message
+            : mode === "image"
+              ? "Could not compress this image. Please try another image."
+              : "Could not compress this PDF. Please try another PDF.",
+      });
 
       setCompressedFile(null);
       setCompressedPreview("");
@@ -239,9 +361,11 @@ export default function ImageCompressorPage() {
     setCompressedFile(null);
     setOriginalPreview("");
     setCompressedPreview("");
-    setError("");
+    setFeedback(null);
     setIsCompressing(false);
-    setQuality(0.7);
+    setTargetSizeValue("");
+    setTargetSizeUnit("KB");
+    setTargetSizeHit(false);
   }
 
   function setPreviewUrl(
@@ -341,41 +465,51 @@ export default function ImageCompressorPage() {
               </div>
             ) : null}
 
-            <div className="mt-5">
-              <div className="flex items-center justify-between gap-3">
-                <label className="block text-sm font-medium text-slate-300">
-                  Quality
-                </label>
+            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
+              <label className="mb-2 block text-sm font-medium text-slate-300">
+                Target file size
+              </label>
 
-                <span className="rounded-full border border-white/10 bg-slate-950 px-3 py-1 text-xs text-slate-300">
-                  {Math.round(quality * 100)}%
-                </span>
+              <div className="flex items-stretch gap-2">
+                <input
+                  type="number"
+                  min="0.001"
+                  step="any"
+                  inputMode="decimal"
+                  value={targetSizeValue}
+                  onChange={(event) => {
+                    setTargetSizeValue(event.target.value);
+                    setTargetSizeHit(false);
+                  }}
+                  placeholder={targetSizeUnit === "MB" ? "e.g. 1" : "e.g. 500"}
+                  className="min-h-10 w-full min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                />
+
+                <select
+                  value={targetSizeUnit}
+                  onChange={(event) => {
+                    setTargetSizeUnit(event.target.value as "KB" | "MB");
+                    setTargetSizeHit(false);
+                  }}
+                  className="min-h-10 shrink-0 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-violet-500"
+                >
+                  <option value="KB">KB</option>
+                  <option value="MB">MB</option>
+                </select>
               </div>
-
-              <input
-                type="range"
-                min="0.1"
-                max="1"
-                step="0.05"
-                value={quality}
-                onChange={(event) => setQuality(Number(event.target.value))}
-                className="mt-3 w-full accent-violet-500"
-              />
-
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                Lower quality usually creates a smaller file.
-              </p>
             </div>
 
-            {error ? (
+            {feedback ? (
               <div
                 className={`mt-4 rounded-xl border px-4 py-3 text-sm ${
-                  compressedFile
-                    ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
-                    : "border-red-500/30 bg-red-500/10 text-red-200"
+                  feedback.type === "error"
+                    ? "border-red-500/30 bg-red-500/10 text-red-200"
+                    : feedback.type === "warning"
+                      ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                      : "border-emerald-500/30 bg-emerald-500/10 text-emerald-200"
                 }`}
               >
-                {error}
+                {feedback.message}
               </div>
             ) : null}
 
@@ -383,7 +517,12 @@ export default function ImageCompressorPage() {
               <button
                 type="button"
                 onClick={compressFile}
-                disabled={!originalFile || isCompressing}
+                disabled={
+                  !originalFile ||
+                  isCompressing ||
+                  !targetSizeValue.trim() ||
+                  targetBytesFromInput(targetSizeValue, targetSizeUnit) === null
+                }
                 className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isCompressing ? (
@@ -547,11 +686,12 @@ export default function ImageCompressorPage() {
                         : "jpg"
                 }
               </p>
-            </div>
-          ) : null}
+
+             </div>
+               ) : null}
           </div>
-        </div>
-      </div>
+            </div>
+         </div>
 
       {/* Desktop/tablet: keep the existing HowToUse component unchanged. */}
       <div className="hidden md:block">
@@ -570,8 +710,9 @@ export default function ImageCompressorPage() {
               icon: <Upload className="h-5 w-5" />,
             },
             {
-              title: "Set quality",
-              description: "Use the quality slider to control output size.",
+              title: "Set target size",
+              description:
+                "Optionally set a target file size in KB or MB.",
               icon: <ImageIcon className="h-5 w-5" />,
             },
             {
@@ -620,8 +761,9 @@ export default function ImageCompressorPage() {
                 icon: <Upload className="h-5 w-5" />,
               },
               {
-                title: "Set quality",
-                description: "Use the quality slider to control output size.",
+                title: "Set target size",
+                description:
+                  "Optionally set a target file size in KB or MB.",
                 icon: <ImageIcon className="h-5 w-5" />,
               },
               {

@@ -419,7 +419,7 @@ export default function FileSharePage() {
             </div>
           ) : null}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
             <button
               type="button"
               onClick={uploadSelectedFile}

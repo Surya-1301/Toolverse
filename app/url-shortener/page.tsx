@@ -601,7 +601,7 @@ function UrlShortenerContent() {
             </div>
           ) : null}
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
             <button
               type="button"
               onClick={createShortUrl}

@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
 
     const file = formData.get("file");
-    const qualityValue = Number(formData.get("quality") || "0.7");
+    const qualityValue = Number(formData.get("quality"));
 
     if (!(file instanceof File)) {
       return NextResponse.json(
