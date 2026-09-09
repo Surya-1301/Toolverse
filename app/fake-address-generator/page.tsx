@@ -281,7 +281,7 @@ export default function FakeAddressGeneratorPage() {
         </div>
 
         {/* Actions */}
-        <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
+        <div className="mt-5 flex flex-wrap gap-3">
           <button
             onClick={generate}
             className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"

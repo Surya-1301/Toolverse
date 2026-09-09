@@ -379,7 +379,7 @@ export default function JsonXmlConverterPage() {
         </p>
       ) : null}
 
-      <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
+      <div className="mt-5 flex flex-wrap gap-3">
         <button
           onClick={handleJsonToXml}
           className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
@@ -406,7 +406,7 @@ export default function JsonXmlConverterPage() {
 
         <button
           onClick={clearAll}
-          className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
         >
           <Eraser className="h-4 w-4" />
           Clear

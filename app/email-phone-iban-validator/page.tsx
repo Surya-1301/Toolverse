@@ -1007,7 +1007,7 @@ export default function EmailPhoneIbanValidatorPage() {
 
         {/* ACTIONS */}
 
-        <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
+        <div className="mt-5 flex flex-wrap gap-3">
           <button
             type="button"
             onClick={copyResult}
