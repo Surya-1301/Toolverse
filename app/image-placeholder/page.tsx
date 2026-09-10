@@ -178,9 +178,7 @@ export default function ImagePlaceholderPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate crisp placeholder images of any size with your text and
-          colors — perfect for wireframes and mockups. Download as SVG, PNG,
-          or WebP, or grab a hosted URL.
+         Create custom placeholder images in any size, with your text and colors. Export as SVG, PNG, WebP, or a hosted URL.
         </p>
       </div>
 
@@ -313,7 +311,7 @@ export default function ImagePlaceholderPage() {
             </div>
 
             <div className="mt-3">
-              <p className="mb-2 text-sm font-semibold text-slate-300">Export</p>
+              <p className="mb-2 text-sm font-semibold text-slate-300">Download</p>
               <div className="grid grid-cols-2 gap-2">
                 <a
                   href={previewUrl}

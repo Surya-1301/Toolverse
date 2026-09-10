@@ -555,6 +555,7 @@ export default function CaseConverterPage() {
             className="
               inline-flex
               min-h-[44px]
+              flex-1
               items-center
               justify-center
               gap-2
@@ -568,6 +569,8 @@ export default function CaseConverterPage() {
               text-red-300
               transition
               hover:bg-red-500/10
+              sm:flex-none
+              sm:justify-start
             "
           >
             <Eraser className="h-4 w-4" />

@@ -657,7 +657,7 @@ export default function CreditCardGeneratorPage() {
               </button>
               <button
                 onClick={() => setCard(null)}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:justify-start sm:py-2.5"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:py-2.5"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -760,7 +760,7 @@ export default function CreditCardGeneratorPage() {
 
               <button
                 onClick={() => setValidateInput("")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:justify-start sm:py-2.5"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:py-2.5"
               >
                 <Eraser className="h-4 w-4" />
                 Clear

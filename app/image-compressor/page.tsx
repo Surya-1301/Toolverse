@@ -523,7 +523,7 @@ export default function ImageCompressorPage() {
                   !targetSizeValue.trim() ||
                   targetBytesFromInput(targetSizeValue, targetSizeUnit) === null
                 }
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isCompressing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -541,7 +541,7 @@ export default function ImageCompressorPage() {
               <button
                 type="button"
                 onClick={clearAll}
-                className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
               >
                 <Eraser className="h-4 w-4" />
                 Clear

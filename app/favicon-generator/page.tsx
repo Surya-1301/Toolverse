@@ -270,8 +270,7 @@ export default function FaviconGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Turn any image into all the favicon sizes your site needs, with a
-          ready-to-use manifest and copy-paste HTML.
+          Generate all essential favicon sizes, plus a ready-to-use manifest and HTML.
         </p>
       </div>
 
@@ -292,10 +291,6 @@ export default function FaviconGeneratorPage() {
                 fileName={imageName ? `${imageName}.png` : null}
                 allowedLabel="PNG, JPG, WebP, HEIC, or HEIF"
               />
-
-              <p className="mt-2 text-xs leading-5 text-slate-500">
-                Square images work best.
-              </p>
             </div>
 
             <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
@@ -309,7 +304,7 @@ export default function FaviconGeneratorPage() {
             </label>
 
             {backgroundEnabled ? (
-              <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3">
+              <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 sm:flex sm:items-center sm:gap-3">
                 <input
                   type="color"
                   value={background}
@@ -341,19 +336,15 @@ export default function FaviconGeneratorPage() {
                 step="1"
                 value={padding}
                 onChange={(event) => setPadding(Number(event.target.value))}
-                className="w-full accent-violet-500"
+                className="mt-4 w-full accent-violet-500"
               />
-
-              <p className="mt-2 text-xs text-slate-500">
-                Inner margin used to frame the icon inside each square.
-              </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={generate}
                 disabled={!source || isGenerating}
-                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -365,7 +356,7 @@ export default function FaviconGeneratorPage() {
 
               <button
                 onClick={clearAll}
-                className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -405,7 +396,7 @@ export default function FaviconGeneratorPage() {
 
                 {generated.length ? (
                   <div>
-                    <div className="mb-3 grid grid-cols-4 gap-3">
+                    <div className="mb-3 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                       {generated.map(({ size, dataUrl }) => (
                         <button
                           key={size}
@@ -442,7 +433,7 @@ export default function FaviconGeneratorPage() {
                     <div className="mt-4 flex flex-wrap gap-3">
                       <button
                         onClick={downloadManifest}
-                        className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm"
                       >
                         <Download className="h-4 w-4" />
                         Download manifest
@@ -450,7 +441,7 @@ export default function FaviconGeneratorPage() {
 
                       <button
                         onClick={copyCode}
-                        className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm"
                       >
                         {copiedCode ? (
                           <Check className="h-4 w-4" />
@@ -461,11 +452,11 @@ export default function FaviconGeneratorPage() {
                       </button>
                     </div>
 
-                    <div className="mt-4">
+                    <div className="mt-4 min-w-0">
                       <p className="mb-2 text-xs font-semibold text-slate-400">
                         HTML snippet (paste into {"<head>"})
                       </p>
-                      <pre className="max-h-40 overflow-auto rounded-xl border border-white/10 bg-white/[0.02] p-3 text-[11px] leading-5 text-slate-300">
+                      <pre className="max-h-40 w-full overflow-x-auto overflow-y-auto whitespace-pre rounded-xl border border-white/10 bg-white/[0.02] p-3 text-[11px] leading-5 text-slate-300">
                         {htmlSnippet()}
                       </pre>
                     </div>

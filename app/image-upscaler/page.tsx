@@ -54,10 +54,6 @@ function clampFactor(srcW: number, srcH: number, requested: number) {
   return Math.max(1, factor);
 }
 
-/* Step-based bicubic-ish upscaler: repeatedly scale in even steps with
-   sharpening, which produces noticeably better results than a single
-   nearest-neighbor pass. Scales by a fixed step each pass so the final
-   dimensions land exactly on the (clamped) target. */
 function upscaleCanvas(source: HTMLImageElement, factor: number, sharpen: number) {
   const srcW = source.naturalWidth;
   const srcH = source.naturalHeight;
@@ -205,8 +201,7 @@ export default function ImageUpscalerPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Enlarge images up to 8× with smart interpolation and sharpening —
-          great for upscaling photos, logos, and screenshots.
+         Boost image resolution up to 8× with intelligent upscaling and sharpening for cleaner, sharper results.
         </p>
       </div>
 
@@ -262,16 +257,13 @@ export default function ImageUpscalerPage() {
                 onChange={(event) => setSharpen(Number(event.target.value))}
                 className="w-full accent-violet-500"
               />
-              <p className="mt-2 text-xs text-slate-500">
-                Sharpening restores edge detail after upscaling. 0 disables it.
-              </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={process}
                 disabled={!source || isProcessing}
-                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
               >
                 {isProcessing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -284,7 +276,7 @@ export default function ImageUpscalerPage() {
               <button
                 onClick={download}
                 disabled={!resultUrl}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -292,7 +284,7 @@ export default function ImageUpscalerPage() {
 
               <button
                 onClick={clearAll}
-                className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:px-4 sm:text-sm"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -330,6 +322,16 @@ export default function ImageUpscalerPage() {
                 </div>
               )}
             </div>
+
+            {resultUrl ? (
+              <button
+                onClick={download}
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 sm:hidden"
+              >
+                <Download className="h-4 w-4" />
+                Download PNG
+              </button>
+            ) : null}
 
             {source ? (
               <div>

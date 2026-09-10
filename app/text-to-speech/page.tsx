@@ -399,7 +399,7 @@ export default function TextToSpeechPage() {
               <button
                 type="button"
                 onClick={() => setText("")}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-5 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
               >
                 <Eraser className="h-4 w-4" />
                 Clear

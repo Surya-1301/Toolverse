@@ -249,7 +249,7 @@ export default function ImageResizerPage() {
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <h2 className="mb-4 text-lg font-semibold text-white">
             Upload images
           </h2>
@@ -295,7 +295,7 @@ export default function ImageResizerPage() {
             </div>
           ) : null}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-300">
                 Width
@@ -349,7 +349,7 @@ export default function ImageResizerPage() {
                 step="0.05"
                 value={quality}
                 onChange={(event) => setQuality(Number(event.target.value))}
-                className="w-full accent-violet-500"
+                className="mt-4 w-full accent-violet-500"
               />
             </div>
           </div>
@@ -364,7 +364,7 @@ export default function ImageResizerPage() {
             <button
               onClick={resizeImages}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm"
             >
               <Download className="h-4 w-4" />
               {isProcessing ? "Processing..." : "Resize image"}
@@ -372,7 +372,7 @@ export default function ImageResizerPage() {
 
             <button
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -380,7 +380,7 @@ export default function ImageResizerPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
           <div className="mb-4 flex items-center justify-between gap-3">
             <h2 className="text-lg font-semibold text-white">Upload output</h2>
 

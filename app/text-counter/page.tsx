@@ -310,7 +310,7 @@ export default function TextCounterPage() {
 
             <button
               onClick={clear}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:w-auto sm:flex-none"
             >
               <Eraser className="h-4 w-4" />
               Clear

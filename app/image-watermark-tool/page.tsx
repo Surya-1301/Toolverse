@@ -16,6 +16,7 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 // PDF support requires: npm install pdf-lib
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import JSZip from "jszip";
 
 function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
@@ -495,6 +496,8 @@ export default function ImageWatermarkToolPage() {
       setError("");
       setIsProcessing(true);
 
+      const outputs: { blob: Blob; name: string }[] = [];
+
       for (const file of files) {
         if (isPdfFile(file)) {
           if (useLogoForPdf && !logoFile) {
@@ -506,7 +509,7 @@ export default function ImageWatermarkToolPage() {
           }
 
           const blob = await watermarkOnePdf(file);
-          downloadBlob(blob, `${baseName(file)}-watermarked.pdf`);
+          outputs.push({ blob, name: `${baseName(file)}-watermarked.pdf` });
         } else {
           if (useLogo && !logoFile) {
             throw new Error("Upload a logo image first.");
@@ -517,8 +520,25 @@ export default function ImageWatermarkToolPage() {
           }
 
           const blob = await watermarkOneImage(file);
-          downloadBlob(blob, `${baseName(file)}-watermarked.png`);
+          outputs.push({ blob, name: `${baseName(file)}-watermarked.png` });
         }
+      }
+
+      if (outputs.length > 1) {
+        const zip = new JSZip();
+
+        for (const output of outputs) {
+          zip.file(output.name, output.blob);
+        }
+
+        const zipBlob = await zip.generateAsync({
+          type: "blob",
+          compression: "DEFLATE",
+        });
+
+        downloadBlob(zipBlob, "watermarked-files.zip");
+      } else if (outputs.length === 1) {
+        downloadBlob(outputs[0].blob, outputs[0].name);
       }
     } catch (caughtError) {
       setError(
@@ -589,47 +609,20 @@ export default function ImageWatermarkToolPage() {
           </label>
 
           <p className="mt-4 text-sm text-slate-500">
-            {files.length} image{files.length === 1 ? "" : "s"} selected
+            {files.length > 0 && files.every(isPdfFile)
+              ? `${files.length} Pdf${files.length === 1 ? "" : "s"} selected`
+              : `${files.length} image${files.length === 1 ? "" : "s"} selected`}
           </p>
-
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
-            <label className="flex items-center gap-2 text-sm font-semibold text-slate-300">
-              <input
-                type="checkbox"
-                checked={useLogo}
-                onChange={(event) => setUseLogo(event.target.checked)}
-                className="h-4 w-4 accent-violet-600"
-              />
-              Use logo watermark
-            </label>
-
-            <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10">
-              <Upload className="h-4 w-4" />
-              Upload logo
-              <input
-                type="file"
-                accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
-                onChange={handleLogo}
-                className="hidden"
-              />
-            </label>
-          </div>
-
-          {logoFile ? (
-            <p className="mt-3 text-sm text-slate-500">
-              Logo selected: {logoFile.name}
-            </p>
-          ) : null}
 
           <div className="mt-6 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4">
             <h3 className="text-sm font-semibold text-cyan-100">
-              PDF watermark settings
+             Watermark Settings
             </h3>
             <p className="mt-1 text-xs leading-5 text-slate-500">
               These settings are used automatically when you upload a PDF.
             </p>
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-3">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <label className="flex items-center gap-2 text-sm font-semibold text-slate-300">
                 <input
                   type="checkbox"
@@ -640,9 +633,20 @@ export default function ImageWatermarkToolPage() {
                 Use logo for PDF
               </label>
 
+             <label className="flex cursor-pointer items-center justify-center gap-1 rounded-xl border border-cyan-400/20 bg-slate-950 px-4 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-white/10">
+                <Upload className="h-3 w-3" />
+                Upload logo
+                <input
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
+                  onChange={handleLogo}
+                  className="hidden"
+                />
+              </label>
+
               <div>
                 <label className="mb-2 block text-xs font-semibold text-slate-400">
-                  PDF watermark text
+                 Watermark text
                 </label>
                 <input
                   value={pdfWatermarkText}
@@ -655,7 +659,7 @@ export default function ImageWatermarkToolPage() {
 
               <div>
                 <label className="mb-2 block text-xs font-semibold text-slate-400">
-                  PDF position
+                  Position
                 </label>
                 <select
                   value={pdfPosition}
@@ -673,8 +677,14 @@ export default function ImageWatermarkToolPage() {
               </div>
             </div>
 
+            {logoFile ? (
+              <p className="mt-3 text-sm text-slate-500">
+                Logo selected: {logoFile.name}
+              </p>
+            ) : null}
+
             <label className="mt-4 block text-xs font-semibold text-slate-400">
-              PDF opacity: {Math.round(pdfOpacity * 100)}%
+              Opacity: {Math.round(pdfOpacity * 100)}%
               <input
                 type="range"
                 min="0.1"
@@ -687,58 +697,6 @@ export default function ImageWatermarkToolPage() {
             </label>
           </div>
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-3">
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
-                Text watermark
-              </label>
-
-              <input
-                value={watermarkText}
-                onChange={(event) => setWatermarkText(event.target.value)}
-                disabled={useLogo}
-                placeholder="CONFIDENTIAL"
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
-                Position
-              </label>
-
-              <select
-                value={position}
-                onChange={(event) =>
-                  setPosition(event.target.value as WatermarkPosition)
-                }
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
-              >
-                <option value="bottom-right">Bottom right</option>
-                <option value="bottom-left">Bottom left</option>
-                <option value="top-right">Top right</option>
-                <option value="top-left">Top left</option>
-                <option value="center">Center</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
-                Opacity: {Math.round(opacity * 100)}%
-              </label>
-
-              <input
-                type="range"
-                min="0.1"
-                max="1"
-                step="0.05"
-                value={opacity}
-                onChange={(event) => setOpacity(Number(event.target.value))}
-                className="w-full accent-violet-500"
-              />
-            </div>
-          </div>
-
           {error ? (
             <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
               {error}
@@ -749,15 +707,19 @@ export default function ImageWatermarkToolPage() {
             <button
               onClick={watermarkImages}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
             >
               <Download className="h-4 w-4" />
-              {isProcessing ? "Processing..." : "Watermark & download"}
+              {isProcessing
+                ? "Processing..."
+                : files.length > 1
+                  ? "Download ZIP"
+                  : "Download"}
             </button>
 
             <button
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -795,26 +757,6 @@ export default function ImageWatermarkToolPage() {
               </p>
             )}
           </div>
-
-          {firstFile ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
-              <p>
-                <span className="font-semibold text-slate-300">File:</span>{" "}
-                {firstFile.name}
-              </p>
-
-              <p className="mt-1">
-                <span className="font-semibold text-slate-300">Mode:</span>{" "}
-                {firstFile && isPdfFile(firstFile)
-                  ? useLogoForPdf
-                    ? "PDF logo watermark"
-                    : "PDF text watermark"
-                  : useLogo
-                    ? "Logo watermark"
-                    : "Text watermark"}
-              </p>
-            </div>
-          ) : null}
         </div>
       </div>
       <HowToUse

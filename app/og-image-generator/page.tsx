@@ -265,8 +265,7 @@ export default function OgImageGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Create 1200×630 social share cards with custom text, colors, and
-          logo — ready to attach to your social posts or metadata.
+          Build eye-catching 1200×630 social cards with custom branding, text, and colors—ready to publish.
         </p>
       </div>
 
@@ -376,7 +375,7 @@ export default function OgImageGeneratorPage() {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={render}
-                className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 sm:px-4 sm:text-sm"
               >
                 {isRendering ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -389,7 +388,7 @@ export default function OgImageGeneratorPage() {
               <button
                 onClick={download}
                 disabled={!previewUrl}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -397,7 +396,7 @@ export default function OgImageGeneratorPage() {
 
               <button
                 onClick={clearAll}
-                className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:px-4 sm:text-sm"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -443,6 +442,16 @@ export default function OgImageGeneratorPage() {
                   </div>
                 )}
               </div>
+
+              {previewUrl ? (
+                <button
+                  onClick={download}
+                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 sm:hidden"
+                >
+                  <Download className="h-4 w-4" />
+                  Download PNG
+                </button>
+              ) : null}
             </div>
           </div>
         </div>

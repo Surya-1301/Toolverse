@@ -253,8 +253,7 @@ export default function ImageCropperPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Crop images by setting crop coordinates, dimensions, and common aspect
-          ratios, then preview and download the cropped image.
+         Crop images with custom coordinates, dimensions, or aspect ratios.
         </p>
       </div>
 
@@ -297,7 +296,7 @@ export default function ImageCropperPage() {
             </div>
           ) : null}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-4">
+          <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-300">
                 X
@@ -355,7 +354,7 @@ export default function ImageCropperPage() {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
             <button
               onClick={() => applyAspectRatio("1:1")}
               className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
@@ -397,7 +396,7 @@ export default function ImageCropperPage() {
             <button
               onClick={cropImage}
               disabled={isProcessing}
-              className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
             >
               <Download className="h-4 w-4" />
               {isProcessing ? "Cropping..." : "Crop image"}
@@ -405,7 +404,7 @@ export default function ImageCropperPage() {
 
             <button
               onClick={clearAll}
-              className="inline-flex items-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
               <Eraser className="h-4 w-4" />
               Clear

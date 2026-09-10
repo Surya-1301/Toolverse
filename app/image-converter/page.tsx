@@ -488,7 +488,7 @@ export default function ImageConverterPage() {
 
           {/* Settings */}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="mt-5 grid grid-cols-2 gap-4">
             {/* Output format */}
 
             <div>
@@ -532,7 +532,6 @@ export default function ImageConverterPage() {
             </div>
 
             {/* Quality */}
-
             <div>
               <label className="mb-2 block text-sm font-semibold text-slate-300">
                 Quality: {Math.round(quality * 100)}%
@@ -549,13 +548,12 @@ export default function ImageConverterPage() {
                     Number(event.target.value),
                   )
                 }
-                className="w-full accent-violet-500"
+                className="mt-4 w-full accent-violet-500"
               />
             </div>
           </div>
 
           {/* Error */}
-
           {error ? (
             <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
               {error}
@@ -571,13 +569,17 @@ export default function ImageConverterPage() {
               disabled={isProcessing || !file}
               className="
                 inline-flex
+                min-h-11
+                flex-1
                 items-center
+                justify-center
                 gap-2
+                whitespace-nowrap
                 rounded-xl
                 bg-violet-600
                 px-4
                 py-2.5
-                text-sm
+                text-xs
                 font-semibold
                 text-white
                 transition
@@ -585,6 +587,8 @@ export default function ImageConverterPage() {
                 disabled:cursor-not-allowed
                 disabled:bg-slate-700
                 disabled:text-slate-400
+                sm:px-4
+                sm:text-sm
               "
             >
               <Wand2 className="h-4 w-4" />
@@ -599,7 +603,10 @@ export default function ImageConverterPage() {
               onClick={clearAll}
               className="
                 inline-flex
+                min-h-11
+                flex-1
                 items-center
+                justify-center
                 gap-2
                 rounded-xl
                 border
@@ -611,6 +618,7 @@ export default function ImageConverterPage() {
                 text-red-300
                 transition
                 hover:bg-red-500/10
+
               "
             >
               <Eraser className="h-4 w-4" />
