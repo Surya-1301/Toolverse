@@ -5,7 +5,8 @@ pdf-backend/node_modules
 image-backend/.venv
 
 # local build / runtime state
-.wrangler/state
+.wrangler
+.wrangler/**
 .kilo
 __pycache__
 *.pyc
@@ -28,11 +29,20 @@ dist
 .env.test.local
 .env.production.local
 
+# local overrides (use .env.local instead)
+env.local
+
 # logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Next.js auto-generated files
+next-env.d.ts
 
 # system
 .DS_Store
