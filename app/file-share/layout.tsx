@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import SeoFaq from "@/components/SeoFaq";
+import { toolSeo } from "@/lib/seoTools";
+
+const seo = toolSeo["file-share"];
 
 export const metadata: Metadata = {
-  title: "File Share - Upload and Share Files",
-  description:
-    "Upload files and create temporary shareable download links with Toolverse File Share.",
+  title: seo.title,
+  description: seo.description,
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
+  },
 };
 
 export default function FileShareLayout({
@@ -11,5 +18,13 @@ export default function FileShareLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      {children}
+      <SeoFaq
+        faq={seo.faq}
+        pageUrl="https://toolversee.pages.dev/file-share"
+      />
+    </>
+  );
 }

@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import SeoFaq from "@/components/SeoFaq";
+import { toolSeo } from "@/lib/seoTools";
+
+const seo = toolSeo["image-compressor"];
 
 export const metadata: Metadata = {
-  title: "Image & PDF Compressor - Compress Files Online",
-  description:
-    "Compress images and optimize PDF files in your browser with Toolverse.",
+  title: seo.title,
+  description: seo.description,
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
+  },
 };
 
 export default function ImageCompressorLayout({
@@ -11,5 +18,13 @@ export default function ImageCompressorLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      {children}
+      <SeoFaq
+        faq={seo.faq}
+        pageUrl="https://toolversee.pages.dev/image-compressor"
+      />
+    </>
+  );
 }

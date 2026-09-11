@@ -1,9 +1,16 @@
 import type { Metadata } from "next";
+import SeoFaq from "@/components/SeoFaq";
+import { toolSeo } from "@/lib/seoTools";
+
+const seo = toolSeo["qr-generator"];
 
 export const metadata: Metadata = {
-  title: "QR Generator - Create QR Codes Online",
-  description:
-    "Create free QR codes for URLs, text, and more. Download your QR code as PNG or SVG with Toolverse.",
+  title: seo.title,
+  description: seo.description,
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
+  },
 };
 
 export default function QrGeneratorLayout({
@@ -11,5 +18,13 @@ export default function QrGeneratorLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      {children}
+      <SeoFaq
+        faq={seo.faq}
+        pageUrl="https://toolversee.pages.dev/qr-generator"
+      />
+    </>
+  );
 }

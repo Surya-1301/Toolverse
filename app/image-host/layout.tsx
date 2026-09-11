@@ -1,19 +1,30 @@
 import type { Metadata } from "next";
+import SeoFaq from "@/components/SeoFaq";
+import { toolSeo } from "@/lib/seoTools";
+
+const seo = toolSeo["image-host"];
 
 export const metadata: Metadata = {
-  title: "Hosted Image",
-  description: "View a hosted image on Toolverse.",
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
+  title: seo.title,
+  description: seo.description,
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
   },
 };
 
-export default function HostedImageLayout({
+export default function ImageHostLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      {children}
+      <SeoFaq
+        faq={seo.faq}
+        pageUrl="https://toolversee.pages.dev/image-host"
+      />
+    </>
+  );
 }

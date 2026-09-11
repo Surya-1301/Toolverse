@@ -3,7 +3,6 @@ import Link from "next/link";
 import Script from "next/script";
 import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
-import { BackButton } from "@/components/BackButton";
 import "./globals.css";
 
 const siteUrl = "https://toolversee.pages.dev";
@@ -48,10 +47,10 @@ export const metadata: Metadata = {
       "Free online tools for JSON formatting, QR codes, image/PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
     images: [
       {
-        url: "/logo.png",
+        url: `${siteUrl}/og.png`,
         width: 1200,
         height: 630,
-        alt: "Toolverse",
+        alt: "Toolverse - All-in-one online utility tools",
       },
     ],
   },
@@ -60,7 +59,7 @@ export const metadata: Metadata = {
     title: "Toolverse - Free Online Utility Tools",
     description:
       "Free online tools for JSON formatting, QR codes, image/PDF compression, paste sharing, file sharing, URL shortening, and image hosting.",
-    images: ["/logo.png"],
+    images: [`${siteUrl}/og.png`],
   },
   robots: {
     index: true,
@@ -76,7 +75,7 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.ico",
    shortcut: "/favicon.ico",
-   apple: "apple-touch-icon.png",
+   apple: "/icon-512.png",
   },
   manifest: "/manifest.webmanifest",
 };

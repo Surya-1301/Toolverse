@@ -1,19 +1,27 @@
 import type { Metadata } from "next";
+import SeoFaq from "@/components/SeoFaq";
+import { toolSeo } from "@/lib/seoTools";
+
+const seo = toolSeo.paste;
 
 export const metadata: Metadata = {
-  title: "Paste - View a shared text or code snippet",
-  description: "View a shared text or code snippet on Toolverse.",
-  robots: {
-    index: false,
-    follow: false,
-    nocache: true,
+  title: seo.title,
+  description: seo.description,
+  openGraph: {
+    title: seo.title,
+    description: seo.description,
   },
 };
 
-export default function PasteViewLayout({
+export default function PasteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return children;
+  return (
+    <>
+      {children}
+      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/paste" />
+    </>
+  );
 }

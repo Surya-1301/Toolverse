@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { Mp3Encoder } from "lamejs";
+import { Mp3Encoder } from "@breezystack/lamejs";
 
 function BackToToolsLink() {
   return (
@@ -196,13 +196,11 @@ function encodeToMp3(buffer: AudioBuffer, kbps: number): Blob {
 
   const encoder = new Mp3Encoder(channels, sampleRate, kbps);
   const maxSamples = 1152;
-  const chunks: BlobPart[] = [];
+  const chunks: Uint8Array<ArrayBuffer>[] = [];
 
-  const pushChunk = (buf: Int8Array) => {
+  const pushChunk = (buf: Uint8Array) => {
     if (buf.length === 0) return;
-    const out = new Uint8Array(buf.length);
-    out.set(new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength));
-    chunks.push(out);
+    chunks.push(buf as Uint8Array<ArrayBuffer>);
   };
 
   for (let i = 0; i < left.length; i += maxSamples) {
@@ -255,13 +253,23 @@ async function encodeToWebm(
     recorder.onstop = () => resolve();
   });
 
+  // Browsers start AudioContext in a "suspended" state until a user gesture.
+  // Explicitly resume so playback (and onended) actually runs.
+  if (ctx.state === "suspended") {
+    await ctx.resume();
+  }
+
   recorder.start();
   source.start(0);
 
-  // Wait until the source finishes playing.
-  await new Promise<void>((resolve) => {
-    source.onended = () => resolve();
-  });
+  // Wait until the source finishes playing, with a fallback so the
+  // conversion can never hang indefinitely if onended doesn't fire.
+  await Promise.race([
+    new Promise<void>((resolve) => {
+      source.onended = () => resolve();
+    }),
+    new Promise<void>((resolve) => setTimeout(resolve, buffer.duration * 1000 + 4000)),
+  ]);
 
   // Slight delay to flush remaining data.
   await new Promise((r) => setTimeout(r, 250));

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SeoFaq from "@/components/SeoFaq";
 import { toolSeo } from "@/lib/seoTools";
 
-const seo = toolSeo["url-shortener"];
+const seo = toolSeo["random-string-generator"];
 
 export const metadata: Metadata = {
   title: seo.title,
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function UrlShortenerLayout({
+export default function RandomStringGeneratorLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -21,10 +21,7 @@ export default function UrlShortenerLayout({
   return (
     <>
       {children}
-      <SeoFaq
-        faq={seo.faq}
-        pageUrl="https://toolversee.pages.dev/url-shortener"
-      />
+      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/random-string-generator" />
     </>
   );
 }
