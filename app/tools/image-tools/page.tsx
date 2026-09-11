@@ -22,17 +22,11 @@ const tools = [
     icon: <ImageDown className="h-6 w-6" />,
   },
   {
-    title: "Image Resizer",
+    title: "Image Resizer & Cropper",
     description:
-      "Resize single or multiple images with aspect ratio and quality controls.",
-    href: "/image-resizer",
+      "Resize single or multiple images with aspect ratio and quality controls, or crop by coordinates and aspect ratios.",
+    href: "/image-resizer-cropper",
     icon: <ImageDown className="h-6 w-6" />,
-  },
-  {
-    title: "Image Cropper",
-    description: "Crop images by coordinates and download the cropped result.",
-    href: "/image-cropper",
-    icon: <ImagePlus className="h-6 w-6" />,
   },
   {
     title: "Image Watermark",
