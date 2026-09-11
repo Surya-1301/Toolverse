@@ -355,8 +355,8 @@ export default function ExcelCsvConverterPage() {
         </p>
       ) : null}
 
-      <div className="mt-5 flex flex-wrap gap-3">
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
           <Upload className="h-4 w-4" />
           Upload CSV
           <input
@@ -369,7 +369,7 @@ export default function ExcelCsvConverterPage() {
 
         <button
           onClick={convertCsvToExcel}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Wand2 className="h-4 w-4" />
           CSV to Excel
@@ -377,15 +377,15 @@ export default function ExcelCsvConverterPage() {
 
         <button
           onClick={convertExcelHtmlToCsv}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm"
         >
-          <FileSpreadsheet className="h-4 w-4" />
+          <FileSpreadsheet className="h-4 w-4 shrink-0" />
           Excel HTML to CSV
         </button>
 
         <button
           onClick={downloadExcel}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
           Download XLS
@@ -393,7 +393,7 @@ export default function ExcelCsvConverterPage() {
 
         <button
           onClick={downloadCsv}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
           Download CSV
@@ -401,7 +401,7 @@ export default function ExcelCsvConverterPage() {
 
         <button
           onClick={clearAll}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
         >
           <Eraser className="h-4 w-4" />
           Clear

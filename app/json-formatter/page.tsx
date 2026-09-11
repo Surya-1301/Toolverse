@@ -207,10 +207,10 @@ export default function JsonFormatterPage() {
         </p>
       ) : null}
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={formatJson}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Wand2 className="h-4 w-4" />
           Format JSON
@@ -218,7 +218,7 @@ export default function JsonFormatterPage() {
 
         <button
           onClick={minifyJson}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Minimize2 className="h-4 w-4" />
           Minify JSON
@@ -226,7 +226,7 @@ export default function JsonFormatterPage() {
 
         <button
           onClick={validateJson}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Code2 className="h-4 w-4" />
           Validate JSON
@@ -234,7 +234,7 @@ export default function JsonFormatterPage() {
 
         <button
           onClick={clearAll}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
         >
           <Eraser className="h-4 w-4" />
           Clear

@@ -192,10 +192,10 @@ export default function CssFormatterPage() {
         </div>
       </div>
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={formatCss}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Wand2 className="h-4 w-4" />
           Format CSS
@@ -203,7 +203,7 @@ export default function CssFormatterPage() {
 
         <button
           onClick={minifyCss}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Minimize2 className="h-4 w-4" />
           Minify CSS
@@ -211,14 +211,14 @@ export default function CssFormatterPage() {
 
         <button
           onClick={stripComments}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           Remove comments
         </button>
 
         <button
           onClick={clearAll}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
         >
           <Eraser className="h-4 w-4" />
           Clear

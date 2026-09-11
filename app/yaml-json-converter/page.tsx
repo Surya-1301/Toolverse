@@ -292,10 +292,10 @@ export default function YamlJsonConverterPage() {
         </p>
       ) : null}
 
-      <div className="mt-5 flex flex-col sm:flex-row gap-3 w-full">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={yamlToJson}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Wand2 className="h-4 w-4" />
           YAML to JSON
@@ -303,7 +303,7 @@ export default function YamlJsonConverterPage() {
 
         <button
           onClick={jsonToYaml}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Braces className="h-4 w-4" />
           JSON to YAML
@@ -311,7 +311,7 @@ export default function YamlJsonConverterPage() {
 
         <button
           onClick={downloadOutput}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
           Download
@@ -319,7 +319,7 @@ export default function YamlJsonConverterPage() {
 
         <button
           onClick={clearAll}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
         >
           <Eraser className="h-4 w-4" />
           Clear
