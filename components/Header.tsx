@@ -14,6 +14,7 @@ const mainLinks = [
   { href: "/paste", label: "Paste" },
   { href: "/qr-generator", label: "QR" },
   { href: "/url-shortener", label: "Shorten" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const toolLinks = [
@@ -313,68 +314,63 @@ const [isToolsOpen, setIsToolsOpen] =
                 {link.label}
               </Link>
             ))}
-            <div className="col-span-2">
-              <button
-                type="button"
-                onClick={() => setIsToolsOpen((open) => !open)}
-                className="
-                  flex
-                  w-full
-                  items-center
-                  justify-center
-                  gap-1
-                  rounded-xl
-                  px-3
-                  py-3
-                  font-medium
-                  transition
-                  hover:bg-white/10
-                  hover:text-white
-                  focus:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-violet-400/50
-                "
-                aria-expanded={isToolsOpen}
-                aria-haspopup="true"
-              >
-                Tools
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${
-                    isToolsOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-              {isToolsOpen ? (
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  {toolLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => {
-                        setIsToolsOpen(false);
-                        setIsMenuOpen(false);
-                      }}
-                      className="
-                        rounded-xl
-                        px-3
-                        py-3
-                        text-center
-                        font-medium
-                        transition
-                        hover:bg-white/10
-                        hover:text-white
-                        focus:outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-violet-400/50
-                      "
-                      role="menuitem"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsToolsOpen((open) => !open)}
+              className="
+                flex
+                items-center
+                justify-center
+                gap-1
+                rounded-xl
+                px-3
+                py-3
+                font-medium
+                transition
+                hover:bg-white/10
+                hover:text-white
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-violet-400/50
+              "
+              aria-expanded={isToolsOpen}
+              aria-haspopup="true"
+            >
+              Tools
+              <ChevronDown
+                className={`h-4 w-4 transition-transform ${
+                  isToolsOpen ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+            {isToolsOpen
+              ? toolLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => {
+                      setIsToolsOpen(false);
+                      setIsMenuOpen(false);
+                    }}
+                    className="
+                      rounded-xl
+                      px-3
+                      py-3
+                      text-center
+                      font-medium
+                      transition
+                      hover:bg-white/10
+                      hover:text-white
+                      focus:outline-none
+                      focus-visible:ring-2
+                      focus-visible:ring-violet-400/50
+                    "
+                    role="menuitem"
+                  >
+                    {link.label}
+                  </Link>
+                ))
+              : null}
           </nav>
         </Container>
       ) : null}

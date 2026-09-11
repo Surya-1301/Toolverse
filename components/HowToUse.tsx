@@ -15,7 +15,25 @@ export function HowToUse({
   subtitle = "Follow these simple steps to use this tool.",
   steps,
 }: HowToUseProps) {
+  const howToSchema = {
+    "@context": "https://schema.org",
+    "@type": "HowTo",
+    name: title,
+    description: subtitle,
+    step: steps.map((step, index) => ({
+      "@type": "HowToStep",
+      position: index + 1,
+      name: step.title,
+      text: step.description,
+    })),
+  };
+
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
+      />
     <section className="mx-auto mt-16 max-w-6xl">
       <div className="text-center">
         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
@@ -71,5 +89,6 @@ export function HowToUse({
         ))}
       </div>
     </section>
+    </>
   );
 }
