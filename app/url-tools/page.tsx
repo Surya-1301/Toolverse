@@ -368,10 +368,10 @@ export default function UrlToolsPage() {
               </p>
             )}
 
-            <div className="mt-5 flex flex-wrap gap-3">
+            <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <button
                 onClick={handleParse}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
               >
                 <Wand2 className="h-4 w-4" />
                 Parse URL
@@ -379,14 +379,14 @@ export default function UrlToolsPage() {
               <button
                 onClick={copyParsed}
                 disabled={!formattedOutput}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
               >
                 {parseCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {parseCopied ? "Copied!" : "Copy result"}
               </button>
               <button
                 onClick={() => { setParseInput(""); setParsed(null); setParseError(""); }}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -496,11 +496,11 @@ export default function UrlToolsPage() {
               </p>
             )}
 
-            <div className="mt-4 flex flex-wrap gap-3">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
               <button
                 onClick={runEncode}
                 disabled={!encInput}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Sparkles className="h-4 w-4" />
                 Encode
@@ -508,7 +508,7 @@ export default function UrlToolsPage() {
               <button
                 onClick={runDecode}
                 disabled={!encInput}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <RefreshCw className="h-4 w-4" />
                 Decode
@@ -516,14 +516,14 @@ export default function UrlToolsPage() {
               <button
                 onClick={copyEncoded}
                 disabled={!encOutput}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {encCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {encCopied ? "Copied!" : "Copy output"}
               </button>
               <button
                 onClick={() => { setEncInput(""); setEncOutput(""); setEncError(""); }}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
               >
                 <Eraser className="h-4 w-4" />
                 Clear

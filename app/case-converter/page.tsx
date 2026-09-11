@@ -477,9 +477,10 @@ export default function CaseConverterPage() {
         <div
           className="
             mt-5
-            flex
-            flex-wrap
+            grid
+            grid-cols-2
             gap-3
+            sm:grid-cols-3
           "
         >
           {/* Convert */}
@@ -553,9 +554,9 @@ export default function CaseConverterPage() {
             type="button"
             onClick={clear}
             className="
+              col-span-2
               inline-flex
               min-h-[44px]
-              flex-1
               items-center
               justify-center
               gap-2
@@ -569,8 +570,7 @@ export default function CaseConverterPage() {
               text-red-300
               transition
               hover:bg-red-500/10
-              sm:flex-none
-              sm:justify-start
+              sm:col-span-1
             "
           >
             <Eraser className="h-4 w-4" />

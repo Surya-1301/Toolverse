@@ -508,6 +508,43 @@ function generateSgAddress(zipcode?: string): Address {
   };
 }
 
+/* ------------------------------ SE ------------------------------ */
+
+const SE_STREET_NAMES = [
+  "Drottninggatan", "Kungsgatan", "Storgatan", "Vasagatan", "Birger Jarlsgatan",
+  "Götgatan", "Sveavägen", "Östermalmsgatan", "Södra Vägen", "Linnégatan",
+  "Avenyn", "Magasinsgatan", "Kungsportsavenyen", "Stora Nygatan",
+] as const;
+
+const SE_CITIES = [
+  "Stockholm", "Göteborg", "Malmö", "Uppsala", "Västerås", "Örebro",
+  "Linköping", "Helsingborg", "Jönköping", "Norrköping", "Lund", "Umeå",
+] as const;
+
+const SE_COUNTIES = [
+  "Stockholms län", "Västra Götalands län", "Skåne län", "Uppsala län",
+  "Västmanlands län", "Örebro län", "Östergötlands län", "Jönköpings län",
+  "Norrbottens län", "Västerbottens län",
+] as const;
+
+const SE_POSTCODES = [
+  "111 57", "114 39", "411 04", "211 34", "753 20", "702 12",
+  "582 24", "252 21", "551 83", "602 30", "223 61", "903 25",
+] as const;
+
+function generateSeAddress(zipcode?: string): Address {
+  const secondary = Math.random() < 0.3 ? `Lgh ${randInt(1, 99)}` : undefined;
+
+  return {
+    street: `${pick(SE_STREET_NAMES)} ${randInt(1, 200)}`,
+    secondary,
+    city: pick(SE_CITIES),
+    state: pick(SE_COUNTIES),
+    zip: zipcode || pick(SE_POSTCODES),
+    country: "Sweden",
+  };
+}
+
 /* --------------------------- Locale list --------------------------- */
 
 export const locales: Locale[] = [
@@ -524,6 +561,7 @@ export const locales: Locale[] = [
   { key: "IT", label: "Italy", flag: "🇮🇹", generate: generateItAddress },
   { key: "ES", label: "Spain", flag: "🇪🇸", generate: generateEsAddress },
   { key: "NL", label: "Netherlands", flag: "🇳🇱", generate: generateNlAddress },
+  { key: "SE", label: "Sweden", flag: "🇸🇪", generate: generateSeAddress },
   { key: "KR", label: "South Korea", flag: "🇰🇷", generate: generateKrAddress },
   { key: "SG", label: "Singapore", flag: "🇸🇬", generate: generateSgAddress },
 ];

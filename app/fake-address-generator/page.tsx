@@ -184,7 +184,7 @@ export default function FakeAddressGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-            Generate realistic fake user profiles with addresses, names, emails, and phone numbers. Choose a locale and get random formatted details for testing and demos.
+       Generate realistic fake profiles with names, addresses, emails, and phones for testing and demos.
         </p>
       </div>
 
@@ -194,7 +194,7 @@ export default function FakeAddressGeneratorPage() {
           <label className="mb-2 block text-sm font-semibold text-slate-300">
             Location
           </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {locales.map((loc) => (
               <button
                 key={loc.key}
@@ -205,14 +205,14 @@ export default function FakeAddressGeneratorPage() {
                   setZipcode("");
                 }}
                 className={[
-                  "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
+                  "inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition sm:justify-start",
                   selectedLocale.key === loc.key
                     ? "border-violet-500 bg-violet-600/20 text-white"
                     : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
                 ].join(" ")}
               >
                 <span>{loc.flag}</span>
-                {loc.label}
+                <span className="truncate">{loc.label}</span>
               </button>
             ))}
           </div>
@@ -261,7 +261,7 @@ export default function FakeAddressGeneratorPage() {
           <label className="mb-2 block text-sm font-semibold text-slate-300">
             Format
           </label>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {(["multi", "single"] as const).map((opt) => (
               <button
                 key={opt}
@@ -281,10 +281,10 @@ export default function FakeAddressGeneratorPage() {
         </div>
 
         {/* Actions */}
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             onClick={generate}
-            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
           >
             <RefreshCw className="h-4 w-4" />
             Generate
@@ -293,7 +293,7 @@ export default function FakeAddressGeneratorPage() {
           <button
             onClick={copyAll}
             disabled={!addresses.length}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -306,7 +306,7 @@ export default function FakeAddressGeneratorPage() {
           <button
             onClick={downloadCsv}
             disabled={!addresses.length}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
           >
             <Download className="h-4 w-4" />
             CSV
@@ -315,7 +315,7 @@ export default function FakeAddressGeneratorPage() {
           <button
             onClick={downloadJson}
             disabled={!addresses.length}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
           >
             <Download className="h-4 w-4" />
             JSON
@@ -343,12 +343,12 @@ export default function FakeAddressGeneratorPage() {
                       <div className="min-w-0 flex-1">
                         {/* User profile */}
                         {user ? (
-                          <div className="mb-3 flex items-center gap-3 rounded-xl border border-white/5 bg-white/[0.02] p-3">
+                          <div className="mb-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 sm:flex sm:items-center sm:gap-3">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={user.avatar}
                               alt={`${user.firstName} ${user.lastName} avatar`}
-                              className="h-10 w-10 shrink-0 rounded-full bg-white/10"
+                              className="mx-auto mb-2 h-10 w-10 shrink-0 rounded-full bg-white/10 sm:mb-0"
                             />
                             <div className="min-w-0">
                               <p className="truncate text-sm font-bold text-white">
@@ -361,9 +361,9 @@ export default function FakeAddressGeneratorPage() {
                                 @{user.username}
                               </p>
                               <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
-                                <span className="truncate">{user.email}</span>
-                                <span>{user.phone}</span>
-                                <span>DOB: {user.dob}</span>
+                                <span className="block truncate sm:inline">{user.email}</span>
+                                <span className="block sm:inline">{user.phone}</span>
+                                <span className="block sm:inline">DOB: {user.dob}</span>
                               </div>
                             </div>
                           </div>

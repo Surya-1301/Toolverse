@@ -636,10 +636,10 @@ export default function CreditCardGeneratorPage() {
             </div>
 
             {/* Actions */}
-            <div className="mt-4 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
+            <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <button
                 onClick={copyAll}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 sm:justify-start sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 sm:py-2.5"
               >
                 {copiedAll ? (
                   <Check className="h-4 w-4" />
@@ -650,14 +650,14 @@ export default function CreditCardGeneratorPage() {
               </button>
               <button
                 onClick={regenerate}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 sm:justify-start sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 sm:py-2.5"
               >
                 <RefreshCw className="h-4 w-4" />
                 New card
               </button>
               <button
                 onClick={() => setCard(null)}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:py-2.5"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1 sm:py-2.5"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -744,11 +744,11 @@ export default function CreditCardGeneratorPage() {
             )}
 
             
-            <div className="mt-5 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
+            <div className="mt-5 grid grid-cols-2 gap-3">
               <button
                 onClick={copyValidated}
                 disabled={!validateInput}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:justify-start sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:py-2.5"
               >
                 {validCopied ? (
                   <Check className="h-4 w-4" />
@@ -760,7 +760,7 @@ export default function CreditCardGeneratorPage() {
 
               <button
                 onClick={() => setValidateInput("")}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:py-2.5"
               >
                 <Eraser className="h-4 w-4" />
                 Clear

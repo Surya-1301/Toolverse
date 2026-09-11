@@ -218,8 +218,7 @@ export default function Base64EncoderDecoderPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Convert text to Base64, decode Base64 to text, encode files, and turn
-          Base64 data back into downloadable files.
+          Base64, simplified: encode text and files, decode data, and restore files instantly.
         </p>
       </div>
 
@@ -285,10 +284,10 @@ export default function Base64EncoderDecoderPage() {
         </p>
       ) : null}
 
-      <div className="mt-5 flex flex-wrap gap-3">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-5">
         <button
           onClick={encodeText}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
         <Upload className="h-4 w-4" />
           Text to Base64
@@ -296,13 +295,13 @@ export default function Base64EncoderDecoderPage() {
 
         <button
           onClick={decodeText}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
           Base64 to text
         </button>
 
-        <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
+        <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10">
           <Upload className="h-4 w-4" />
           File to Base64
           <input type="file" onChange={fileToBase64} className="hidden" />
@@ -310,7 +309,7 @@ export default function Base64EncoderDecoderPage() {
 
         <button
           onClick={downloadBase64File}
-          className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
         >
           <Download className="h-4 w-4" />
           Base64 to file
@@ -318,7 +317,7 @@ export default function Base64EncoderDecoderPage() {
 
         <button
           onClick={clearAll}
-          className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
         >
           <Eraser className="h-4 w-4" />
           Clear

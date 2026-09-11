@@ -137,7 +137,7 @@ export default function UuidGeneratorPage() {
           Number of UUIDs
         </label>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 sm:max-w-xs">
           <input
             type="number"
             min="1"
@@ -145,29 +145,8 @@ export default function UuidGeneratorPage() {
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             onKeyDown={(e) => { if (e.key === "Enter") generateUuids(); }}
-            className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+            className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 sm:w-40"
           />
-
-          <button
-            onClick={generateUuids}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
-          >
-            <RefreshCw className="h-4 w-4" />
-            Generate
-          </button>
-
-          <button
-            onClick={copyAll}
-            disabled={!uuids.length}
-            className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
-          >
-            {copiedAll ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-            {copiedAll ? "Copied" : "Copy all"}
-          </button>
         </div>
 
         <p className="mt-2 text-xs text-slate-500">
@@ -209,10 +188,31 @@ export default function UuidGeneratorPage() {
           )}
         </div>
 
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <button
+            onClick={generateUuids}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+          >
+            <RefreshCw className="h-4 w-4" />
+            Generate
+          </button>
+
+          <button
+            onClick={copyAll}
+            disabled={!uuids.length}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+          >
+            {copiedAll ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+            {copiedAll ? "Copied" : "Copy all"}
+          </button>
+
           <button
             onClick={clearAll}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
           >
             <Eraser className="h-4 w-4" />
             Clear

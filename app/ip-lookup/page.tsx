@@ -42,7 +42,7 @@ type IpInfo = {
 function BackToToolsLink() {
   return (
     <Link
-      href="/tools"
+      href="/tools/text-developer-tools"
       className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
     >
       <ArrowLeft className="h-4 w-4" />
@@ -262,11 +262,11 @@ export default function IpLookupPage() {
               className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:flex">
             <button
               onClick={lookupCustom}
               disabled={!customIp.trim() || loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Search className="h-4 w-4" />
               Look up

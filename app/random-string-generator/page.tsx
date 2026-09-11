@@ -179,9 +179,7 @@ export default function RandomStringGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400">
-          Generate random strings with full control over character set,
-          length, and quantity. Great for test data, tokens, and temp
-          passwords.
+          Create tailored random strings for tokens, passwords, and test data—with complete control over length and character sets.
         </p>
       </div>
 
@@ -295,11 +293,11 @@ export default function RandomStringGeneratorPage() {
         </div>
 
         {/* Actions */}
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 grid grid-cols-2 gap-3">
           <button
             onClick={regenerate}
             disabled={!charset.length}
-            className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <RefreshCw className="h-4 w-4" />
             Generate
@@ -308,7 +306,7 @@ export default function RandomStringGeneratorPage() {
           <button
             onClick={copyOutput}
             disabled={!output}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
           >
             {copied ? (
               <Check className="h-4 w-4" />

@@ -913,11 +913,11 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
               </div>
 
               {/* ---- Action buttons ---- */}
-              <div className="mt-5 flex flex-wrap gap-3">
+              <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
                 <button
                   onClick={send}
                   disabled={!url.trim() || loading}
-                  className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-40 ${METHOD_BG[method]}`}
+                  className={`inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 ${METHOD_BG[method]}`}
                 >
                   {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
                   {loading ? "Sending..." : "Send"}
@@ -926,7 +926,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 <button
                   onClick={() => setShowSaveDialog(true)}
                   disabled={!url.trim()}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   <Save className="h-4 w-4" /> Save
                 </button>
@@ -934,7 +934,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 <button
                   onClick={copyResponse}
                   disabled={!result}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
                 >
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copied" : "Copy"}
@@ -942,7 +942,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
 
                 <button
                   onClick={clearAll}
-                  className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
                 >
                   <Trash2 className="h-4 w-4" /> Clear
                 </button>

@@ -7,7 +7,6 @@ import {
   Braces,
   Clock,
   Fingerprint,
-  Gauge,
   GitCompare,
   GitMerge,
   Globe2,
@@ -130,13 +129,6 @@ const tools = [
       "Parse URL components, encode or decode text, and trace redirect chains in one place.",
     href: "/url-tools",
     icon: <Link2 className="h-6 w-6" />,
-  },
-  {
-    title: "Password Strength Checker",
-    description:
-      "Analyze a password's entropy, crack time, and how to make it stronger.",
-    href: "/password-strength-checker",
-    icon: <Gauge className="h-6 w-6" />,
   },
   {
     title: "Text to Speech",

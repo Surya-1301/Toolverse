@@ -320,10 +320,6 @@ export default function LoremIpsumPage() {
               onChange={(event) => setCount(Number(event.target.value))}
               className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
             />
-
-            <p className="mt-2 text-xs text-slate-500">
-              Generate between 1 and 1000.
-            </p>
           </div>
 
           <div className="space-y-3">
@@ -350,10 +346,10 @@ export default function LoremIpsumPage() {
           </div>
         </div>
 
-        <div className="mt-6 flex flex-wrap gap-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             onClick={generate}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
           >
             <Wand2 className="h-4 w-4" />
             Generate
@@ -362,7 +358,7 @@ export default function LoremIpsumPage() {
           <button
             onClick={copyOutput}
             disabled={!output}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -375,15 +371,15 @@ export default function LoremIpsumPage() {
           <button
             onClick={downloadTxt}
             disabled={!output}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4 shrink-0" />
             Download .txt
           </button>
 
           <button
             onClick={clearAll}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
           >
             <Eraser className="h-4 w-4" />
             Clear
