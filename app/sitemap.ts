@@ -8,62 +8,52 @@ export const dynamic = "force-static";
 
 const toolSlugs = Object.keys(toolSeo);
 
-// Static pages outside the tool catalog
-const staticPages = [
-  { path: "", changeFrequency: "weekly" as const, priority: 1.0 },
-  { path: "tools", changeFrequency: "weekly" as const, priority: 0.9 },
-  { path: "blog", changeFrequency: "weekly" as const, priority: 0.7 },
-  { path: "tools/conversion-tools", changeFrequency: "weekly" as const, priority: 0.8 },
-  { path: "tools/formatter-tools", changeFrequency: "weekly" as const, priority: 0.8 },
-  { path: "tools/image-tools", changeFrequency: "weekly" as const, priority: 0.8 },
-  { path: "tools/text-developer-tools", changeFrequency: "weekly" as const, priority: 0.8 },
-  { path: "pdf/add-pages", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/compress", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/extract-images", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/header-footer", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/merge", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/metadata-editor", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/pdf-to-text", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/repair", changeFrequency: "monthly" as const, priority: 0.7 },
-  { path: "pdf/sign", changeFrequency: "monthly" as const, priority: 0.7 },
-];
-
-const legalPages = [
-  { path: "contact", changeFrequency: "yearly" as const, priority: 0.3 },
-  { path: "privacy", changeFrequency: "yearly" as const, priority: 0.3 },
-  { path: "terms", changeFrequency: "yearly" as const, priority: 0.3 },
-  { path: "report-abuse", changeFrequency: "yearly" as const, priority: 0.3 },
-];
-
+// The last date the sitemap content itself changed. Keep this ≤ today's date
+// so Google does not discard lastmod as "impossible / in the future".
 const lastmod = new Date("2026-09-12");
+
+// Static pages outside the tool catalog (paths only — changefreq/priority are
+// ignored by Google and only add noise to the XML).
+const staticPaths = [
+  "",
+  "tools",
+  "blog",
+  "tools/conversion-tools",
+  "tools/formatter-tools",
+  "tools/image-tools",
+  "tools/text-developer-tools",
+  "pdf/add-pages",
+  "pdf/compress",
+  "pdf/extract-images",
+  "pdf/header-footer",
+  "pdf/merge",
+  "pdf/metadata-editor",
+  "pdf/pdf-to-text",
+  "pdf/repair",
+  "pdf/sign",
+];
+
+const legalPaths = ["contact", "privacy", "terms", "report-abuse"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const toolUrls = toolSlugs.map((slug) => ({
     url: `${siteUrl}/${slug}`,
     lastModified: lastmod,
-    changeFrequency: "monthly" as const,
-    priority: 0.8,
   }));
 
   const blogUrls = blogPosts.map((post) => ({
     url: `${siteUrl}/blog/${post.slug}`,
     lastModified: new Date(post.updated ?? post.date),
-    changeFrequency: "yearly" as const,
-    priority: 0.6,
   }));
 
-  const staticUrls = staticPages.map(({ path, changeFrequency, priority }) => ({
+  const staticUrls = staticPaths.map((path) => ({
     url: path ? `${siteUrl}/${path}` : siteUrl,
     lastModified: lastmod,
-    changeFrequency,
-    priority,
   }));
 
-  const legalUrls = legalPages.map(({ path, changeFrequency, priority }) => ({
+  const legalUrls = legalPaths.map((path) => ({
     url: `${siteUrl}/${path}`,
     lastModified: lastmod,
-    changeFrequency,
-    priority,
   }));
 
   return [...staticUrls, ...toolUrls, ...blogUrls, ...legalUrls];
