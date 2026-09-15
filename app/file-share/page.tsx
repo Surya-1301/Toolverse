@@ -431,7 +431,9 @@ export default function FileSharePage() {
               ) : (
                 <Upload className="h-4 w-4" />
               )}
-              {isUploading ? (uploadStep || "Working…") : "Upload & share"}
+              <span className="whitespace-nowrap sm:whitespace-normal">
+                {isUploading ? (uploadStep || "Working…") : "Upload & share"}
+              </span>
             </button>
 
             <button
@@ -521,7 +523,7 @@ export default function FileSharePage() {
                 <button
                   type="button"
                   onClick={copyUserUrl}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl  border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 light:border-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

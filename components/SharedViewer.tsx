@@ -635,7 +635,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     ) : (
                       <Copy className="h-5 w-5" />
                     )}
-                    {copied === "markdown" ? "Copied" : "Copy Markdown"}
+                    <span className="whitespace-nowrap">
+                      {copied === "markdown" ? "Copied" : "Copy Markdown"}
+                    </span>
                   </button>
 
                   <button
@@ -648,7 +650,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     ) : (
                       <Copy className="h-5 w-5" />
                     )}
-                    {copied === "html" ? "Copied" : "Copy HTML"}
+                    <span className="whitespace-nowrap">
+                      {copied === "html" ? "Copied" : "Copy HTML"}
+                    </span>
                   </button>
                 </div>
 
@@ -773,7 +777,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     type="button"
                     onClick={downloadImage}
                     disabled={record.encrypted && !decryptedImageUrl}
-                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-5 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-violet-600/55 disabled:text-slate-400"
+                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-5 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50 light:text-white"
                   >
                     <Download className="h-5 w-5" />
                     Download image
@@ -785,7 +789,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         type="button"
                         onClick={downloadImage}
                         disabled={!decryptedImageUrl}
-                        className="hidden h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-4 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-violet-600/55 disabled:text-slate-400 sm:inline-flex"
+                        className="hidden h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-4 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50 sm:inline-flex light:text-white"
                       >
                         <Download className="h-5 w-5" />
                         Download image
@@ -946,7 +950,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                             type="button"
                             onClick={downloadImage}
                             disabled={!decryptedImageUrl}
-                            className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
+                            className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 light:text-white"
                           >
                             <Download className="h-5 w-5" />
                             Download image
@@ -958,7 +962,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <button
                           type="button"
                           onClick={downloadImage}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 light:text-white"
                         >
                           <Download className="h-4 w-4" />
                           Download image
@@ -995,7 +999,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                           </h3>
                         </div>
 
-                        <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10">
+                        <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
                           <table className="w-full table-fixed text-left text-xs sm:table-auto">
                             <thead>
                               <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
@@ -1019,7 +1023,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                             <tbody className="divide-y divide-white/5">
                               {recentFiles.map((r) => (
                                 <tr key={r.id} className="text-slate-300 light:text-slate-700">
-                                  <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
+                                  <td className="max-w-[180px] truncate px-3 py-2 text-violet-300 light:text-violet-700">
                                     {r.name || r.id}
                                   </td>
                                   <td className="hidden px-3 py-2 text-slate-500 capitalize sm:table-cell light:text-slate-500">
@@ -1208,7 +1212,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   type="text"
                   value={encryptionKey}
                   onChange={(event) => setEncryptionKey(event.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400 light:border-slate-900/10 light:text-slate-900"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   placeholder="Encryption key from share link"
                 />
 
@@ -1244,7 +1248,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     </h3>
                   </div>
 
-                  <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10">
+                  <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
                     <table className="w-full text-left text-xs">
                       <thead>
                         <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">

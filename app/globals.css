@@ -219,6 +219,14 @@
 [data-theme="light"] [class*="bg-violet-600"][class*="text-white"]:not([class*="bg-violet-600/"]) {
   color: white !important;
 }
+
+/* ── Solid emerald backgrounds keep white text ─────────────────────────────
+ *  Same as above for emerald-filled CTAs (Download image, Decrypt buttons).
+ */
+[data-theme="light"] [class*="bg-emerald-500"][class*="text-white"],
+[data-theme="light"] [class*="bg-emerald-600"][class*="text-white"] {
+  color: white !important;
+}
 [data-theme="light"] .text-red-100,
 [data-theme="light"] .text-red-200,
 [data-theme="light"] .text-red-300,

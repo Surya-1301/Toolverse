@@ -294,7 +294,7 @@ function QrGeneratorContent() {
             <button
               onClick={openFilePicker}
               disabled={isUploading}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -324,7 +324,6 @@ function QrGeneratorContent() {
 
           <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl bg-white p-4">
             {qrPng ? (
-              // eslint-disable-next-line @next/next/no-img-element
               <img
                 src={qrPng}
                 alt="Generated QR code"
@@ -342,7 +341,7 @@ function QrGeneratorContent() {
             <button
               onClick={downloadPng}
               disabled={!qrPng}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
             >
               <Download className="h-4 w-4" />
               PNG
@@ -351,7 +350,7 @@ function QrGeneratorContent() {
             <button
               onClick={downloadSvg}
               disabled={!qrSvg}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
             >
               <Download className="h-4 w-4" />
               SVG
@@ -410,7 +409,7 @@ function QrGeneratorContent() {
             id="mobile-how-to-use-title"
             className="text-center text-2xl font-bold tracking-tight text-white light:text-slate-900"
           >
-How to use QR Generator
+          How to use QR Generator
           </h2>
 
           <div className="mt-6 space-y-3">

@@ -533,9 +533,11 @@ export default function ImageCompressorPage() {
                   <FileText className="h-4 w-4" />
                 )}
 
-                {isCompressing
-                  ? "Compressing..."
-                  : `Compress ${mode === "image" ? "image" : "PDF"}`}
+                <span className="whitespace-nowrap sm:whitespace-normal">
+                  {isCompressing
+                    ? "Compressing..."
+                    : `Compress ${mode === "image" ? "image" : "PDF"}`}
+                </span>
               </button>
 
               <button

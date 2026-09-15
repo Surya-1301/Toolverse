@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import { FileText, Flag, Mail, Pen, ShieldCheck } from "lucide-react";
+import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
@@ -107,11 +107,6 @@ const jsonLd = {
 };
 
 const footerLinks = [
-  {
-    label: "Blog",
-    href: "/blog",
-    icon: Pen,
-  },
   {
     label: "Privacy",
     href: "/privacy",

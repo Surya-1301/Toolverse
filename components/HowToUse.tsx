@@ -74,7 +74,7 @@ export function HowToUse({
             key={step.title}
             className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
               {step.icon}
             </div>
             <div className="min-w-0 flex-1">
