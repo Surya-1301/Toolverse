@@ -161,7 +161,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -576,26 +576,26 @@ export default function ImageWatermarkToolPage() {
           Image Watermark
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Add text or logo watermarks to one or more images with position and
           opacity controls.
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
+          <h2 className="mb-4 text-lg font-semibold text-white light:text-slate-900">
             Upload image, logo, or batch
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
             <Upload className="mb-3 h-9 w-9 text-violet-300" />
 
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-white light:text-slate-900">
               Click to choose images
             </span>
 
-            <span className="mt-2 text-sm leading-6 text-slate-500">
+            <span className="mt-2 text-sm leading-6 text-slate-500 light:text-slate-500">
               Allowed: PNG, JPG, WebP, or PDF. Batch watermark supported.
             </span>
 
@@ -608,7 +608,7 @@ export default function ImageWatermarkToolPage() {
             />
           </label>
 
-          <p className="mt-4 text-sm text-slate-500">
+          <p className="mt-4 text-sm text-slate-500 light:text-slate-500">
             {files.length > 0 && files.every(isPdfFile)
               ? `${files.length} Pdf${files.length === 1 ? "" : "s"} selected`
               : `${files.length} image${files.length === 1 ? "" : "s"} selected`}
@@ -618,12 +618,12 @@ export default function ImageWatermarkToolPage() {
             <h3 className="text-sm font-semibold text-cyan-100">
              Watermark Settings
             </h3>
-            <p className="mt-1 text-xs leading-5 text-slate-500">
+            <p className="mt-1 text-xs leading-5 text-slate-500 light:text-slate-500">
               These settings are used automatically when you upload a PDF.
             </p>
 
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
-              <label className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+              <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 light:text-slate-700">
                 <input
                   type="checkbox"
                   checked={useLogoForPdf}
@@ -633,7 +633,7 @@ export default function ImageWatermarkToolPage() {
                 Use logo for PDF
               </label>
 
-             <label className="flex cursor-pointer items-center justify-center gap-1 rounded-xl border border-cyan-400/20 bg-slate-950 px-4 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-white/10">
+             <label className="flex cursor-pointer items-center justify-center gap-1 rounded-xl border border-cyan-400/20 bg-slate-950 px-4 py-3 text-sm font-semibold text-cyan-100 transition hover:bg-white/10 light:bg-white light:text-cyan-700 light:hover:bg-slate-900/10">
                 <Upload className="h-3 w-3" />
                 Upload logo
                 <input
@@ -645,20 +645,20 @@ export default function ImageWatermarkToolPage() {
               </label>
 
               <div>
-                <label className="mb-2 block text-xs font-semibold text-slate-400">
+                <label className="mb-2 block text-xs font-semibold text-slate-400 light:text-slate-600">
                  Watermark text
                 </label>
                 <input
                   value={pdfWatermarkText}
                   onChange={(event) => setPdfWatermarkText(event.target.value)}
                   disabled={useLogoForPdf}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-400 disabled:cursor-not-allowed disabled:opacity-50 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   placeholder="CONFIDENTIAL"
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-xs font-semibold text-slate-400">
+                <label className="mb-2 block text-xs font-semibold text-slate-400 light:text-slate-600">
                   Position
                 </label>
                 <select
@@ -666,7 +666,7 @@ export default function ImageWatermarkToolPage() {
                   onChange={(event) =>
                     setPdfPosition(event.target.value as WatermarkPosition)
                   }
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-400"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-cyan-400 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 >
                   <option value="bottom-right">Bottom right</option>
                   <option value="bottom-left">Bottom left</option>
@@ -678,12 +678,12 @@ export default function ImageWatermarkToolPage() {
             </div>
 
             {logoFile ? (
-              <p className="mt-3 text-sm text-slate-500">
+              <p className="mt-3 text-sm text-slate-500 light:text-slate-500">
                 Logo selected: {logoFile.name}
               </p>
             ) : null}
 
-            <label className="mt-4 block text-xs font-semibold text-slate-400">
+            <label className="mt-4 block text-xs font-semibold text-slate-400 light:text-slate-600">
               Opacity: {Math.round(pdfOpacity * 100)}%
               <input
                 type="range"
@@ -707,7 +707,7 @@ export default function ImageWatermarkToolPage() {
             <button
               onClick={watermarkImages}
               disabled={isProcessing}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200"
             >
               <Download className="h-4 w-4" />
               {isProcessing
@@ -727,22 +727,22 @@ export default function ImageWatermarkToolPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">Watermark output</h2>
+            <h2 className="text-lg font-semibold text-white light:text-slate-900">Watermark output</h2>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
               {previewUrl ? "Preview ready" : "Waiting"}
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-3 text-center">
+          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-3 text-center light:border-slate-900/15 light:bg-white">
             {previewUrl ? (
               firstFile && isPdfFile(firstFile) ? (
                 <iframe
                   src={previewUrl}
                   title="Watermarked PDF preview"
-                  className="h-[390px] w-full rounded-xl border border-white/10 bg-white"
+                  className="h-[390px] w-full rounded-xl border border-white/10 bg-white light:border-slate-900/10"
                 />
               ) : (
                 <img
@@ -752,7 +752,7 @@ export default function ImageWatermarkToolPage() {
                 />
               )
             ) : (
-              <p className="text-sm leading-6 text-slate-500">
+              <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Your watermarked image or PDF preview appears here after upload.
               </p>
             )}

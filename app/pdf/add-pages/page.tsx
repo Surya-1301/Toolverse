@@ -15,11 +15,11 @@ export default function AddPagesPdfPage() {
           Free PDF Tool
         </p>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Add Pages to PDF Online
         </h1>
 
-        <p className="mt-5 text-base leading-8 text-slate-400">
+        <p className="mt-5 text-base leading-8 text-slate-400 light:text-slate-600">
           Insert pages from one PDF into another PDF. Upload your main PDF,
           choose another PDF to insert, pick the position, and download the
           updated document.

@@ -207,18 +207,18 @@ export default function TermsPage() {
             HEADER
         ================================================================ */}
 
-        <header className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8">
+        <header className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10">
 
           <div>
             <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
               Legal & Service Terms
             </p>
 
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl light:text-slate-900">
               Terms of Use
             </h1>
 
-            <p className="mt-4 text-base text-slate-400">
+            <p className="mt-4 text-base text-slate-400 light:text-slate-600">
               Last updated: {lastUpdated}
             </p>
           </div>
@@ -235,18 +235,18 @@ export default function TermsPage() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition duration-200 hover:border-violet-400/20 hover:bg-slate-950/70"
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition duration-200 hover:border-violet-400/20 hover:bg-slate-950/70 light:border-slate-900/10 light:bg-slate-100 light:hover:bg-slate-100"
                 >
 
                   <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                     <Icon className="h-5 w-5" />
                   </div>
 
-                  <h2 className="text-base font-semibold text-white">
+                  <h2 className="text-base font-semibold text-white light:text-slate-900">
                     {item.title}
                   </h2>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                     {item.description}
                   </p>
 
@@ -270,11 +270,11 @@ export default function TermsPage() {
 
             <div>
 
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-semibold text-white light:text-slate-900">
                 Important Legal Notice
               </h2>
 
-              <p className="mt-3 text-sm leading-7 text-slate-300">
+              <p className="mt-3 text-sm leading-7 text-slate-300 light:text-slate-700">
                 These Terms are intended to establish the rules for using
                 Toolverse and should be read together with the Privacy Policy.
                 Nothing in these Terms is intended to remove or restrict a
@@ -299,7 +299,7 @@ export default function TermsPage() {
             return (
               <section
                 key={section.number}
-                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-violet-400/20 sm:p-8"
+                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-violet-400/20 sm:p-8 light:border-slate-900/10 light:bg-white"
               >
 
                 <div className="flex items-start gap-4">
@@ -318,7 +318,7 @@ export default function TermsPage() {
 
                       <Icon className="h-5 w-5 shrink-0 text-violet-300" />
 
-                      <h2 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
+                      <h2 className="text-xl font-semibold tracking-tight text-white sm:text-2xl light:text-slate-900">
                         {section.title}
                       </h2>
 
@@ -336,7 +336,7 @@ export default function TermsPage() {
 
                           <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-violet-400" />
 
-                          <p className="text-sm leading-7 text-slate-300 sm:text-base">
+                          <p className="text-sm leading-7 text-slate-300 sm:text-base light:text-slate-700">
                             {paragraph}
                           </p>
 
@@ -367,11 +367,11 @@ export default function TermsPage() {
 
             <div>
 
-              <h2 className="text-xl font-bold text-white">
+              <h2 className="text-xl font-bold text-white light:text-slate-900">
                 Questions or concerns?
               </h2>
 
-              <p className="mt-3 text-sm leading-7 text-slate-300">
+              <p className="mt-3 text-sm leading-7 text-slate-300 light:text-slate-700">
                 Contact Toolverse if you have questions about these Terms,
                 believe that your rights have been affected, or need to report
                 suspected abuse or misuse of the service.
@@ -381,7 +381,7 @@ export default function TermsPage() {
 
                 <Link
                   href="/contact"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-700 light:hover:bg-slate-100 light:hover:text-slate-900"
                 >
                   <Mail className="h-4 w-4" />
                   Contact Toolverse
@@ -389,7 +389,7 @@ export default function TermsPage() {
 
                 <Link
                   href="/report-abuse"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-700 light:hover:bg-slate-100 light:hover:text-slate-900"
                 >
                   <ShieldAlert className="h-4 w-4" />
                   Report Abuse
@@ -407,13 +407,13 @@ export default function TermsPage() {
             LEGAL NOTICE
         ================================================================ */}
 
-        <footer className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
+        <footer className="mt-8 rounded-2xl border border-white/10 bg-white/[0.02] p-5 light:border-slate-900/10">
 
           <div className="flex items-start gap-3">
 
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-slate-500" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-slate-500 light:text-slate-500" />
 
-            <p className="text-xs leading-6 text-slate-500">
+            <p className="text-xs leading-6 text-slate-500 light:text-slate-500">
               These Terms of Use are provided for the operation of Toolverse
               and are not a substitute for legal advice. The interpretation
               and enforceability of particular provisions may depend on the

@@ -25,7 +25,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -112,12 +112,12 @@ export default function OgImageGeneratorPage() {
   const preview = useMemo(
     () => (
       <div
-        className="relative flex aspect-[1200/630] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10"
+        className="relative flex aspect-[1200/630] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 light:border-slate-900/10"
         style={{ background: `linear-gradient(135deg, ${bgStart}, ${bgEnd})` }}
       >
         <div className="p-10 text-center">
           {siteName ? (
-            <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white/70">
+            <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white/70 light:text-slate-700">
               {siteName}
             </p>
           ) : null}
@@ -129,7 +129,7 @@ export default function OgImageGeneratorPage() {
           </p>
           {subtitle ? (
             <p
-              className="mx-auto mt-3 max-w-md text-sm text-white/85"
+              className="mx-auto mt-3 max-w-md text-sm text-white/85 light:text-slate-800"
               style={{ color: textColor }}
             >
               {truncate(subtitle, 90)}
@@ -264,12 +264,12 @@ export default function OgImageGeneratorPage() {
           OG Image Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Build eye-catching 1200×630 social cards with custom branding, text, and colors—ready to publish.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-6 lg:grid-cols-2">
           {/* ================================================================
               LEFT: CONTROLS
@@ -277,7 +277,7 @@ export default function OgImageGeneratorPage() {
 
           <div className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Title
               </label>
               <textarea
@@ -285,85 +285,85 @@ export default function OgImageGeneratorPage() {
                 onChange={(event) => setTitle(event.target.value)}
                 rows={2}
                 placeholder="Your headline here"
-                className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Subtitle
               </label>
               <input
                 value={subtitle}
                 onChange={(event) => setSubtitle(event.target.value)}
                 placeholder="Short description or tagline"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Site / brand name
               </label>
               <input
                 value={siteName}
                 onChange={(event) => setSiteName(event.target.value)}
                 placeholder="YourSite"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-3">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                   Start color
                 </label>
-                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5">
+                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 light:border-slate-900/10 light:bg-white">
                   <input
                     type="color"
                     value={bgStart}
                     onChange={(event) => setBgStart(event.target.value)}
-                    className="h-8 w-10 cursor-pointer rounded-md border border-white/10 bg-transparent"
+                    className="h-8 w-10 cursor-pointer rounded-md border border-white/10 bg-transparent light:border-slate-900/10"
                   />
-                  <span className="text-xs text-slate-400">{bgStart}</span>
+                  <span className="text-xs text-slate-400 light:text-slate-600">{bgStart}</span>
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                   End color
                 </label>
-                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5">
+                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 light:border-slate-900/10 light:bg-white">
                   <input
                     type="color"
                     value={bgEnd}
                     onChange={(event) => setBgEnd(event.target.value)}
-                    className="h-8 w-10 cursor-pointer rounded-md border border-white/10 bg-transparent"
+                    className="h-8 w-10 cursor-pointer rounded-md border border-white/10 bg-transparent light:border-slate-900/10"
                   />
-                  <span className="text-xs text-slate-400">{bgEnd}</span>
+                  <span className="text-xs text-slate-400 light:text-slate-600">{bgEnd}</span>
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                   Text color
                 </label>
-                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5">
+                <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 light:border-slate-900/10 light:bg-white">
                   <input
                     type="color"
                     value={textColor}
                     onChange={(event) => setTextColor(event.target.value)}
-                    className="h-8 w-10 cursor-pointer rounded-md border border-white/10 bg-transparent"
+                    className="h-8 w-10 cursor-pointer rounded-md border border-white/10 bg-transparent light:border-slate-900/10"
                   />
-                  <span className="text-xs text-slate-400">{textColor}</span>
+                  <span className="text-xs text-slate-400 light:text-slate-600">{textColor}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Logo{" "}
-                <span className="font-normal text-slate-500">(optional)</span>
+                <span className="font-normal text-slate-500 light:text-slate-500">(optional)</span>
               </label>
               <UploadZone
                 onFile={loadLogo}
@@ -388,7 +388,7 @@ export default function OgImageGeneratorPage() {
               <button
                 onClick={download}
                 disabled={!previewUrl}
-                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -410,10 +410,10 @@ export default function OgImageGeneratorPage() {
 
           <div className="space-y-4">
             <div>
-              <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-300">
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-300 light:text-slate-700">
                 <Palette className="h-4 w-4" />
                 Live preview
-                <span className="ml-auto rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-400">
+                <span className="ml-auto rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                   1200×630
                 </span>
               </p>
@@ -421,11 +421,11 @@ export default function OgImageGeneratorPage() {
             </div>
 
             <div>
-              <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-300">
+              <p className="mb-2 flex items-center gap-1.5 text-sm font-semibold text-slate-300 light:text-slate-700">
                 <FileImage className="h-4 w-4" />
                 Rendered output
               </p>
-              <div className="flex aspect-[1200/630] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-950">
+              <div className="flex aspect-[1200/630] w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
                 {previewUrl ? (
                   // Use an img pointing at the hidden canvas data URL
                   <img
@@ -435,8 +435,8 @@ export default function OgImageGeneratorPage() {
                   />
                 ) : (
                   <div className="flex flex-col items-center gap-3 px-8 text-center">
-                    <Sparkles className="h-8 w-8 text-slate-600" />
-                    <p className="text-sm leading-6 text-slate-500">
+                    <Sparkles className="h-8 w-8 text-slate-600 light:text-slate-500" />
+                    <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                       Click &quot;Render image&quot; to generate the final PNG.
                     </p>
                   </div>

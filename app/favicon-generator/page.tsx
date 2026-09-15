@@ -39,7 +39,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -269,12 +269,12 @@ export default function FaviconGeneratorPage() {
           Favicon Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Generate all essential favicon sizes, plus a ready-to-use manifest and HTML.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-6 lg:grid-cols-2">
           {/* ================================================================
               LEFT: SOURCE + OPTIONS
@@ -282,7 +282,7 @@ export default function FaviconGeneratorPage() {
 
           <div className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Source image
               </label>
 
@@ -293,7 +293,7 @@ export default function FaviconGeneratorPage() {
               />
             </div>
 
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={backgroundEnabled}
@@ -304,17 +304,17 @@ export default function FaviconGeneratorPage() {
             </label>
 
             {backgroundEnabled ? (
-              <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 sm:flex sm:items-center sm:gap-3">
+              <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 sm:flex sm:items-center sm:gap-3 light:border-slate-900/10 light:bg-white">
                 <input
                   type="color"
                   value={background}
                   onChange={(event) => setBackground(event.target.value)}
-                  className="h-10 w-14 cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-white/10 bg-transparent light:border-slate-900/10"
                 />
                 <div className="flex-1">
-                  <span className="text-sm text-slate-300">{background}</span>
+                  <span className="text-sm text-slate-300 light:text-slate-700">{background}</span>
                   <span
-                    className="ml-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-white"
+                    className="ml-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs text-white light:text-slate-900"
                     style={{ backgroundColor: hexToRgba(background, 0.25) }}
                   >
                     <Palette className="h-3 w-3" />
@@ -325,7 +325,7 @@ export default function FaviconGeneratorPage() {
             ) : null}
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Padding: {padding}%
               </label>
 
@@ -368,11 +368,11 @@ export default function FaviconGeneratorPage() {
               RIGHT: PREVIEW + DOWNLOADS
           ================================================================ */}
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 sm:p-5">
+          <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
             {source ? (
               <>
                 <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.03]">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
                     <img
                       src={renderSize(64)}
                       alt="Preview"
@@ -385,10 +385,10 @@ export default function FaviconGeneratorPage() {
                     />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="truncate text-sm font-bold text-white">
+                    <h2 className="truncate text-sm font-bold text-white light:text-slate-900">
                       {imageName}
                     </h2>
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 light:text-slate-500">
                       {source.naturalWidth}×{source.naturalHeight} source image
                     </p>
                   </div>
@@ -405,7 +405,7 @@ export default function FaviconGeneratorPage() {
                             downloadDataUrl(dataUrl, `${imageName}-${size}.png`)
                           }
                           title={`Download ${size}×${size}`}
-                          className="group flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] p-2 transition hover:border-violet-400/40 hover:bg-white/[0.05]"
+                          className="group flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] p-2 transition hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
                         >
                           <span
                             className="flex w-full items-center justify-center overflow-hidden rounded-lg"
@@ -423,7 +423,7 @@ export default function FaviconGeneratorPage() {
                               className="max-h-14 max-w-full object-contain"
                             />
                           </span>
-                          <span className="text-[10px] font-semibold text-slate-400 group-hover:text-white">
+                          <span className="text-[10px] font-semibold text-slate-400 group-hover:text-white light:text-slate-600">
                             {size}px
                           </span>
                         </button>
@@ -433,7 +433,7 @@ export default function FaviconGeneratorPage() {
                     <div className="mt-4 flex flex-wrap gap-3">
                       <button
                         onClick={downloadManifest}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                       >
                         <Download className="h-4 w-4" />
                         Download manifest
@@ -441,7 +441,7 @@ export default function FaviconGeneratorPage() {
 
                       <button
                         onClick={copyCode}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm"
+                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                       >
                         {copiedCode ? (
                           <Check className="h-4 w-4" />
@@ -453,27 +453,27 @@ export default function FaviconGeneratorPage() {
                     </div>
 
                     <div className="mt-4 min-w-0">
-                      <p className="mb-2 text-xs font-semibold text-slate-400">
+                      <p className="mb-2 text-xs font-semibold text-slate-400 light:text-slate-600">
                         HTML snippet (paste into {"<head>"})
                       </p>
-                      <pre className="max-h-40 w-full overflow-x-auto overflow-y-auto whitespace-pre rounded-xl border border-white/10 bg-white/[0.02] p-3 text-[11px] leading-5 text-slate-300">
+                      <pre className="max-h-40 w-full overflow-x-auto overflow-y-auto whitespace-pre rounded-xl border border-white/10 bg-white/[0.02] p-3 text-[11px] leading-5 text-slate-300 light:border-slate-900/10 light:text-slate-700">
                         {htmlSnippet()}
                       </pre>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
-                    <p className="px-6 text-sm leading-6 text-slate-500">
+                  <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+                    <p className="px-6 text-sm leading-6 text-slate-500 light:text-slate-500">
                       Click &quot;Generate favicons&quot; to create every size.
                     </p>
                   </div>
                 )}
               </>
             ) : (
-              <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
+              <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
                 <div className="flex flex-col items-center gap-3 px-8">
-                  <Sparkles className="h-8 w-8 text-slate-600" />
-                  <p className="text-sm leading-6 text-slate-500">
+                  <Sparkles className="h-8 w-8 text-slate-600 light:text-slate-500" />
+                  <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                     Upload an image to preview and generate your favicon set.
                   </p>
                 </div>

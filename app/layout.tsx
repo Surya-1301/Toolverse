@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
+import { FileText, Flag, Mail, Pen, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
@@ -108,6 +108,11 @@ const jsonLd = {
 
 const footerLinks = [
   {
+    label: "Blog",
+    href: "/blog",
+    icon: Pen,
+  },
+  {
     label: "Privacy",
     href: "/privacy",
     icon: ShieldCheck,
@@ -135,18 +140,23 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
         <meta name="apple-mobile-web-app-title" content="Toolverse" />
         <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark"){t=window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";}document.documentElement.setAttribute("data-theme",t);}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased">
+      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased light:bg-slate-50 light:text-slate-900">
         <Script
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
@@ -159,18 +169,18 @@ export default function RootLayout({
 
           <main className="flex-1">{children}</main>
 
-          <footer className="border-t border-white/10 bg-slate-950/80">
+          <footer className="border-t border-white/10 bg-slate-950/80 light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">
             <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <Link
                     href="/"
-                    className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-violet-200"
+                    className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-violet-200 light:text-slate-900 light:hover:text-violet-700"
                   >
                     Toolverse
                   </Link>
 
-                  <p className="mt-2 text-sm text-slate-500">
+                  <p className="mt-2 text-sm text-slate-500 light:text-slate-500">
                     © {new Date().getFullYear()} Toolverse. All rights
                     reserved.
                   </p>
@@ -187,9 +197,9 @@ export default function RootLayout({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-violet-300"
+                        className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-violet-300 light:text-slate-600 light:hover:text-violet-700 light:text-slate-500"
                       >
-                        <Icon className="h-4 w-4 text-slate-600 transition group-hover:text-violet-300" />
+                        <Icon className="h-4 w-4 text-slate-600 transition group-hover:text-violet-300 light:text-slate-500" />
                         <span>{item.label}</span>
                       </Link>
                     );

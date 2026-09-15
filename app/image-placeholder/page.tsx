@@ -115,7 +115,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -177,17 +177,17 @@ export default function ImagePlaceholderPage() {
           Image Placeholder
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
          Create custom placeholder images in any size, with your text and colors. Export as SVG, PNG, WebP, or a hosted URL.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-6 sm:grid-cols-2">
           {/* LEFT: controls */}
           <div className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Dimensions (px)
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -197,7 +197,7 @@ export default function ImagePlaceholderPage() {
                   max="8192"
                   value={width}
                   onChange={(event) => setWidth(Number(event.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-500"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
                 <input
                   type="number"
@@ -205,7 +205,7 @@ export default function ImagePlaceholderPage() {
                   max="8192"
                   value={height}
                   onChange={(event) => setHeight(Number(event.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-500"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -214,7 +214,7 @@ export default function ImagePlaceholderPage() {
                     key={aspect.label}
                     type="button"
                     onClick={() => applyAspect(aspect)}
-                    className="rounded-lg border border-white/10 bg-slate-950 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
+                    className="rounded-lg border border-white/10 bg-slate-950 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
                   >
                     {aspect.label}
                   </button>
@@ -223,7 +223,7 @@ export default function ImagePlaceholderPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Background
               </label>
               <div className="flex items-center gap-2">
@@ -231,9 +231,9 @@ export default function ImagePlaceholderPage() {
                   type="color"
                   value={bg}
                   onChange={(event) => setBg(event.target.value)}
-                  className="h-10 w-12 cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                  className="h-10 w-12 cursor-pointer rounded-lg border border-white/10 bg-transparent light:border-slate-900/10"
                 />
-                <span className="font-mono text-xs text-slate-400">{bg}</span>
+                <span className="font-mono text-xs text-slate-400 light:text-slate-600">{bg}</span>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {PRESET_BG.map((preset) => (
@@ -241,7 +241,7 @@ export default function ImagePlaceholderPage() {
                     key={preset.bg}
                     type="button"
                     onClick={() => setBg(preset.bg)}
-                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
+                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
                   >
                     {preset.label}
                   </button>
@@ -250,7 +250,7 @@ export default function ImagePlaceholderPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Text color
               </label>
               <div className="flex items-center gap-2">
@@ -258,9 +258,9 @@ export default function ImagePlaceholderPage() {
                   type="color"
                   value={fg}
                   onChange={(event) => setFg(event.target.value)}
-                  className="h-10 w-12 cursor-pointer rounded-lg border border-white/10 bg-transparent"
+                  className="h-10 w-12 cursor-pointer rounded-lg border border-white/10 bg-transparent light:border-slate-900/10"
                 />
-                <span className="font-mono text-xs text-slate-400">{fg}</span>
+                <span className="font-mono text-xs text-slate-400 light:text-slate-600">{fg}</span>
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
                 {PRESET_FG.map((preset) => (
@@ -268,7 +268,7 @@ export default function ImagePlaceholderPage() {
                     key={preset.fg}
                     type="button"
                     onClick={() => setFg(preset.fg)}
-                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
+                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
                   >
                     {preset.label}
                   </button>
@@ -277,16 +277,16 @@ export default function ImagePlaceholderPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Text label
               </label>
               <input
                 value={text}
                 onChange={(event) => setText(event.target.value)}
                 placeholder="Optional label"
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
-              <label className="mt-2 flex items-center gap-2.5 text-sm text-slate-400">
+              <label className="mt-2 flex items-center gap-2.5 text-sm text-slate-400 light:text-slate-600">
                 <input
                   type="checkbox"
                   checked={showText}
@@ -300,8 +300,8 @@ export default function ImagePlaceholderPage() {
 
           {/* RIGHT: preview + output */}
           <div>
-            <p className="mb-2 text-sm font-semibold text-slate-300">Preview</p>
-            <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-3">
+            <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Preview</p>
+            <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
@@ -311,12 +311,12 @@ export default function ImagePlaceholderPage() {
             </div>
 
             <div className="mt-3">
-              <p className="mb-2 text-sm font-semibold text-slate-300">Download</p>
+              <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Download</p>
               <div className="grid grid-cols-2 gap-2">
                 <a
                   href={previewUrl}
                   download={`placeholder-${width}x${height}.svg`}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   <Download className="h-4 w-4" />
                   SVG
@@ -324,7 +324,7 @@ export default function ImagePlaceholderPage() {
                 <button
                   onClick={() => downloadRaster("png")}
                   disabled={isRasterizing !== null}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {isRasterizing === "png" ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -336,7 +336,7 @@ export default function ImagePlaceholderPage() {
                 <button
                   onClick={() => downloadRaster("webp")}
                   disabled={isRasterizing !== null}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {isRasterizing === "webp" ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -347,7 +347,7 @@ export default function ImagePlaceholderPage() {
                 </button>
                 <button
                   onClick={copyUrl}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

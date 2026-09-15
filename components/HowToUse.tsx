@@ -36,11 +36,11 @@ export function HowToUse({
       />
     <section className="mx-auto mt-16 max-w-6xl">
       <div className="text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl light:text-slate-900">
           {title}
         </h2>
 
-        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base">
+        <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base light:text-slate-600">
           {subtitle}
         </p>
       </div>
@@ -50,38 +50,38 @@ export function HowToUse({
         {steps.map((step) => (
           <div
             key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05]"
+            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
           >
             <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
               {step.icon}
             </div>
 
-            <h3 className="text-sm font-semibold text-white">
+            <h3 className="text-sm font-semibold text-white light:text-slate-900">
               {step.title}
             </h3>
 
-            <p className="mt-2 text-sm leading-6 text-slate-400">
+            <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
               {step.description}
             </p>
           </div>
         ))}
       </div>
 
-      {/* Mobile: stacked cyan cards (matches per-tool sections) */}
-      <div className="mt-6 grid gap-3 sm:hidden">
+      {/* Mobile: stacked horizontal cards with desktop-matching styles */}
+      <div className="mt-8 grid gap-4 sm:hidden">
         {steps.map((step) => (
           <div
             key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-cyan-400/10 bg-[#071522] p-4 shadow-[0_8px_24px_rgba(0,0,0,0.18)]"
+            className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
           >
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-cyan-400/10 bg-[#092B40] text-[#63E5F7] shadow-[0_0_18px_rgba(34,211,238,0.08)]">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
               {step.icon}
             </div>
             <div className="min-w-0 flex-1">
-              <h3 className="text-[14px] font-semibold leading-5 text-white">
+              <h3 className="text-sm font-semibold text-white light:text-slate-900">
                 {step.title}
               </h3>
-              <p className="mt-1 text-[12px] leading-5 text-slate-400">
+              <p className="mt-1 text-[12px] leading-5 text-slate-400 light:text-slate-600">
                 {step.description}
               </p>
             </div>

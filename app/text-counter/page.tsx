@@ -225,23 +225,23 @@ export default function TextCounterPage() {
     <Container className="py-10 sm:py-12 lg:py-16">
       <Link
         href="/tools/text-developer-tools"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to tools
       </Link>
 
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Text Counter
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400 sm:text-lg">
+        <p className="mt-4 text-base leading-7 text-slate-400 sm:text-lg light:text-slate-600">
           Count words, characters, letters, numbers, spaces, punctuation,
           sentences, paragraphs, lines, and reading time — all in one place.
         </p>
       </div>
 
-      <div className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-3.5 sm:mt-10 sm:p-6">
+      <div className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-3.5 sm:mt-10 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="flex flex-wrap gap-2">
           {resultLabels.map((label) => {
             const active = selectedResult === label;
@@ -267,7 +267,7 @@ export default function TextCounterPage() {
 
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Text
             </label>
             <textarea
@@ -276,7 +276,7 @@ export default function TextCounterPage() {
               rows={14}
               placeholder="Paste or type your text here..."
               spellCheck={false}
-              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -285,7 +285,7 @@ export default function TextCounterPage() {
               <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
                 {selectedResult}
               </p>
-              <p className="mt-2 break-all font-mono text-4xl font-bold text-white">
+              <p className="mt-2 break-all font-mono text-4xl font-bold text-white light:text-slate-900">
                 {typeof resultValue === "number" ? resultValue.toLocaleString() : resultValue}
               </p>
             </div>
@@ -301,7 +301,7 @@ export default function TextCounterPage() {
               <button
                 onClick={copyText}
                 disabled={!text}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 <FileText className="h-4 w-4" />
                 Copy text

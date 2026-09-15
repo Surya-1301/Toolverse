@@ -22,7 +22,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -150,7 +150,7 @@ export default function TextComparePage() {
           Text Compare / Diff
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Compare text side by side to instantly spot added, removed, and unchanged.
 
         </p>
@@ -158,25 +158,25 @@ export default function TextComparePage() {
 
       {/* Stats bar */}
       <div className="mx-auto mt-8 grid max-w-3xl grid-cols-3 gap-3">
-        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3">
-          <GitCompare className="h-5 w-5 text-slate-400" />
+        <div className="flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 light:border-slate-900/10 light:bg-white">
+          <GitCompare className="h-5 w-5 text-slate-400 light:text-slate-600" />
           <div>
-            <p className="text-lg font-bold text-white">{stats.equal}</p>
-            <p className="text-xs text-slate-500">Unchanged</p>
+            <p className="text-lg font-bold text-white light:text-slate-900">{stats.equal}</p>
+            <p className="text-xs text-slate-500 light:text-slate-500">Unchanged</p>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
           <CheckCircle2 className="h-5 w-5 text-emerald-400" />
           <div>
             <p className="text-lg font-bold text-emerald-300">{stats.adds}</p>
-            <p className="text-xs text-slate-500">Added</p>
+            <p className="text-xs text-slate-500 light:text-slate-500">Added</p>
           </div>
         </div>
         <div className="flex items-center gap-2 rounded-2xl border border-red-500/20 bg-red-500/5 px-4 py-3">
           <XCircle className="h-5 w-5 text-red-400" />
           <div>
             <p className="text-lg font-bold text-red-300">{stats.removes}</p>
-            <p className="text-xs text-slate-500">Removed</p>
+            <p className="text-xs text-slate-500 light:text-slate-500">Removed</p>
           </div>
         </div>
       </div>
@@ -185,12 +185,12 @@ export default function TextComparePage() {
       <div className="mt-6 grid gap-4 lg:grid-cols-2">
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm font-semibold text-slate-300">
+            <label className="text-sm font-semibold text-slate-300 light:text-slate-700">
               Original text
             </label>
             <button
               onClick={loadExample}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
             >
               <Sparkles className="h-3.5 w-3.5" />
               Load example
@@ -202,18 +202,18 @@ export default function TextComparePage() {
             rows={10}
             placeholder="Paste the original text here…"
             spellCheck={false}
-            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
         <div>
           <div className="mb-2 flex items-center justify-between">
-            <label className="text-sm font-semibold text-slate-300">
+            <label className="text-sm font-semibold text-slate-300 light:text-slate-700">
               Changed text
             </label>
             <button
               onClick={() => navigator.clipboard.readText().then((t) => setRight(t))}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
             >
               <ClipboardPaste className="h-3.5 w-3.5" />
               Paste
@@ -225,7 +225,7 @@ export default function TextComparePage() {
             rows={10}
             placeholder="Paste the changed text here…"
             spellCheck={false}
-            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
       </div>
@@ -243,7 +243,7 @@ export default function TextComparePage() {
         <button
           onClick={swap}
           disabled={!left && !right}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
         >
           <Columns2 className="h-4 w-4" />
           Swap sides
@@ -252,7 +252,7 @@ export default function TextComparePage() {
         <button
           onClick={copyResult}
           disabled={!changes.length}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
         >
           {copied ? (
             <CheckCircle2 className="h-4 w-4" />
@@ -275,8 +275,8 @@ export default function TextComparePage() {
       {left || right ? (
         <div className="mt-8">
           <div className="mb-2 flex items-center justify-between">
-            <p className="text-sm font-semibold text-slate-300">Diff</p>
-            <div className="flex items-center gap-3 text-xs text-slate-500">
+            <p className="text-sm font-semibold text-slate-300 light:text-slate-700">Diff</p>
+            <div className="flex items-center gap-3 text-xs text-slate-500 light:text-slate-500">
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-2.5 w-2.5 rounded-sm bg-emerald-500" /> added
               </span>
@@ -286,10 +286,10 @@ export default function TextComparePage() {
             </div>
           </div>
 
-          <div className="grid overflow-hidden rounded-2xl border border-white/10 bg-slate-950 lg:grid-cols-2">
+          <div className="grid overflow-hidden rounded-2xl border border-white/10 bg-slate-950 lg:grid-cols-2 light:border-slate-900/10 light:bg-white">
             {/* LEFT pane */}
             <div className="overflow-x-auto">
-              <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold text-slate-400">
+              <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold text-slate-400 light:border-slate-900/10 light:text-slate-600">
                 <ArrowLeft className="h-3.5 w-3.5" />
                 Original
               </div>
@@ -306,10 +306,10 @@ export default function TextComparePage() {
                             : ""
                       }
                     >
-                      <td className="w-10 select-none border-r border-white/5 px-2 text-right text-xs text-slate-600">
+                      <td className="w-10 select-none border-r border-white/5 px-2 text-right text-xs text-slate-600 light:text-slate-500">
                         {row.left === null ? "" : index + 1}
                       </td>
-                      <td className="px-3 text-slate-100">
+                      <td className="px-3 text-slate-100 light:text-slate-900">
                         {row.left === null ? "" : row.left || " "}
                       </td>
                     </tr>
@@ -319,8 +319,8 @@ export default function TextComparePage() {
             </div>
 
             {/* RIGHT pane */}
-            <div className="overflow-x-auto border-t border-white/10 lg:border-l lg:border-t-0">
-              <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold text-slate-400">
+            <div className="overflow-x-auto border-t border-white/10 lg:border-l lg:border-t-0 light:border-slate-900/10">
+              <div className="flex items-center gap-2 border-b border-white/10 px-3 py-2 text-xs font-semibold text-slate-400 light:border-slate-900/10 light:text-slate-600">
                 Changed
                 <ArrowRight className="h-3.5 w-3.5" />
               </div>
@@ -337,10 +337,10 @@ export default function TextComparePage() {
                             : ""
                       }
                     >
-                      <td className="w-10 select-none border-r border-white/5 px-2 text-right text-xs text-slate-600">
+                      <td className="w-10 select-none border-r border-white/5 px-2 text-right text-xs text-slate-600 light:text-slate-500">
                         {row.right === null ? "" : index + 1}
                       </td>
-                      <td className="px-3 text-slate-100">
+                      <td className="px-3 text-slate-100 light:text-slate-900">
                         {row.right === null ? "" : row.right || " "}
                       </td>
                     </tr>

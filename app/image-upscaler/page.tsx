@@ -22,7 +22,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -200,17 +200,17 @@ export default function ImageUpscalerPage() {
           Image Upscaler
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
          Boost image resolution up to 8× with intelligent upscaling and sharpening for cleaner, sharper results.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-6 lg:grid-cols-2">
           {/* LEFT: upload + options */}
           <div className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Source image
               </label>
               <UploadZone
@@ -221,7 +221,7 @@ export default function ImageUpscalerPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Scale factor
               </label>
               <div className="flex gap-2">
@@ -234,7 +234,7 @@ export default function ImageUpscalerPage() {
                       "inline-flex min-w-16 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                       factor === option.factor
                         ? "border-violet-500 bg-violet-600/20 text-white"
-                        : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                        : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                     ].join(" ")}
                   >
                     <Maximize2 className="h-4 w-4" />
@@ -245,7 +245,7 @@ export default function ImageUpscalerPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Sharpen: {sharpen}%
               </label>
               <input
@@ -276,7 +276,7 @@ export default function ImageUpscalerPage() {
               <button
                 onClick={download}
                 disabled={!resultUrl}
-                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -294,9 +294,9 @@ export default function ImageUpscalerPage() {
 
           {/* RIGHT: preview */}
           <div>
-            <p className="mb-2 text-sm font-semibold text-slate-300">Result</p>
+            <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Result</p>
             <div
-              className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950"
+              className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white"
               style={{ aspectRatio: source ? `${source.naturalWidth}/${source.naturalHeight}` : "4/3" }}
             >
               {resultUrl ? (
@@ -308,15 +308,15 @@ export default function ImageUpscalerPage() {
                 />
               ) : source ? (
                 <div className="flex flex-col items-center gap-3 px-8 text-center">
-                  <ZoomIn className="h-8 w-8 text-slate-600" />
-                  <p className="text-sm leading-6 text-slate-500">
+                  <ZoomIn className="h-8 w-8 text-slate-600 light:text-slate-500" />
+                  <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                     Click &quot;Upscale image&quot; to preview the result here.
                   </p>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-3 px-8 text-center">
-                  <ImageUp className="h-8 w-8 text-slate-600" />
-                  <p className="text-sm leading-6 text-slate-500">
+                  <ImageUp className="h-8 w-8 text-slate-600 light:text-slate-500" />
+                  <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                     Upload an image to upscale it.
                   </p>
                 </div>
@@ -335,12 +335,12 @@ export default function ImageUpscalerPage() {
 
             {source ? (
               <div>
-                <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm">
-                  <span className="text-slate-400">
+                <div className="mt-3 flex items-center justify-between rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm light:border-slate-900/10 light:bg-white">
+                  <span className="text-slate-400 light:text-slate-600">
                     {source.naturalWidth}×{source.naturalHeight}
                   </span>
-                  <ArrowRight className="h-4 w-4 text-slate-600" />
-                  <span className="font-semibold text-white">
+                  <ArrowRight className="h-4 w-4 text-slate-600 light:text-slate-500" />
+                  <span className="font-semibold text-white light:text-slate-900">
                     {outWidth}×{outHeight}
                   </span>
                 </div>

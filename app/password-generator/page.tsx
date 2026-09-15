@@ -15,7 +15,6 @@ import {
   Gauge,
   KeyRound,
   ShieldAlert,
-  ShieldCheck,
   SlidersHorizontal,
   Sparkles,
   Wand2,
@@ -243,7 +242,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -253,54 +252,34 @@ function BackToToolsLink() {
 
 const howToUseSteps = [
   {
-    title: "Choose length",
-    description: "Set the password length from short to very long.",
+    title: "Set length & options",
+    description: "Choose password length and toggle symbols or exclude ambiguous characters.",
     icon: <SlidersHorizontal className="h-5 w-5" />,
   },
   {
-    title: "Add symbols",
-    description: "Include special characters for stronger passwords.",
-    icon: <Sparkles className="h-5 w-5" />,
-  },
-  {
-    title: "Avoid confusion",
-    description: "Exclude ambiguous characters like I, l, 1, O, and 0.",
-    icon: <EyeOff className="h-5 w-5" />,
-  },
-  {
     title: "Generate",
-    description: "Create a secure random password in your browser.",
+    description: "Create a secure random password instantly in your browser.",
     icon: <Wand2 className="h-5 w-5" />,
   },
   {
-    title: "Watch the score",
-    description: "See an instant strength score and entropy estimate.",
+    title: "Check the strength score",
+    description: "See an instant score, entropy estimate, and which rules pass or fail.",
     icon: <Gauge className="h-5 w-5" />,
   },
   {
-    title: "Read the checks",
-    description: "Review which character classes and rules pass.",
-    icon: <ShieldCheck className="h-5 w-5" />,
-  },
-  {
-    title: "Check crack time",
-    description: "See how long an attacker might need to break it.",
+    title: "Review crack time",
+    description: "See how long an attacker would need to brute-force the password.",
     icon: <ShieldAlert className="h-5 w-5" />,
   },
   {
-    title: "Use suggestions",
-    description: "Follow the tips to make the password stronger.",
+    title: "Apply suggestions",
+    description: "Follow the tips to tighten the password further if needed.",
     icon: <Sparkles className="h-5 w-5" />,
   },
   {
-    title: "Copy password",
-    description: "Copy the generated password to your clipboard.",
+    title: "Copy & stay private",
+    description: "Copy the result to your clipboard — everything stays in your browser.",
     icon: <Copy className="h-5 w-5" />,
-  },
-  {
-    title: "Stay private",
-    description: "Everything is analyzed locally in your browser.",
-    icon: <EyeOff className="h-5 w-5" />,
   },
 ];
 
@@ -355,20 +334,20 @@ export default function PasswordGeneratorPage() {
           Password Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Generate secure passwords with custom length, symbols, ambiguous
           character filtering, and a strength indicator.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-        <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 sm:p-5">
-          <label className="mb-3 block text-sm font-semibold text-slate-300">
+      <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
+          <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Generated password
           </label>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="flex min-h-[52px] flex-1 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 font-mono text-sm text-slate-100">
+            <div className="flex min-h-[52px] flex-1 items-center rounded-xl border border-white/10 bg-white/[0.03] px-4 font-mono text-sm text-slate-100 light:border-slate-900/10 light:bg-white light:text-slate-900">
               {password ? (
                 showPassword ? (
                   <span className="break-all">{password}</span>
@@ -376,7 +355,7 @@ export default function PasswordGeneratorPage() {
                   <span>{"•".repeat(password.length)}</span>
                 )
               ) : (
-                <span className="text-slate-600">
+                <span className="text-slate-600 light:text-slate-500">
                   Click generate to create a password.
                 </span>
               )}
@@ -384,7 +363,7 @@ export default function PasswordGeneratorPage() {
 
             <button
               onClick={() => setShowPassword((value) => !value)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />
@@ -397,7 +376,7 @@ export default function PasswordGeneratorPage() {
             <button
               onClick={copyPassword}
               disabled={!password}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
             >
               {copied ? (
                 <Check className="h-4 w-4" />
@@ -412,18 +391,18 @@ export default function PasswordGeneratorPage() {
           {password ? (
             <div className="mt-6">
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-sm font-semibold text-slate-300">
+                <span className="text-sm font-semibold text-slate-300 light:text-slate-700">
                   Strength
                 </span>
                 <span className="flex items-center gap-2 text-sm font-bold">
                   <span className={analysis.labelColor}>{analysis.label}</span>
-                  <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-400">
+                  <span className="rounded-full bg-slate-800 px-2.5 py-0.5 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                     {analysis.bits} bits
                   </span>
                 </span>
               </div>
 
-              <div className="h-2.5 overflow-hidden rounded-full bg-slate-800">
+              <div className="h-2.5 overflow-hidden rounded-full bg-slate-800 light:bg-slate-200">
                 <div
                   className={`h-full rounded-full transition-all ${analysis.color}`}
                   style={{ width: `${pct}%` }}
@@ -435,12 +414,12 @@ export default function PasswordGeneratorPage() {
                 {analysis.crackTimes.map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-xl border border-white/10 bg-slate-950 p-3"
+                    className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white"
                   >
-                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                       {item.label}
                     </p>
-                    <p className="mt-1 text-sm font-bold text-white">
+                    <p className="mt-1 text-sm font-bold text-white light:text-slate-900">
                       {item.time}
                     </p>
                   </div>
@@ -448,8 +427,8 @@ export default function PasswordGeneratorPage() {
               </div>
             </div>
           ) : (
-            <div className="mt-6 flex min-h-[80px] items-center justify-center rounded-2xl border border-dashed border-white/10">
-              <p className="px-6 text-center text-sm leading-6 text-slate-500">
+            <div className="mt-6 flex min-h-[80px] items-center justify-center rounded-2xl border border-dashed border-white/10 light:border-slate-900/10">
+              <p className="px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
                 Generate a password to see the analysis.
               </p>
             </div>
@@ -458,7 +437,7 @@ export default function PasswordGeneratorPage() {
           {/* Checks */}
           {password ? (
             <div className="mt-6">
-              <p className="mb-3 text-sm font-semibold text-slate-300">
+              <p className="mb-3 text-sm font-semibold text-slate-300 light:text-slate-700">
                 Requirements
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -469,7 +448,7 @@ export default function PasswordGeneratorPage() {
                       "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm",
                       check.passed
                         ? "border-emerald-500/20 bg-emerald-500/[0.06] text-emerald-200"
-                        : "border-white/10 bg-slate-950 text-slate-400",
+                        : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600",
                     ].join(" ")}
                   >
                     {check.passed ? (
@@ -508,7 +487,7 @@ export default function PasswordGeneratorPage() {
 
         <div className="mt-6 grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Length: {length}
             </label>
 
@@ -528,12 +507,12 @@ export default function PasswordGeneratorPage() {
               max="128"
               value={length}
               onChange={(event) => setLength(Number(event.target.value))}
-              className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+              className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
 
           <div className="space-y-3">
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={includeSymbols}
@@ -543,7 +522,7 @@ export default function PasswordGeneratorPage() {
               Include symbols
             </label>
 
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={excludeAmbiguous}

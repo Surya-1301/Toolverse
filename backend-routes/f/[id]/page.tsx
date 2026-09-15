@@ -150,8 +150,8 @@ export default function HostedFilePage({ params }: PageProps) {
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-6xl">
         {isLoading ? (
-          <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
-            <div className="flex items-center gap-3 text-slate-400">
+          <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+            <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
               <Loader2 className="h-5 w-5 animate-spin" />
               Loading file...
             </div>
@@ -168,7 +168,7 @@ export default function HostedFilePage({ params }: PageProps) {
                   {isPdf ? "Hosted PDF" : "Hosted File"}
                 </h1>
 
-                <p className="mt-3 break-all text-sm text-slate-400">
+                <p className="mt-3 break-all text-sm text-slate-400 light:text-slate-600">
                   ID: {file.id}
                 </p>
               </div>
@@ -176,7 +176,7 @@ export default function HostedFilePage({ params }: PageProps) {
               <div className="flex flex-wrap gap-3 lg:justify-end">
                 <Link
                   href="/file-share"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   <Plus className="h-4 w-4" />
                   Upload new
@@ -186,7 +186,7 @@ export default function HostedFilePage({ params }: PageProps) {
                   href={getDownloadPath()}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   <ExternalLink className="h-4 w-4" />
                   Direct
@@ -194,7 +194,7 @@ export default function HostedFilePage({ params }: PageProps) {
 
                 <button
                   onClick={() => copyValue("page")}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied === "page" ? (
                     <Check className="h-4 w-4" />
@@ -215,33 +215,33 @@ export default function HostedFilePage({ params }: PageProps) {
             </div>
 
             <div className="mb-5 flex flex-wrap gap-3 text-sm">
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                 {file.mimeType}
               </span>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                 {formatFileSize(file.size)}
               </span>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                 Created: {formatDate(file.createdAt)}
               </span>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                 Expires: {formatExpiry(file.expiresAt)}
               </span>
 
-              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300">
+              <span className="inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                 {file.downloads} downloads
               </span>
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5">
-              <h2 className="break-all text-xl font-semibold text-white">
+            <div className="rounded-3xl border border-white/10 bg-slate-950 p-5 light:border-slate-900/10 light:bg-white">
+              <h2 className="break-all text-xl font-semibold text-white light:text-slate-900">
                 {file.originalName}
               </h2>
 
-              <p className="mt-2 text-sm text-slate-400">
+              <p className="mt-2 text-sm text-slate-400 light:text-slate-600">
                 {isPdf
                   ? "This PDF is ready to open or download."
                   : "This file is ready to download."}
@@ -259,7 +259,7 @@ export default function HostedFilePage({ params }: PageProps) {
             <div className="mt-5 grid gap-3 md:grid-cols-3">
               <button
                 onClick={() => copyValue("download")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 {copied === "download" ? (
                   <Check className="h-4 w-4" />
@@ -271,7 +271,7 @@ export default function HostedFilePage({ params }: PageProps) {
 
               <button
                 onClick={() => copyValue("page")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 {copied === "page" ? (
                   <Check className="h-4 w-4" />
@@ -283,7 +283,7 @@ export default function HostedFilePage({ params }: PageProps) {
 
               <button
                 onClick={loadFile}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 <BarChart3 className="h-4 w-4" />
                 Refresh stats

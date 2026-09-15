@@ -27,7 +27,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -336,25 +336,25 @@ export default function FileSharePage() {
           Upload & Share
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Upload images, PDFs, and files with automatic AES-GCM encryption.
         </p>
       </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Upload image, PDF, or file
           </label>
 
-          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
             <Upload className="mb-3 h-8 w-8 text-violet-300" />
 
-            <span className="font-medium text-white">
+            <span className="font-medium text-white light:text-slate-900">
               Click to choose image, PDF, or file
             </span>
 
-            <span className="mt-2 text-sm text-slate-500">
+            <span className="mt-2 text-sm text-slate-500 light:text-slate-500">
               Allowed: images up to 25 MB, PDFs up to 50 MB, text/docs/ZIP up to
               100 MB.
             </span>
@@ -368,7 +368,7 @@ export default function FileSharePage() {
           </label>
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
               <div className="flex items-start gap-3">
                 {uploadKind === "image" ? (
                   <ImageIcon className="mt-0.5 h-5 w-5 text-violet-300" />
@@ -379,15 +379,15 @@ export default function FileSharePage() {
                 )}
 
                 <div className="min-w-0">
-                  <p className="break-all text-sm font-medium text-white">
+                  <p className="break-all text-sm font-medium text-white light:text-slate-900">
                     {file.name}
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-400">
+                  <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
                     {formatFileSize(file.size)}
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                     Type: {file.type || "Unknown type"}
                   </p>
                 </div>
@@ -396,14 +396,14 @@ export default function FileSharePage() {
           ) : null}
 
           <div className="mt-5">
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
               Expires
             </label>
 
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -445,7 +445,7 @@ export default function FileSharePage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-semibold">
               {result ? "Share links ready" : "Upload output"}
@@ -475,24 +475,24 @@ export default function FileSharePage() {
             <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
               <div className="grid gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-slate-400">
+                  <label className="mb-1 block text-xs text-slate-400 light:text-slate-600">
                     Owner link with key
                   </label>
                   <input
                     value={ownerUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs text-slate-400">
+                  <label className="mb-1 block text-xs text-slate-400 light:text-slate-600">
                     User share link with key
                   </label>
                   <input
                     value={userUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
               </div>
@@ -502,7 +502,7 @@ export default function FileSharePage() {
                   href={ownerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   Open owner
                   <ExternalLink className="h-4 w-4" />
@@ -512,7 +512,7 @@ export default function FileSharePage() {
                   href={userUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   Open user
                   <ExternalLink className="h-4 w-4" />
@@ -521,7 +521,7 @@ export default function FileSharePage() {
                 <button
                   type="button"
                   onClick={copyUserUrl}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl  border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl  border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 light:border-slate-900/10"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -534,7 +534,7 @@ export default function FileSharePage() {
                 
             </div>
           ) : (
-            <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950/60 p-6 text-center text-sm text-slate-500">
+            <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950/60 p-6 text-center text-sm text-slate-500 light:border-slate-900/10 light:bg-slate-100 light:text-slate-500">
               Your encrypted share link appears here after upload.
             </div>
           )}
@@ -544,15 +544,15 @@ export default function FileSharePage() {
             <div className="mt-6">
               <div className="mb-4 flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-violet-400" />
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-white light:text-slate-900">
                   Recent Uploads
                 </h3>
               </div>
 
-              <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+              <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
                 <table className="w-full text-left text-xs">
                   <thead>
-                    <tr className="border-b border-white/10 text-slate-500">
+                    <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
                       <th className="px-3 py-2 font-medium">ID</th>
                       <th className="hidden px-25 py-2 text-center font-medium sm:table-cell">
                         Expires
@@ -562,11 +562,11 @@ export default function FileSharePage() {
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {recentFiles.map((r) => (
-                      <tr key={r.id} className="text-slate-300">
-                        <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                      <tr key={r.id} className="text-slate-300 light:text-slate-700">
+                        <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300 light:text-violet-700">
                           {r.id}
                         </td>
-                        <td className="hidden px-3 py-2 text-center text-slate-500 sm:table-cell">
+                        <td className="hidden px-3 py-2 text-center text-slate-500 sm:table-cell light:text-slate-500">
                           {r.expiresAt
                             ? new Intl.DateTimeFormat("en", {
                                 dateStyle: "medium",
@@ -580,7 +580,7 @@ export default function FileSharePage() {
                               href={`/file?id=${r.id}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5"
+                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5 light:border-slate-900/10 light:text-slate-600"
                             >
                               View
                             </a>
@@ -591,7 +591,7 @@ export default function FileSharePage() {
                                   prev.filter((x) => x.id !== r.id),
                                 )
                               }
-                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5"
+                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 light:border-slate-900/10 light:text-slate-500"
                             >
                               Remove
                             </button>
@@ -604,7 +604,7 @@ export default function FileSharePage() {
               </div>
 
               <div className="mt-3 flex items-center justify-between">
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 light:text-slate-500">
                 </p>
                 <button
                   type="button"
@@ -672,7 +672,7 @@ export default function FileSharePage() {
         <div className="mx-auto max-w-xl">
           <h2
             id="mobile-how-to-use-title"
-            className="text-center text-2xl font-bold tracking-tight text-white"
+            className="text-center text-2xl font-bold tracking-tight text-white light:text-slate-900"
           >
             How to use Upload & Share
           </h2>
@@ -718,17 +718,17 @@ export default function FileSharePage() {
             ].map((step) => (
               <div
                 key={step.title}
-                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 light:border-slate-900/10 light:bg-white"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
                   {step.icon}
                 </div>
 
                 <div className="min-w-0 flex-1 text-left">
-                  <h3 className="text-sm font-semibold text-white">
+                  <h3 className="text-sm font-semibold text-white light:text-slate-900">
                     {step.title}
                   </h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                  <p className="mt-1 text-xs leading-5 text-slate-400 light:text-slate-600">
                     {step.description}
                   </p>
                 </div>
@@ -744,38 +744,38 @@ export default function FileSharePage() {
           className="mx-auto mt-16 max-w-6xl"
           aria-label="Upload statistics"
         >
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-8 sm:py-12">
-            <p className="text-xs font-mono font-medium tracking-[0.28em] text-slate-500">
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-8 sm:py-12 light:border-slate-900/10 light:bg-white">
+            <p className="text-xs font-mono font-medium tracking-[0.28em] text-slate-500 light:text-slate-500">
               LIVE STATS
             </p>
 
             <div className="mt-8 grid gap-10 sm:grid-cols-3 sm:gap-6">
               <div className="flex flex-col items-center">
                 <div className="text-3xl" aria-hidden="true">📁</div>
-                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl light:text-slate-900">
                   {uploadStats.filesHosted.toLocaleString("en-IN")}
                 </div>
-                <p className="mt-3 text-base text-slate-500 sm:text-lg">
+                <p className="mt-3 text-base text-slate-500 sm:text-lg light:text-slate-500">
                   Files hosted
                 </p>
               </div>
 
               <div className="flex flex-col items-center">
                 <div className="text-3xl" aria-hidden="true">👁️</div>
-                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl light:text-slate-900">
                   {uploadStats.totalViews.toLocaleString("en-IN")}
                 </div>
-                <p className="mt-3 text-base text-slate-500 sm:text-lg">
+                <p className="mt-3 text-base text-slate-500 sm:text-lg light:text-slate-500">
                   Total views
                 </p>
               </div>
 
               <div className="flex flex-col items-center">
                 <div className="text-3xl" aria-hidden="true">💾</div>
-                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+                <div className="mt-4 text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl light:text-slate-900">
                   {formatFileSize(uploadStats.storageUsed)}
                 </div>
-                <p className="mt-3 text-base text-slate-500 sm:text-lg">
+                <p className="mt-3 text-base text-slate-500 sm:text-lg light:text-slate-500">
                   Storage used
                 </p>
               </div>

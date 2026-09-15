@@ -42,7 +42,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -383,11 +383,11 @@ export default function ImageConverterPage() {
       ==================================================================== */}
 
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Image Converter
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Convert PNG, JPG, WebP, HEIC, and HEIF images
           directly in your browser.
         </p>
@@ -402,8 +402,8 @@ export default function ImageConverterPage() {
             UPLOAD / SETTINGS
         ================================================================ */}
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
+          <h2 className="mb-4 text-lg font-semibold text-white light:text-slate-900">
             Upload image
           </h2>
 
@@ -427,15 +427,15 @@ export default function ImageConverterPage() {
               transition
               hover:border-violet-500/60
               hover:bg-white/[0.03]
-            "
+            light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
           >
             <Upload className="mb-3 h-9 w-9 text-violet-300" />
 
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-white light:text-slate-900">
               Click to choose image
             </span>
 
-            <span className="mt-2 text-sm leading-6 text-slate-500">
+            <span className="mt-2 text-sm leading-6 text-slate-500 light:text-slate-500">
               Allowed: PNG, JPG, WebP, HEIC, or HEIF.
             </span>
 
@@ -462,23 +462,23 @@ export default function ImageConverterPage() {
           {/* Selected file */}
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 light:text-slate-700">
                   Selected:
                 </span>{" "}
                 {file.name}
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 light:text-slate-700">
                   Type:
                 </span>{" "}
                 {file.type || "Unknown"}
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 light:text-slate-700">
                   Size:
                 </span>{" "}
                 {(file.size / 1024).toFixed(1)} KB
@@ -492,7 +492,7 @@ export default function ImageConverterPage() {
             {/* Output format */}
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Output format
               </label>
 
@@ -515,7 +515,7 @@ export default function ImageConverterPage() {
                   outline-none
                   transition
                   focus:border-violet-500
-                "
+                light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 <option value="image/png">
                   PNG
@@ -533,7 +533,7 @@ export default function ImageConverterPage() {
 
             {/* Quality */}
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Quality: {Math.round(quality * 100)}%
               </label>
 
@@ -589,7 +589,7 @@ export default function ImageConverterPage() {
                 disabled:text-slate-400
                 sm:px-4
                 sm:text-sm
-              "
+              light:disabled:bg-slate-200"
             >
               <Wand2 className="h-4 w-4" />
 
@@ -631,13 +631,13 @@ export default function ImageConverterPage() {
             OUTPUT
         ================================================================ */}
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-white light:text-slate-900">
               Converted output
             </h2>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
               {outputPreview
                 ? "Preview ready"
                 : "Waiting"}
@@ -659,7 +659,7 @@ export default function ImageConverterPage() {
               bg-slate-950
               p-6
               text-center
-            "
+            light:border-slate-900/15 light:bg-white"
           >
             {outputPreview ? (
               <img
@@ -673,7 +673,7 @@ export default function ImageConverterPage() {
                 "
               />
             ) : (
-              <p className="text-sm leading-6 text-slate-500">
+              <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Your converted image preview appears
                 here after conversion.
               </p>
@@ -683,9 +683,9 @@ export default function ImageConverterPage() {
           {/* Output details */}
 
           {convertedBlob && file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 light:text-slate-700">
                   Output:
                 </span>{" "}
                 {baseName(file)}-converted.
@@ -693,14 +693,14 @@ export default function ImageConverterPage() {
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 light:text-slate-700">
                   Format:
                 </span>{" "}
                 {getOutputExtension().toUpperCase()}
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">
+                <span className="font-semibold text-slate-300 light:text-slate-700">
                   Size:
                 </span>{" "}
                 {(convertedBlob.size / 1024).toFixed(
@@ -736,7 +736,7 @@ export default function ImageConverterPage() {
               disabled:cursor-not-allowed
               disabled:bg-slate-700
               disabled:text-slate-400
-            "
+            light:disabled:bg-slate-200"
           >
             <Download className="h-4 w-4" />
             Download converted image

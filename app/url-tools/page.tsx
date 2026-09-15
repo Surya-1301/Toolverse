@@ -37,7 +37,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -322,11 +322,11 @@ export default function UrlToolsPage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           URL Tools
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
          Break down, transform, and trace any URL from a single, streamlined workspace.        </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-4xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         {/* Tab switcher */}
         <div className="flex gap-2">
           {tabs.map((item) => (
@@ -338,7 +338,7 @@ export default function UrlToolsPage() {
                 "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                 tab === item.key
                   ? "border-violet-500 bg-violet-600/20 text-white"
-                  : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                  : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
               ].join(" ")}
             >
               {item.icon}
@@ -350,7 +350,7 @@ export default function UrlToolsPage() {
         {/* ===== PARSE TAB ===== */}
         {tab === "parse" && (
           <div className="mt-6">
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               URL
             </label>
             <textarea
@@ -359,7 +359,7 @@ export default function UrlToolsPage() {
               placeholder="https://example.com/path?name=John&page=2#section"
               rows={4}
               spellCheck={false}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {parseError && (
@@ -379,7 +379,7 @@ export default function UrlToolsPage() {
               <button
                 onClick={copyParsed}
                 disabled={!formattedOutput}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 {parseCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {parseCopied ? "Copied!" : "Copy result"}
@@ -394,8 +394,8 @@ export default function UrlToolsPage() {
             </div>
 
             {parsed && (
-              <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-5">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-5 light:border-slate-900/10 light:bg-white">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
                   Parsed components
                 </p>
                 <div className="space-y-2 text-sm">
@@ -409,21 +409,21 @@ export default function UrlToolsPage() {
                     ["Hash", parsed.hash || "—"],
                   ].map(([label, val]) => (
                     <div key={label} className="flex justify-between gap-4">
-                      <span className="text-slate-400">{label}</span>
-                      <span className="font-mono text-right text-slate-100">{val || "—"}</span>
+                      <span className="text-slate-400 light:text-slate-600">{label}</span>
+                      <span className="font-mono text-right text-slate-100 light:text-slate-900">{val || "—"}</span>
                     </div>
                   ))}
                 </div>
                 {parsed.queryParams.length > 0 && (
                   <>
-                    <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                    <p className="mb-2 mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
                       Query parameters
                     </p>
                     <div className="space-y-1">
                       {parsed.queryParams.map(({ key, value }) => (
                         <div key={key} className="flex justify-between gap-4 text-sm">
                           <span className="font-mono text-violet-300">{key}</span>
-                          <span className="font-mono text-right text-slate-100">{value}</span>
+                          <span className="font-mono text-right text-slate-100 light:text-slate-900">{value}</span>
                         </div>
                       ))}
                     </div>
@@ -431,14 +431,14 @@ export default function UrlToolsPage() {
                 )}
                 {parsed.username && (
                   <div className="mt-3 flex justify-between gap-4 text-sm">
-                    <span className="text-slate-400">Username</span>
-                    <span className="font-mono text-slate-100">{parsed.username}</span>
+                    <span className="text-slate-400 light:text-slate-600">Username</span>
+                    <span className="font-mono text-slate-100 light:text-slate-900">{parsed.username}</span>
                   </div>
                 )}
                 {parsed.password && (
                   <div className="mt-1 flex justify-between gap-4 text-sm">
-                    <span className="text-slate-400">Password</span>
-                    <span className="font-mono text-slate-100">********</span>
+                    <span className="text-slate-400 light:text-slate-600">Password</span>
+                    <span className="font-mono text-slate-100 light:text-slate-900">********</span>
                   </div>
                 )}
               </div>
@@ -451,7 +451,7 @@ export default function UrlToolsPage() {
           <div className="mt-6">
             {/* Mode selector */}
             <div className="mb-4">
-              <p className="mb-2 text-sm font-semibold text-slate-300">Encoding mode</p>
+              <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Encoding mode</p>
               <div className="flex flex-wrap gap-2">
                 {[
                   { key: "component" as const, label: "Component", desc: "encodeURIComponent — escapes everything except A-Z a-z 0-9 - _ . ! ~ * ' ( )" },
@@ -464,21 +464,21 @@ export default function UrlToolsPage() {
                       "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                       encMode === m.key
                         ? "border-violet-500 bg-violet-600/20 text-white"
-                        : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                        : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                     ].join(" ")}
                   >
                     {m.label}
                   </button>
                 ))}
               </div>
-              <p className="mt-2 text-xs leading-5 text-slate-500">
+              <p className="mt-2 text-xs leading-5 text-slate-500 light:text-slate-500">
                 {encMode === "component"
                   ? "Component mode escapes everything for safe use inside query values (encodeURIComponent)."
                   : "URL mode preserves reserved URL characters like & = ? / and is ideal for whole URLs (encodeURI)."}
               </p>
             </div>
 
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Input
             </label>
             <textarea
@@ -487,7 +487,7 @@ export default function UrlToolsPage() {
               rows={6}
               placeholder={encMode === "component" ? "Hello, world! 100% & <tag>" : "https://example.com/path?name=John Doe&age=30"}
               spellCheck={false}
-              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {encError && (
@@ -500,7 +500,7 @@ export default function UrlToolsPage() {
               <button
                 onClick={runEncode}
                 disabled={!encInput}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 <Sparkles className="h-4 w-4" />
                 Encode
@@ -508,7 +508,7 @@ export default function UrlToolsPage() {
               <button
                 onClick={runDecode}
                 disabled={!encInput}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 <RefreshCw className="h-4 w-4" />
                 Decode
@@ -516,7 +516,7 @@ export default function UrlToolsPage() {
               <button
                 onClick={copyEncoded}
                 disabled={!encOutput}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 {encCopied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                 {encCopied ? "Copied!" : "Copy output"}
@@ -531,11 +531,11 @@ export default function UrlToolsPage() {
             </div>
 
             {encOutput && (
-              <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-5">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-5 light:border-slate-900/10 light:bg-white">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
                   Output
                 </p>
-                <pre className="whitespace-pre-wrap break-all font-mono text-xs leading-6 text-slate-100">
+                <pre className="whitespace-pre-wrap break-all font-mono text-xs leading-6 text-slate-100 light:text-slate-900">
                   {encOutput}
                 </pre>
               </div>
@@ -547,15 +547,15 @@ export default function UrlToolsPage() {
         {tab === "redirects" && (
           <div className="mt-6">
             <div className="flex flex-col gap-3 sm:flex-row">
-              <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-slate-950 px-4">
-                <Link2 className="mr-3 h-4 w-4 shrink-0 text-slate-500" />
+              <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-slate-950 px-4 light:border-slate-900/10 light:bg-white">
+                <Link2 className="mr-3 h-4 w-4 shrink-0 text-slate-500 light:text-slate-500" />
                 <input
                   value={redirUrl}
                   onChange={(e) => setRedirUrl(e.target.value)}
                   onKeyDown={(e) => { if (e.key === "Enter") void checkRedirects(); }}
                   placeholder="https://example.com/short-link"
                   spellCheck={false}
-                  className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600"
+                  className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 light:text-slate-900 light:placeholder:text-slate-400"
                 />
               </div>
               <button
@@ -582,7 +582,7 @@ export default function UrlToolsPage() {
                     key={`${hop.url}-${index}`}
                     className={[
                       "relative flex items-start gap-4 border-l-2 py-4 pl-6",
-                      index < hops.length - 1 ? "border-white/10" : "border-transparent",
+                      index < hops.length - 1 ? "border-white/10 light:border-slate-900/10" : "border-transparent",
                       isRedirect(hop.status) ? "border-l-violet-500/40" : "",
                     ].join(" ")}
                   >
@@ -598,7 +598,7 @@ export default function UrlToolsPage() {
                     </span>
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-mono text-sm text-slate-100">{hop.url}</p>
+                      <p className="truncate font-mono text-sm text-slate-100 light:text-slate-900">{hop.url}</p>
                       <div className="mt-1 flex flex-wrap items-center gap-2">
                         <span
                           className={[
@@ -613,8 +613,8 @@ export default function UrlToolsPage() {
                           {hop.status}
                         </span>
                         {hop.location && (
-                          <span className="text-xs text-slate-500">
-                            → <span className="font-mono text-slate-400">{hop.location}</span>
+                          <span className="text-xs text-slate-500 light:text-slate-500">
+                            → <span className="font-mono text-slate-400 light:text-slate-600">{hop.location}</span>
                           </span>
                         )}
                         {hop.final && (
@@ -631,8 +631,8 @@ export default function UrlToolsPage() {
             )}
 
             {!redirLoading && hops.length === 0 && !redirError && (
-              <div className="mt-6 flex min-h-[100px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center">
-                <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500">
+              <div className="mt-6 flex min-h-[100px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+                <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
                   <Network className="h-4 w-4" />
                   Paste a URL above to trace its redirect chain.
                 </p>

@@ -461,57 +461,57 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
-            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200">
+            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
               {error}
             </div>
           ) : record ? (
             <section
-              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
               aria-label="Shared file"
             >
               <div className="p-7 text-center sm:p-8 sm:text-left">
-                <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px]">
+                <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px] light:text-slate-900">
                   Shared File
                 </h1>
 
-                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base">
+                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base light:text-slate-600">
                   This file was encrypted before upload. Use the key in the share
                   link to decrypt it in your browser.
                 </p>
 
                 <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       File name
                     </p>
-                    <p className="mt-2 truncate text-[15px] text-slate-200">
+                    <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
                       {decryptedName || record.originalName || record.mimeType || "application/octet-stream"}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       Encrypted size
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200">
+                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                       {formatFileSize(record.size)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       Created
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200">
+                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                       {formatDate(record.createdAt)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       Expires
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200">
+                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                       {formatExpiry(record.expiresAt)}
                     </p>
                   </div>
@@ -529,7 +529,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     aria-label="Encryption key"
                     spellCheck={false}
                     autoComplete="off"
-                    className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30"
+                    className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30 light:border-slate-900/10 light:bg-white light:text-slate-800 light:placeholder:text-slate-400"
                     placeholder="Encryption key from share link"
                   />
 
@@ -572,17 +572,17 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
-            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200">
+            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
               {error}
             </div>
           ) : record ? (
             <section
-              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
               aria-label="Shared image"
             >
              <div className="p-7 text-center sm:p-8 sm:text-left">
   <div className="flex items-center justify-center gap-4 sm:justify-between">
-    <h1 className="w-full text-center text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:w-auto sm:text-left sm:text-[48px]">
+    <h1 className="w-full text-center text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:w-auto sm:text-left sm:text-[48px] light:text-slate-900">
       Shared Image
     </h1>
                   
@@ -592,7 +592,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     <button
                       type="button"
                       onClick={() => copyValue("markdown")}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05]"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
                     >
                       {copied === "markdown" ? (
                         <Check className="h-4 w-4" />
@@ -605,7 +605,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     <button
                       type="button"
                       onClick={() => copyValue("html")}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05]"
+                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
                     >
                       {copied === "html" ? (
                         <Check className="h-4 w-4" />
@@ -617,7 +617,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
                 </div>
 
-                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base">
+                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base light:text-slate-600">
                   {record.encrypted
                     ? "This image was encrypted before upload. Use the key in the share link to decrypt it in your browser."
                     : "This image is ready to view and share."}
@@ -628,7 +628,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   <button
                     type="button"
                     onClick={() => copyValue("markdown")}
-                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05]"
+                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
                   >
                     {copied === "markdown" ? (
                       <Check className="h-5 w-5" />
@@ -641,7 +641,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   <button
                     type="button"
                     onClick={() => copyValue("html")}
-                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05]"
+                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
                   >
                     {copied === "html" ? (
                       <Check className="h-5 w-5" />
@@ -653,48 +653,48 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                 </div>
 
                 <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       File name
                     </p>
-                    <p className="mt-2 truncate text-[15px] text-slate-200">
+                    <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
                       {decryptedName || record.originalName || record.mimeType || "image/*"}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       {record.encrypted ? "Encrypted size" : "Image size"}
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200">
+                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                       {formatFileSize(displaySize)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       Created
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200">
+                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                       {formatDate(record.createdAt)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5">
-                    <p className="text-[13px] font-medium text-slate-500">
+                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
+                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
                       Expires
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200">
+                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                       {formatExpiry(record.expiresAt)}
                     </p>
                   </div>
                 </div>
 
                 {/* IMAGE PREVIEW */}
-                <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5">
+                <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
                   {record.encrypted ? (
                     decryptedImageUrl ? (
-                      <div className="rounded-[16px] bg-black/20 p-3">
+                      <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={decryptedImageUrl}
@@ -703,13 +703,13 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         />
                       </div>
                     ) : (
-                      <div className="flex min-h-[220px] items-center justify-center rounded-[16px] border border-dashed border-white/10 px-6 text-center text-sm text-slate-500">
+                      <div className="flex min-h-[220px] items-center justify-center rounded-[16px] border border-dashed border-white/10 px-6 text-center text-sm text-slate-500 light:border-slate-900/10 light:text-slate-500">
                         Decrypt the image below to preview it securely in your
                         browser.
                       </div>
                     )
                   ) : imageSrc && !imageFailed ? (
-                    <div className="rounded-[16px] bg-black/20 p-3">
+                    <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageSrc}
@@ -719,7 +719,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       />
                     </div>
                   ) : (
-                    <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                    <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
                       Could not display this image.
                     </div>
                   )}
@@ -740,7 +740,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       aria-label="Encryption key"
                       spellCheck={false}
                       autoComplete="off"
-                      className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30"
+                      className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30 light:border-slate-900/10 light:bg-white light:text-slate-800 light:placeholder:text-slate-400"
                       placeholder="Encryption key from share link"
                     />
 
@@ -810,24 +810,24 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
-            <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">
+            <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
               {error}
             </div>
           ) : record ? (
             <>
               <div className="mx-auto max-w-[800px]">
                 <section
-                  className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+                  className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
                   aria-label="Hosted image details"
                 >
                   <div className="p-7 sm:p-8">
                     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                       <div className="min-w-0 text-center sm:text-left">
-                        <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px]">
+                        <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px] light:text-slate-900">
                           Hosted Image
                         </h2>
 
-                        <p className="mt-2 text-[15px] leading-6 text-slate-400">
+                        <p className="mt-2 text-[15px] leading-6 text-slate-400 light:text-slate-600">
                           This image is securely stored and ready to view or download.
                         </p>
                       </div>
@@ -835,7 +835,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       {mode === "owner" ? (
                         <div className="grid w-full shrink-0 grid-cols-2 items-center gap-4 md:w-auto md:flex md:flex-row md:justify-end md:gap-2 md:-translate-y-2 lg:-translate-y-3">                        <Link
                           href="/file-share"
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                         >
                           <Plus className="h-4 w-4" />
                           Upload new
@@ -846,7 +846,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                             href={getDirectUrl()}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                           >
                             <ExternalLink className="h-4 w-4" />
                             Direct
@@ -856,7 +856,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <button
                           type="button"
                           onClick={() => copyValue("page")}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                         >
                           {copied === "page" ? (
                             <Check className="h-4 w-4" />
@@ -870,39 +870,39 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     </div>
 
                     <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                        <p className="text-[13px] font-medium text-slate-500">File name</p>
-                        <p className="mt-2 truncate text-[15px] text-slate-200">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">File name</p>
+                        <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
                           {displayName || record.originalName || record.mimeType || "Untitled image"}
                         </p>
                       </div>
 
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                        <p className="text-[13px] font-medium text-slate-500">Image size</p>
-                        <p className="mt-2 text-[15px] text-slate-200">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Image size</p>
+                        <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                           {formatFileSize(displaySize)}
                         </p>
                       </div>
 
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                        <p className="text-[13px] font-medium text-slate-500">Created</p>
-                        <p className="mt-2 text-[15px] text-slate-200">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Created</p>
+                        <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                           {formatDate(record.createdAt)}
                         </p>
                       </div>
 
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                        <p className="text-[13px] font-medium text-slate-500">Expires</p>
-                        <p className="mt-2 text-[15px] text-slate-200">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Expires</p>
+                        <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                           {formatExpiry(record.expiresAt)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5">
+                    <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
                       {record.encrypted ? (
                         decryptedImageUrl ? (
-                          <div className="rounded-[16px] bg-black/20 p-3">
+                          <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={decryptedImageUrl}
@@ -911,12 +911,12 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                             />
                           </div>
                         ) : (
-                          <div className="rounded-[16px] border border-dashed border-white/10 px-6 py-12 text-center text-sm text-slate-500">
+                          <div className="rounded-[16px] border border-dashed border-white/10 px-6 py-12 text-center text-sm text-slate-500 light:border-slate-900/10 light:text-slate-500">
                             Decrypt the image below to preview it securely in your browser.
                           </div>
                         )
                       ) : imageSrc && !imageFailed ? (
-                        <div className="rounded-[16px] bg-black/20 p-3">
+                        <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={imageSrc}
@@ -926,7 +926,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                           />
                         </div>
                       ) : (
-                        <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200">
+                        <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
                           Could not display this image.
                         </div>
                       )}
@@ -987,18 +987,18 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   {/* Recent Hosted Stats */}
                   {hasHydrated && recentFiles.length > 0 ? (
                     <div className="mx-auto mt-16 max-w-6xl">
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
                         <div className="mb-4 flex items-center gap-2">
                           <BarChart3 className="h-5 w-5 text-violet-400" />
-                          <h3 className="text-sm font-semibold text-white">
+                          <h3 className="text-sm font-semibold text-white light:text-slate-900">
                             Recent Images
                           </h3>
                         </div>
 
-                        <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+                        <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10">
                           <table className="w-full table-fixed text-left text-xs sm:table-auto">
                             <thead>
-                              <tr className="border-b border-white/10 text-slate-500">
+                              <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
                                 <th className="w-[52%] px-3 py-2 font-medium sm:w-auto">Name</th>
                                 <th className="hidden px-3 py-2 font-medium sm:table-cell">
                                   Kind
@@ -1018,17 +1018,17 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                             </thead>
                             <tbody className="divide-y divide-white/5">
                               {recentFiles.map((r) => (
-                                <tr key={r.id} className="text-slate-300">
+                                <tr key={r.id} className="text-slate-300 light:text-slate-700">
                                   <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
                                     {r.name || r.id}
                                   </td>
-                                  <td className="hidden px-3 py-2 text-slate-500 capitalize sm:table-cell">
+                                  <td className="hidden px-3 py-2 text-slate-500 capitalize sm:table-cell light:text-slate-500">
                                     {r.kind}
                                   </td>
-                                  <td className="hidden px-3 py-2 text-right text-slate-500 sm:table-cell">
+                                  <td className="hidden px-3 py-2 text-right text-slate-500 sm:table-cell light:text-slate-500">
                                     {formatFileSize(r.size)}
                                   </td>
-                                  <td className="w-[16%] px-1.5 py-2 text-center text-slate-500 sm:w-auto sm:px-11 sm:text-right">
+                                  <td className="w-[16%] px-1.5 py-2 text-center text-slate-500 sm:w-auto sm:px-11 sm:text-right light:text-slate-500">
                                     <span className="inline-block -translate-x-5 whitespace-nowrap sm:translate-x-0">
                                       {typeof r.views === "number"
                                         ? `${r.views} views`
@@ -1043,7 +1043,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                         href={`/file?id=${r.id}`}
                                         target="_blank"
                                         rel="noreferrer"
-                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
+                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
                                       >
                                         View
                                       </a>
@@ -1054,7 +1054,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                             prev.filter((x) => x.id !== r.id),
                                           )
                                         }
-                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
+                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
                                       >
                                         Remove
                                       </button>
@@ -1067,7 +1067,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         </div>
 
                         <div className="mt-4 flex items-center justify-between">
-                          <p className="text-xs text-slate-500"></p>
+                          <p className="text-xs text-slate-500 light:text-slate-500"></p>
                           <button
                             type="button"
                             onClick={() => setRecentFiles([])}
@@ -1095,7 +1095,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
         {isLoading ? (
           <ViewerLoading />
         ) : error ? (
-          <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">
+          <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
             {error}
           </div>
         ) : record ? (
@@ -1110,17 +1110,17 @@ export function SharedViewer({ mode }: SharedViewerProps) {
 
             <div className="mx-auto max-w-[800px]">
               <section
-                className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)]"
+                className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
                 aria-label={mode === "owner" ? "Hosted file details" : "Shared file details"}
               >
                 <div className="p-7 sm:p-8">
                   <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0 text-center sm:text-left">
-                      <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px]">
+                      <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px] light:text-slate-900">
                         Hosted File
                       </h2>
 
-                      <p className="mt-2 text-[15px] leading-6 text-slate-400">
+                      <p className="mt-2 text-[15px] leading-6 text-slate-400 light:text-slate-600">
                         {isPdf
                           ? "This PDF is ready to open or download."
                           : "This file is securely stored and ready to download."}
@@ -1130,7 +1130,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     {mode === "owner" ? (
                         <div className="grid w-full shrink-0 grid-cols-2 items-center gap-4 md:w-auto md:flex md:flex-row md:justify-end md:gap-2 md:-translate-y-2 lg:-translate-y-3">                        <Link
                           href="/file-share"
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                         >
                           <Plus className="h-4 w-4" />
                           Upload new
@@ -1139,7 +1139,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <button
                           type="button"
                           onClick={() => copyValue("page")}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5"
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                         >
                           {copied === "page" ? (
                             <Check className="h-4 w-4" />
@@ -1153,30 +1153,30 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
 
                   <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                        <p className="text-[13px] font-medium text-slate-500">File name</p>
-                        <p className="mt-2 truncate text-[15px] text-slate-200">
+                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">File name</p>
+                        <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
                         {record.originalName || record.mimeType || "Untitled file"}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                      <p className="text-[13px] font-medium text-slate-500">File size</p>
-                      <p className="mt-2 text-[15px] text-slate-200">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">File size</p>
+                      <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                         {formatFileSize(record.size)}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                      <p className="text-[13px] font-medium text-slate-500">Created</p>
-                      <p className="mt-2 text-[15px] text-slate-200">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Created</p>
+                      <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                         {formatDate(record.createdAt)}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left">
-                      <p className="text-[13px] font-medium text-slate-500">Expires</p>
-                      <p className="mt-2 text-[15px] text-slate-200">
+                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Expires</p>
+                      <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
                         {formatExpiry(record.expiresAt)}
                       </p>
                     </div>
@@ -1208,12 +1208,12 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   type="text"
                   value={encryptionKey}
                   onChange={(event) => setEncryptionKey(event.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400 light:border-slate-900/10 light:text-slate-900"
                   placeholder="Encryption key from share link"
                 />
 
                 {decryptError ? (
-                  <p className="mt-2 text-sm text-red-200">{decryptError}</p>
+                  <p className="mt-2 text-sm text-red-200 light:text-red-700">{decryptError}</p>
                 ) : null}
 
                 <button
@@ -1236,18 +1236,18 @@ export function SharedViewer({ mode }: SharedViewerProps) {
             {/* Recent Files Stats */}
             {recentFiles.filter((x) => x.kind === "file").length > 0 ? (
               <div className="mx-auto mt-16 max-w-6xl">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
                   <div className="mb-4 flex items-center gap-2">
                     <BarChart3 className="h-5 w-5 text-violet-400" />
-                    <h3 className="text-sm font-semibold text-white">
+                    <h3 className="text-sm font-semibold text-white light:text-slate-900">
                       Recent Files
                     </h3>
                   </div>
 
-                  <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+                  <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10">
                     <table className="w-full text-left text-xs">
                       <thead>
-                        <tr className="border-b border-white/10 text-slate-500">
+                        <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
                           <th className="px-5 py-2 font-medium">Name</th>
                           <th className="hidden px-3 py-2 font-medium sm:table-cell">
                             Size
@@ -1260,14 +1260,14 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         {recentFiles
                           .filter((r) => r.kind === "file")
                           .map((r) => (
-                            <tr key={r.id} className="text-slate-300">
+                            <tr key={r.id} className="text-slate-300 light:text-slate-700">
                               <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
                                 {r.name || r.id}
                               </td>
-                              <td className="hidden px-2 py-2 text-slate-500 sm:table-cell">
+                              <td className="hidden px-2 py-2 text-slate-500 sm:table-cell light:text-slate-500">
                                 {formatFileSize(r.size)}
                               </td>
-                              <td className="px-8 py-2 text-right text-slate-500 sm:px-15 lg:px-15">
+                              <td className="px-8 py-2 text-right text-slate-500 sm:px-15 lg:px-15 light:text-slate-500">
                                 {typeof r.downloads === "number"
                                   ? r.downloads
                                   : "-"}
@@ -1278,7 +1278,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                     href={`/file?id=${r.id}`}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
+                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
                                   >
                                     View
                                   </a>
@@ -1289,7 +1289,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                         prev.filter((x) => x.id !== r.id),
                                       )
                                     }
-                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px]"
+                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
                                   >
                                     Remove
                                   </button>
@@ -1302,7 +1302,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
 
                   <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xs text-slate-500">
+                    <p className="text-xs text-slate-500 light:text-slate-500">
                     </p>
                     <button
                       type="button"
@@ -1325,8 +1325,8 @@ export function SharedViewer({ mode }: SharedViewerProps) {
 function ViewerLoading() {
   return (
     <Container className="py-12 sm:py-16">
-      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
-        <div className="flex items-center gap-3 text-slate-400">
+      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+        <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading...
         </div>

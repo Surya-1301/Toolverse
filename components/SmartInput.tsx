@@ -266,16 +266,7 @@ export default function SmartInput() {
       ================================================================ */}
 
       <div
-        className="
-          rounded-3xl
-          border
-          border-white/[0.08]
-          bg-black/[0.10]
-          p-2
-          shadow-[0_20px_70px_rgba(0,0,0,0.25)]
-          backdrop-blur-md
-          sm:p-2.5
-        "
+        className=" rounded-3xl border border-white/[0.08] bg-black/[0.10] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-2.5 light:border-slate-900/10"
       >
         {/* ================================================================
             MAIN INPUT SURFACE
@@ -291,9 +282,13 @@ export default function SmartInput() {
             bg-white/[0.018]
             transition-all
             duration-200
+            light:border-slate-900/10
+            light:bg-white
             focus-within:border-violet-400/30
             focus-within:bg-white/[0.025]
             focus-within:shadow-[0_0_40px_rgba(124,58,237,0.08)]
+            light:focus-within:border-violet-500/40
+            light:focus-within:bg-white
           "
         >
           {/* ============================================================
@@ -334,21 +329,11 @@ export default function SmartInput() {
             >
             <Search
               aria-hidden="true"
-              className="
-                h-[18px]
-                w-[18px]
-                shrink-0
-                text-slate-500
-              "
+              className=" h-[18px] w-[18px] shrink-0 text-slate-500 light:text-slate-500"
             />
 
             <span
-              className="
-                text-xs
-                font-medium
-                tracking-wide
-                text-slate-300
-              "
+              className=" text-xs font-medium tracking-wide text-slate-300 light:text-slate-700"
             >
               Smart Toolverse input
             </span>
@@ -368,31 +353,7 @@ export default function SmartInput() {
             placeholder={placeholder}
             rows={5}
             aria-label="Paste or enter content for Toolverse"
-            className="
-              relative
-              z-[1]
-              block
-              min-h-[168px]
-              w-full
-              resize-none
-              rounded-2xl
-              border-0
-              bg-transparent
-              px-5
-              pb-[64px]
-              pt-[52px]
-              text-[15px]
-              leading-7
-              text-slate-100
-              outline-none
-              placeholder:text-slate-500/90
-              focus:outline-none
-
-              sm:min-h-[174px]
-              sm:text-base
-
-              md:pb-[64px]
-            "
+            className=" relative z-[1] block min-h-[168px] w-full resize-none rounded-2xl border-0 bg-transparent px-5 pb-[64px] pt-[52px] text-[15px] leading-7 text-slate-100 outline-none placeholder:text-slate-500/90 focus:outline-none sm:min-h-[174px] sm:text-base md:pb-[64px] light:text-slate-900"
           />
 
           {/* ============================================================
@@ -419,41 +380,15 @@ export default function SmartInput() {
               px-3
               py-2
               md:hidden
+              light:border-slate-900/10
+              light:bg-slate-900/[0.04]
             "
           >
             {value ? (
               <button
                 type="button"
                 onClick={copyInput}
-                className="
-                  inline-flex
-                  min-h-10
-                  items-center
-                  gap-2
-                  rounded-xl
-                  border
-                  border-white/[0.10]
-                  bg-[#080b1d]/90
-                  px-3.5
-                  py-2
-                  text-xs
-                  font-medium
-                  text-slate-300
-                  shadow-lg
-                  shadow-black/10
-                  backdrop-blur-md
-                  transition-all
-                  duration-200
-                  hover:border-violet-400/30
-                  hover:bg-[#0d1028]
-                  hover:text-white
-                  hover:shadow-violet-500/10
-                  focus:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-violet-400/60
-                  focus-visible:ring-offset-2
-                  focus-visible:ring-offset-[#030617]
-                "
+                className=" inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-violet-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-violet-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-violet-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
               >
                 {copied ? (
                   <>
@@ -476,31 +411,7 @@ export default function SmartInput() {
                 fileInputRef.current?.click()
               }
               aria-label="Upload an image"
-              className="
-                inline-flex
-                min-h-9
-                items-center
-                gap-2
-                rounded-lg
-                border
-                border-white/[0.10]
-                bg-white/[0.025]
-                px-3
-                py-1.5
-                text-xs
-                font-medium
-                text-slate-300
-                transition-all
-                duration-200
-                hover:border-violet-400/25
-                hover:bg-white/[0.055]
-                hover:text-white
-                focus:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-violet-400/60
-                focus-visible:ring-offset-2
-                focus-visible:ring-offset-[#030617]
-              "
+              className=" inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.025] px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-violet-400/25 hover:bg-white/[0.055] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] light:border-slate-900/15 light:bg-white light:text-slate-700 light:hover:border-violet-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
             >
               <Upload
                 aria-hidden="true"
@@ -521,40 +432,7 @@ export default function SmartInput() {
             <button
               type="button"
               onClick={copyInput}
-              className="
-                absolute
-                bottom-3
-                right-3
-                z-20
-                hidden
-                min-h-10
-                items-center
-                gap-2
-                rounded-xl
-                border
-                border-white/[0.10]
-                bg-[#080b1d]/90
-                px-3.5
-                py-2
-                text-xs
-                font-medium
-                text-slate-300
-                shadow-lg
-                shadow-black/10
-                backdrop-blur-md
-                transition-all
-                duration-200
-                hover:border-violet-400/30
-                hover:bg-[#0d1028]
-                hover:text-white
-                hover:shadow-violet-500/10
-                focus:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-violet-400/60
-                focus-visible:ring-offset-2
-                focus-visible:ring-offset-[#030617]
-                md:inline-flex
-              "
+              className=" absolute bottom-3 right-3 z-20 hidden min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-violet-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-violet-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:text-slate-700 light:shadow-slate-900/10 light:hover:text-slate-900"
             >
               {copied ? (
                 <>
@@ -578,16 +456,7 @@ export default function SmartInput() {
           {fileName ? (
             <span
               title={fileName}
-              className="
-                absolute
-                bottom-3
-                left-4
-                z-20
-                max-w-[42%]
-                truncate
-                text-xs
-                text-slate-500
-              "
+              className=" absolute bottom-3 left-4 z-20 max-w-[42%] truncate text-xs text-slate-500 light:text-slate-500"
             >
               {fileName}
             </span>
@@ -631,13 +500,7 @@ export default function SmartInput() {
             "
           >
             <p
-              className="
-                text-center
-                text-xs
-                leading-5
-                text-slate-500
-                md:pr-36
-              "
+              className=" text-center text-xs leading-5 text-slate-500 md:pr-36 light:text-slate-500"
             >
               Paste anything and Toolverse will suggest
               the right tool.
@@ -649,43 +512,7 @@ export default function SmartInput() {
                 fileInputRef.current?.click()
               }
               aria-label="Upload an image"
-              className="
-                absolute
-                right-3
-                top-1/2
-                hidden
-                min-h-10
-                -translate-y-1/2
-                items-center
-                gap-2
-                rounded-xl
-                border
-                border-white/[0.10]
-                bg-[#080b1d]/90
-                px-3.5
-                py-2
-                text-xs
-                font-medium
-                text-slate-300
-                shadow-lg
-                shadow-black/10
-                backdrop-blur-md
-                transition-all
-                duration-200
-
-                hover:border-violet-400/30
-                hover:bg-[#0d1028]
-                hover:text-white
-                hover:shadow-violet-500/10
-
-                focus:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-violet-400/60
-                focus-visible:ring-offset-2
-                focus-visible:ring-offset-[#030617]
-
-                md:inline-flex
-              "
+              className=" absolute right-3 top-1/2 hidden min-h-10 -translate-y-1/2 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-violet-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-violet-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-violet-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
             >
               <Upload
                 aria-hidden="true"
@@ -752,22 +579,13 @@ export default function SmartInput() {
 
               <div className="min-w-0">
                 <p
-                  className="
-                    text-sm
-                    font-semibold
-                    text-white
-                  "
+                  className=" text-sm font-semibold text-white light:text-slate-900"
                 >
                   {detection.label}
                 </p>
 
                 <p
-                  className="
-                    mt-0.5
-                    text-xs
-                    leading-5
-                    text-slate-400
-                  "
+                  className=" mt-0.5 text-xs leading-5 text-slate-400 light:text-slate-600"
                 >
                   {detection.description}
                 </p>

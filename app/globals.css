@@ -1,8 +1,263 @@
 @import "tailwindcss";
 
-:root {
+@custom-variant light (&:where([data-theme="light"], [data-theme="light"] *));
+
+:root,
+[data-theme="dark"] {
   --background: #020617;
   --foreground: #ffffff;
+  --surface: #ffffff;
+  --surface-muted: rgba(255, 255, 255, 0.03);
+  --surface-strong: #0f172a;
+  --border: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent: #7c3aed;
+  --accent-soft: rgba(124, 58, 237, 0.15);
+  --accent-text: #ddd6fe;
+  --ring-offset: #020617;
+  --card: rgba(255, 255, 255, 0.03);
+  --card-hover: rgba(255, 255, 255, 0.05);
+  --code-bg: #020617;
+  --scrollbar-track: #020617;
+  --scrollbar-thumb: #334155;
+  --scrollbar-thumb-hover: #475569;
+}
+
+[data-theme="light"] {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #0f172a;
+  --surface-muted: rgba(15, 23, 42, 0.04);
+  --surface-strong: #ffffff;
+  --border: rgba(15, 23, 42, 0.1);
+  --border-strong: rgba(15, 23, 42, 0.15);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --accent: #7c3aed;
+  --accent-soft: rgba(124, 58, 237, 0.1);
+  --accent-text: #5b21b6;
+  --ring-offset: #f8fafc;
+  --card: rgba(15, 23, 42, 0.03);
+  --card-hover: rgba(15, 23, 42, 0.06);
+  --code-bg: #0f172a;
+  --scrollbar-track: #e2e8f0;
+  --scrollbar-thumb: #94a3b8;
+  --scrollbar-thumb-hover: #64748b;
+
+  --color-slate-50: #f8fafc;
+  --color-slate-100: #f1f5f9;
+  --color-slate-200: #e2e8f0;
+  --color-slate-300: #cbd5e1;
+  --color-slate-400: #94a3b8;
+  --color-slate-500: #64748b;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1e293b;
+  --color-slate-900: #0f172a;
+  --color-slate-950: #020617;
+}
+[data-theme="light"] .border-white\/10,
+[data-theme="light"] .border-white\/15,
+[data-theme="light"] .border-white\/20,
+[data-theme="light"] .border-white\/\[0\.10\],
+[data-theme="light"] .border-white\/\[0\.08\],
+[data-theme="light"] .border-white\/\[0\.09\],
+[data-theme="light"] .border-white\/\[0\.055\] {
+  border-color: color-mix(in oklab, var(--color-slate-900, #0f172a) 12%, transparent);
+}
+[data-theme="light"] .bg-white\/\[0\.03\],
+[data-theme="light"] .bg-white\/\[0\.035\],
+[data-theme="light"] .bg-white\/\[0\.025\],
+[data-theme="light"] .bg-white\/\[0\.05\],
+[data-theme="light"] .bg-white\/\[0\.055\],
+[data-theme="light"] .bg-white\/\[0\.06\] {
+  background-color: #ffffff;
+}
+
+/* Semi-opaque dark overlays → light tint */
+[data-theme="light"] .bg-black\/\[0\.10\],
+[data-theme="light"] .bg-black\/\[0\.08\],
+[data-theme="light"] .bg-black\/10 {
+  background-color: rgba(15, 23, 42, 0.05);
+}
+
+/* White/10 hover background → dark tint */
+[data-theme="light"] .bg-white\/10 {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+
+/* Gradient card surfaces (from-white/to-white) */
+[data-theme="light"] .from-white\/\[0\.06\],
+[data-theme="light"] .from-white\/\[0\.05\],
+[data-theme="light"] .via-white\/\[0\.03\],
+[data-theme="light"] .via-white\/\[0\.025\],
+[data-theme="light"] .to-white\/\[0\.025\],
+[data-theme="light"] .to-white\/\[0\.02\] {
+  --tw-gradient-from: rgba(15, 23, 42, 0.04);
+  --tw-gradient-via: rgba(15, 23, 42, 0.02);
+  --tw-gradient-to: rgba(15, 23, 42, 0.02);
+}
+
+/* ── Hover states ─────────────────────────────────────────────────────────── */
+[data-theme="light"] .hover\:bg-white\/10:hover {
+  background-color: rgba(15, 23, 42, 0.08);
+}
+[data-theme="light"] .hover\:bg-white\/\[0\.05\]:hover,
+[data-theme="light"] .hover\:bg-white\/\[0\.06\]:hover {
+  background-color: rgba(15, 23, 42, 0.06);
+}
+[data-theme="light"] .hover\:bg-white\/\[0\.03\]:hover {
+  background-color: rgba(15, 23, 42, 0.05);
+}
+[data-theme="light"] .hover\:text-white:hover {
+  color: color-mix(in oklab, var(--color-slate-900, #0f172a) 100%, transparent);
+}
+[data-theme="light"] .hover\:text-slate-300:hover {
+  color: color-mix(in oklab, var(--color-slate-700, #334155) 100%, transparent);
+}
+
+/* ── Focus ring offsets ───────────────────────────────────────────────────── */
+[data-theme="light"] .focus-visible\:ring-offset-slate-950:focus-visible,
+[data-theme="light"] .focus-visible\:ring-offset-\[030617\]:focus-visible {
+  --tw-ring-offset-color: color-mix(in oklab, var(--color-slate-50, #f8fafc) 100%, transparent);
+}
+
+/* ── White text on non-colored elements → dark text ───────────────────────── */
+[data-theme="light"] .text-white {
+  color: color-mix(in oklab, var(--color-slate-900, #0f172a) 100%, transparent) !important;
+}
+
+/* Dark-grained text-slate-200/300/400 on any element → darker for light bg */
+[data-theme="light"] .text-slate-300 {
+  color: color-mix(in oklab, var(--color-slate-700, #334155) 100%, transparent) !important;
+}
+[data-theme="light"] .text-slate-200 {
+  color: color-mix(in oklab, var(--color-slate-800, #1e293b) 100%, transparent) !important;
+}
+[data-theme="light"] .text-slate-400 {
+  color: color-mix(in oklab, var(--color-slate-600, #475569) 100%, transparent) !important;
+}
+
+/* ── Disabled states ──────────────────────────────────────────────────────── */
+[data-theme="light"] .disabled\:bg-slate-700:disabled,
+[data-theme="light"] .disabled\:bg-slate-800:disabled {
+  background-color: color-mix(in oklab, var(--color-slate-200, #e2e8f0) 100%, transparent);
+}
+
+/* ── Low-opacity buttons/links → readable in light mode ─────────────────────
+ *  opacity-40 used for disabled-ish states; in dark mode it's a stylistic
+ *  choice, but on white it makes button text unreadable.
+ */
+[data-theme="light"] [role="button"].opacity-40,
+[data-theme="light"] [role="button"].opacity-50 {
+  opacity: 0.75;
+}
+[data-theme="light"] .disabled\:text-slate-400:disabled,
+[data-theme="light"] .disabled\:text-slate-500:disabled {
+  color: color-mix(in oklab, var(--color-slate-400, #94a3b8) 100%, transparent) !important;
+}
+
+/* ── Shadow color overrides ───────────────────────────────────────────────── */
+[data-theme="light"] .shadow-black\/10,
+[data-theme="light"] .shadow-black\/20,
+[data-theme="light"] .shadow-black\/\[0\.18\],
+[data-theme="light"] .shadow-black\/\[0\.25\],
+[data-theme="light"] .shadow-black\/\[0\.28\],
+[data-theme="light"] .shadow-black\/\[0\.30\] {
+  --tw-shadow-color: rgba(15, 23, 42, 0.08);
+}
+[data-theme="light"] .shadow-violet-950\/30,
+[data-theme="light"] .shadow-violet-950\/20 {
+  --tw-shadow-color: rgba(124, 58, 237, 0.1);
+}
+
+/* ── Blog prose ───────────────────────────────────────────────────────────── */
+[data-theme="light"] .prose.text-slate-300 {
+  color: color-mix(in oklab, var(--color-slate-700, #334155) 100%, transparent);
+}
+[data-theme="light"] .prose [class*="text-white"] {
+  color: color-mix(in oklab, var(--color-slate-900, #0f172a) 100%, transparent) !important;
+}
+[data-theme="light"] .prose [class*="text-slate-300"],
+[data-theme="light"] .prose [class*="text-slate-400"] {
+  color: color-mix(in oklab, var(--color-slate-600, #475569) 100%, transparent) !important;
+}
+
+[data-theme="light"] .text-violet-100,
+[data-theme="light"] .text-violet-200,
+[data-theme="light"] .text-violet-300,
+[data-theme="light"] .text-violet-400,
+[data-theme="light"] .text-violet-500 {
+  color: color-mix(in oklab, var(--color-violet-700, #6d28d9) 100%, transparent) !important;
+}
+[data-theme="light"] .text-violet-100\/80 {
+  color: color-mix(in oklab, var(--color-violet-700, #6d28d9) 100%, transparent);
+  opacity: 0.9;
+}
+
+/* ── White text on translucent violet backgrounds ───────────────────────────
+ *  In light mode, translucent violet backgrounds (bg-violet-600/20 etc.) are
+ *  nearly invisible against white, washing out white text.  Boost the
+ *  background to a solid violet so white labels stay crisp and on-brand.
+ */
+[data-theme="light"] [class*="bg-violet-600/20"][class*="text-white"],
+[data-theme="light"] [class*="bg-violet-600/15"][class*="text-white"],
+[data-theme="light"] [class*="bg-violet-500/20"][class*="text-white"],
+[data-theme="light"] [class*="bg-violet-500/35"][class*="text-white"] {
+  background-color: var(--accent, #7c3aed) !important;
+  color: white !important;
+}
+
+/* ── Solid violet backgrounds keep white text ──────────────────────────────
+ *  CTAs and buttons using bg-violet-600 + text-white must stay white in light
+ *  mode (the blanket .text-white rule above would dim them to dark slate).
+ */
+[data-theme="light"] [class*="bg-violet-600"][class*="text-white"]:not([class*="bg-violet-600/"]) {
+  color: white !important;
+}
+[data-theme="light"] .text-red-100,
+[data-theme="light"] .text-red-200,
+[data-theme="light"] .text-red-300,
+[data-theme="light"] .text-red-400 {
+  color: color-mix(in oklab, var(--color-red-600, #dc2626) 100%, transparent) !important;
+}
+[data-theme="light"] .text-emerald-100,
+[data-theme="light"] .text-emerald-200 {
+  color: color-mix(in oklab, var(--color-emerald-700, #047857) 100%, transparent) !important;
+}
+[data-theme="light"] .text-cyan-100,
+[data-theme="light"] .text-cyan-200,
+[data-theme="light"] .text-cyan-300 {
+  color: color-mix(in oklab, var(--color-cyan-700, #0e7490) 100%, transparent) !important;
+}
+[data-theme="light"] .text-amber-200,
+[data-theme="light"] .text-amber-300 {
+  color: color-mix(in oklab, var(--color-amber-700, #b45309) 100%, transparent) !important;
+}
+[data-theme="light"] .text-fuchsia-200,
+[data-theme="light"] .text-fuchsia-300 {
+  color: color-mix(in oklab, var(--color-fuchsia-700, #a21caf) 100%, transparent) !important;
+}
+[data-theme="light"] .text-blue-200,
+[data-theme="light"] .text-blue-300 {
+  color: color-mix(in oklab, var(--color-blue-700, #1d4ed8) 100%, transparent) !important;
+}
+[data-theme="light"] .text-indigo-200,
+[data-theme="light"] .text-indigo-300 {
+  color: color-mix(in oklab, var(--color-indigo-700, #4338ca) 100%, transparent) !important;
+}
+[data-theme="light"] .text-slate-100 {
+  color: color-mix(in oklab, var(--color-slate-800, #1e293b) 100%, transparent) !important;
+}
+
+/* ── Selection ────────────────────────────────────────────────────────────── */
+[data-theme="light"] ::selection {
+  background: #7c3aed;
+  color: white;
 }
 
 * {
@@ -18,7 +273,7 @@ body {
   min-height: 100vh;
   background:
     radial-gradient(circle at top, rgba(124, 58, 237, 0.18), transparent 35rem),
-    #020617;
+    var(--background);
   color: var(--foreground);
   overflow-x: hidden;
 }
@@ -41,6 +296,11 @@ button:disabled {
 textarea,
 input {
   color-scheme: dark;
+}
+
+[data-theme="light"] textarea,
+[data-theme="light"] input {
+  color-scheme: light;
 }
 
 img,
@@ -77,4 +337,22 @@ select {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Ensure text selection remains readable in light mode */
+[data-theme="light"] ::selection {
+  background: #7c3aed;
+  color: white;
 }

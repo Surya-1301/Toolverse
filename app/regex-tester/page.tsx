@@ -60,7 +60,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -259,7 +259,7 @@ export default function RegexTesterPage() {
           Regex Tester
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Test regular expressions with flags, match highlighting,
           capture groups, and detailed match positions.
         </p>
@@ -267,13 +267,13 @@ export default function RegexTesterPage() {
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         {/* Left panel */}
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-3 block text-sm font-semibold text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Regex input
           </label>
 
-          <div className="flex rounded-2xl border border-white/10 bg-slate-950 focus-within:border-violet-500">
-            <span className="border-r border-white/10 px-4 py-3 font-mono text-slate-500">
+          <div className="flex rounded-2xl border border-white/10 bg-slate-950 focus-within:border-violet-500 light:border-slate-900/10 light:bg-white">
+            <span className="border-r border-white/10 px-4 py-3 font-mono text-slate-500 light:border-slate-900/10 light:text-slate-500">
               /
             </span>
 
@@ -281,17 +281,17 @@ export default function RegexTesterPage() {
               value={pattern}
               onChange={(event) => setPattern(event.target.value)}
               placeholder="Enter regex pattern..."
-              className="min-w-0 flex-1 bg-transparent px-4 py-3 font-mono text-sm text-slate-100 outline-none placeholder:text-slate-600"
+              className="min-w-0 flex-1 bg-transparent px-4 py-3 font-mono text-sm text-slate-100 outline-none placeholder:text-slate-600 light:text-slate-900 light:placeholder:text-slate-400"
             />
 
-            <span className="border-l border-white/10 px-4 py-3 font-mono text-slate-500">
+            <span className="border-l border-white/10 px-4 py-3 font-mono text-slate-500 light:border-slate-900/10 light:text-slate-500">
               /{flagString}
             </span>
           </div>
 
           {/* Regex flags */}
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={flags.global}
@@ -304,7 +304,7 @@ export default function RegexTesterPage() {
               Global `g`
             </label>
 
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={flags.ignoreCase}
@@ -320,7 +320,7 @@ export default function RegexTesterPage() {
               Ignore case `i`
             </label>
 
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={flags.multiline}
@@ -336,7 +336,7 @@ export default function RegexTesterPage() {
               Multiline `m`
             </label>
 
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={flags.dotAll}
@@ -351,7 +351,7 @@ export default function RegexTesterPage() {
           </div>
 
           {/* Test text */}
-          <label className="mb-3 mt-5 block text-sm font-semibold text-slate-300">
+          <label className="mb-3 mt-5 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Test text
           </label>
 
@@ -359,7 +359,7 @@ export default function RegexTesterPage() {
             value={testText}
             onChange={(event) => setTestText(event.target.value)}
             placeholder="Paste test text here..."
-            className="min-h-[280px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[280px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
           {/* Error */}
@@ -374,7 +374,7 @@ export default function RegexTesterPage() {
             <button
               onClick={copyMatches}
               disabled={!matchOutput}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
             >
               {copied ? (
                 <CheckCircle2 className="h-4 w-4" />
@@ -398,20 +398,20 @@ export default function RegexTesterPage() {
         {/* Right panel */}
         <div className="space-y-6">
           {/* Match highlighting */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <label className="block text-sm font-semibold text-slate-300">
+              <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Match highlighting
               </label>
 
-              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                 {result.matches.length} match
                 {result.matches.length === 1 ? "" : "es"}
               </span>
             </div>
 
             <div
-              className="min-h-[260px] whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-7 text-slate-200"
+              className="min-h-[260px] whitespace-pre-wrap rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-7 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-800"
               dangerouslySetInnerHTML={{
                 __html:
                   highlightedHtml ||
@@ -421,8 +421,8 @@ export default function RegexTesterPage() {
           </div>
 
           {/* Match details */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-            <label className="mb-3 block text-sm font-semibold text-slate-300">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+            <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Match details
             </label>
 
@@ -430,7 +430,7 @@ export default function RegexTesterPage() {
               readOnly
               value={matchOutput}
               placeholder="Match details will appear here..."
-              className="min-h-[260px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
+              className="min-h-[260px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
         </div>

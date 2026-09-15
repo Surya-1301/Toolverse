@@ -25,7 +25,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -61,7 +61,7 @@ function UrlShortenerLoading() {
   return (
     <Container className="py-12 sm:py-16">
       <div className="flex min-h-[400px] items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-400">
+        <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading URL Shortener...
         </div>
@@ -309,15 +309,15 @@ function UrlShortenerContent() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           URL Shortener
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Shrink long URLs into clean, memorable links you can share anywhere.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="space-y-5">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
               Long URL
             </label>
 
@@ -326,19 +326,19 @@ function UrlShortenerContent() {
               onChange={(event) => setLongUrl(event.target.value)}
               placeholder="https://example.com/very/long/url"
               type="url"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">
+              <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                 Custom alias{" "}
-                <span className="font-normal text-slate-500">(optional)</span>
+                <span className="font-normal text-slate-500 light:text-slate-500">(optional)</span>
               </label>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <span className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-400 sm:justify-start">
+                <span className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-400 sm:justify-start light:border-slate-900/10 light:bg-white light:text-slate-600">
                   /s/
                 </span>
 
@@ -348,20 +348,20 @@ function UrlShortenerContent() {
                     setCustomSlug(event.target.value.toLowerCase())
                   }
                   placeholder="my-link"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">
+              <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                 Expires
               </label>
 
               <select
                 value={expiry}
                 onChange={(event) => setExpiry(event.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 {expiryOptions.map((item) => (
                   <option key={item.value} value={item.value}>
@@ -373,7 +373,7 @@ function UrlShortenerContent() {
           </div>
 
           {error ? (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200 light:text-red-700">
               {error}
             </div>
           ) : null}
@@ -388,13 +388,13 @@ function UrlShortenerContent() {
                 <input
                   value={shortUrl}
                   readOnly
-                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                 />
 
                 <button
                   type="button"
                   onClick={copyShortUrl}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10  px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 light:border-slate-900/10 light:text-slate-900"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -410,7 +410,7 @@ function UrlShortenerContent() {
                   href={shortUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   Open
                   <ExternalLink className="h-4 w-4" />
@@ -418,7 +418,7 @@ function UrlShortenerContent() {
 
                 <Link
                   href={qrHref}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   <QrCode className="h-4 w-4" />
                   QR
@@ -433,10 +433,10 @@ function UrlShortenerContent() {
 
           {/* Click Stats */}
           {clicks !== null && clicks > 0 && clickLogs.length > 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
               <div className="mb-4 flex items-center gap-2">
                 <BarChart3 className="h-5 w-5 text-violet-400" />
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-white light:text-slate-900">
                   Click Statistics
                 </h3>
                 <span className="ml-auto rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs font-semibold text-violet-300">
@@ -461,16 +461,16 @@ function UrlShortenerContent() {
 
                 return (
                   <div className="mb-4">
-                    <p className="mb-2 text-xs font-medium text-slate-400">
+                    <p className="mb-2 text-xs font-medium text-slate-400 light:text-slate-600">
                       Clicks by date
                     </p>
                     <div className="space-y-1.5">
                       {sortedDates.map(([date, count]) => (
                         <div key={date} className="flex items-center gap-2">
-                          <span className="w-20 shrink-0 text-right font-mono text-[11px] text-slate-500">
+                          <span className="w-20 shrink-0 text-right font-mono text-[11px] text-slate-500 light:text-slate-500">
                             {date.slice(5)}
                           </span>
-                          <div className="relative h-4 flex-1 overflow-hidden rounded bg-white/5">
+                          <div className="relative h-4 flex-1 overflow-hidden rounded bg-white/5 light:bg-white/5">
                             <div
                               className="absolute inset-y-0 left-0 rounded bg-violet-500/40"
                               style={{
@@ -478,7 +478,7 @@ function UrlShortenerContent() {
                               }}
                             />
                           </div>
-                          <span className="w-8 text-right font-mono text-[11px] text-slate-400">
+                          <span className="w-8 text-right font-mono text-[11px] text-slate-400 light:text-slate-600">
                             {count}
                           </span>
                         </div>
@@ -505,14 +505,14 @@ function UrlShortenerContent() {
 
                 return (
                   <div className="mb-4">
-                    <p className="mb-2 text-xs font-medium text-slate-400">
+                    <p className="mb-2 text-xs font-medium text-slate-400 light:text-slate-600">
                       Top referrers
                     </p>
                     <div className="flex flex-wrap gap-1.5">
                       {topRefs.map(([ref, count]) => (
                         <span
                           key={ref}
-                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-slate-300"
+                          className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700"
                         >
                           {ref}
                           <span className="font-mono text-violet-400">
@@ -527,13 +527,13 @@ function UrlShortenerContent() {
 
               {/* Recent clicks */}
               <div>
-                <p className="mb-2 text-xs font-medium text-slate-400">
+                <p className="mb-2 text-xs font-medium text-slate-400 light:text-slate-600">
                   Recent clicks
                 </p>
-                <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+                <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-white/10 text-slate-500">
+                      <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
                         <th className="px-3 py-2 font-medium">Time</th>
                         <th className="px-3 py-2 font-medium">Referrer</th>
                         <th className="hidden px-3 py-2 font-medium sm:table-cell">
@@ -581,8 +581,8 @@ function UrlShortenerContent() {
                         }
 
                         return (
-                          <tr key={i} className="text-slate-300">
-                            <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-slate-400">
+                          <tr key={i} className="text-slate-300 light:text-slate-700">
+                            <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-slate-400 light:text-slate-600">
                               {dateStr} {timeStr}
                             </td>
                             <td className="max-w-[150px] truncate px-3 py-2">
@@ -629,18 +629,18 @@ function UrlShortenerContent() {
           {/* Recent Shortened URLs (persisted per-browser) */}
       {hasHydrated && recentUrls.length > 0 ? (
         <div className="mx-auto mt-5 max-w-6xl">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <div className="mb-4 flex items-center gap-2">
               <Link2 className="h-5 w-5 text-violet-400" />
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-semibold text-white light:text-slate-900">
                 Recent Shortened URLs
               </h3>
             </div>
 
-            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/10 text-slate-500">
+                  <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
                     <th className="px-3 py-2 font-medium">Slug</th>
                     <th className="hidden px-3 py-2 text-center font-medium sm:table-cell">
                       Expires
@@ -655,8 +655,8 @@ function UrlShortenerContent() {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {recentUrls.map((shortened) => (
-                    <tr key={shortened.slug} className="text-slate-300">
-                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                    <tr key={shortened.slug} className="text-slate-300 light:text-slate-700">
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300 light:text-violet-700">
                         /s/{shortened.slug}
                       </td>
                       <td className="hidden whitespace-nowrap px-3 py-2 text-center sm:table-cell">
@@ -671,7 +671,7 @@ function UrlShortenerContent() {
                             href={`${window.location.origin}/go?slug=${shortened.slug}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"
                           >
                             Open
                           </a>
@@ -682,7 +682,7 @@ function UrlShortenerContent() {
                                 prev.filter((u) => u.slug !== shortened.slug),
                               )
                             }
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
                           >
                             Remove
                           </button>
@@ -695,7 +695,7 @@ function UrlShortenerContent() {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <p className="text-xs text-slate-500"></p>
+              <p className="text-xs text-slate-500 light:text-slate-500"></p>
               <button
                 type="button"
                 onClick={() => setRecentUrls([])}
@@ -759,7 +759,7 @@ function UrlShortenerContent() {
         <div className="mx-auto max-w-xl">
           <h2
             id="mobile-how-to-use-title"
-            className="text-center text-2xl font-bold tracking-tight text-white"
+            className="text-center text-2xl font-bold tracking-tight text-white light:text-slate-900"
           >
 How to use URL Shortener
           </h2>
@@ -799,17 +799,17 @@ How to use URL Shortener
             ].map((step) => (
               <div
                 key={step.title}
-                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 light:border-slate-900/10 light:bg-white"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
                   {step.icon}
                 </div>
 
                 <div className="min-w-0 flex-1 text-left">
-                  <h3 className="text-sm font-semibold text-white">
+                  <h3 className="text-sm font-semibold text-white light:text-slate-900">
                     {step.title}
                   </h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                  <p className="mt-1 text-xs leading-5 text-slate-400 light:text-slate-600">
                     {step.description}
                   </p>
                 </div>
@@ -824,35 +824,35 @@ How to use URL Shortener
         className="mx-auto mt-16 max-w-6xl"
         aria-label="URL shortener statistics"
       >
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-10 sm:py-12">
-          <div className="mb-8 text-xs font-semibold uppercase tracking-[0.32em] text-slate-500">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-10 sm:py-12 light:border-slate-900/10 light:bg-white">
+          <div className="mb-8 text-xs font-semibold uppercase tracking-[0.32em] text-slate-500 light:text-slate-500">
             Live stats
           </div>
 
           <div className="grid gap-10 sm:grid-cols-3 sm:gap-6">
             <div>
-              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl light:text-slate-900">
                 {urlStats === null ? "…" : urlStats.total.toLocaleString("en-IN")}
               </div>
-              <p className="mt-4 text-base text-slate-400 sm:text-lg">
+              <p className="mt-4 text-base text-slate-400 sm:text-lg light:text-slate-600">
                 URLs shortened
               </p>
             </div>
 
             <div>
-              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl light:text-slate-900">
                 {urlStats === null ? "…" : urlStats.clicks.toLocaleString("en-IN")}
               </div>
-              <p className="mt-4 text-base text-slate-400 sm:text-lg">
+              <p className="mt-4 text-base text-slate-400 sm:text-lg light:text-slate-600">
                 Total clicks
               </p>
             </div>
 
             <div>
-              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl">
+              <div className="text-5xl font-extrabold leading-none tracking-tight text-white sm:text-6xl light:text-slate-900">
                 {urlStats === null ? "…" : urlStats.active.toLocaleString("en-IN")}
               </div>
-              <p className="mt-4 text-base text-slate-400 sm:text-lg">
+              <p className="mt-4 text-base text-slate-400 sm:text-lg light:text-slate-600">
                 Active links
               </p>
             </div>

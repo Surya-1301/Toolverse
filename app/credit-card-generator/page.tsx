@@ -293,7 +293,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -395,13 +395,13 @@ export default function CreditCardGeneratorPage() {
           Credit Card Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Generate realistic test cards from any BIN/IIN prefix, or validate any
           number&apos;s checksum — for testing forms and checkouts.
         </p>
       </div>
 
-      <div className="-mx-4 mt-6 border-y border-white/10 bg-white/[0.03] p-4 sm:mx-auto sm:mt-10 sm:max-w-3xl sm:rounded-3xl sm:border sm:p-6">
+      <div className="-mx-4 mt-6 border-y border-white/10 bg-white/[0.03] p-4 sm:mx-auto sm:mt-10 sm:max-w-3xl sm:rounded-3xl sm:border sm:p-6 light:border-slate-900/10 light:bg-white">
         {/* Tab switcher */}
         <div className="flex gap-2">
           {(
@@ -418,7 +418,7 @@ export default function CreditCardGeneratorPage() {
                 "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition sm:flex-none sm:justify-start",
                 tab === item.key
                   ? "border-violet-500 bg-violet-600/20 text-white"
-                  : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                  : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10 light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-100 light:hover:text-slate-900",
               ].join(" ")}
             >
               {item.icon}
@@ -431,7 +431,7 @@ export default function CreditCardGeneratorPage() {
           <>
             {/* Brand selector */}
         <div>
-          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+          <p className="mb-4 text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
           </p>
           <div className="flex flex-wrap gap-2">
             {SELECTABLE_BRANDS.map((b) => (
@@ -446,7 +446,7 @@ export default function CreditCardGeneratorPage() {
                   "rounded-xl border px-3 py-2 text-xs font-semibold transition",
                   brandChoice === b.key && !bin
                     ? "border-violet-500 bg-violet-600/20 text-white"
-                    : "border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10 hover:text-white",
+                    : "border-white/10 light:border-slate-900/10 bg-white/[0.03] light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10 hover:text-white light:hover:text-slate-900",
                 ].join(" ")}
               >
                 {b.label}
@@ -456,10 +456,10 @@ export default function CreditCardGeneratorPage() {
         </div>
 
         {/* BIN / IIN input */}
-        <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
+        <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
           <label
             htmlFor="bin-input"
-            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500"
+            className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500"
           >
             <Hash className="h-3.5 w-3.5" />
             BIN / IIN prefix (optional)
@@ -474,17 +474,17 @@ export default function CreditCardGeneratorPage() {
             spellCheck={false}
             maxLength={MAX_BIN_LENGTH}
             placeholder="411111"
-            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 font-mono text-lg tracking-widest text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 font-mono text-lg tracking-widest text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
-          <p className="mt-2 text-xs leading-5 text-slate-500">
+          <p className="mt-2 text-xs leading-5 text-slate-500 light:text-slate-500">
             Enter an issuer prefix to generate cards on that exact BIN. Leave it
             empty to use the selected network.
           </p>
 
           {binInfo ? (
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs text-slate-400">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-slate-300">
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-slate-300 light:text-slate-700">
                 <CreditCard className="h-3.5 w-3.5" />
                 {binInfo.brand ?? "Unknown network"}
               </span>
@@ -515,7 +515,7 @@ export default function CreditCardGeneratorPage() {
                   "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition",
                   bin === preset.bin
                     ? "border-violet-500 bg-violet-600/20 text-white"
-                    : "border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10 hover:text-white",
+                    : "border-white/10 light:border-slate-900/10 bg-white/[0.03] light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10 hover:text-white light:hover:text-slate-900",
                 ].join(" ")}
               >
                 <ScanLine className="h-3.5 w-3.5" />
@@ -555,8 +555,8 @@ export default function CreditCardGeneratorPage() {
                   BRAND_ACCENTS[card.brand],
                 ].join(" ")}
               >
-                <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-white/10" />
-                <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-black/20" />
+                <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-white/10 light:bg-slate-900/5" />
+                <div className="absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-black/20 light:bg-slate-900/5" />
 
                 <div className="relative flex items-start justify-between">
                   <span className="inline-flex items-center gap-1.5 rounded-lg bg-black/25 px-2 py-1 text-[11px] font-semibold uppercase tracking-wider">
@@ -607,22 +607,22 @@ export default function CreditCardGeneratorPage() {
               ).map((field) => (
                 <div
                   key={field.key}
-                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3"
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-white"
                 >
                   <div className="flex min-w-0 items-center gap-3">
-                    <span className="text-slate-500">{field.icon}</span>
+                    <span className="text-slate-500 light:text-slate-500">{field.icon}</span>
                     <div className="min-w-0">
-                      <p className="text-[11px] uppercase tracking-wider text-slate-500">
+                      <p className="text-[11px] uppercase tracking-wider text-slate-500 light:text-slate-500">
                         {field.label}
                       </p>
-                      <p className="truncate font-mono text-sm text-white">
+                      <p className="truncate font-mono text-sm text-white light:text-slate-900">
                         {field.value}
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => copyField(field.key, field.value)}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1.5 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-700 light:hover:bg-slate-900/10 light:hover:text-slate-900"
                   >
                     {copiedField === field.key ? (
                       <Check className="h-3.5 w-3.5" />
@@ -650,7 +650,7 @@ export default function CreditCardGeneratorPage() {
               </button>
               <button
                 onClick={regenerate}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 sm:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 <RefreshCw className="h-4 w-4" />
                 New card
@@ -673,7 +673,7 @@ export default function CreditCardGeneratorPage() {
         ) : (
           /* ---------- VALIDATE TAB ---------- */
           <div className="mt-5">
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Card number
             </label>
             <input
@@ -681,7 +681,7 @@ export default function CreditCardGeneratorPage() {
               onChange={(event) => setValidateInput(event.target.value)}
               inputMode="numeric"
               placeholder="4111 1111 1111 1111"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg tracking-wider text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg tracking-wider text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {validation ? (
@@ -717,26 +717,26 @@ export default function CreditCardGeneratorPage() {
                   >
                     {validation.valid ? "Valid card number" : "Invalid card number"}
                   </p>
-                  <p className="mt-0.5 break-all text-sm text-slate-400">
+                  <p className="mt-0.5 break-all text-sm text-slate-400 light:text-slate-600">
                     {groupDigits(validation.digits)}
                   </p>
                 </div>
 
-                <div className="w-full shrink-0 border-t border-white/10 pt-3 text-left sm:w-auto sm:border-0 sm:pt-0 sm:text-right">
+                <div className="w-full shrink-0 border-t border-white/10 pt-3 text-left sm:w-auto sm:border-0 sm:pt-0 sm:text-right light:border-slate-900/10">
                   <div className="flex items-center gap-2 sm:justify-end">
-                    <Fingerprint className="h-4 w-4 text-slate-500" />
-                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                    <Fingerprint className="h-4 w-4 text-slate-500 light:text-slate-500" />
+                    <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 light:text-slate-600">
                       {validation.brand ?? "Unknown brand"}
                     </span>
                   </div>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                     Luhn checksum: {validation.valid ? "passed ✓" : "failed ✗"}
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="mt-4 flex min-h-[72px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center">
-                <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500">
+              <div className="mt-4 flex min-h-[72px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+                <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
                   <Fingerprint className="h-4 w-4" />
                   Enter a card number to check its validity and brand.
                 </p>
@@ -748,7 +748,7 @@ export default function CreditCardGeneratorPage() {
               <button
                 onClick={copyValidated}
                 disabled={!validateInput}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 {validCopied ? (
                   <Check className="h-4 w-4" />

@@ -51,7 +51,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -234,26 +234,26 @@ export default function BackgroundRemoverPage() {
           Background Remover
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
          Upload an image, instantly erase the background, and save it as a transparent PNG.
 
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
+          <h2 className="mb-4 text-lg font-semibold text-white light:text-slate-900">
             Upload image
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
             <Upload className="mb-3 h-9 w-9 text-violet-300" />
 
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-white light:text-slate-900">
               Click to choose image
             </span>
 
-            <span className="mt-2 text-sm leading-6 text-slate-500">
+            <span className="mt-2 text-sm leading-6 text-slate-500 light:text-slate-500">
               Allowed: PNG, JPG, JPEG, or WebP up to 25 MB.
             </span>
 
@@ -266,14 +266,14 @@ export default function BackgroundRemoverPage() {
           </label>
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
-                <span className="font-semibold text-slate-300">Selected:</span>{" "}
+                <span className="font-semibold text-slate-300 light:text-slate-700">Selected:</span>{" "}
                 {file.name}
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">Type:</span>{" "}
+                <span className="font-semibold text-slate-300 light:text-slate-700">Type:</span>{" "}
                 {file.type || "Unknown"}
               </p>
             </div>
@@ -289,7 +289,7 @@ export default function BackgroundRemoverPage() {
             <button
               onClick={removeBackground}
               disabled={isProcessing}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
             >
               <Wand2 className="h-4 w-4" />
               {isProcessing ? "Removing..." : "Remove background"}
@@ -305,11 +305,11 @@ export default function BackgroundRemoverPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">Upload output</h2>
+            <h2 className="text-lg font-semibold text-white light:text-slate-900">Upload output</h2>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
               {isProcessing
                 ? "Processing"
                 : outputPreview
@@ -318,7 +318,7 @@ export default function BackgroundRemoverPage() {
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center">
+          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center light:border-slate-900/15 light:bg-white">
             {outputPreview ? (
               <img
                 src={outputPreview}
@@ -326,21 +326,21 @@ export default function BackgroundRemoverPage() {
                 className="max-h-[380px] max-w-full rounded-xl object-contain"
               />
             ) : (
-              <p className="text-sm leading-6 text-slate-500">
+              <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Your transparent background image appears here after processing.
               </p>
             )}
           </div>
 
           {resultBlob && file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
-                <span className="font-semibold text-slate-300">Output:</span>{" "}
+                <span className="font-semibold text-slate-300 light:text-slate-700">Output:</span>{" "}
                 {baseName(file)}-no-bg.png
               </p>
 
               <p className="mt-1">
-                <span className="font-semibold text-slate-300">Format:</span>{" "}
+                <span className="font-semibold text-slate-300 light:text-slate-700">Format:</span>{" "}
                 PNG with transparent background
               </p>
             </div>
@@ -349,7 +349,7 @@ export default function BackgroundRemoverPage() {
           <button
             onClick={downloadResult}
             disabled={!resultBlob}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200"
           >
             <Download className="h-4 w-4" />
             Download transparent PNG

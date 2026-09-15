@@ -229,7 +229,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/formatter-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -313,15 +313,15 @@ export default function SqlFormatterPage() {
           SQL Formatter
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Format, beautify, minify, remove comments, and copy SQL queries
           instantly in your browser.
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-3 block text-sm font-semibold text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
             SQL input
           </label>
 
@@ -329,19 +329,19 @@ export default function SqlFormatterPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder={"SELECT u.name, u.email, COUNT(o.id) AS order_count\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nWHERE u.active = 1\nGROUP BY u.id\nHAVING COUNT(o.id) > 5\nORDER BY order_count DESC\nLIMIT 10;"}
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <label className="block text-sm font-semibold text-slate-300">
+            <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
               Output
             </label>
 
             <button
               onClick={copyOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
             >
               {copied ? (
                 <Check className="h-4 w-4" />
@@ -356,7 +356,7 @@ export default function SqlFormatterPage() {
             readOnly
             value={output}
             placeholder="Output will appear here..."
-            className="min-h-[440px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[440px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
       </div>
@@ -364,7 +364,7 @@ export default function SqlFormatterPage() {
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={formatSql}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
           <Wand2 className="h-4 w-4" />
           Format SQL
@@ -372,7 +372,7 @@ export default function SqlFormatterPage() {
 
         <button
           onClick={minifySql}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
           <Minimize2 className="h-4 w-4" />
           Minify SQL
@@ -380,7 +380,7 @@ export default function SqlFormatterPage() {
 
         <button
           onClick={stripComments}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
           Remove comments
         </button>

@@ -118,19 +118,7 @@ export default function Home() {
         ================================================================== */}
 
         <h1
-          className="
-            mx-auto
-            mt-6
-            max-w-5xl
-            text-4xl
-            font-bold
-            leading-[1.05]
-            tracking-tight
-            text-white
-            sm:mt-7
-            sm:text-6xl
-            lg:text-7xl
-          "
+          className=" mx-auto mt-6 max-w-5xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:mt-7 sm:text-6xl lg:text-7xl light:text-slate-900"
         >
           Your everyday utility toolkit for the web.
         </h1>
@@ -140,16 +128,7 @@ export default function Home() {
         ================================================================== */}
 
         <p
-          className="
-            mx-auto
-            mt-6
-            max-w-3xl
-            text-base
-            leading-7
-            text-slate-300
-            sm:text-lg
-            sm:leading-8
-          "
+          className=" mx-auto mt-6 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8 light:text-slate-700"
         >
           Toolverse gives developers, creators, and everyday users clean tools
           for formatting, generating, compressing, hosting, sharing, and
@@ -223,26 +202,7 @@ export default function Home() {
             return (
               <div
                 key={feature.title}
-                className="
-                  group
-                  relative
-                  overflow-hidden
-                  rounded-3xl
-                  border
-                  border-white/10
-                  bg-gradient-to-b
-                  from-white/[0.06]
-                  to-white/[0.025]
-                  p-6
-                  text-left
-                  shadow-2xl
-                  shadow-black/10
-                  transition
-                  hover:-translate-y-1
-                  hover:border-violet-400/40
-                  
-                  max-sm:p-5
-                "
+                className=" group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 text-left shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:border-violet-400/40 max-sm:p-5 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10"
               >
                 {/* ==========================================================
                     CARD BACKGROUND GLOW
@@ -294,11 +254,11 @@ export default function Home() {
                     />
                   </div>
 
-                  <h2 className="text-base font-semibold text-white">
+                  <h2 className="text-base font-semibold text-white light:text-slate-900">
                     {feature.title}
                   </h2>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                     {feature.description}
                   </p>
                 </div>
@@ -349,24 +309,13 @@ export default function Home() {
                     "
                   >
                     <h2
-                      className="
-                        text-[20px]
-                        font-bold
-                        leading-[1.3]
-                        tracking-tight
-                        text-white
-                      "
+                      className=" text-[20px] font-bold leading-[1.3] tracking-tight text-white light:text-slate-900"
                     >
                       {feature.title}
                     </h2>
 
                     <p
-                      className="
-                        mt-3
-                        text-[16px]
-                        leading-7
-                        text-slate-400
-                      "
+                      className=" mt-3 text-[16px] leading-7 text-slate-400 light:text-slate-600"
                     >
                       {feature.description}
                     </p>

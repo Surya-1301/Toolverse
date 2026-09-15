@@ -23,7 +23,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -183,15 +183,15 @@ export default function FakeAddressGeneratorPage() {
           Fake Address Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
        Generate realistic fake profiles with names, addresses, emails, and phones for testing and demos.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         {/* Locale picker */}
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-300">
+          <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Location
           </label>
           <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
@@ -208,7 +208,7 @@ export default function FakeAddressGeneratorPage() {
                   "inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition sm:justify-start",
                   selectedLocale.key === loc.key
                     ? "border-violet-500 bg-violet-600/20 text-white"
-                    : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                    : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
                 <span>{loc.flag}</span>
@@ -220,29 +220,29 @@ export default function FakeAddressGeneratorPage() {
 
         {/* Zipcode/Pincode input */}
         <div className="mt-5">
-          <label className="mb-2 block text-sm font-semibold text-slate-300">
+          <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Zipcode / Pincode (optional)
           </label>
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 light:text-slate-500" />
             <input
               type="text"
               value={zipcode}
               onChange={(e) => setZipcode(e.target.value)}
               placeholder="Enter zipcode to generate addresses for a specific area"
-              className="w-full rounded-xl border border-white/10 bg-slate-950 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
           {zipcode && (
-            <p className="mt-1 text-xs text-slate-500">
-              Generating addresses for zipcode: <span className="font-mono text-slate-300">{zipcode}</span>
+            <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
+              Generating addresses for zipcode: <span className="font-mono text-slate-300 light:text-slate-700">{zipcode}</span>
             </p>
           )}
         </div>
 
         {/* Count */}
         <div className="mt-5">
-          <label className="mb-2 block text-sm font-semibold text-slate-300">
+          <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Count: {count}
           </label>
           <input
@@ -258,7 +258,7 @@ export default function FakeAddressGeneratorPage() {
 
         {/* Format toggle */}
         <div className="mt-5">
-          <label className="mb-2 block text-sm font-semibold text-slate-300">
+          <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Format
           </label>
           <div className="grid grid-cols-2 gap-2">
@@ -271,7 +271,7 @@ export default function FakeAddressGeneratorPage() {
                   "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                   style === opt
                     ? "border-violet-500 bg-violet-600/20 text-white"
-                    : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                    : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
                 {opt === "multi" ? "Multi-line" : "Single-line"}
@@ -293,7 +293,7 @@ export default function FakeAddressGeneratorPage() {
           <button
             onClick={copyAll}
             disabled={!addresses.length}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -306,7 +306,7 @@ export default function FakeAddressGeneratorPage() {
           <button
             onClick={downloadCsv}
             disabled={!addresses.length}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             <Download className="h-4 w-4" />
             CSV
@@ -315,7 +315,7 @@ export default function FakeAddressGeneratorPage() {
           <button
             onClick={downloadJson}
             disabled={!addresses.length}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             <Download className="h-4 w-4" />
             JSON
@@ -325,13 +325,13 @@ export default function FakeAddressGeneratorPage() {
         {/* Results */}
         {addresses.length > 0 ? (
           <div className="mt-6">
-            <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300">
+            <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-slate-300 light:text-slate-700">
               <span>{selectedLocale.flag}</span>
               Generated {addresses.length} profile{addresses.length > 1 ? "s" : ""} &amp; address{addresses.length > 1 ? "es" : ""}
-              <span className="text-slate-500">·</span>
-              <span className="text-slate-400">{selectedLocale.label}</span>
+              <span className="text-slate-500 light:text-slate-500">·</span>
+              <span className="text-slate-400 light:text-slate-600">{selectedLocale.label}</span>
             </p>
-            <div className="max-h-[600px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+            <div className="max-h-[600px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
               <ul className="divide-y divide-white/5">
                 {addresses.map((addr, index) => {
                   const user = users[index];
@@ -343,24 +343,24 @@ export default function FakeAddressGeneratorPage() {
                       <div className="min-w-0 flex-1">
                         {/* User profile */}
                         {user ? (
-                          <div className="mb-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 sm:flex sm:items-center sm:gap-3">
+                          <div className="mb-3 rounded-xl border border-white/5 bg-white/[0.02] p-3 sm:flex sm:items-center sm:gap-3 light:border-slate-900/10 light:bg-white">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={user.avatar}
                               alt={`${user.firstName} ${user.lastName} avatar`}
-                              className="mx-auto mb-2 h-10 w-10 shrink-0 rounded-full bg-white/10 sm:mb-0"
+                              className="mx-auto mb-2 h-10 w-10 shrink-0 rounded-full bg-white/10 sm:mb-0 light:bg-slate-900/5"
                             />
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-bold text-white">
+                              <p className="truncate text-sm font-bold text-white light:text-slate-900">
                                 {user.firstName} {user.lastName}
-                                <span className="ml-2 text-xs font-normal text-slate-400">
+                                <span className="ml-2 text-xs font-normal text-slate-400 light:text-slate-600">
                                   {user.gender}
                                 </span>
                               </p>
-                              <p className="truncate text-xs text-slate-400">
+                              <p className="truncate text-xs text-slate-400 light:text-slate-600">
                                 @{user.username}
                               </p>
-                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500">
+                              <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-slate-500 light:text-slate-500">
                                 <span className="block truncate sm:inline">{user.email}</span>
                                 <span className="block sm:inline">{user.phone}</span>
                                 <span className="block sm:inline">DOB: {user.dob}</span>
@@ -371,14 +371,14 @@ export default function FakeAddressGeneratorPage() {
 
                         {/* Address */}
                         {style === "multi" ? (
-                          <div className="font-mono text-sm leading-6 text-slate-100">
+                          <div className="font-mono text-sm leading-6 text-slate-100 light:text-slate-900">
                             <div>{addr.street}</div>
                             {addr.secondary ? <div>{addr.secondary}</div> : null}
                             <div>{addr.city}{addr.state ? `, ${addr.state}` : ""} {addr.zip}</div>
                             <div>{addr.country}</div>
                           </div>
                         ) : (
-                          <code className="block break-all font-mono text-sm text-slate-100">
+                          <code className="block break-all font-mono text-sm text-slate-100 light:text-slate-900">
                             {formatAddress(addr, "single")}
                           </code>
                         )}
@@ -391,7 +391,7 @@ export default function FakeAddressGeneratorPage() {
                             "rounded-md p-1.5 transition",
                             copiedIndex === index
                               ? "text-emerald-400"
-                              : "text-slate-500 hover:bg-white/5 hover:text-white",
+                              : "text-slate-500 light:text-slate-500 hover:bg-white/5 light:hover:bg-slate-900/5 hover:text-white light:hover:text-slate-900",
                           ].join(" ")}
                         >
                           {copiedIndex === index ? (
@@ -403,7 +403,7 @@ export default function FakeAddressGeneratorPage() {
                         <button
                           onClick={() => regenerateSingle(index)}
                           aria-label={`Regenerate profile and address ${index + 1}`}
-                          className="rounded-md p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white"
+                          className="rounded-md p-1.5 text-slate-500 transition hover:bg-white/5 hover:text-white light:text-slate-500 light:hover:text-slate-900 light:hover:bg-slate-900/5"
                         >
                           <RefreshCw className="h-4 w-4" />
                         </button>

@@ -172,7 +172,7 @@ function CategoryToolCard({
         hover:bg-white/[0.05]
 
         max-sm:rounded-[28px]
-      "
+      light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
     >
       {/* ================================================================
           DESKTOP VERSION
@@ -200,13 +200,13 @@ function CategoryToolCard({
 
         {/* Title */}
 
-        <h2 className="text-xl font-bold tracking-tight text-white">
+        <h2 className="text-xl font-bold tracking-tight text-white light:text-slate-900">
           {title}
         </h2>
 
         {/* Description */}
 
-        <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400">
+        <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400 light:text-slate-600">
           {description}
         </p>
 
@@ -299,7 +299,7 @@ function CategoryToolCard({
                 leading-[1.25]
                 tracking-tight
                 text-white
-              "
+              light:text-slate-900"
             >
               {title}
             </h2>
@@ -312,7 +312,7 @@ function CategoryToolCard({
                 text-[16px]
                 leading-7
                 text-slate-400
-              "
+              light:text-slate-600"
             >
               {description}
             </p>
@@ -375,7 +375,7 @@ export default function ToolsPage() {
           Explore all tools
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Browse all available Toolverse tools for formatting, generating,
           compressing, organizing, editing, converting, securing, hosting,
           sharing, and shortening.
@@ -388,7 +388,7 @@ export default function ToolsPage() {
 
       <section className="mt-12">
         <div className="mb-5">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
+          <h2 className="text-2xl font-bold tracking-tight text-white light:text-slate-900">
             Popular tools
           </h2>
         </div>
@@ -409,7 +409,7 @@ export default function ToolsPage() {
 
       <section className="mt-14">
         <div className="mb-5">
-          <h2 className="text-2xl font-bold tracking-tight text-white">
+          <h2 className="text-2xl font-bold tracking-tight text-white light:text-slate-900">
             Tool categories
           </h2>
         </div>

@@ -187,7 +187,7 @@ function ParamEditor({
 
   return (
     <div className="space-y-2">
-      <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 text-xs font-semibold text-slate-500">
+      <div className="grid grid-cols-[auto_1fr_1fr_auto] gap-2 text-xs font-semibold text-slate-500 light:text-slate-500">
         <span className="w-8" />
         <span>Key</span>
         <span>Value</span>
@@ -199,25 +199,25 @@ function ParamEditor({
             type="checkbox"
             checked={p.enabled}
             onChange={(e) => update(i, "enabled", e.target.checked)}
-            className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-violet-500 focus:ring-violet-500"
+            className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-violet-500 focus:ring-violet-500 light:border-slate-300 light:bg-slate-200"
           />
           <input
             value={p.key}
             onChange={(e) => update(i, "key", e.target.value)}
             placeholder={keyPlaceholder || "Key"}
             spellCheck={false}
-            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
           <input
             value={p.value}
             onChange={(e) => update(i, "value", e.target.value)}
             placeholder={valuePlaceholder || "Value"}
             spellCheck={false}
-            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
           <button
             onClick={() => onChange(params.filter((_, j) => j !== i))}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-red-500/10 hover:text-red-400"
+            className="flex h-8 w-8 items-center justify-center rounded-lg text-slate-500 transition hover:bg-red-500/10 hover:text-red-400 light:text-slate-500"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -225,7 +225,7 @@ function ParamEditor({
       ))}
       <button
         onClick={() => onChange([...params, emptyParam()])}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-white/10 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-violet-400/40 hover:text-violet-300"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-white/10 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-violet-400/40 hover:text-violet-300 light:border-slate-900/10 light:text-slate-600"
       >
         <Plus className="h-3.5 w-3.5" /> Add
       </button>
@@ -260,7 +260,7 @@ function AuthEditor({
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
               authType === t
                 ? "bg-violet-600 text-white"
-                : "border border-white/10 text-slate-400 hover:border-violet-400/40 hover:text-white"
+                : "border border-white/10 text-slate-400 hover:border-violet-400/40 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:border-violet-400/40 light:hover:text-slate-900"
             }`}
           >
             {t === "none" ? "No Auth" : t === "bearer" ? "Bearer Token" : t === "basic" ? "Basic Auth" : "API Key"}
@@ -270,22 +270,22 @@ function AuthEditor({
 
       {authType === "bearer" && (
         <div>
-          <label className="mb-1.5 block text-xs font-semibold text-slate-400">Token</label>
+          <label className="mb-1.5 block text-xs font-semibold text-slate-400 light:text-slate-600">Token</label>
           <div className="flex items-center gap-2">
-            <div className="flex flex-1 items-center rounded-lg border border-white/10 bg-slate-950 px-3">
-              <span className="mr-2 text-xs text-slate-600">Bearer</span>
+            <div className="flex flex-1 items-center rounded-lg border border-white/10 bg-slate-950 px-3 light:border-slate-900/10 light:bg-white">
+              <span className="mr-2 text-xs text-slate-600 light:text-slate-500">Bearer</span>
               <input
                 value={config.token}
                 onChange={(e) => onConfigChange({ ...config, token: e.target.value })}
                 type={showToken ? "text" : "password"}
                 placeholder="Enter your token"
                 spellCheck={false}
-                className="min-w-0 flex-1 bg-transparent py-2.5 font-mono text-xs text-slate-100 outline-none placeholder:text-slate-600"
+                className="min-w-0 flex-1 bg-transparent py-2.5 font-mono text-xs text-slate-100 outline-none placeholder:text-slate-600 light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
             <button
               onClick={() => setShowToken(!showToken)}
-              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:text-white"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:text-slate-900"
             >
               {showToken ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
@@ -296,29 +296,29 @@ function AuthEditor({
       {authType === "basic" && (
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Username</label>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-400 light:text-slate-600">Username</label>
             <input
               value={config.username}
               onChange={(e) => onConfigChange({ ...config, username: e.target.value })}
               placeholder="Username"
               spellCheck={false}
-              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Password</label>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-400 light:text-slate-600">Password</label>
             <input
               value={config.password}
               onChange={(e) => onConfigChange({ ...config, password: e.target.value })}
               type={showToken ? "text" : "password"}
               placeholder="Password"
               spellCheck={false}
-              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
           <button
             onClick={() => setShowToken(!showToken)}
-            className="inline-flex w-fit items-center gap-1.5 text-xs text-slate-400 transition hover:text-white"
+            className="inline-flex w-fit items-center gap-1.5 text-xs text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
           >
             {showToken ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
             {showToken ? "Hide" : "Show"} credentials
@@ -330,21 +330,21 @@ function AuthEditor({
         <div className="space-y-3">
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-400">Header / Param Name</label>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-400 light:text-slate-600">Header / Param Name</label>
               <input
                 value={config.apiKeyName}
                 onChange={(e) => onConfigChange({ ...config, apiKeyName: e.target.value })}
                 placeholder="X-API-Key"
                 spellCheck={false}
-                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-400">Send In</label>
+              <label className="mb-1.5 block text-xs font-semibold text-slate-400 light:text-slate-600">Send In</label>
               <select
                 value={config.apiKeyIn}
                 onChange={(e) => onConfigChange({ ...config, apiKeyIn: e.target.value as "header" | "query" })}
-                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-xs text-slate-100 outline-none transition focus:border-violet-500"
+                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-xs text-slate-100 outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 <option value="header">Header</option>
                 <option value="query">Query Param</option>
@@ -352,18 +352,18 @@ function AuthEditor({
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-semibold text-slate-400">Value</label>
+            <label className="mb-1.5 block text-xs font-semibold text-slate-400 light:text-slate-600">Value</label>
             <input
               value={config.apiKey}
               onChange={(e) => onConfigChange({ ...config, apiKey: e.target.value })}
               type={showToken ? "text" : "password"}
               placeholder="Enter API key"
               spellCheck={false}
-              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
             <button
               onClick={() => setShowToken(!showToken)}
-              className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400 transition hover:text-white"
+              className="mt-2 inline-flex items-center gap-1.5 text-xs text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
             >
               {showToken ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               {showToken ? "Hide" : "Show"} key
@@ -373,9 +373,9 @@ function AuthEditor({
       )}
 
       {authType === "none" && (
-        <div className="rounded-xl border border-dashed border-white/10 bg-slate-950 p-6 text-center">
-          <Lock className="mx-auto h-8 w-8 text-slate-600" />
-          <p className="mt-2 text-sm text-slate-500">No authentication configured for this request.</p>
+        <div className="rounded-xl border border-dashed border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+          <Lock className="mx-auto h-8 w-8 text-slate-600 light:text-slate-500" />
+          <p className="mt-2 text-sm text-slate-500 light:text-slate-500">No authentication configured for this request.</p>
         </div>
       )}
     </div>
@@ -657,7 +657,7 @@ export default function HttpRequestTesterPage() {
       {/* Back link */}
       <Link
         href="/tools/text-developer-tools"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to tools
@@ -668,7 +668,7 @@ export default function HttpRequestTesterPage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           API Tester
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
 Build API requests with params, headers, auth, and body, inspect responses, and save requests for reuse.
         </p>
       </div>
@@ -687,29 +687,29 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
           {/* ===== Sidebar (collections & history) ===== */}
           <div
             className={`
-              fixed inset-y-0 left-0 z-40 w-72 transform bg-slate-950/95 backdrop-blur-xl border-r border-white/10 transition-transform duration-300 sm:relative sm:inset-auto sm:z-auto sm:w-64 sm:shrink-0 sm:translate-x-0 sm:rounded-2xl sm:border sm:border-white/10 sm:bg-white/[0.03]
+              fixed inset-y-0 left-0 z-40 w-72 transform bg-slate-950/95 backdrop-blur-xl border-r border-white/10 transition-transform duration-300 light:bg-white/95 light:border-slate-900/10 sm:relative sm:inset-auto sm:z-auto sm:w-64 sm:shrink-0 sm:translate-x-0 sm:rounded-2xl sm:border sm:border-white/10 sm:bg-white/[0.03] light:sm:bg-white
               ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
             `}
           >
             <div className="flex h-full flex-col p-4">
               <div className="mb-3 flex items-center justify-between sm:mb-4">
-                <div className="flex rounded-lg border border-white/10 bg-slate-900 p-0.5">
+                <div className="flex rounded-lg border border-white/10 bg-slate-900 p-0.5 light:border-slate-900/10 light:bg-white">
                   <button
                     onClick={() => setSidebarTab("collections")}
-                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "collections" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
+                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "collections" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white light:text-slate-600 light:hover:text-slate-900"}`}
                   >
                     <BookOpen className="h-3.5 w-3.5" /> Saved
                   </button>
                   <button
                     onClick={() => setSidebarTab("history")}
-                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "history" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white"}`}
+                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "history" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white light:text-slate-600 light:hover:text-slate-900"}`}
                   >
                     <History className="h-3.5 w-3.5" /> History
                   </button>
                 </div>
                 <button
                   onClick={() => setSidebarOpen(false)}
-                  className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:text-white sm:hidden"
+                  className="flex h-7 w-7 items-center justify-center rounded-md text-slate-500 hover:text-white sm:hidden light:text-slate-500 light:hover:text-slate-900"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -719,27 +719,27 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 {sidebarTab === "collections" && (
                   <>
                     {saved.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
-                        <BookOpen className="mx-auto h-7 w-7 text-slate-600" />
-                        <p className="mt-2 text-xs text-slate-500">No saved requests yet.</p>
-                        <p className="text-xs text-slate-600">Send a request, then click Save.</p>
+                      <div className="rounded-xl border border-dashed border-white/10 p-6 text-center light:border-slate-900/10">
+                        <BookOpen className="mx-auto h-7 w-7 text-slate-600 light:text-slate-500" />
+                        <p className="mt-2 text-xs text-slate-500 light:text-slate-500">No saved requests yet.</p>
+                        <p className="text-xs text-slate-600 light:text-slate-500">Send a request, then click Save.</p>
                       </div>
                     )}
                     {saved.map((s) => (
                       <div
                         key={s.id}
                         onClick={() => loadRequest(s)}
-                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-violet-400/30 hover:bg-white/[0.04]"
+                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-violet-400/30 hover:bg-white/[0.04] light:border-slate-900/10 light:bg-white"
                       >
                         <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${METHOD_COLORS[s.method]}`}>
                           {s.method}
                         </span>
-                        <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-300">
+                        <span className="min-w-0 flex-1 truncate text-xs font-medium text-slate-300 light:text-slate-700">
                           {s.name}
                         </span>
                         <button
                           onClick={(e) => { e.stopPropagation(); deleteSaved(s.id); }}
-                          className="hidden h-6 w-6 shrink-0 items-center justify-center rounded text-slate-600 transition hover:text-red-400 group-hover:flex"
+                          className="hidden h-6 w-6 shrink-0 items-center justify-center rounded text-slate-600 transition hover:text-red-400 group-hover:flex light:text-slate-500"
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
@@ -753,27 +753,27 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                     {history.length > 0 && (
                       <button
                         onClick={clearHistory}
-                        className="mb-2 text-xs font-medium text-slate-600 transition hover:text-red-400"
+                        className="mb-2 text-xs font-medium text-slate-600 transition hover:text-red-400 light:text-slate-500"
                       >
                         Clear all
                       </button>
                     )}
                     {history.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-white/10 p-6 text-center">
-                        <History className="mx-auto h-7 w-7 text-slate-600" />
-                        <p className="mt-2 text-xs text-slate-500">No request history yet.</p>
+                      <div className="rounded-xl border border-dashed border-white/10 p-6 text-center light:border-slate-900/10">
+                        <History className="mx-auto h-7 w-7 text-slate-600 light:text-slate-500" />
+                        <p className="mt-2 text-xs text-slate-500 light:text-slate-500">No request history yet.</p>
                       </div>
                     )}
                     {history.map((h) => (
                       <div
                         key={h.id}
                         onClick={() => loadRequest({ ...h.request, method: h.method, url: h.url })}
-                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-violet-400/30 hover:bg-white/[0.04]"
+                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-violet-400/30 hover:bg-white/[0.04] light:border-slate-900/10 light:bg-white"
                       >
                         <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${METHOD_COLORS[h.method]}`}>
                           {h.method}
                         </span>
-                        <span className="min-w-0 flex-1 truncate text-[11px] text-slate-400">
+                        <span className="min-w-0 flex-1 truncate text-[11px] text-slate-400 light:text-slate-600">
                           {h.url}
                         </span>
                         <span className={`shrink-0 text-[10px] font-bold ${h.status < 300 ? "text-emerald-400" : h.status < 400 ? "text-amber-400" : "text-red-400"}`}>
@@ -789,7 +789,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
 
           {/* ===== Main content ===== */}
           <div className="min-w-0 flex-1">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
               {/* ---- Method + URL ---- */}
               <div className="flex flex-col gap-3 sm:flex-row">
                 <select
@@ -802,21 +802,21 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                   ))}
                 </select>
 
-                <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-slate-950 px-4">
-                  <Globe2 className="mr-3 h-4 w-4 shrink-0 text-slate-500" />
+                <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-slate-950 px-4 light:border-slate-900/10 light:bg-white">
+                  <Globe2 className="mr-3 h-4 w-4 shrink-0 text-slate-500 light:text-slate-500" />
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") void send(); }}
                     placeholder="https://api.example.com/endpoint"
                     spellCheck={false}
-                    className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600"
+                    className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 light:text-slate-900 light:placeholder:text-slate-400"
                   />
                 </div>
               </div>
 
               {/* ---- Request tabs ---- */}
-              <div className="mt-5 border-b border-white/10">
+              <div className="mt-5 border-b border-white/10 light:border-slate-900/10">
                 <div className="-mb-px flex gap-1 overflow-x-auto">
                   {REQ_TABS.map((tab) => (
                     <button
@@ -867,7 +867,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
                               bodyType === bt
                                 ? "bg-violet-600 text-white"
-                                : "border border-white/10 text-slate-400 hover:border-violet-400/40 hover:text-white"
+                                : "border border-white/10 text-slate-400 hover:border-violet-400/40 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:border-violet-400/40 light:hover:text-slate-900"
                             }`}
                           >
                             {labels[bt]}
@@ -877,9 +877,9 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                     </div>
 
                     {(method === "GET" || method === "HEAD" || method === "OPTIONS") && bodyType === "none" && (
-                      <div className="rounded-xl border border-dashed border-white/10 bg-slate-950 p-6 text-center">
-                        <FileText className="mx-auto h-8 w-8 text-slate-600" />
-                        <p className="mt-2 text-sm text-slate-500">Body is not sent for this HTTP method.</p>
+                      <div className="rounded-xl border border-dashed border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+                        <FileText className="mx-auto h-8 w-8 text-slate-600 light:text-slate-500" />
+                        <p className="mt-2 text-sm text-slate-500 light:text-slate-500">Body is not sent for this HTTP method.</p>
                       </div>
                     )}
 
@@ -890,7 +890,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                         rows={10}
                         placeholder={'{\n  "key": "value"\n}'}
                         spellCheck={false}
-                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     )}
 
@@ -901,7 +901,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                         rows={10}
                         placeholder="Enter raw text body..."
                         spellCheck={false}
-                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     )}
 
@@ -926,7 +926,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 <button
                   onClick={() => setShowSaveDialog(true)}
                   disabled={!url.trim()}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   <Save className="h-4 w-4" /> Save
                 </button>
@@ -934,7 +934,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 <button
                   onClick={copyResponse}
                   disabled={!result}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
                 >
                   {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                   {copied ? "Copied" : "Copy"}
@@ -958,7 +958,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                     onKeyDown={(e) => { if (e.key === "Enter") saveRequest(); }}
                     placeholder="Request name (e.g., Get Users)"
                     autoFocus
-                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500"
+                    className="min-w-0 flex-1 bg-transparent text-sm text-slate-100 outline-none placeholder:text-slate-500 light:text-slate-900 light:placeholder:text-slate-400"
                   />
                   <button
                     onClick={saveRequest}
@@ -969,7 +969,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                   </button>
                   <button
                     onClick={() => { setShowSaveDialog(false); setSaveName(""); }}
-                    className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-400 transition hover:text-white"
+                    className="rounded-lg px-3 py-1.5 text-xs font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
                   >
                     Cancel
                   </button>
@@ -979,7 +979,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
               {/* ---- Error ---- */}
               {error && (
                 <div className="mt-5 rounded-2xl border border-red-500/20 bg-red-500/10 p-4">
-                  <p className="text-sm font-medium leading-6 text-red-200">{error}</p>
+                  <p className="text-sm font-medium leading-6 text-red-200 light:text-red-700">{error}</p>
                 </div>
               )}
 
@@ -989,19 +989,19 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                   {/* Status bar */}
                   <div className={`flex flex-wrap items-center gap-3 rounded-2xl border p-4 ${statusBg}`}>
                     <span className={`text-2xl font-bold ${statusColor}`}>{result.status}</span>
-                    <span className="text-sm font-semibold text-slate-300">{result.statusText || "OK"}</span>
+                    <span className="text-sm font-semibold text-slate-300 light:text-slate-700">{result.statusText || "OK"}</span>
                     <span className="ml-auto flex items-center gap-3">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-400">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-400 light:bg-slate-200/80 light:text-slate-600">
                         <Clock className="h-3.5 w-3.5" /> {result.time} ms
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-400">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800/80 px-3 py-1 text-xs text-slate-400 light:bg-slate-200/80 light:text-slate-600">
                         <FileJson className="h-3.5 w-3.5" /> {formatSize(result.size)}
                       </span>
                     </span>
                   </div>
 
                   {/* Response tabs */}
-                  <div className="border-b border-white/10">
+                  <div className="border-b border-white/10 light:border-slate-900/10">
                     <div className="-mb-px flex gap-1">
                       {([
                         { key: "body" as const, label: "Body" },
@@ -1026,7 +1026,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                   {/* Response body (pretty) */}
                   {resTab === "body" && (
                     <div className="relative">
-                      <pre className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100">
+                      <pre className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 light:border-slate-900/10 light:bg-white light:text-slate-900">
                         {result.body ? prettyBody(result.body) : "(empty body)"}
                       </pre>
                     </div>
@@ -1034,14 +1034,14 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
 
                   {/* Response headers */}
                   {resTab === "headers" && (
-                    <div className="max-h-96 space-y-1 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4">
+                    <div className="max-h-96 space-y-1 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
                       {Object.entries(result.headers).length === 0 && (
-                        <p className="text-xs text-slate-500">No response headers.</p>
+                        <p className="text-xs text-slate-500 light:text-slate-500">No response headers.</p>
                       )}
                       {Object.entries(result.headers).map(([key, value]) => (
                         <div key={key} className="flex gap-3 text-xs leading-6">
                           <span className="shrink-0 font-semibold text-violet-300">{key}:</span>
-                          <span className="break-all text-slate-300">{value}</span>
+                          <span className="break-all text-slate-300 light:text-slate-700">{value}</span>
                         </div>
                       ))}
                     </div>
@@ -1049,7 +1049,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
 
                   {/* Raw */}
                   {resTab === "raw" && (
-                    <pre className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-[11px] leading-5 text-slate-300">
+                    <pre className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-[11px] leading-5 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                       {result.body || "(empty body)"}
                     </pre>
                   )}

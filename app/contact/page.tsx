@@ -132,24 +132,24 @@ export default function ContactPage() {
         <BackButton />
       </div>
 
-      <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8">
+      <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
               Support
             </p>
 
-            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+            <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl light:text-slate-900">
               Contact Toolverse
             </h1>
 
-            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400">
+            <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400 light:text-slate-600">
               Need help, found a bug, or have feedback? Use this page to find
               the right way to contact us.
             </p>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm">
+          <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">
             For abuse, malware, phishing, illegal content, or urgent safety
             issues, please use the dedicated Report Abuse page.
           </div>
@@ -162,17 +162,17 @@ export default function ContactPage() {
             return (
               <div
                 key={item.title}
-                className="rounded-2xl border border-white/10 bg-slate-950/50 p-5"
+                className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 light:border-slate-900/10 light:bg-slate-100"
               >
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                   <Icon className="h-5 w-5" />
                 </div>
 
-                <h2 className="text-base font-semibold text-white">
+                <h2 className="text-base font-semibold text-white light:text-slate-900">
                   {item.title}
                 </h2>
 
-                <p className="mt-2 text-sm leading-6 text-slate-400">
+                <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                   {item.description}
                 </p>
               </div>
@@ -181,27 +181,27 @@ export default function ContactPage() {
         </div>
       </div>
 
-      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
         <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:text-violet-700">
             <Mail className="h-5 w-5" />
           </div>
 
-          <h2 className="text-xl font-semibold tracking-tight text-white">
+          <h2 className="text-xl font-semibold tracking-tight text-white light:text-slate-900">
             Contact information
           </h2>
         </div>
 
-        <div className="space-y-4 text-base leading-8 text-slate-300">
+        <div className="space-y-4 text-base leading-8 text-slate-300 light:text-slate-700">
           <p>
             For general inquiries, support, feedback, or product questions,
             contact the Toolverse team using your preferred support channel.
           </p>
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4">
-            <p className="text-sm text-slate-500">Recommended email format</p>
+          <div className="rounded-2xl border border-white/10 bg-slate-950/60 p-4 light:border-slate-900/10 light:bg-slate-100">
+            <p className="text-sm text-slate-500 light:text-slate-500">Recommended email format</p>
 
-            <p className="mt-1 break-all font-mono text-sm text-slate-200">
+            <p className="mt-1 break-all font-mono text-sm text-slate-200 light:text-slate-800">
               contact.toolverse@gmail.com
             </p>
           </div>
@@ -215,17 +215,17 @@ export default function ContactPage() {
           return (
             <div
               key={item.title}
-              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6"
+              className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white"
             >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:text-violet-700">
                 <Icon className="h-5 w-5" />
               </div>
 
-              <h3 className="text-base font-semibold text-white">
+              <h3 className="text-base font-semibold text-white light:text-slate-900">
                 {item.title}
               </h3>
 
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                 {item.description}
               </p>
             </div>
@@ -233,18 +233,18 @@ export default function ContactPage() {
         })}
       </div>
 
-      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+      <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:text-violet-700">
             <Mail className="h-5 w-5" />
           </div>
 
           <div>
-            <h2 className="text-xl font-semibold tracking-tight text-white">
+            <h2 className="text-xl font-semibold tracking-tight text-white light:text-slate-900">
               Send us a message
             </h2>
 
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
               Clicking Send opens your email app with the message prepared.
             </p>
           </div>
@@ -268,7 +268,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor="contact-name"
-                className="mb-2 block text-sm font-medium text-slate-200"
+                className="mb-2 block text-sm font-medium text-slate-200 light:text-slate-800"
               >
                 Name
               </label>
@@ -279,7 +279,7 @@ export default function ContactPage() {
                 onChange={(e) =>
                   setForm({ ...form, name: e.target.value })
                 }
-                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
                 placeholder="Your name"
               />
             </div>
@@ -287,7 +287,7 @@ export default function ContactPage() {
             <div>
               <label
                 htmlFor="contact-email"
-                className="mb-2 block text-sm font-medium text-slate-200"
+                className="mb-2 block text-sm font-medium text-slate-200 light:text-slate-800"
               >
                 Email
               </label>
@@ -299,7 +299,7 @@ export default function ContactPage() {
                 onChange={(e) =>
                   setForm({ ...form, email: e.target.value })
                 }
-                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
                 placeholder="you@example.com"
               />
             </div>
@@ -308,7 +308,7 @@ export default function ContactPage() {
           <div>
             <label
               htmlFor="contact-subject"
-              className="mb-2 block text-sm font-medium text-slate-200"
+              className="mb-2 block text-sm font-medium text-slate-200 light:text-slate-800"
             >
               Subject
             </label>
@@ -319,7 +319,7 @@ export default function ContactPage() {
               onChange={(e) =>
                 setForm({ ...form, subject: e.target.value })
               }
-              className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
               placeholder="How can we help?"
             />
           </div>
@@ -327,7 +327,7 @@ export default function ContactPage() {
           <div>
             <label
               htmlFor="contact-message"
-              className="mb-2 block text-sm font-medium text-slate-200"
+              className="mb-2 block text-sm font-medium text-slate-200 light:text-slate-800"
             >
               Description
             </label>
@@ -339,7 +339,7 @@ export default function ContactPage() {
               onChange={(e) =>
                 setForm({ ...form, message: e.target.value })
               }
-              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50"
+              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
               placeholder="Describe your question, feedback, or issue..."
             />
           </div>
@@ -355,7 +355,7 @@ export default function ContactPage() {
       </section>
 
       <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
-        <p className="font-semibold text-white">Need to report abuse?</p>
+        <p className="font-semibold text-white light:text-slate-900">Need to report abuse?</p>
 
         <p className="mt-2 text-violet-100/80">
           If your message involves harmful content, phishing, malware,
@@ -365,7 +365,7 @@ export default function ContactPage() {
 
         <Link
           href="/report-abuse"
-          className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white"
+          className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-700 light:hover:bg-slate-100 light:hover:text-slate-900"
         >
           <Flag className="h-4 w-4" />
           Report abuse

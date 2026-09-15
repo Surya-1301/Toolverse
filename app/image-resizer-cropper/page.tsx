@@ -49,7 +49,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -394,7 +394,7 @@ export default function ImageResizerCropperPage() {
           Image Resizer & Cropper
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Resize or crop images with custom dimensions, coordinates, aspect ratios, and compression quality.
         </p>
       </div>
@@ -429,7 +429,7 @@ export default function ImageResizerCropperPage() {
               "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
               mode === item.key
                 ? "border-violet-500 bg-violet-600/20 text-white"
-                : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
             ].join(" ")}
           >
             {item.icon}
@@ -439,19 +439,19 @@ export default function ImageResizerCropperPage() {
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <h2 className="mb-4 text-lg font-semibold text-white light:text-slate-900">
             Upload image
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
             <Upload className="mb-3 h-9 w-9 text-violet-300" />
 
-            <span className="font-semibold text-white">
+            <span className="font-semibold text-white light:text-slate-900">
               Click to choose image
             </span>
 
-            <span className="mt-2 text-sm leading-6 text-slate-500">
+            <span className="mt-2 text-sm leading-6 text-slate-500 light:text-slate-500">
               Allowed: PNG, JPG, or WebP.
             </span>
 
@@ -464,21 +464,21 @@ export default function ImageResizerCropperPage() {
           </label>
 
           {fileTag ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
-                <span className="font-semibold text-slate-300">Selected:</span>{" "}
+                <span className="font-semibold text-slate-300 light:text-slate-700">Selected:</span>{" "}
                 {fileTag.name}
               </p>
 
               {mode === "resize" ? (
                 <p className="mt-1">
-                  <span className="font-semibold text-slate-300">Size:</span>{" "}
+                  <span className="font-semibold text-slate-300 light:text-slate-700">Size:</span>{" "}
                   {width || "Original"} ×{" "}
                   {keepAspectRatio ? "auto" : height || "Original"}
                 </p>
               ) : (
                 <p className="mt-1">
-                  <span className="font-semibold text-slate-300">Crop:</span> X{" "}
+                  <span className="font-semibold text-slate-300 light:text-slate-700">Crop:</span> X{" "}
                   {x}, Y {y}, {width} × {height}
                 </p>
               )}
@@ -487,7 +487,7 @@ export default function ImageResizerCropperPage() {
 
           <div className="mt-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 {mode === "resize" ? "Width" : "X"}
               </label>
 
@@ -501,12 +501,12 @@ export default function ImageResizerCropperPage() {
                     : setX(event.target.value)
                 }
                 placeholder={mode === "resize" ? "Width" : "0"}
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 {mode === "resize" ? "Height" : "Y"}
               </label>
 
@@ -521,13 +521,13 @@ export default function ImageResizerCropperPage() {
                 }
                 placeholder={mode === "resize" ? "Auto" : "0"}
                 disabled={mode === "resize" && keepAspectRatio}
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
             {mode === "resize" ? (
               <>
-                <label className="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                <label className="flex items-center gap-2 text-sm font-semibold text-slate-300 light:text-slate-700">
                   <input
                     type="checkbox"
                     checked={keepAspectRatio}
@@ -540,7 +540,7 @@ export default function ImageResizerCropperPage() {
                 </label>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                     Quality: {Math.round(quality * 100)}%
                   </label>
 
@@ -560,7 +560,7 @@ export default function ImageResizerCropperPage() {
             ) : (
               <>
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                     Width
                   </label>
 
@@ -569,12 +569,12 @@ export default function ImageResizerCropperPage() {
                     min="1"
                     value={width}
                     onChange={(event) => setWidth(event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-2 block text-sm font-semibold text-slate-300">
+                  <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                     Height
                   </label>
 
@@ -583,7 +583,7 @@ export default function ImageResizerCropperPage() {
                     min="1"
                     value={height}
                     onChange={(event) => setHeight(event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   />
                 </div>
               </>
@@ -597,7 +597,7 @@ export default function ImageResizerCropperPage() {
                   <button
                     key={ratio}
                     onClick={() => applyAspectRatio(ratio)}
-                    className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                    className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                   >
                     {ratio}
                   </button>
@@ -607,7 +607,7 @@ export default function ImageResizerCropperPage() {
           ) : null}
 
           {error ? (
-            <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+            <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
               {error}
             </p>
           ) : null}
@@ -618,7 +618,7 @@ export default function ImageResizerCropperPage() {
             <button
               onClick={process}
               disabled={isProcessing || !file}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
             >
               {isProcessing ? (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -646,18 +646,18 @@ export default function ImageResizerCropperPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-white light:text-slate-900">
               {outputLabel}
             </h2>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
               {outputPreview ? "Preview ready" : "Waiting"}
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center">
+          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center light:border-slate-900/15 light:bg-white">
             {outputPreview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -666,23 +666,23 @@ export default function ImageResizerCropperPage() {
                 className="max-h-[380px] max-w-full rounded-xl object-contain"
               />
             ) : (
-              <p className="text-sm leading-6 text-slate-500">
+              <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Your processed image preview appears here.
               </p>
             )}
           </div>
 
           {resultBlob && file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
-                <span className="font-semibold text-slate-300">Output:</span>{" "}
+                <span className="font-semibold text-slate-300 light:text-slate-700">Output:</span>{" "}
                 {baseName(file)}-{outputName}.
                 {mode === "resize" ? getImageExtension(file) : "png"}
               </p>
 
               {mode === "crop" ? (
                 <p className="mt-1">
-                  <span className="font-semibold text-slate-300">Crop:</span> X{" "}
+                  <span className="font-semibold text-slate-300 light:text-slate-700">Crop:</span> X{" "}
                   {x}, Y {y}, {width} × {height}
                 </p>
               ) : null}

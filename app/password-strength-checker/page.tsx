@@ -8,7 +8,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -26,7 +26,7 @@ export default function PasswordStrengthCheckerPage() {
           Password Strength Checker
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           This tool has been merged into the <strong>Password Generator</strong>.
         </p>
 
@@ -34,10 +34,10 @@ export default function PasswordStrengthCheckerPage() {
           <div className="flex items-center gap-3 text-violet-300">
             <ShieldCheck className="h-6 w-6 shrink-0" />
             <div>
-              <p className="text-lg font-semibold text-white">
+              <p className="text-lg font-semibold text-white light:text-slate-900">
                 All strength analysis is now in the Password Generator
               </p>
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
                 Generate a password and see entropy, crack times, requirements, and suggestions instantly.
               </p>
             </div>

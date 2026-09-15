@@ -86,7 +86,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -188,14 +188,14 @@ export default function JwtDecoderPage() {
           JWT Decoder
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Decode JWT headers and payloads locally, inspect expiry claims, and
           keep tokens off the server.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-        <label className="mb-3 block text-sm font-semibold text-slate-300">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
           JWT input
         </label>
 
@@ -203,7 +203,7 @@ export default function JwtDecoderPage() {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Paste JWT here..."
-          className="min-h-[180px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+          className="min-h-[180px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
         />
 
         {error ? (
@@ -232,16 +232,16 @@ export default function JwtDecoderPage() {
       </div>
 
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <label className="block text-sm font-semibold text-slate-300">
+            <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
               Header
             </label>
 
             <button
               onClick={() => copyValue("header", headerOutput)}
               disabled={!headerOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
             >
               {copied === "header" ? (
                 <Check className="h-4 w-4" />
@@ -256,20 +256,20 @@ export default function JwtDecoderPage() {
             readOnly
             value={headerOutput}
             placeholder="Decoded header will appear here..."
-            className="min-h-[300px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
+            className="min-h-[300px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none light:border-slate-900/10 light:bg-white light:text-slate-900"
           />
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <label className="block text-sm font-semibold text-slate-300">
+            <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
               Payload
             </label>
 
             <button
               onClick={() => copyValue("payload", payloadOutput)}
               disabled={!payloadOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
             >
               {copied === "payload" ? (
                 <Check className="h-4 w-4" />
@@ -284,16 +284,16 @@ export default function JwtDecoderPage() {
             readOnly
             value={payloadOutput}
             placeholder="Decoded payload will appear here..."
-            className="min-h-[300px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none"
+            className="min-h-[300px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none light:border-slate-900/10 light:bg-white light:text-slate-900"
           />
         </div>
       </div>
 
-      <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5">
+      <div className="mt-6 rounded-3xl border border-white/10 bg-white/[0.03] p-5 light:border-slate-900/10 light:bg-white">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-lg font-bold text-white">Expiry display</h2>
-            <p className="mt-1 text-sm text-slate-400">{expiry.detail}</p>
+            <h2 className="text-lg font-bold text-white light:text-slate-900">Expiry display</h2>
+            <p className="mt-1 text-sm text-slate-400 light:text-slate-600">{expiry.detail}</p>
           </div>
 
           <span
@@ -303,7 +303,7 @@ export default function JwtDecoderPage() {
                 ? "bg-red-500/10 text-red-300"
                 : decoded?.payload?.exp
                   ? "bg-emerald-500/10 text-emerald-300"
-                  : "bg-slate-800 text-slate-400",
+                  : "bg-slate-800 light:bg-slate-200 text-slate-400 light:text-slate-600",
             ].join(" ")}
           >
             {expiry.label}

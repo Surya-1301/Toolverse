@@ -15,11 +15,11 @@ export default function ExtractImagesPdfPage() {
           Free PDF Tool
         </p>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Extract Images from PDF
         </h1>
 
-        <p className="mt-5 text-base leading-8 text-slate-400">
+        <p className="mt-5 text-base leading-8 text-slate-400 light:text-slate-600">
           Extract embedded images from PDF files and download all images in a
           ZIP file.
         </p>

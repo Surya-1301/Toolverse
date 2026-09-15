@@ -88,7 +88,7 @@ function RelatedToolCard({
   return (
     <Link
       href={href}
-      className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05]"
+      className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
     >
       <div className="flex items-start gap-4">
         <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200 ring-1 ring-violet-400/20">
@@ -96,9 +96,9 @@ function RelatedToolCard({
         </div>
 
         <div>
-          <h2 className="text-lg font-bold text-white">{title}</h2>
+          <h2 className="text-lg font-bold text-white light:text-slate-900">{title}</h2>
 
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
             {description}
           </p>
 
@@ -117,7 +117,7 @@ export default function ConversionToolsPage() {
     <Container className="py-12 sm:py-16">
       <Link
         href="/tools"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to tools
@@ -125,11 +125,11 @@ export default function ConversionToolsPage() {
 
       <div className="mx-auto mt-8 max-w-3xl text-center">
 
-        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Conversion Tools
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Convert Markdown, HTML, YAML, JSON, CSV, Excel files, and color
           formats.
         </p>

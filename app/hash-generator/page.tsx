@@ -28,7 +28,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -335,15 +335,15 @@ export default function HashGeneratorPage() {
           Hash Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Generate MD5, SHA-1, SHA-256, and SHA-512 hashes from text directly in
           your browser.
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-3 block text-sm font-semibold text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Text input
           </label>
 
@@ -351,7 +351,7 @@ export default function HashGeneratorPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Paste text here..."
-            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
           {error ? (
@@ -379,33 +379,33 @@ export default function HashGeneratorPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <label className="block text-sm font-semibold text-slate-300">
+            <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
               Hash output
             </label>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
               {results.length ? `${results.length} hashes` : "Waiting"}
             </span>
           </div>
 
-          <div className="min-h-[420px] rounded-2xl border border-white/10 bg-slate-950 p-4">
+          <div className="min-h-[420px] rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
             {results.length ? (
               <div className="space-y-4">
                 {results.map((result) => (
                   <div
                     key={result.algorithm}
-                    className="rounded-2xl border border-white/10 bg-white/[0.02] p-4"
+                    className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10"
                   >
                     <div className="mb-3 flex items-center justify-between gap-3">
-                      <h2 className="text-sm font-bold text-white">
+                      <h2 className="text-sm font-bold text-white light:text-slate-900">
                         {result.algorithm}
                       </h2>
 
                       <button
                         onClick={() => copyValue(result.value)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                       >
                         {copiedValue === result.value ? (
                           <Check className="h-4 w-4" />
@@ -416,15 +416,15 @@ export default function HashGeneratorPage() {
                       </button>
                     </div>
 
-                    <code className="break-all text-xs leading-6 text-slate-300">
+                    <code className="break-all text-xs leading-6 text-slate-300 light:text-slate-700">
                       {result.value}
                     </code>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="flex min-h-[380px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
-                <p className="text-sm leading-6 text-slate-500">
+              <div className="flex min-h-[380px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+                <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                   Generated hashes will appear here.
                 </p>
               </div>

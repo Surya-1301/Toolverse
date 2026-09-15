@@ -724,10 +724,10 @@ function SortableThumbnailCard({ thumbnail }: { thumbnail: PdfThumbnail }) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`touch-none cursor-grab rounded-xl border bg-slate-900 p-2 transition active:cursor-grabbing ${
+      className={`touch-none cursor-grab rounded-xl border bg-slate-900 p-2 transition light:bg-white light:border-slate-900/10 active:cursor-grabbing ${
         isDragging
           ? "z-20 scale-[1.03] border-violet-400 shadow-2xl shadow-violet-500/20"
-          : "border-white/10 hover:border-violet-400/50"
+          : "border-white/10 hover:border-violet-400/50 light:border-slate-900/10"
       }`}
     >
       <div className="flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
@@ -738,7 +738,7 @@ function SortableThumbnailCard({ thumbnail }: { thumbnail: PdfThumbnail }) {
         />
       </div>
 
-      <p className="mt-2 text-center text-xs font-medium text-slate-300">
+      <p className="mt-2 text-center text-xs font-medium text-slate-300 light:text-slate-700">
         Page {thumbnail.pageNumber}
       </p>
     </div>
@@ -761,14 +761,14 @@ function SelectableThumbnailCard({
       type="button"
       onClick={() => onToggle(thumbnail.pageNumber)}
       disabled={!isSelectable}
-      className={`group rounded-xl border bg-slate-900 p-2 text-left transition ${
+      className={`group rounded-xl border bg-slate-900 p-2 text-left transition light:bg-white light:border-slate-900/10 ${
         isSelectable
           ? "cursor-pointer hover:border-violet-400/60"
           : "cursor-default"
       } ${
         isSelected
           ? "border-violet-400 shadow-lg shadow-violet-500/20"
-          : "border-white/10"
+          : "border-white/10 light:border-slate-900/10"
       }`}
     >
       <div className="relative flex aspect-[3/4] items-center justify-center overflow-hidden rounded-lg bg-white">
@@ -791,7 +791,7 @@ function SelectableThumbnailCard({
         ) : null}
       </div>
 
-      <p className="mt-2 text-center text-xs font-medium text-slate-300">
+      <p className="mt-2 text-center text-xs font-medium text-slate-300 light:text-slate-700">
         Page {thumbnail.pageNumber}
       </p>
     </button>
@@ -2909,7 +2909,7 @@ function PdfEditorPageContent() {
           PDF Editor
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Merge, split, extract, remove, scan, edit, convert, compress, and
           secure PDFs in one place.
         </p>
@@ -2925,8 +2925,8 @@ function PdfEditorPageContent() {
                 onClick={() => switchCategory(tab.id)}
                 className={`shrink-0 rounded-full border px-6 py-3 text-sm font-semibold tracking-[0.14em] transition ${
                   activeCategory === tab.id
-                    ? "border-white bg-white text-slate-950"
-                    : "border-white/10 bg-white/[0.05] text-slate-400 hover:bg-white/[0.08] hover:text-white"
+                    ? "border-white bg-white text-slate-950 light:border-violet-600 light:bg-violet-600 light:text-white"
+                    : "border-white/10 bg-white/[0.05] text-slate-400 hover:bg-white/[0.08] hover:text-white light:border-slate-900/10 light:bg-slate-100 light:text-slate-600 light:hover:bg-slate-200 light:hover:text-slate-900"
                 }`}
               >
                 {tab.label}
@@ -2934,7 +2934,7 @@ function PdfEditorPageContent() {
             ))}
           </div>
 
-          <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500">
+          <div className="mt-4 flex items-center justify-between gap-3 text-sm text-slate-500 light:text-slate-500">
             <span>{visibleModes.length} PDF tools shown</span>
           </div>
 
@@ -2944,16 +2944,16 @@ function PdfEditorPageContent() {
                 key={`tool-${item.id}`}
                 type="button"
                 onClick={() => switchMode(item.id)}
-                className="group flex min-h-[190px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05]"
+                className="group flex min-h-[190px] flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-left transition hover:-translate-y-0.5 hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
               >
                 <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600 text-white transition group-hover:bg-violet-500">
                   {item.icon}
                 </div>
 
-                <h2 className="text-base font-semibold text-white">
+                <h2 className="text-base font-semibold text-white light:text-slate-900">
                   {item.title}
                 </h2>
-                <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-400">
+                <p className="mt-2 line-clamp-3 text-sm leading-6 text-slate-400 light:text-slate-600">
                   {item.description}
                 </p>
               </button>
@@ -2967,23 +2967,23 @@ function PdfEditorPageContent() {
           <button
             type="button"
             onClick={backToTools}
-            className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white"
+            className="mb-5 inline-flex min-h-11 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-800 light:hover:bg-slate-900/10 light:hover:text-slate-900"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to all PDF tools
           </button>
 
           <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
               <div className="mb-5 flex items-center gap-3">
                 <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600 text-white">
                   {selectedMode.icon}
                 </div>
                 <div>
-                  <h2 className="font-semibold text-white">
+                  <h2 className="font-semibold text-white light:text-slate-900">
                     {selectedMode.title}
                   </h2>
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-slate-400 light:text-slate-600">
                     {selectedMode.description}
                   </p>
                 </div>
@@ -2992,32 +2992,32 @@ function PdfEditorPageContent() {
               {isHtmlMode ? (
                 <div className="space-y-5">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       File name
                     </label>
                     <input
                       value={htmlFileName}
                       onChange={(event) => setHtmlFileName(event.target.value)}
                       placeholder="html-document"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       HTML content
                     </label>
                     <textarea
                       value={htmlContent}
                       onChange={(event) => setHtmlContent(event.target.value)}
                       rows={14}
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
                 </div>
               ) : (
                 <>
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Upload{" "}
                     {isImageMode
                       ? "images"
@@ -3032,10 +3032,10 @@ function PdfEditorPageContent() {
                               : `PDF ${mode === "merge" || isBatchMode ? "files" : "file"}`}
                   </label>
 
-                  <label className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+                  <label className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
                     <Upload className="mb-3 h-8 w-8 text-violet-300" />
 
-                    <span className="font-medium text-white">
+                    <span className="font-medium text-white light:text-slate-900">
                       Click to choose{" "}
                       {isImageMode
                         ? "images"
@@ -3050,7 +3050,7 @@ function PdfEditorPageContent() {
                                 : `PDF ${mode === "merge" || isBatchMode ? "files" : "file"}`}
                     </span>
 
-                    <span className="mt-2 text-sm text-slate-500">
+                    <span className="mt-2 text-sm text-slate-500 light:text-slate-500">
                       {isImageMode
                         ? "Select JPG, PNG, or WebP images"
                         : isWordMode
@@ -3088,12 +3088,12 @@ function PdfEditorPageContent() {
                       {files.map((file) => (
                         <div
                           key={`${file.name}-${file.size}`}
-                          className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3"
+                          className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-white"
                         >
-                          <p className="break-all text-sm font-medium text-white">
+                          <p className="break-all text-sm font-medium text-white light:text-slate-900">
                             {file.name}
                           </p>
-                          <p className="mt-1 text-xs text-slate-500">
+                          <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                             {formatFileSize(file.size)}
                           </p>
                         </div>
@@ -3105,22 +3105,22 @@ function PdfEditorPageContent() {
 
               {isCompareMode ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Upload second PDF
                   </label>
                   <input
                     type="file"
                     accept="application/pdf,.pdf"
                     onChange={handleSecondCompareFileChange}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white light:border-slate-900/10 light:bg-white light:text-slate-900"
                   />
 
                   {secondCompareFile ? (
-                    <div className="mt-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3">
-                      <p className="break-all text-sm font-medium text-white">
+                    <div className="mt-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-white">
+                      <p className="break-all text-sm font-medium text-white light:text-slate-900">
                         {secondCompareFile.name}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                         {formatFileSize(secondCompareFile.size)}
                       </p>
                     </div>
@@ -3129,13 +3129,13 @@ function PdfEditorPageContent() {
               ) : null}
 
               {shouldShowPdfThumbnails ? (
-                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-4 light:border-slate-900/10 light:bg-slate-100">
                   <div className="mb-3 flex items-center justify-between gap-3">
                     <div>
-                      <h3 className="text-sm font-semibold text-white">
+                      <h3 className="text-sm font-semibold text-white light:text-slate-900">
                         Page previews
                       </h3>
-                      <p className="mt-1 text-xs text-slate-500">
+                      <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                         {mode === "reorder"
                           ? "Drag pages to reorder them. The page order field updates automatically."
                           : supportsSelectableThumbnails
@@ -3170,7 +3170,7 @@ function PdfEditorPageContent() {
                           setInsertPosition("end");
                           setInsertAfterPage("1");
                         }}
-                        className="ml-auto rounded-lg border border-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10"
+                        className="ml-auto rounded-lg border border-white/10 px-2 py-1 text-[11px] font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                       >
                         Clear selection
                       </button>
@@ -3214,11 +3214,11 @@ function PdfEditorPageContent() {
                       </div>
                     )
                   ) : isGeneratingThumbnails ? (
-                    <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
+                    <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500 light:border-slate-900/10 light:bg-white light:text-slate-500">
                       Generating page previews...
                     </div>
                   ) : (
-                    <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500">
+                    <div className="flex min-h-[160px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-sm text-slate-500 light:border-slate-900/10 light:bg-white light:text-slate-500">
                       Page previews will appear here.
                     </div>
                   )}
@@ -3226,9 +3226,9 @@ function PdfEditorPageContent() {
               ) : null}
 
               {mode === "add-pages" ? (
-                <div className="mt-5 space-y-4 rounded-2xl border border-white/10 bg-slate-950/70 p-4">
+                <div className="mt-5 space-y-4 rounded-2xl border border-white/10 bg-slate-950/70 p-4 light:border-slate-900/10 light:bg-slate-100">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       PDF to insert
                     </label>
                     <input
@@ -3238,9 +3238,9 @@ function PdfEditorPageContent() {
                         const selectedFile = event.target.files?.[0] || null;
                         setInsertPdfFile(selectedFile);
                       }}
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-700"
                     />
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
                       {insertPdfFile
                         ? `Selected: ${insertPdfFile.name}`
                         : "Upload another PDF whose pages will be inserted into the main PDF."}
@@ -3249,7 +3249,7 @@ function PdfEditorPageContent() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Insert position
                       </label>
                       <select
@@ -3257,7 +3257,7 @@ function PdfEditorPageContent() {
                         onChange={(event) =>
                           setInsertPosition(event.target.value)
                         }
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                       >
                         <option value="end">At end</option>
                         <option value="start">At beginning</option>
@@ -3267,7 +3267,7 @@ function PdfEditorPageContent() {
 
                     {insertPosition === "after-page" ? (
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                        <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                           After page
                         </label>
                         <input
@@ -3277,7 +3277,7 @@ function PdfEditorPageContent() {
                           }
                           inputMode="numeric"
                           placeholder="1"
-                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                         />
                       </div>
                     ) : null}
@@ -3287,7 +3287,7 @@ function PdfEditorPageContent() {
 
               {needsPageInput ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     {mode === "reorder"
                       ? "New page order"
                       : mode === "rotate"
@@ -3306,9 +3306,9 @@ function PdfEditorPageContent() {
                           ? "Example: 3,1,2,4"
                           : "Example: 1,3,5-7"
                     }
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                   />
-                  <p className="mt-2 text-xs leading-5 text-slate-500">
+                  <p className="mt-2 text-xs leading-5 text-slate-500 light:text-slate-500">
                     {mode === "reorder"
                       ? "Enter every page exactly once in the new order."
                       : mode === "remove"
@@ -3322,13 +3322,13 @@ function PdfEditorPageContent() {
 
               {mode === "rotate" ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Rotation
                   </label>
                   <select
                     value={rotation}
                     onChange={(event) => setRotation(event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   >
                     <option value="90">90° clockwise</option>
                     <option value="180">180°</option>
@@ -3339,7 +3339,7 @@ function PdfEditorPageContent() {
 
               {mode === "batch-protect" || mode === "batch-unlock" ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Password for all PDFs
                   </label>
                   <input
@@ -3347,7 +3347,7 @@ function PdfEditorPageContent() {
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}
                     placeholder="Enter password"
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                   />
                 </div>
               ) : null}
@@ -3355,14 +3355,14 @@ function PdfEditorPageContent() {
               {mode === "batch-watermark" ? (
                 <div className="mt-5 space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Watermark text
                     </label>
                     <input
                       value={watermarkText}
                       onChange={(event) => setWatermarkText(event.target.value)}
                       placeholder="CONFIDENTIAL"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
                 </div>
@@ -3371,25 +3371,25 @@ function PdfEditorPageContent() {
               {mode === "batch-header-footer" ? (
                 <div className="mt-5 space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Header text
                     </label>
                     <input
                       value={headerText}
                       onChange={(event) => setHeaderText(event.target.value)}
                       placeholder="Confidential"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Footer text
                     </label>
                     <input
                       value={footerText}
                       onChange={(event) => setFooterText(event.target.value)}
                       placeholder="Page {page} of {total}"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
                 </div>
@@ -3397,7 +3397,7 @@ function PdfEditorPageContent() {
 
               {mode === "compress-pdf" || mode === "batch-compress" ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Compression level
                   </label>
                   <select
@@ -3405,7 +3405,7 @@ function PdfEditorPageContent() {
                     onChange={(event) =>
                       setCompressionQuality(event.target.value)
                     }
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   >
                     <option value="0.85">Low compression / high quality</option>
                     <option value="0.6">Balanced</option>
@@ -3427,32 +3427,32 @@ function PdfEditorPageContent() {
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Header text
                     </label>
                     <input
                       value={headerText}
                       onChange={(event) => setHeaderText(event.target.value)}
                       placeholder="Confidential"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
 
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Footer text
                     </label>
                     <input
                       value={footerText}
                       onChange={(event) => setFooterText(event.target.value)}
                       placeholder="Page {page} of {total}"
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Font size
                       </label>
                       <input
@@ -3462,12 +3462,12 @@ function PdfEditorPageContent() {
                         }
                         inputMode="numeric"
                         placeholder="10"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Margin
                       </label>
                       <input
@@ -3477,7 +3477,7 @@ function PdfEditorPageContent() {
                         }
                         inputMode="numeric"
                         placeholder="32"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                   </div>
@@ -3494,7 +3494,7 @@ function PdfEditorPageContent() {
 
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Title
                       </label>
                       <input
@@ -3503,12 +3503,12 @@ function PdfEditorPageContent() {
                           setMetadataTitle(event.target.value)
                         }
                         placeholder="Document title"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Author
                       </label>
                       <input
@@ -3517,12 +3517,12 @@ function PdfEditorPageContent() {
                           setMetadataAuthor(event.target.value)
                         }
                         placeholder="Author name"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Subject
                       </label>
                       <input
@@ -3531,12 +3531,12 @@ function PdfEditorPageContent() {
                           setMetadataSubject(event.target.value)
                         }
                         placeholder="Document subject"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Keywords
                       </label>
                       <input
@@ -3545,12 +3545,12 @@ function PdfEditorPageContent() {
                           setMetadataKeywords(event.target.value)
                         }
                         placeholder="invoice, finance, report"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Creator
                       </label>
                       <input
@@ -3559,12 +3559,12 @@ function PdfEditorPageContent() {
                           setMetadataCreator(event.target.value)
                         }
                         placeholder="Creator app"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
 
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Producer
                       </label>
                       <input
@@ -3573,7 +3573,7 @@ function PdfEditorPageContent() {
                           setMetadataProducer(event.target.value)
                         }
                         placeholder="Producer app"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                   </div>
@@ -3583,7 +3583,7 @@ function PdfEditorPageContent() {
               {mode === "sign-pdf" ? (
                 <div className="mt-5 space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Signature type
                     </label>
                     <div className="grid gap-2 sm:grid-cols-3">
@@ -3603,7 +3603,7 @@ function PdfEditorPageContent() {
                           className={`rounded-xl border px-4 py-3 text-sm font-semibold transition ${
                             signatureMode === item.id
                               ? "border-violet-400 bg-violet-500/20 text-white"
-                              : "border-white/10 bg-slate-950 text-slate-300 hover:border-violet-400/50"
+                              : "border-white/10 bg-slate-950 text-slate-300 hover:border-violet-400/50 light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-50 light:hover:text-slate-900"
                           }`}
                         >
                           {item.label}
@@ -3614,7 +3614,7 @@ function PdfEditorPageContent() {
 
                   {signatureMode === "text" ? (
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Signature text
                       </label>
                       <input
@@ -3623,7 +3623,7 @@ function PdfEditorPageContent() {
                           setSignatureText(event.target.value)
                         }
                         placeholder="Your name or initials"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                   ) : null}
@@ -3631,7 +3631,7 @@ function PdfEditorPageContent() {
                   {signatureMode === "image" ? (
                     <>
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                        <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                           Signature image
                         </label>
                         <input
@@ -3642,9 +3642,9 @@ function PdfEditorPageContent() {
                               event.target.files?.[0] || null;
                             setSignatureImageFile(selectedFile);
                           }}
-                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-700"
                         />
-                        <p className="mt-2 text-xs text-slate-500">
+                        <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
                           {signatureImageFile
                             ? `Selected: ${signatureImageFile.name}`
                             : "Optional. Upload a PNG signature with transparent background for best results."}
@@ -3652,7 +3652,7 @@ function PdfEditorPageContent() {
                       </div>
 
                       <div>
-                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                        <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                           Image scale
                         </label>
                         <select
@@ -3660,7 +3660,7 @@ function PdfEditorPageContent() {
                           onChange={(event) =>
                             setSignatureImageScale(event.target.value)
                           }
-                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                         >
                           <option value="0.15">Small</option>
                           <option value="0.25">Medium</option>
@@ -3673,10 +3673,10 @@ function PdfEditorPageContent() {
 
                   {signatureMode === "draw" ? (
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Draw signature
                       </label>
-                      <div className="rounded-2xl border border-white/10 bg-white p-3">
+                      <div className="rounded-2xl border border-white/10 bg-white p-3 light:border-slate-900/10">
                         <canvas
                           ref={signatureCanvasRef}
                           width={720}
@@ -3692,11 +3692,11 @@ function PdfEditorPageContent() {
                         <button
                           type="button"
                           onClick={clearDrawnSignature}
-                          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+                          className="rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                         >
                           Clear drawing
                         </button>
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 light:text-slate-500">
                           {hasDrawnSignature
                             ? "Signature drawing ready."
                             : "Use mouse or touch to draw your signature."}
@@ -3704,7 +3704,7 @@ function PdfEditorPageContent() {
                       </div>
 
                       <div className="mt-4">
-                        <label className="mb-2 block text-sm font-medium text-slate-300">
+                        <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                           Drawing scale
                         </label>
                         <select
@@ -3712,7 +3712,7 @@ function PdfEditorPageContent() {
                           onChange={(event) =>
                             setSignatureImageScale(event.target.value)
                           }
-                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                          className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                         >
                           <option value="0.15">Small</option>
                           <option value="0.25">Medium</option>
@@ -3725,7 +3725,7 @@ function PdfEditorPageContent() {
 
                   <div className="grid gap-4 sm:grid-cols-3">
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Page
                       </label>
                       <input
@@ -3735,11 +3735,11 @@ function PdfEditorPageContent() {
                         }
                         inputMode="numeric"
                         placeholder="1"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Position
                       </label>
                       <select
@@ -3747,7 +3747,7 @@ function PdfEditorPageContent() {
                         onChange={(event) =>
                           setSignaturePosition(event.target.value)
                         }
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                       >
                         <option value="bottom-right">Bottom right</option>
                         <option value="bottom-center">Bottom center</option>
@@ -3758,7 +3758,7 @@ function PdfEditorPageContent() {
                       </select>
                     </div>
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Font size
                       </label>
                       <input
@@ -3769,7 +3769,7 @@ function PdfEditorPageContent() {
                         inputMode="numeric"
                         placeholder="28"
                         disabled={signatureMode !== "text"}
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                   </div>
@@ -3778,7 +3778,7 @@ function PdfEditorPageContent() {
 
               {mode === "page-numbers" ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Number position
                   </label>
                   <select
@@ -3786,7 +3786,7 @@ function PdfEditorPageContent() {
                     onChange={(event) =>
                       setPageNumberPosition(event.target.value)
                     }
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   >
                     <option value="bottom-center">Bottom center</option>
                     <option value="bottom-left">Bottom left</option>
@@ -3800,7 +3800,7 @@ function PdfEditorPageContent() {
 
               {mode === "image-watermark" ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Watermark image
                   </label>
                   <input
@@ -3811,7 +3811,7 @@ function PdfEditorPageContent() {
                       setOutput(null);
                       setError("");
                     }}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white file:mr-4 file:rounded-lg file:border-0 file:bg-violet-600 file:px-3 file:py-2 file:text-sm file:font-semibold file:text-white light:border-slate-900/10 light:bg-white light:text-slate-900"
                   />
                 </div>
               ) : null}
@@ -3820,7 +3820,7 @@ function PdfEditorPageContent() {
                 <div className="mt-5 grid gap-5 sm:grid-cols-2">
                   {mode === "watermark" ? (
                     <div className="sm:col-span-2">
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Watermark text
                       </label>
                       <input
@@ -3829,17 +3829,17 @@ function PdfEditorPageContent() {
                           setWatermarkText(event.target.value)
                         }
                         placeholder="CONFIDENTIAL"
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                   ) : null}
 
                   <div className="sm:col-span-2">
                     <div className="flex items-center justify-between gap-3">
-                      <label className="block text-sm font-medium text-slate-300">
+                      <label className="block text-sm font-medium text-slate-300 light:text-slate-700">
                         Opacity
                       </label>
-                      <span className="rounded-full border border-white/10 bg-slate-950 px-3 py-1 text-xs text-slate-300">
+                      <span className="rounded-full border border-white/10 bg-slate-950 px-3 py-1 text-xs text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                         {Math.round(watermarkOpacity * 100)}%
                       </span>
                     </div>
@@ -3875,7 +3875,7 @@ function PdfEditorPageContent() {
                     { label: "Left %", value: cropLeft, setValue: setCropLeft },
                   ].map((item) => (
                     <div key={item.label}>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         {item.label}
                       </label>
                       <input
@@ -3884,7 +3884,7 @@ function PdfEditorPageContent() {
                         max="44"
                         value={item.value}
                         onChange={(event) => item.setValue(event.target.value)}
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                       />
                     </div>
                   ))}
@@ -3894,7 +3894,7 @@ function PdfEditorPageContent() {
               {isPdfFormsMode ? (
                 <div className="mt-5 space-y-4">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       Field values
                     </label>
                     <textarea
@@ -3904,35 +3904,35 @@ function PdfEditorPageContent() {
                       }
                       rows={7}
                       placeholder={"Full Name=Alex Doe\nEmail=alex@example.com"}
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
-                    <p className="mt-2 text-xs text-slate-500">
+                    <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
                       Use one field per line in the format `Field Name=Value`.
                     </p>
                   </div>
 
-                  <label className="inline-flex items-center gap-3 text-sm text-slate-300">
+                  <label className="inline-flex items-center gap-3 text-sm text-slate-300 light:text-slate-700">
                     <input
                       type="checkbox"
                       checked={flattenForms}
                       onChange={(event) =>
                         setFlattenForms(event.target.checked)
                       }
-                      className="h-4 w-4 rounded border-white/20 bg-slate-950"
+                      className="h-4 w-4 rounded border-white/20 bg-slate-950 light:border-slate-900/20 light:bg-white"
                     />
                     Flatten form after filling
                   </label>
 
                   {detectedFormFields.length ? (
-                    <div className="rounded-xl border border-white/10 bg-slate-950 p-4">
-                      <p className="mb-2 text-sm font-medium text-white">
+                    <div className="rounded-xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+                      <p className="mb-2 text-sm font-medium text-white light:text-slate-900">
                         Detected fields
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {detectedFormFields.map((field) => (
                           <span
                             key={field}
-                            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-300"
+                            className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-300 light:border-slate-900/10 light:text-slate-700"
                           >
                             {field}
                           </span>
@@ -3946,7 +3946,7 @@ function PdfEditorPageContent() {
               {isUnlockMode || isProtectMode ? (
                 <div className="mt-5 grid gap-5">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-slate-300">
+                    <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                       {isProtectMode ? "User password" : "Current password"}
                     </label>
                     <input
@@ -3958,13 +3958,13 @@ function PdfEditorPageContent() {
                           ? "Enter password to protect PDF"
                           : "Enter current PDF password"
                       }
-                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                      className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     />
                   </div>
 
                   {isProtectMode ? (
                     <div>
-                      <label className="mb-2 block text-sm font-medium text-slate-300">
+                      <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                         Owner password (optional)
                       </label>
                       <input
@@ -3974,7 +3974,7 @@ function PdfEditorPageContent() {
                           setOwnerPassword(event.target.value)
                         }
                         placeholder="Optional. Uses user password if left empty."
-                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                        className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     </div>
                   ) : null}
@@ -3983,7 +3983,7 @@ function PdfEditorPageContent() {
 
               {isRedactMode ? (
                 <div className="mt-5">
-                  <label className="mb-2 block text-sm font-medium text-slate-300">
+                  <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                     Terms to redact
                   </label>
                   <textarea
@@ -3991,7 +3991,7 @@ function PdfEditorPageContent() {
                     onChange={(event) => setRedactionTerms(event.target.value)}
                     placeholder="Enter words or phrases separated by commas or new lines"
                     rows={5}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                   />
                 </div>
               ) : null}
@@ -4007,7 +4007,7 @@ function PdfEditorPageContent() {
                   type="button"
                   onClick={processPdf}
                   disabled={!canProcess}
-                  className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700"
+                  className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700 light:disabled:bg-slate-200"
                 >
                   {isProcessing ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -4034,11 +4034,11 @@ function PdfEditorPageContent() {
               ) : null}
             </div>
 
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-semibold text-white">Output</h2>
-                  <p className="mt-1 text-xs text-slate-500">
+                  <h2 className="font-semibold text-white light:text-slate-900">Output</h2>
+                  <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                     Your processed file will appear here.
                   </p>
                 </div>
@@ -4050,10 +4050,10 @@ function PdfEditorPageContent() {
                 ) : null}
               </div>
 
-              <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4">
+              <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
                 {output ? (
                   <>
-                    <div className="mb-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
+                    <div className="mb-4 rounded-2xl border border-white/10 bg-slate-900/70 p-4 light:border-slate-900/10 light:bg-white/70">
                       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0">
                           <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -4061,16 +4061,16 @@ function PdfEditorPageContent() {
                               {getOutputTypeLabel(output)}
                             </span>
 
-                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+                            <span className="rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-semibold text-slate-300 light:border-slate-900/10 light:text-slate-700">
                               {formatFileSize(output.size)}
                             </span>
                           </div>
 
-                          <p className="break-all text-sm font-semibold text-white">
+                          <p className="break-all text-sm font-semibold text-white light:text-slate-900">
                             {output.name}
                           </p>
 
-                          <p className="mt-1 text-xs text-slate-500">
+                          <p className="mt-1 text-xs text-slate-500 light:text-slate-500">
                             Ready to download.
                           </p>
                         </div>
@@ -4079,7 +4079,7 @@ function PdfEditorPageContent() {
                           type="button"
                           onClick={downloadOutput}
                           disabled={!output}
-                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700"
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700 light:disabled:bg-slate-200"
                         >
                           <Download className="h-4 w-4" />
                           Download
@@ -4089,10 +4089,10 @@ function PdfEditorPageContent() {
                       {output.compressionStats ? (
                         <div className="mt-4 grid gap-2 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-left text-sm">
                           <div className="flex items-center justify-between gap-4">
-                            <span className="text-slate-300">
+                            <span className="text-slate-300 light:text-slate-700">
                               Original size
                             </span>
-                            <span className="font-semibold text-white">
+                            <span className="font-semibold text-white light:text-slate-900">
                               {formatFileSize(
                                 output.compressionStats.originalSize,
                               )}
@@ -4100,12 +4100,12 @@ function PdfEditorPageContent() {
                           </div>
 
                           <div className="flex items-center justify-between gap-4">
-                            <span className="text-slate-300">
+                            <span className="text-slate-300 light:text-slate-700">
                               {output.compressionStats.usedCompressed
                                 ? "Compressed size"
                                 : "Final size"}
                             </span>
-                            <span className="font-semibold text-white">
+                            <span className="font-semibold text-white light:text-slate-900">
                               {formatFileSize(
                                 output.compressionStats.compressedSize,
                               )}
@@ -4113,7 +4113,7 @@ function PdfEditorPageContent() {
                           </div>
 
                           <div className="flex items-center justify-between gap-4">
-                            <span className="text-slate-300">Saved</span>
+                            <span className="text-slate-300 light:text-slate-700">Saved</span>
                             <span className="font-semibold text-emerald-300">
                               {formatFileSize(
                                 output.compressionStats.savedBytes,
@@ -4133,11 +4133,11 @@ function PdfEditorPageContent() {
                     </div>
 
                     {output.kind === "text" ? (
-                      <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-900 p-4 text-left text-sm leading-6 text-slate-200">
+                      <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-slate-900 p-4 text-left text-sm leading-6 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-800">
                         {output.previewText || "No preview output."}
                       </pre>
                     ) : (
-                      <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-center text-sm text-slate-500">
+                      <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-white/10 bg-slate-900 text-center text-sm text-slate-500 light:border-slate-900/10 light:bg-white light:text-slate-500">
                         <div>
                           <FileText className="mx-auto mb-3 h-10 w-10 text-emerald-300" />
                           Your output file is ready to download.
@@ -4148,16 +4148,16 @@ function PdfEditorPageContent() {
                     <button
                       type="button"
                       onClick={processAnotherFile}
-                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10"
+                      className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                     >
                       Process another file
                     </button>
                   </>
                 ) : (
-                  <div className="flex min-h-[360px] items-center justify-center rounded-xl border border-dashed border-white/10 bg-slate-900/40 text-center text-sm text-slate-500">
+                  <div className="flex min-h-[360px] items-center justify-center rounded-xl border border-dashed border-white/10 bg-slate-900/40 text-center text-sm text-slate-500 light:border-slate-900/10 light:bg-white/40 light:text-slate-500">
                     <div className="max-w-xs">
                       <FileText className="mx-auto mb-3 h-10 w-10" />
-                      <p className="font-medium text-slate-300">
+                      <p className="font-medium text-slate-300 light:text-slate-700">
                         No output yet
                       </p>
                       <p className="mt-1 leading-6">
@@ -4225,7 +4225,7 @@ export default function PdfEditorPage() {
       fallback={
         <Container className="py-12 sm:py-16">
           <div className="mx-auto max-w-3xl text-center">
-            <p className="text-sm font-semibold text-slate-400">
+            <p className="text-sm font-semibold text-slate-400 light:text-slate-600">
               Loading PDF editor...
             </p>
           </div>

@@ -6,6 +6,7 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 import { Container } from "./Container";
+import { ThemeToggle } from "./ThemeToggle";
 
 const mainLinks = [
   { href: "https://pdfverse.pages.dev/", label: "PDF" },
@@ -14,7 +15,6 @@ const mainLinks = [
   { href: "/paste", label: "Paste" },
   { href: "/qr-generator", label: "QR" },
   { href: "/url-shortener", label: "Shorten" },
-  { href: "/blog", label: "Blog" },
 ];
 
 const toolLinks = [
@@ -40,6 +40,8 @@ const [isToolsOpen, setIsToolsOpen] =
         border-white/10
         bg-slate-950/75
         backdrop-blur-xl
+        light:border-slate-900/10
+        light:bg-white/80
       "
     >
       <Container
@@ -63,11 +65,14 @@ const [isToolsOpen, setIsToolsOpen] =
             items-center
             gap-2
             font-bold
+            text-white
             focus:outline-none
             focus-visible:ring-2
             focus-visible:ring-violet-400/50
             focus-visible:ring-offset-2
             focus-visible:ring-offset-slate-950
+            light:text-slate-900
+            light:focus-visible:ring-offset-white
             sm:gap-3
           "
           onClick={() => setIsMenuOpen(false)}
@@ -104,9 +109,10 @@ const [isToolsOpen, setIsToolsOpen] =
         </Link>
 
         {/* ================================================================
-            DESKTOP NAVIGATION
+            DESKTOP NAVIGATION + THEME TOGGLE (right-aligned group)
         ================================================================ */}
 
+        <div className="flex items-center justify-end gap-1 md:gap-2">
         <nav
           aria-label="Primary navigation"
           className="
@@ -115,6 +121,7 @@ const [isToolsOpen, setIsToolsOpen] =
             gap-2
             text-sm
             text-slate-300
+            light:text-slate-700
             md:flex
           "
         >
@@ -134,6 +141,9 @@ const [isToolsOpen, setIsToolsOpen] =
                 focus-visible:ring-violet-400/50
                 focus-visible:ring-offset-1
                 focus-visible:ring-offset-slate-950
+                light:hover:bg-slate-900/5
+                light:hover:text-slate-900
+                light:focus-visible:ring-offset-white
               "
             >
               {link.label}
@@ -158,6 +168,9 @@ const [isToolsOpen, setIsToolsOpen] =
                 focus-visible:ring-violet-400/50
                 focus-visible:ring-offset-1
                 focus-visible:ring-offset-slate-950
+                light:hover:bg-slate-900/5
+                light:hover:text-slate-900
+                light:focus-visible:ring-offset-white
               "
               aria-expanded={isToolsOpen}
               aria-haspopup="true"
@@ -187,6 +200,10 @@ const [isToolsOpen, setIsToolsOpen] =
                   text-slate-200
                   shadow-2xl
                   shadow-black/20
+                  light:border-slate-900/10
+                  light:bg-white
+                  light:text-slate-700
+                  light:shadow-slate-900/10
                 "
                 role="menu"
               >
@@ -206,6 +223,9 @@ const [isToolsOpen, setIsToolsOpen] =
                       focus:outline-none
                       focus-visible:ring-2
                       focus-visible:ring-violet-400/50
+                      light:text-slate-700
+                      light:hover:bg-slate-900/5
+                      light:hover:text-slate-900
                     "
                     role="menuitem"
                   >
@@ -218,40 +238,49 @@ const [isToolsOpen, setIsToolsOpen] =
         </nav>
 
         {/* ================================================================
-            MOBILE MENU BUTTON
+            THEME TOGGLE + MOBILE MENU BUTTON
         ================================================================ */}
 
-        <button
-          type="button"
-          onClick={() =>
-            setIsMenuOpen((open) => !open)
-          }
-          className="
-            inline-flex
-            h-11
-            w-11
-            items-center
-            justify-center
-            rounded-xl
-            border
-            border-white/10
-            bg-white/[0.03]
-            text-slate-200
-            transition
-            hover:bg-white/10
-            focus:outline-none
-            focus-visible:ring-2
-            focus-visible:ring-violet-400/50
-            md:hidden
-          "
-          aria-expanded={isMenuOpen}
-          aria-controls="mobile-navigation"
-          aria-label={
-            isMenuOpen
-              ? "Close navigation menu"
-              : "Open navigation menu"
-          }
-        >
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+
+          <button
+            type="button"
+            onClick={() =>
+              setIsMenuOpen((open) => !open)
+            }
+            className="
+              inline-flex
+              h-11
+              w-11
+              items-center
+              justify-center
+              rounded-xl
+              border
+              border-white/10
+              bg-white/[0.03]
+              text-slate-200
+              transition
+              hover:bg-white/10
+              hover:text-white
+              focus:outline-none
+              focus-visible:ring-2
+              focus-visible:ring-violet-400/50
+              light:border-slate-900/10
+              light:bg-slate-900/[0.04]
+              light:text-slate-700
+              light:hover:bg-slate-900/10
+              light:hover:text-slate-950
+              md:hidden
+            "
+            aria-expanded={isMenuOpen}
+            aria-controls="mobile-navigation"
+            aria-label={
+              isMenuOpen
+                ? "Close navigation menu"
+                : "Open navigation menu"
+            }
+          >
           {isMenuOpen ? (
             <X
               aria-hidden="true"
@@ -263,7 +292,9 @@ const [isToolsOpen, setIsToolsOpen] =
               className="h-5 w-5"
             />
           )}
-        </button>
+          </button>
+        </div>
+        </div>
       </Container>
 
       {/* ================================================================
@@ -288,6 +319,10 @@ const [isToolsOpen, setIsToolsOpen] =
               text-slate-200
               shadow-2xl
               shadow-black/20
+              light:border-slate-900/10
+              light:bg-white
+              light:text-slate-700
+              light:shadow-slate-900/10
             "
           >
             {mainLinks.map((link) => (
@@ -309,11 +344,36 @@ const [isToolsOpen, setIsToolsOpen] =
                   focus:outline-none
                   focus-visible:ring-2
                   focus-visible:ring-violet-400/50
+                  light:text-slate-700
+                  light:hover:bg-slate-900/5
+                  light:hover:text-slate-900
                 "
               >
                 {link.label}
               </Link>
             ))}
+            <Link
+              href="/blog"
+              onClick={() => setIsMenuOpen(false)}
+              className="
+                rounded-xl
+                px-3
+                py-3
+                text-center
+                font-medium
+                transition
+                hover:bg-white/10
+                hover:text-white
+                focus:outline-none
+                focus-visible:ring-2
+                focus-visible:ring-violet-400/50
+                light:text-slate-700
+                light:hover:bg-slate-900/5
+                light:hover:text-slate-900
+              "
+            >
+              Blog
+            </Link>
             <button
               type="button"
               onClick={() => setIsToolsOpen((open) => !open)}
@@ -332,6 +392,9 @@ const [isToolsOpen, setIsToolsOpen] =
                 focus:outline-none
                 focus-visible:ring-2
                 focus-visible:ring-violet-400/50
+                light:text-slate-700
+                light:hover:bg-slate-900/5
+                light:hover:text-slate-900
               "
               aria-expanded={isToolsOpen}
               aria-haspopup="true"
@@ -364,6 +427,9 @@ const [isToolsOpen, setIsToolsOpen] =
                       focus:outline-none
                       focus-visible:ring-2
                       focus-visible:ring-violet-400/50
+                      light:text-slate-700
+                      light:hover:bg-slate-900/5
+                      light:hover:text-slate-900
                     "
                     role="menuitem"
                   >

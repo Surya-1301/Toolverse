@@ -21,7 +21,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -158,21 +158,21 @@ export default function DuplicateLineRemoverPage() {
           Duplicate Line Remover
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Remove duplicate lines, trim whitespace, drop empty lines, and sort
           any text list instantly.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-5 sm:grid-cols-2">
           {/* Input */}
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <label className="block text-sm font-semibold text-slate-300">
+              <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Input lines
               </label>
-              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                 {inputLines} lines
               </span>
             </div>
@@ -181,14 +181,14 @@ export default function DuplicateLineRemoverPage() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={"apple\nbanana\napple\n  banana\n\ncherry"}
-              className="min-h-[300px] w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="min-h-[300px] w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
           {/* Output */}
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <label className="block text-sm font-semibold text-slate-300">
+              <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Cleaned output
               </label>
               <span
@@ -196,7 +196,7 @@ export default function DuplicateLineRemoverPage() {
                   "rounded-full px-3 py-1 text-xs font-semibold",
                   removed > 0
                     ? "bg-emerald-500/10 text-emerald-300"
-                    : "bg-slate-800 text-slate-400",
+                    : "bg-slate-800 light:bg-slate-200 text-slate-400 light:text-slate-600",
                 ].join(" ")}
               >
                 {outputLines} lines
@@ -208,14 +208,14 @@ export default function DuplicateLineRemoverPage() {
               value={output}
               readOnly
               placeholder="Processed lines will appear here."
-              className="min-h-[300px] w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600"
+              className="min-h-[300px] w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
         </div>
 
         {/* Options */}
         <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
             <input
               type="checkbox"
               checked={trim}
@@ -225,7 +225,7 @@ export default function DuplicateLineRemoverPage() {
             Trim whitespace
           </label>
 
-          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
             <input
               type="checkbox"
               checked={removeEmpty}
@@ -235,7 +235,7 @@ export default function DuplicateLineRemoverPage() {
             Remove empty lines
           </label>
 
-          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
             <input
               type="checkbox"
               checked={dedupe}
@@ -245,7 +245,7 @@ export default function DuplicateLineRemoverPage() {
             Remove duplicates
           </label>
 
-          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+          <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
             <input
               type="checkbox"
               checked={ignoreCase}
@@ -255,13 +255,13 @@ export default function DuplicateLineRemoverPage() {
             Ignore letter case
           </label>
 
-          <div className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3">
-            <span className="flex items-center gap-3 text-sm font-semibold text-slate-300">
+          <div className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-white">
+            <span className="flex items-center gap-3 text-sm font-semibold text-slate-300 light:text-slate-700">
               <ArrowDownUp className="h-4 w-4" />
               <select
                 value={sort}
                 onChange={(event) => setSort(event.target.value as "none" | "asc" | "desc")}
-                className="w-full bg-transparent text-sm text-white outline-none"
+                className="w-full bg-transparent text-sm text-white outline-none light:text-slate-900"
               >
                 <option value="asc">Sort A → Z</option>
                 <option value="desc">Sort Z → A</option>
@@ -284,7 +284,7 @@ export default function DuplicateLineRemoverPage() {
           <button
             onClick={copyOutput}
             disabled={!output}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -297,7 +297,7 @@ export default function DuplicateLineRemoverPage() {
           <button
             onClick={downloadTxt}
             disabled={!output}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             <Download className="h-4 w-4" />
             Download

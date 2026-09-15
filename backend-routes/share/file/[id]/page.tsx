@@ -92,8 +92,8 @@ export default function SharedFilePage({ params }: PageProps) {
     <Container className="py-12 sm:py-16">
       <div className="mx-auto max-w-3xl">
         {isLoading ? (
-          <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
-            <div className="flex items-center gap-3 text-slate-400">
+          <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+            <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
               <Loader2 className="h-5 w-5 animate-spin" />
               Loading file...
             </div>
@@ -103,38 +103,38 @@ export default function SharedFilePage({ params }: PageProps) {
             {error}
           </div>
         ) : file ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white">
             <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
               {isPdf ? "Shared PDF" : "Shared File"}
             </h1>
 
-            <p className="mt-3 break-all text-slate-400">{file.originalName}</p>
+            <p className="mt-3 break-all text-slate-400 light:text-slate-600">{file.originalName}</p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                <p className="text-xs text-slate-500">Type</p>
-                <p className="mt-1 break-all text-sm text-slate-200">
+              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+                <p className="text-xs text-slate-500 light:text-slate-500">Type</p>
+                <p className="mt-1 break-all text-sm text-slate-200 light:text-slate-800">
                   {file.mimeType}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                <p className="text-xs text-slate-500">Size</p>
-                <p className="mt-1 text-sm text-slate-200">
+              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+                <p className="text-xs text-slate-500 light:text-slate-500">Size</p>
+                <p className="mt-1 text-sm text-slate-200 light:text-slate-800">
                   {formatFileSize(file.size)}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                <p className="text-xs text-slate-500">Created</p>
-                <p className="mt-1 text-sm text-slate-200">
+              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+                <p className="text-xs text-slate-500 light:text-slate-500">Created</p>
+                <p className="mt-1 text-sm text-slate-200 light:text-slate-800">
                   {formatDate(file.createdAt)}
                 </p>
               </div>
 
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
-                <p className="text-xs text-slate-500">Expires</p>
-                <p className="mt-1 text-sm text-slate-200">
+              <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+                <p className="text-xs text-slate-500 light:text-slate-500">Expires</p>
+                <p className="mt-1 text-sm text-slate-200 light:text-slate-800">
                   {formatExpiry(file.expiresAt)}
                 </p>
               </div>

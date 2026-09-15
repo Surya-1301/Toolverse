@@ -23,7 +23,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -273,18 +273,18 @@ export default function BlurImagePage() {
           Blur Image
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
          Quickly blur faces, plates, private details, or any sensitive part of an image.
 
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-6 lg:grid-cols-2">
           {/* LEFT: controls */}
           <div className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Source image
               </label>
               <UploadZone
@@ -295,7 +295,7 @@ export default function BlurImagePage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Blur mode
               </label>
               <div className="flex flex-wrap gap-2">
@@ -306,7 +306,7 @@ export default function BlurImagePage() {
                     "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                     mode === "full"
                       ? "border-violet-500 bg-violet-600/20 text-white"
-                      : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                      : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                   ].join(" ")}
                 >
                   <Sparkles className="h-4 w-4" />
@@ -319,7 +319,7 @@ export default function BlurImagePage() {
                     "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                     mode === "region"
                       ? "border-violet-500 bg-violet-600/20 text-white"
-                      : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                      : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                   ].join(" ")}
                 >
                   <Square className="h-4 w-4" />
@@ -329,7 +329,7 @@ export default function BlurImagePage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-300">
+              <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Blur strength: {radius}px
               </label>
               <input
@@ -345,13 +345,13 @@ export default function BlurImagePage() {
 
             {mode === "region" ? (
               <div>
-                <label className="mb-2 block text-sm font-semibold text-slate-300">
+                <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
                   Region position
                 </label>
                 <div className="grid grid-cols-4 gap-3">
                   {(["x", "y", "w", "h"] as const).map((key) => (
                     <div key={key}>
-                      <label className="mb-1 block text-xs font-semibold uppercase text-slate-500">
+                      <label className="mb-1 block text-xs font-semibold uppercase text-slate-500 light:text-slate-500">
                         {key} (%)
                       </label>
                       <input
@@ -366,7 +366,7 @@ export default function BlurImagePage() {
                           }));
                           setPreviewUrl("");
                         }}
-                        className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none transition focus:border-violet-500"
+                        className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                       />
                     </div>
                   ))}
@@ -391,7 +391,7 @@ export default function BlurImagePage() {
               <button
                 onClick={download}
                 disabled={!previewUrl}
-                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -409,9 +409,9 @@ export default function BlurImagePage() {
 
           {/* RIGHT: preview */}
           <div>
-            <p className="mb-2 text-sm font-semibold text-slate-300">Preview</p>
+            <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Preview</p>
             <div
-              className="relative w-full touch-none select-none rounded-2xl border border-white/10 bg-slate-950"
+              className="relative w-full touch-none select-none rounded-2xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white"
               style={{ aspectRatio: source ? `${source.naturalWidth}/${source.naturalHeight}` : "4/3" }}
             >
               {source ? (
@@ -433,8 +433,8 @@ export default function BlurImagePage() {
               ) : (
                 <div className="flex h-full min-h-[240px] items-center justify-center">
                   <div className="flex flex-col items-center gap-3 px-8 text-center">
-                    <ImageUp className="h-8 w-8 text-slate-600" />
-                    <p className="text-sm leading-6 text-slate-500">
+                    <ImageUp className="h-8 w-8 text-slate-600 light:text-slate-500" />
+                    <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                       Upload an image to preview the blur.
                     </p>
                   </div>
@@ -443,7 +443,7 @@ export default function BlurImagePage() {
 
               {mode === "region" && source ? (
                 <div
-                  className="absolute cursor-move border-2 border-dashed border-white/90 bg-white/5"
+                  className="absolute cursor-move border-2 border-dashed border-white/90 bg-white/5 light:border-slate-900/20 light:bg-white/5"
                   style={{
                     left: `${region.x}%`,
                     top: `${region.y}%`,
@@ -503,7 +503,7 @@ export default function BlurImagePage() {
                     onPointerDown={(e) => onResizePointerDown("e", e)}
                     className="absolute right-0 top-1/2 h-8 w-1.5 -translate-y-1/2 cursor-ew-resize rounded-sm bg-white/60 hover:bg-white"
                   />
-                  <span className="pointer-events-none absolute -top-7 left-0 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white">
+                  <span className="pointer-events-none absolute -top-7 left-0 rounded-md bg-black/60 px-2 py-0.5 text-[10px] font-semibold text-white light:text-slate-900">
                     Sharp region
                   </span>
                 </div>
@@ -521,7 +521,7 @@ export default function BlurImagePage() {
             ) : null}
 
             {source ? (
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
                 {source.naturalWidth}×{source.naturalHeight} ·{" "}
                 {mode === "region"
                   ? "blurred everywhere except the box"

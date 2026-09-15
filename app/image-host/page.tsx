@@ -215,25 +215,25 @@ export default function ImageHostPage() {
           Image Host
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Upload images and get clean shareable links instantly.
         </p>
       </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Upload image
           </label>
 
-          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03]">
+          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
             <Upload className="mb-3 h-8 w-8 text-violet-300" />
 
-            <span className="font-medium text-white">
+            <span className="font-medium text-white light:text-slate-900">
               Click to choose image
             </span>
 
-            <span className="mt-2 text-sm text-slate-500">
+            <span className="mt-2 text-sm text-slate-500 light:text-slate-500">
               JPG, PNG, WebP, GIF up to 25 MB
             </span>
 
@@ -246,30 +246,30 @@ export default function ImageHostPage() {
           </label>
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
-              <p className="break-all text-sm font-medium text-white">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+              <p className="break-all text-sm font-medium text-white light:text-slate-900">
                 {file.name}
               </p>
 
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
                 Size: {formatFileSize(file.size)}
               </p>
 
-              <p className="mt-1 text-sm text-slate-400">
+              <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
                 Type: {file.type || "Unknown"}
               </p>
             </div>
           ) : null}
 
           <div className="mt-5">
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
               Expires
             </label>
 
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -311,7 +311,7 @@ export default function ImageHostPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold">Preview</h2>
 
@@ -320,13 +320,13 @@ export default function ImageHostPage() {
                 Uploaded
               </span>
             ) : (
-              <span className="rounded-full bg-slate-500/10 px-2.5 py-1 text-xs text-slate-400">
+              <span className="rounded-full bg-slate-500/10 px-2.5 py-1 text-xs text-slate-400 light:bg-slate-500/10 light:text-slate-600">
                 Local
               </span>
             )}
           </div>
 
-          <div className="mt-5 flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-4">
+          <div className="mt-5 flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -335,7 +335,7 @@ export default function ImageHostPage() {
                 className="max-h-[320px] w-full object-contain"
               />
             ) : (
-              <div className="text-center text-sm text-slate-500">
+              <div className="text-center text-sm text-slate-500 light:text-slate-500">
                 <ImageIcon className="mx-auto mb-2 h-8 w-8" />
                 Image preview appears here
               </div>
@@ -350,24 +350,24 @@ export default function ImageHostPage() {
 
               <div className="mt-3 grid gap-3">
                 <div>
-                  <label className="mb-1 block text-xs text-slate-400">
+                  <label className="mb-1 block text-xs text-slate-400 light:text-slate-600">
                     Page link
                   </label>
                   <input
                     value={pageUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
 
                 <div>
-                  <label className="mb-1 block text-xs text-slate-400">
+                  <label className="mb-1 block text-xs text-slate-400 light:text-slate-600">
                     Direct image link
                   </label>
                   <input
                     value={directUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
               </div>
@@ -376,7 +376,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("page")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied === "page" ? (
                     <Check className="h-4 w-4" />
@@ -389,7 +389,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("direct")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied === "direct" ? (
                     <Check className="h-4 w-4" />
@@ -402,7 +402,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("markdown")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied === "markdown" ? (
                     <Check className="h-4 w-4" />
@@ -415,7 +415,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("html")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                 >
                   {copied === "html" ? (
                     <Check className="h-4 w-4" />

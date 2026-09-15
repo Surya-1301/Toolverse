@@ -32,7 +32,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -126,14 +126,14 @@ export default function UuidGeneratorPage() {
           UUID Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Generate secure UUID v4 values, bulk create identifiers, and copy
           individual or full results instantly.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-        <label className="mb-2 block text-sm font-semibold text-slate-300">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
           Number of UUIDs
         </label>
 
@@ -145,29 +145,29 @@ export default function UuidGeneratorPage() {
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             onKeyDown={(e) => { if (e.key === "Enter") generateUuids(); }}
-            className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 sm:w-40"
+            className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 sm:w-40 light:border-slate-900/10 light:bg-white light:text-slate-900"
           />
         </div>
 
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
           Generate between 1 and 1000 UUID v4 values.
         </p>
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-4">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
           {uuids.length ? (
             <div className="space-y-3">
               {uuids.map((uuid) => (
                 <div
                   key={uuid}
-                  className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3 sm:flex-row sm:items-center sm:justify-between"
+                  className="flex flex-col gap-3 rounded-xl border border-white/10 bg-white/[0.02] p-3 sm:flex-row sm:items-center sm:justify-between light:border-slate-900/10"
                 >
-                  <code className="break-all text-sm text-slate-200">
+                  <code className="break-all text-sm text-slate-200 light:text-slate-800">
                     {uuid}
                   </code>
 
                   <button
                     onClick={() => copyOne(uuid)}
-                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10"
+                    className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                   >
                     {copiedValue === uuid ? (
                       <Check className="h-4 w-4" />
@@ -180,8 +180,8 @@ export default function UuidGeneratorPage() {
               ))}
             </div>
           ) : (
-            <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
-              <p className="text-sm leading-6 text-slate-500">
+            <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+              <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Generated UUIDs will appear here.
               </p>
             </div>
@@ -200,7 +200,7 @@ export default function UuidGeneratorPage() {
           <button
             onClick={copyAll}
             disabled={!uuids.length}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             {copiedAll ? (
               <Check className="h-4 w-4" />

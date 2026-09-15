@@ -164,7 +164,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -275,16 +275,16 @@ export default function LoremIpsumPage() {
           Lorem Ipsum Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Generate classic placeholder text as paragraphs, sentences, or words
           with optional HTML tags, and copy or download the result.
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Output type
             </label>
 
@@ -298,7 +298,7 @@ export default function LoremIpsumPage() {
                     "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                     mode === item.value
                       ? "border-violet-500 bg-violet-600/20 text-white"
-                      : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                      : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                   ].join(" ")}
                 >
                   {item.label}
@@ -308,7 +308,7 @@ export default function LoremIpsumPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Number of {modeLabel}
             </label>
 
@@ -318,12 +318,12 @@ export default function LoremIpsumPage() {
               max="1000"
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
 
           <div className="space-y-3">
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={startStandard}
@@ -333,7 +333,7 @@ export default function LoremIpsumPage() {
               Start with classic phrase
             </label>
 
-            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300">
+            <label className="flex items-center gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm font-semibold text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <input
                 type="checkbox"
                 checked={includeHtml}
@@ -358,7 +358,7 @@ export default function LoremIpsumPage() {
           <button
             onClick={copyOutput}
             disabled={!output}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -371,7 +371,7 @@ export default function LoremIpsumPage() {
           <button
             onClick={downloadTxt}
             disabled={!output}
-            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm"
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             <Download className="h-4 w-4 shrink-0" />
             Download .txt
@@ -388,32 +388,32 @@ export default function LoremIpsumPage() {
 
         <div className="mt-6">
           <div className="mb-3 flex items-center justify-between gap-3">
-            <label className="block text-sm font-semibold text-slate-300">
+            <label className="block text-sm font-semibold text-slate-300 light:text-slate-700">
               Generated text
             </label>
 
             <span className="inline-flex items-center gap-2">
               {output && (
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                   <FileText className="h-3.5 w-3.5" />
                   {output.length} chars
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                 <TextQuote className="h-3.5 w-3.5" />
                 {output ? output.trim().split(/\s+/).filter(Boolean).length : 0} words
               </span>
             </span>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950 p-4">
+          <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
             {output ? (
-              <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap font-serif text-sm leading-7 text-slate-200">
+              <pre className="max-h-[420px] overflow-auto whitespace-pre-wrap font-serif text-sm leading-7 text-slate-200 light:text-slate-800">
                 {output}
               </pre>
             ) : (
-              <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center">
-                <p className="text-sm leading-6 text-slate-500">
+              <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+                <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                   Generated placeholder text will appear here.
                 </p>
               </div>

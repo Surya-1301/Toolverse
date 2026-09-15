@@ -31,7 +31,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -584,15 +584,15 @@ export default function DomainLookupPage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Domain Lookup
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Query DNS records or look up WHOIS ownership, registrar, and dates for
           any domain.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         {/* Mode toggle */}
-        <div className="mb-4 flex rounded-xl border border-white/10 bg-slate-950 p-1">
+        <div className="mb-4 flex rounded-xl border border-white/10 bg-slate-950 p-1 light:border-slate-900/10 light:bg-white">
           <button
             onClick={() => switchMode("whois")}
             className={`flex flex-1 items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition ${
@@ -624,15 +624,15 @@ export default function DomainLookupPage() {
 
         {/* Input row */}
         <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-slate-950 px-4">
-            <Globe2 className="mr-3 h-4 w-4 shrink-0 text-slate-500" />
+          <div className="flex flex-1 items-center rounded-xl border border-white/10 bg-slate-950 px-4 light:border-slate-900/10 light:bg-white">
+            <Globe2 className="mr-3 h-4 w-4 shrink-0 text-slate-500 light:text-slate-500" />
             <input
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
               onKeyDown={(e) => { if (e.key === "Enter") void runLookup(); }}
               placeholder="example.com"
               spellCheck={false}
-              className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600"
+              className="min-w-0 flex-1 bg-transparent py-3 text-sm text-slate-100 outline-none placeholder:text-slate-600 light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -640,7 +640,7 @@ export default function DomainLookupPage() {
             <select
               value={recordType}
               onChange={(e) => setRecordType(e.target.value as RecordType)}
-              className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+              className="rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {RECORD_TYPES.map((type) => (
                 <option key={type} value={type}>{type}</option>
@@ -669,12 +669,12 @@ export default function DomainLookupPage() {
         {mode === "dns" && records.length > 0 && (
           <div className="mt-6">
             <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm font-semibold text-slate-300">
+              <p className="text-sm font-semibold text-slate-300 light:text-slate-700">
                 {records.length} {recordType} record{records.length > 1 ? "s" : ""} for {cleanHost(domain)}
               </p>
               <button
                 onClick={copyDns}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Copied" : "Copy"}
@@ -682,14 +682,14 @@ export default function DomainLookupPage() {
             </div>
             <div className="space-y-2">
               {records.map((record, index) => (
-                <div key={index} className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-slate-950 p-4">
+                <div key={index} className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
                   <span className="rounded-md bg-violet-600/15 px-2 py-0.5 font-mono text-xs font-bold text-violet-300">
                     {record.type}
                   </span>
-                  <span className="rounded-md bg-slate-800 px-2 py-0.5 text-xs text-slate-400">
+                  <span className="rounded-md bg-slate-800 px-2 py-0.5 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
                     TTL {record.ttl}
                   </span>
-                  <span className="min-w-0 flex-1 break-all font-mono text-sm text-slate-100">
+                  <span className="min-w-0 flex-1 break-all font-mono text-sm text-slate-100 light:text-slate-900">
                     {record.data}
                   </span>
                 </div>
@@ -701,14 +701,14 @@ export default function DomainLookupPage() {
         {/* ===== WHOIS results ===== */}
         {mode === "whois" && whoisResult && (
           <div className="mt-6 space-y-5">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Domain</p>
-                <p className="mt-1 text-lg font-bold text-white">{whoisResult.domain}</p>
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">Domain</p>
+                <p className="mt-1 text-lg font-bold text-white light:text-slate-900">{whoisResult.domain}</p>
               </div>
               <button
                 onClick={copyWhois}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Copied" : "Copy"}
@@ -716,44 +716,44 @@ export default function DomainLookupPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+              <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                   <Building2 className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Registrar</p>
-                  <p className="mt-1 break-words text-sm font-semibold text-white">{whoisResult.registrar || "—"}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">Registrar</p>
+                  <p className="mt-1 break-words text-sm font-semibold text-white light:text-slate-900">{whoisResult.registrar || "—"}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+              <div className="flex items-start gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10">
                 <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                   <ShieldCheck className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Status</p>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">Status</p>
                   {whoisResult.status.length ? (
                     <div className="mt-1 flex flex-wrap gap-1.5">
                       {whoisResult.status.map((s) => (
-                        <span key={s} className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300">{s}</span>
+                        <span key={s} className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-300 light:bg-slate-200 light:text-slate-700">{s}</span>
                       ))}
                     </div>
                   ) : (
-                    <p className="mt-1 text-sm font-semibold text-white">—</p>
+                    <p className="mt-1 text-sm font-semibold text-white light:text-slate-900">—</p>
                   )}
                 </div>
               </div>
             </div>
 
             {whoisResult.events.length > 0 && (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Important Dates</p>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">Important Dates</p>
                 <div className="grid gap-3 sm:grid-cols-3">
                   {whoisResult.events.map((e, i) => (
-                    <div key={i} className="flex items-center gap-2 rounded-xl bg-slate-950 p-3">
+                    <div key={i} className="flex items-center gap-2 rounded-xl bg-slate-950 p-3 light:bg-white">
                       <Clock className="h-4 w-4 shrink-0 text-violet-400" />
                       <div>
-                        <p className="text-[11px] text-slate-500">{labelForAction(e.eventAction)}</p>
-                        <p className="text-sm font-semibold text-white">{formatDate(e.eventDate)}</p>
+                        <p className="text-[11px] text-slate-500 light:text-slate-500">{labelForAction(e.eventAction)}</p>
+                        <p className="text-sm font-semibold text-white light:text-slate-900">{formatDate(e.eventDate)}</p>
                       </div>
                     </div>
                   ))}
@@ -768,11 +768,11 @@ export default function DomainLookupPage() {
             </div>
 
             {whoisResult.nameservers.length > 0 && (
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500">Name Servers</p>
+              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">Name Servers</p>
                 <div className="flex flex-wrap gap-2">
                   {whoisResult.nameservers.map((ns) => (
-                    <span key={ns} className="rounded-lg bg-slate-950 px-3 py-1.5 font-mono text-xs text-slate-300">{ns}</span>
+                    <span key={ns} className="rounded-lg bg-slate-950 px-3 py-1.5 font-mono text-xs text-slate-300 light:bg-white light:text-slate-700">{ns}</span>
                   ))}
                 </div>
               </div>
@@ -782,13 +782,13 @@ export default function DomainLookupPage() {
               <div>
                 <button
                   onClick={() => setShowRaw(!showRaw)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition hover:text-white"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
                 >
                   <Fingerprint className="h-3.5 w-3.5" />
                   {showRaw ? "Hide" : "Show"} raw RDAP data
                 </button>
                 {showRaw && (
-                  <pre className="mt-3 max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-[11px] leading-5 text-slate-300">
+                  <pre className="mt-3 max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-[11px] leading-5 text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
                     {whoisResult.raw}
                   </pre>
                 )}
@@ -800,12 +800,12 @@ export default function DomainLookupPage() {
         {/* ===== SSL results ===== */}
         {mode === "ssl" && sslResult && (
           <div className="mt-6 space-y-5">
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-white">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+              <h2 className="flex items-center gap-2 text-lg font-bold text-white light:text-slate-900">
                 <LockKeyhole className="h-5 w-5 text-violet-300" />
                 {sslResult.domain}
               </h2>
-              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
+              <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 light:bg-slate-200 light:text-slate-700">
                 {sslResult.certificateCount} cert{sslResult.certificateCount === 1 ? "" : "s"} found
               </span>
             </div>
@@ -817,14 +817,14 @@ export default function DomainLookupPage() {
                   return (
                     <div
                       key={`${cert.serial_number}-${index}`}
-                      className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5"
+                      className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 light:border-slate-900/10"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="break-all text-sm font-bold text-white">
+                          <p className="break-all text-sm font-bold text-white light:text-slate-900">
                             {cert.common_name}
                           </p>
-                          <p className="mt-0.5 break-all text-xs text-slate-500">
+                          <p className="mt-0.5 break-all text-xs text-slate-500 light:text-slate-500">
                             {cert.name_value}
                           </p>
                         </div>
@@ -840,41 +840,41 @@ export default function DomainLookupPage() {
                       </div>
 
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
-                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <Building2 className="h-3.5 w-3.5" />
                             Issuer
                           </p>
-                          <p className="mt-1 break-words text-xs font-semibold text-slate-200">
+                          <p className="mt-1 break-words text-xs font-semibold text-slate-200 light:text-slate-800">
                             {cert.issuer_name || "—"}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
-                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             Valid from
                           </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-200">
+                          <p className="mt-1 text-xs font-semibold text-slate-200 light:text-slate-800">
                             {sslFormatDate(cert.not_before)}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
-                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             Expires
                           </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-200">
+                          <p className="mt-1 text-xs font-semibold text-slate-200 light:text-slate-800">
                             {sslFormatDate(cert.not_after)}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3">
-                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                          <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <Fingerprint className="h-3.5 w-3.5" />
                             Serial
                           </p>
                           <button
                             onClick={() => copySsl(cert.serial_number)}
-                            className="mt-1 inline-flex max-w-full items-center gap-1.5 text-xs font-semibold text-slate-300 transition hover:text-white"
+                            className="mt-1 inline-flex max-w-full items-center gap-1.5 text-xs font-semibold text-slate-300 transition hover:text-white light:text-slate-700 light:hover:text-slate-900"
                           >
                             <span className="truncate">
                               {sslCopied === cert.serial_number ? "Copied!" : cert.serial_number || "—"}
@@ -892,8 +892,8 @@ export default function DomainLookupPage() {
                 })}
               </div>
             ) : (
-              <div className="rounded-2xl border border-white/10 bg-slate-950 p-6 text-center">
-                <p className="text-sm leading-6 text-slate-400">
+              <div className="rounded-2xl border border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+                <p className="text-sm leading-6 text-slate-400 light:text-slate-600">
                   No certificates were found for this domain.
                 </p>
               </div>
@@ -931,30 +931,30 @@ export default function DomainLookupPage() {
 
 function ContactCard({ title, contact, icon }: { title: string; contact: Contact | null; icon: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10">
       <div className="mb-3 flex items-center gap-2">
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
           {icon}
         </div>
-        <h3 className="text-sm font-bold text-white">{title}</h3>
+        <h3 className="text-sm font-bold text-white light:text-slate-900">{title}</h3>
       </div>
       {contact ? (
         <div className="space-y-2 text-sm">
-          {contact.name && <p className="break-words text-slate-200">{contact.name}</p>}
+          {contact.name && <p className="break-words text-slate-200 light:text-slate-800">{contact.name}</p>}
           {contact.email && (
-            <p className="flex items-center gap-2 break-all text-xs text-slate-400">
+            <p className="flex items-center gap-2 break-all text-xs text-slate-400 light:text-slate-600">
               <Mail className="h-3.5 w-3.5 shrink-0" /> {contact.email}
             </p>
           )}
           {contact.phone && (
-            <p className="flex items-center gap-2 break-all text-xs text-slate-400">
+            <p className="flex items-center gap-2 break-all text-xs text-slate-400 light:text-slate-600">
               <Globe2 className="h-3.5 w-3.5 shrink-0" /> {contact.phone}
             </p>
           )}
-          {contact.kind && <p className="text-xs text-slate-500 capitalize">{contact.kind}</p>}
+          {contact.kind && <p className="text-xs text-slate-500 capitalize light:text-slate-500">{contact.kind}</p>}
         </div>
       ) : (
-        <p className="text-xs text-slate-500">—</p>
+        <p className="text-xs text-slate-500 light:text-slate-500">—</p>
       )}
     </div>
   );

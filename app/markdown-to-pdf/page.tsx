@@ -55,7 +55,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/conversion-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -153,33 +153,33 @@ export default function MarkdownToPdfPage() {
           Markdown to PDF
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Write Markdown, preview it live, and download as PDF using your
           browser print dialog.
         </p>
       </div>
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-3 block text-sm font-semibold text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Markdown input
           </label>
 
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             placeholder="Write Markdown here..."
           />
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
-          <label className="mb-3 block text-sm font-semibold text-slate-300">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+          <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Live preview
           </label>
 
           <div
-            className="min-h-[460px] rounded-2xl border border-white/10 bg-slate-950 p-6 text-slate-200"
+            className="min-h-[460px] rounded-2xl border border-white/10 bg-slate-950 p-6 text-slate-200 light:border-slate-900/10 light:bg-white light:text-slate-800"
             dangerouslySetInnerHTML={{ __html: html }}
           />
         </div>
@@ -188,7 +188,7 @@ export default function MarkdownToPdfPage() {
       <div className="mt-5 grid grid-cols-2 gap-3">
         <button
           onClick={downloadPdf}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
           <Download className="h-4 w-4" />
           Download PDF

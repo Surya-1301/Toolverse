@@ -26,8 +26,8 @@ export default function GoPage() {
 function GoLoading() {
   return (
     <Container className="py-12 sm:py-16">
-      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
-        <div className="flex items-center gap-3 text-slate-400">
+      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+        <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
           <Loader2 className="h-5 w-5 animate-spin" />
           Opening link...
         </div>
@@ -120,12 +120,12 @@ function GoContent() {
             {error}
           </div>
         ) : link ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center light:border-slate-900/10 light:bg-white">
             <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
               Opening link
             </h1>
 
-            <p className="mt-4 break-all text-slate-400">{targetUrl}</p>
+            <p className="mt-4 break-all text-slate-400 light:text-slate-600">{targetUrl}</p>
 
             <a
               href={targetUrl}

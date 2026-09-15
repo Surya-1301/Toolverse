@@ -22,7 +22,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -242,14 +242,14 @@ export default function TextToSpeechPage() {
           Text to Speech
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Turn written text into spoken audio using your
           browser&apos;s built-in speech engine —
           completely offline and private.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         {unsupported ? (
           <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.06] p-6 text-center">
             <p className="text-sm leading-6 text-amber-200">
@@ -266,17 +266,17 @@ export default function TextToSpeechPage() {
               }
               rows={6}
               placeholder="Type or paste text to speak..."
-              className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               <div>
                 <label
                   htmlFor="tts-voice"
-                  className="mb-2 block text-sm font-semibold text-slate-300"
+                  className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700"
                 >
                   Voice{" "}
-                  <span className="font-normal text-slate-500">
+                  <span className="font-normal text-slate-500 light:text-slate-500">
                     ({voices.length} available)
                   </span>
                 </label>
@@ -287,7 +287,7 @@ export default function TextToSpeechPage() {
                   onChange={(event) =>
                     setVoiceUri(event.target.value)
                   }
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 >
                   {voices.length === 0 ? (
                     <option value="">
@@ -313,7 +313,7 @@ export default function TextToSpeechPage() {
                 <div>
                   <label
                     htmlFor="tts-rate"
-                    className="mb-2 block text-sm font-semibold text-slate-300"
+                    className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700"
                   >
                     Rate: {rate.toFixed(2)}×
                   </label>
@@ -337,7 +337,7 @@ export default function TextToSpeechPage() {
                 <div>
                   <label
                     htmlFor="tts-pitch"
-                    className="mb-2 block text-sm font-semibold text-slate-300"
+                    className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700"
                   >
                     Pitch: {pitch.toFixed(2)}
                   </label>
@@ -375,7 +375,7 @@ export default function TextToSpeechPage() {
                 type="button"
                 onClick={togglePause}
                 disabled={!speaking}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 {paused ? (
                   <Play className="h-4 w-4" />
@@ -399,7 +399,7 @@ export default function TextToSpeechPage() {
               <button
                 type="button"
                 onClick={() => setText("")}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:col-span-1 sm:px-5"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:col-span-1 sm:px-5 light:border-slate-900/10 light:text-slate-700 light:hover:bg-slate-900/10 light:hover:text-slate-900"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -408,21 +408,21 @@ export default function TextToSpeechPage() {
               <button
                 type="button"
                 onClick={resetSettings}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:col-span-1 sm:px-5"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:col-span-1 sm:px-5 light:border-slate-900/10 light:text-slate-700 light:hover:bg-slate-900/10 light:hover:text-slate-900"
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset
               </button>
             </div>
 
-            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
                     Status
                   </p>
 
-                  <p className="mt-1 text-sm font-medium text-slate-200">
+                  <p className="mt-1 text-sm font-medium text-slate-200 light:text-slate-800">
                     {speaking
                       ? paused
                         ? "Paused"
@@ -432,11 +432,11 @@ export default function TextToSpeechPage() {
                 </div>
 
                 <div className="text-right">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
                     Voice
                   </p>
 
-                  <p className="mt-1 max-w-[240px] truncate text-sm text-slate-300">
+                  <p className="mt-1 max-w-[240px] truncate text-sm text-slate-300 light:text-slate-700">
                     {selectedVoice
                       ? `${selectedVoice.name} (${selectedVoice.lang})`
                       : "System default"}

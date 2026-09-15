@@ -144,22 +144,22 @@ where necessary.
   };
 
   return (
-    <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+    <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
       
       {/* Header */}
 
       <div className="mb-6 flex items-center gap-3">
 
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-red-300 ring-1 ring-white/10">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-red-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-red-700 light:ring-slate-900/10">
           <Mail className="h-5 w-5" />
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-white">
+          <h2 className="text-xl font-semibold tracking-tight text-white light:text-slate-900">
             Prepare your report
           </h2>
 
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-slate-400 light:text-slate-600">
             Enter the details below and your email application will open
             with the report prepared.
           </p>
@@ -176,7 +176,7 @@ where necessary.
         <div>
           <label
             htmlFor="reporter-email"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700"
           >
             Your email address
           </label>
@@ -186,10 +186,10 @@ where necessary.
             type="email"
             placeholder="you@example.com"
             autoComplete="email"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
           />
 
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
             We may use this address if additional information is required.
           </p>
         </div>
@@ -199,7 +199,7 @@ where necessary.
         <div>
           <label
             htmlFor="report-type"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700"
           >
             Report type
           </label>
@@ -207,7 +207,7 @@ where necessary.
           <select
             id="report-type"
             defaultValue=""
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900"
           >
             <option value="" disabled>
               Select report type
@@ -226,7 +226,7 @@ where necessary.
         <div className="md:col-span-2">
           <label
             htmlFor="reported-url"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700"
           >
             Toolverse URL or content ID
           </label>
@@ -235,10 +235,10 @@ where necessary.
             id="reported-url"
             type="url"
             placeholder="https://toolverse.example/..."
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
           />
 
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
             Provide the exact page, file, image, paste, upload, or other
             Toolverse resource involved.
           </p>
@@ -249,7 +249,7 @@ where necessary.
         <div className="md:col-span-2">
           <label
             htmlFor="report-subject"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700"
           >
             Subject
           </label>
@@ -258,7 +258,7 @@ where necessary.
             id="report-subject"
             type="text"
             placeholder="Briefly describe the issue"
-            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10"
+            className="w-full rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
@@ -267,7 +267,7 @@ where necessary.
         <div className="md:col-span-2">
           <label
             htmlFor="report-description"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700"
           >
             Reason for the report
           </label>
@@ -276,7 +276,7 @@ where necessary.
             id="report-description"
             rows={7}
             placeholder="Explain what is wrong, why you believe it is harmful or abusive, and whether immediate action is needed."
-            className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10"
+            className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
@@ -285,11 +285,11 @@ where necessary.
         <div className="md:col-span-2">
           <label
             htmlFor="report-evidence"
-            className="mb-2 block text-sm font-medium text-slate-300"
+            className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700"
           >
             Supporting context
 
-            <span className="ml-2 text-xs font-normal text-slate-500">
+            <span className="ml-2 text-xs font-normal text-slate-500 light:text-slate-500">
               Optional
             </span>
           </label>
@@ -298,7 +298,7 @@ where necessary.
             id="report-evidence"
             rows={5}
             placeholder="Add screenshots, ownership details, timestamps, legal context, identifiers, or other useful evidence."
-            className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10"
+            className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3 text-sm leading-6 text-white outline-none transition placeholder:text-slate-600 focus:border-red-400/40 focus:ring-2 focus:ring-red-400/10 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
@@ -326,11 +326,11 @@ where necessary.
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
 
           <div>
-            <p className="text-sm font-semibold text-white">
+            <p className="text-sm font-semibold text-white light:text-slate-900">
               Do not include sensitive credentials
             </p>
 
-            <p className="mt-1 text-sm leading-6 text-slate-400">
+            <p className="mt-1 text-sm leading-6 text-slate-400 light:text-slate-600">
               Never include passwords, authentication codes, private keys,
               payment information, or other credentials in your report.
             </p>

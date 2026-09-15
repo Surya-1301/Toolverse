@@ -15,11 +15,11 @@ export default function MergePdfPage() {
           Free PDF Tool
         </p>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Merge PDF Online
         </h1>
 
-        <p className="mt-5 text-base leading-8 text-slate-400">
+        <p className="mt-5 text-base leading-8 text-slate-400 light:text-slate-600">
           Combine multiple PDFs into a single document. Upload your PDF files,
           arrange them, and download one merged PDF.
         </p>

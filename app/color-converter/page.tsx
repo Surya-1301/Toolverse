@@ -295,7 +295,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/conversion-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -555,7 +555,7 @@ export default function ColorConverterPage() {
          RGB ↔ HEX Converter
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Convert HEX, RGB, and HSL colors,
           preview the result, and generate a
           simple color palette.
@@ -564,11 +564,11 @@ export default function ColorConverterPage() {
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_0.9fr]">
         {/* LEFT PANEL */}
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="grid gap-4 sm:grid-cols-[1fr_180px]">
             {/* Color input */}
             <div>
-              <label className="mb-3 block text-sm font-semibold text-slate-300">
+              <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Color input
               </label>
 
@@ -580,13 +580,13 @@ export default function ColorConverterPage() {
                   )
                 }
                 placeholder="Enter color value..."
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
             {/* Input format */}
             <div>
-              <label className="mb-3 block text-sm font-semibold text-slate-300">
+              <label className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700">
                 Input format
               </label>
 
@@ -601,7 +601,7 @@ export default function ColorConverterPage() {
                       | "hsl",
                   )
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 <option value="hex">
                   HEX
@@ -620,7 +620,7 @@ export default function ColorConverterPage() {
 
           {/* Error */}
           {error ? (
-            <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200">
+            <p className="mt-4 rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
               {error}
             </p>
           ) : null}
@@ -664,9 +664,9 @@ export default function ColorConverterPage() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="rounded-2xl border border-white/10 bg-slate-950 p-4"
+                className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white"
               >
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                   {item.label}
                 </p>
 
@@ -689,7 +689,7 @@ export default function ColorConverterPage() {
                     )
                   }
                   disabled={!item.value}
-                  className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:text-slate-600"
+                  className="mt-4 inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:text-slate-600 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
                 >
                   {copied ===
                   item.label ? (
@@ -709,13 +709,13 @@ export default function ColorConverterPage() {
         </div>
 
         {/* RIGHT PANEL */}
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className="text-lg font-semibold text-white light:text-slate-900">
               Color preview
             </h2>
 
-            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400">
+            <span className="rounded-full bg-slate-800 px-3 py-1 text-xs text-slate-400 light:bg-slate-200 light:text-slate-600">
               {hasColor
                 ? hex
                 : "Waiting"}
@@ -725,21 +725,21 @@ export default function ColorConverterPage() {
           {/* Preview */}
           {hasColor ? (
             <div
-              className="flex min-h-[240px] items-center justify-center rounded-2xl border border-white/10 text-center"
+              className="flex min-h-[240px] items-center justify-center rounded-2xl border border-white/10 text-center light:border-slate-900/10"
               style={{
                 backgroundColor:
                   hex,
               }}
             >
-              <div className="rounded-2xl bg-black/35 px-5 py-3 backdrop-blur">
-                <p className="font-mono text-sm font-semibold text-white">
+              <div className="rounded-2xl bg-black/35 px-5 py-3 backdrop-blur light:bg-white/90">
+                <p className="font-mono text-sm font-semibold text-white light:text-slate-900">
                   {hex}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 text-center">
-              <p className="text-sm text-slate-500">
+            <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 text-center light:border-slate-900/10 light:bg-white">
+              <p className="text-sm text-slate-500 light:text-slate-500">
                 Color preview will appear
                 here after conversion.
               </p>
@@ -751,7 +751,7 @@ export default function ColorConverterPage() {
             <div className="mb-3 flex items-center gap-2">
               <Palette className="h-4 w-4 text-violet-300" />
 
-              <h3 className="text-sm font-semibold text-slate-300">
+              <h3 className="text-sm font-semibold text-slate-300 light:text-slate-700">
                 Palette generator
               </h3>
             </div>
@@ -770,7 +770,7 @@ export default function ColorConverterPage() {
                           item.value,
                         )
                       }
-                      className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950 text-left transition hover:border-violet-400/40"
+                      className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950 text-left transition hover:border-violet-400/40 light:border-slate-900/10 light:bg-white"
                     >
                       <div
                         className="h-16"
@@ -781,11 +781,11 @@ export default function ColorConverterPage() {
                       />
 
                       <div className="p-3">
-                        <p className="text-sm font-semibold text-white">
+                        <p className="text-sm font-semibold text-white light:text-slate-900">
                           {item.label}
                         </p>
 
-                        <p className="mt-1 font-mono text-xs text-slate-400">
+                        <p className="mt-1 font-mono text-xs text-slate-400 light:text-slate-600">
                           {item.value}
                         </p>
 
@@ -808,8 +808,8 @@ export default function ColorConverterPage() {
                 )}
               </div>
             ) : (
-              <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 p-6 text-center">
-                <p className="text-sm leading-6 text-slate-500">
+              <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+                <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                   Palette colors will
                   appear here after
                   conversion.

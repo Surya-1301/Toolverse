@@ -6,8 +6,8 @@ import { SharedViewer } from "@/components/SharedViewer";
 function FileLoading() {
   return (
     <div className="py-12 sm:py-16">
-      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
-        <div className="flex items-center gap-3 text-slate-400">
+      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+        <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
           <svg
             className="h-5 w-5 animate-spin"
             viewBox="0 0 24 24"

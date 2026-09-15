@@ -10,10 +10,6 @@ type UploadZoneProps = {
   fileName: string | null;
 };
 
-/**
- * Styled drag-and-drop upload zone. Clicking anywhere in the dashed area
- * opens the file picker; files can also be dropped onto it.
- */
 export default function UploadZone({
   onFile,
   accept = "image/*",
@@ -55,7 +51,7 @@ export default function UploadZone({
         "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition",
         isDragging
           ? "border-violet-400 bg-violet-500/10"
-          : "border-white/15 bg-slate-950 hover:border-violet-400/50 hover:bg-white/[0.03]",
+          : "border-white/15 light:border-slate-900/15 bg-slate-950 light:bg-white hover:border-violet-400/50 hover:bg-white/[0.03]",
         fileName ? "border-solid" : "",
       ].join(" ")}
     >
@@ -75,7 +71,7 @@ export default function UploadZone({
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 text-violet-200 ring-1 ring-violet-400/20">
             <FileImage className="h-6 w-6" />
           </div>
-          <p className="mt-3 text-sm font-semibold text-white">{fileName}</p>
+          <p className="mt-3 text-sm font-semibold text-white light:text-slate-900">{fileName}</p>
           <p className="mt-1 text-xs text-slate-500">
             Click to choose a different image
           </p>
@@ -85,7 +81,7 @@ export default function UploadZone({
           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 text-violet-200 ring-1 ring-violet-400/20">
             <Upload className="h-6 w-6" />
           </div>
-          <p className="mt-3 text-sm font-semibold text-white">
+          <p className="mt-3 text-sm font-semibold text-white light:text-slate-900">
             Click to choose image
           </p>
           <p className="mt-1 text-xs text-slate-500">

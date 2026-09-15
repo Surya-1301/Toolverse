@@ -96,24 +96,24 @@ export default function ReportAbusePage() {
             HERO
         ============================================================ */}
 
-        <div className="rounded-3xl border border-red-500/20 bg-gradient-to-b from-red-500/[0.08] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8">
+        <div className="rounded-3xl border border-red-500/20 bg-gradient-to-b from-red-500/[0.08] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8 light:to-slate-100 light:shadow-slate-900/10">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div>
-              <p className="mb-4 inline-flex rounded-full border border-red-400/20 bg-red-500/10 px-3 py-1 text-sm font-medium text-red-200">
+              <p className="mb-4 inline-flex rounded-full border border-red-400/20 bg-red-500/10 px-3 py-1 text-sm font-medium text-red-200 light:text-red-700">
                 Safety
               </p>
 
-              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl">
+              <h1 className="text-4xl font-bold tracking-tight text-white sm:text-6xl light:text-slate-900">
                 Report Abuse
               </h1>
 
-              <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400">
+              <p className="mt-4 max-w-2xl text-base leading-8 text-slate-400 light:text-slate-600">
                 Use this page to report harmful, illegal, deceptive, abusive,
                 or unsafe content hosted or shared through Toolverse.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-red-400/20 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm">
+            <div className="rounded-2xl border border-red-400/20 bg-slate-950/60 p-4 text-sm leading-6 text-slate-400 lg:max-w-sm light:bg-slate-100 light:text-slate-600">
               If someone is in immediate danger, contact local emergency
               services or the appropriate authorities first.
             </div>
@@ -124,46 +124,46 @@ export default function ReportAbusePage() {
           ============================================================ */}
 
           <div className="mt-8 grid gap-4 md:grid-cols-3">
-            <div className="rounded-2xl border border-red-400/20 bg-slate-950/50 p-4">
+            <div className="rounded-2xl border border-red-400/20 bg-slate-950/50 p-4 light:bg-slate-100">
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-red-500/15 text-red-300 ring-1 ring-red-400/20">
                 <Siren className="h-5 w-5" />
               </div>
 
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-sm font-semibold text-white light:text-slate-900">
                 Urgent reports
               </h2>
 
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                 Flag phishing, malware, exposed private data, or illegal
                 content as clearly as possible.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100">
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                 <Flag className="h-5 w-5" />
               </div>
 
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-sm font-semibold text-white light:text-slate-900">
                 Include the link
               </h2>
 
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                 Reports are easier to review when they include the exact
                 Toolverse URL or content ID.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4">
+            <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100">
               <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                 <ShieldCheck className="h-5 w-5" />
               </div>
 
-              <h2 className="text-sm font-semibold text-white">
+              <h2 className="text-sm font-semibold text-white light:text-slate-900">
                 Reviewed carefully
               </h2>
 
-              <p className="mt-2 text-sm leading-6 text-slate-400">
+              <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                 We may review reported links, metadata, and technical signals
                 to protect users and the service.
               </p>
@@ -175,13 +175,13 @@ export default function ReportAbusePage() {
             WHAT YOU CAN REPORT
         ============================================================ */}
 
-        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
           <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-red-300 ring-1 ring-white/10">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-red-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-red-700 light:ring-slate-900/10">
               <Flag className="h-5 w-5" />
             </div>
 
-            <h2 className="text-xl font-semibold tracking-tight text-white">
+            <h2 className="text-xl font-semibold tracking-tight text-white light:text-slate-900">
               What you can report
             </h2>
           </div>
@@ -193,17 +193,17 @@ export default function ReportAbusePage() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100"
                 >
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-violet-700 light:ring-slate-900/10">
                     <Icon className="h-5 w-5" />
                   </div>
 
-                  <h3 className="text-base font-semibold text-white">
+                  <h3 className="text-base font-semibold text-white light:text-slate-900">
                     {item.title}
                   </h3>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                     {item.description}
                   </p>
                 </div>
@@ -216,13 +216,13 @@ export default function ReportAbusePage() {
             WHAT TO INCLUDE
         ============================================================ */}
 
-        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7">
+        <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
           <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-violet-700 light:ring-slate-900/10">
               <FileWarning className="h-5 w-5" />
             </div>
 
-            <h2 className="text-xl font-semibold tracking-tight text-white">
+            <h2 className="text-xl font-semibold tracking-tight text-white light:text-slate-900">
               What to include
             </h2>
           </div>
@@ -234,17 +234,17 @@ export default function ReportAbusePage() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-4"
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100"
                 >
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-violet-700 light:ring-slate-900/10">
                     <Icon className="h-5 w-5" />
                   </div>
 
-                  <h3 className="text-base font-semibold text-white">
+                  <h3 className="text-base font-semibold text-white light:text-slate-900">
                     {item.title}
                   </h3>
 
-                  <p className="mt-2 text-sm leading-6 text-slate-400">
+                  <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
                     {item.description}
                   </p>
                 </div>

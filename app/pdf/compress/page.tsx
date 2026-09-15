@@ -15,11 +15,11 @@ export default function CompressPdfPage() {
           Free PDF Tool
         </p>
 
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Compress PDF Online
         </h1>
 
-        <p className="mt-5 text-base leading-8 text-slate-400">
+        <p className="mt-5 text-base leading-8 text-slate-400 light:text-slate-600">
           Reduce PDF file size online with Toolverse. Upload your PDF, choose a
           compression level, and download the optimized file in seconds.
         </p>

@@ -20,7 +20,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -178,15 +178,15 @@ export default function RandomStringGeneratorPage() {
           Random String Generator
         </h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Create tailored random strings for tokens, passwords, and test data—with complete control over length and character sets.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         {/* Charset toggles */}
         <div>
-          <label className="mb-2 block text-sm font-semibold text-slate-300">
+          <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Character set
           </label>
           <div className="flex flex-wrap gap-2">
@@ -206,14 +206,14 @@ export default function RandomStringGeneratorPage() {
                   "rounded-xl border px-4 py-2.5 font-mono text-sm font-semibold transition",
                   option.value
                     ? "border-violet-500 bg-violet-600/20 text-white"
-                    : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                    : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
                 {option.label}
               </button>
             ))}
           </div>
-          <p className="mt-2 text-xs text-slate-500">
+          <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
             {charset.length
               ? `${charset.length} characters in the pool.`
               : "Pick at least one character set."}
@@ -223,7 +223,7 @@ export default function RandomStringGeneratorPage() {
         {/* Length + count */}
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Length: {length}
             </label>
             <input
@@ -238,7 +238,7 @@ export default function RandomStringGeneratorPage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-semibold text-slate-300">
+            <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
               Count: {count}
             </label>
             <input
@@ -255,7 +255,7 @@ export default function RandomStringGeneratorPage() {
 
         {/* Separator */}
         <div className="mt-5">
-          <label className="mb-2 block text-sm font-semibold text-slate-300">
+          <label className="mb-2 block text-sm font-semibold text-slate-300 light:text-slate-700">
             Separator
           </label>
           <div className="flex flex-wrap items-center gap-2">
@@ -273,7 +273,7 @@ export default function RandomStringGeneratorPage() {
                   "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                   separator === option.key
                     ? "border-violet-500 bg-violet-600/20 text-white"
-                    : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10",
+                    : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
                 {option.label}
@@ -286,7 +286,7 @@ export default function RandomStringGeneratorPage() {
                 onChange={(event) => setCustomSeparator(event.target.value)}
                 maxLength={8}
                 placeholder="-"
-                className="w-20 rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-center text-sm text-white outline-none transition focus:border-violet-500"
+                className="w-20 rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-center text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               />
             ) : null}
           </div>
@@ -306,7 +306,7 @@ export default function RandomStringGeneratorPage() {
           <button
             onClick={copyOutput}
             disabled={!output}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -320,24 +320,24 @@ export default function RandomStringGeneratorPage() {
         {/* Output */}
         {output ? (
           <div className="mt-6">
-            <p className="mb-2 text-sm font-semibold text-slate-300">
+            <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">
               Result{count > 1 ? `s` : ""} ({count} string{count > 1 ? "s" : ""})
             </p>
-            <div className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950">
+            <div className="max-h-96 overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
               {count > 1 ? (
                 <ul className="divide-y divide-white/5">
                   {output.split(separator).map((line, index) => (
                     <li key={index} className="flex items-center gap-3 px-4 py-3">
-                      <span className="w-8 shrink-0 text-xs font-semibold text-slate-600">
+                      <span className="w-8 shrink-0 text-xs font-semibold text-slate-600 light:text-slate-500">
                         {String(index + 1).padStart(2, "0")}
                       </span>
-                      <code className="min-w-0 flex-1 break-all font-mono text-sm text-slate-100">
+                      <code className="min-w-0 flex-1 break-all font-mono text-sm text-slate-100 light:text-slate-900">
                         {line}
                       </code>
                       <button
                         onClick={() => regenerateSingle(line)}
                         aria-label={`Regenerate string ${index + 1}`}
-                        className="shrink-0 text-slate-500 transition hover:text-white"
+                        className="shrink-0 text-slate-500 transition hover:text-white light:text-slate-500 light:hover:text-slate-900"
                       >
                         <RefreshCw className="h-4 w-4" />
                       </button>
@@ -345,15 +345,15 @@ export default function RandomStringGeneratorPage() {
                   ))}
                 </ul>
               ) : (
-                <pre className="break-all p-4 font-mono text-sm text-slate-100">
+                <pre className="break-all p-4 font-mono text-sm text-slate-100 light:text-slate-900">
                   {output}
                 </pre>
               )}
             </div>
           </div>
         ) : (
-          <div className="mt-6 flex min-h-[72px] items-center justify-center rounded-xl border border-dashed border-white/10">
-            <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500">
+          <div className="mt-6 flex min-h-[72px] items-center justify-center rounded-xl border border-dashed border-white/10 light:border-slate-900/10">
+            <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
               <ArrowRight className="h-4 w-4" />
               Set the options and generate a string to see it here.
             </p>

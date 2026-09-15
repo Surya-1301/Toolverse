@@ -54,10 +54,10 @@ export default function BlogIndexPage() {
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-violet-300">
           Toolverse Blog
         </p>
-        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
           Guides, tips &amp; comparisons
         </h1>
-        <p className="mt-5 text-base leading-8 text-slate-400">
+        <p className="mt-5 text-base leading-8 text-slate-400 light:text-slate-600">
           Practical write-ups from the Toolverse team — the how and why behind
           the tools you use every day.
         </p>
@@ -66,7 +66,7 @@ export default function BlogIndexPage() {
       {featured ? (
         <Link
           href={`/blog/${featured.slug}`}
-          className="group mt-12 block rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05]"
+          className="group mt-12 block rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
         >
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/15 px-3 py-1 font-semibold text-violet-300 ring-1 ring-violet-400/20">
@@ -82,14 +82,14 @@ export default function BlogIndexPage() {
             </span>
           </div>
 
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-white transition group-hover:text-violet-200 sm:text-3xl">
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-white transition group-hover:text-violet-200 sm:text-3xl light:text-slate-900">
             {featured.title}
           </h2>
-          <p className="mt-3 text-base leading-7 text-slate-400">
+          <p className="mt-3 text-base leading-7 text-slate-400 light:text-slate-600">
             {featured.description}
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-slate-500">
+          <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-slate-500 light:text-slate-500">
             <span className="inline-flex items-center gap-1.5">
               <CalendarDays className="h-4 w-4" />
               {new Date(featured.date).toLocaleDateString("en", {
@@ -112,7 +112,7 @@ export default function BlogIndexPage() {
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05]"
+            className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
           >
             <div className="flex flex-wrap items-center gap-2">
               <span
@@ -124,14 +124,14 @@ export default function BlogIndexPage() {
               </span>
             </div>
 
-            <h2 className="mt-3 text-lg font-bold leading-6 text-white transition group-hover:text-violet-200">
+            <h2 className="mt-3 text-lg font-bold leading-6 text-white transition group-hover:text-violet-200 light:text-slate-900">
               {post.title}
             </h2>
-            <p className="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-slate-400">
+            <p className="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-slate-400 light:text-slate-600">
               {post.description}
             </p>
 
-            <div className="mt-5 flex items-center justify-between text-xs text-slate-500">
+            <div className="mt-5 flex items-center justify-between text-xs text-slate-500 light:text-slate-500">
               <span className="inline-flex items-center gap-1.5">
                 <CalendarDays className="h-3.5 w-3.5" />
                 {new Date(post.date).toLocaleDateString("en", {

@@ -24,7 +24,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -337,19 +337,19 @@ export default function PastePage() {
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">Paste</h1>
 
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
         Drop a note, choose a memorable alias, and share it instantly.        </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         <div>
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Paste alias
           </label>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 focus-within:border-violet-500">
-              <span className="flex items-center border-r border-white/10 bg-white/[0.03] px-4 py-3 text-base font-bold text-slate-200 sm:text-lg">
+            <div className="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 focus-within:border-violet-500 light:border-slate-900/10 light:bg-white">
+              <span className="flex items-center border-r border-white/10 bg-white/[0.03] px-4 py-3 text-base font-bold text-slate-200 sm:text-lg light:border-slate-900/10 light:bg-white light:text-slate-800">
                 /paste/
               </span>
 
@@ -359,7 +359,7 @@ export default function PastePage() {
                   setCustomAlias(event.target.value.toLowerCase())
                 }
                 placeholder="alias"
-                className="min-w-0 flex-1 bg-transparent px-4 py-3 text-base font-semibold text-slate-100 outline-none placeholder:font-medium placeholder:italic placeholder:text-slate-500 sm:text-lg"
+                className="min-w-0 flex-1 bg-transparent px-4 py-3 text-base font-semibold text-slate-100 outline-none placeholder:font-medium placeholder:italic placeholder:text-slate-500 sm:text-lg light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -367,20 +367,20 @@ export default function PastePage() {
               type="button"
               onClick={openAlias}
               disabled={isCheckingAlias}
-              className="w-full shrink-0 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-base font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-lg"
+              className="w-full shrink-0 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-base font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-lg light:border-slate-900/10 light:bg-white light:text-slate-900 light:hover:bg-slate-900/10"
             >
               {isCheckingAlias ? "..." : "Go"}
             </button>
           </div>
 
-          <p className="mt-2 text-xs leading-5 text-slate-500">
+          <p className="mt-2 text-xs leading-5 text-slate-500 light:text-slate-500">
             Type an existing alias and click Go to open previous notes. If it
             does not exist, add content and create it.
           </p>
         </div>
 
         <div className="mt-5">
-          <label className="mb-2 block text-sm font-medium text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Content
           </label>
 
@@ -389,20 +389,20 @@ export default function PastePage() {
             onChange={(event) => setContent(event.target.value)}
             placeholder="Paste your text or code here..."
             spellCheck={false}
-            className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+            className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
         <div className="mt-5 grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
               Language
             </label>
 
             <select
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {languageOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -413,14 +413,14 @@ export default function PastePage() {
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-medium text-slate-300">
+            <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
               Expires
             </label>
 
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -444,13 +444,13 @@ export default function PastePage() {
 
             <div className="mt-3 grid gap-3">
               <div>
-                <label className="mb-1 block text-xs text-slate-400">
+                <label className="mb-1 block text-xs text-slate-400 light:text-slate-600">
                   Paste page
                 </label>
                 <input
                   value={pasteUrl}
                   readOnly
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                 />
               </div>
               <div>
@@ -462,7 +462,7 @@ export default function PastePage() {
                 href={pasteUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 Open
                 <ExternalLink className="h-4 w-4" />
@@ -470,7 +470,7 @@ export default function PastePage() {
               <button
                 type="button"
                 onClick={() => copyValue("page")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 light:border-slate-900/10 light:text-slate-900"
               >
                 {copied === "page" ? (
                   <Check className="h-4 w-4" />
@@ -511,18 +511,18 @@ export default function PastePage() {
 {/* Recent Pastes Stats (persisted per-browser) */}
       {hasHydrated && recentPastes.length > 0 ? (
         <div className="mx-auto mt-5 max-w-6xl">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <div className="mb-4 flex items-center gap-2">
               <BarChart3 className="h-5 w-5 text-violet-400" />
-              <h3 className="text-sm font-semibold text-white">
+              <h3 className="text-sm font-semibold text-white light:text-slate-900">
                 Recent Pastes
               </h3>
             </div>
 
-            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950">
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/10 text-slate-500">
+                  <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
                     <th className="px-3 py-2 font-medium">ID</th>
                     <th className="hidden px-74 py-2 text-center font-medium sm:table-cell">Expires</th>
                     <th className="px-20 py-2 text-right font-medium">Actions</th>
@@ -530,8 +530,8 @@ export default function PastePage() {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {recentPastes.map((paste, i) => (
-                    <tr key={i} className="text-slate-300">
-                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300">
+                    <tr key={i} className="text-slate-300 light:text-slate-700">
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300 light:text-violet-700">
                         {paste.id}
                       </td>
                       <td className="hidden px-3 py-2 text-center sm:table-cell">
@@ -543,7 +543,7 @@ export default function PastePage() {
                             href={`${window.location.origin}/paste-view?id=${paste.id}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
                           >
                             Open
                           </a>
@@ -551,7 +551,7 @@ export default function PastePage() {
                             href={apiUrl(`/raw/${paste.id}`)}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
                           >
                             Raw
                           </a>
@@ -562,7 +562,7 @@ export default function PastePage() {
                                 prev.filter((p) => p.id !== paste.id),
                               )
                             }
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1"
+                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-500"
                           >
                             Remove
                           </button>
@@ -575,7 +575,7 @@ export default function PastePage() {
             </div>
 
             <div className="mt-4 flex items-center justify-between">
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 light:text-slate-500">
               </p>
               <button
                 type="button"
@@ -638,7 +638,7 @@ export default function PastePage() {
         <div className="mx-auto max-w-xl">
           <h2
             id="mobile-how-to-use-title"
-            className="text-center text-2xl font-bold tracking-tight text-white"
+            className="text-center text-2xl font-bold tracking-tight text-white light:text-slate-900"
           >
           How to use Paste
           </h2>
@@ -678,17 +678,17 @@ export default function PastePage() {
             ].map((step) => (
               <div
                 key={step.title}
-                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4"
+                className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-4 light:border-slate-900/10 light:bg-white"
               >
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
                   {step.icon}
                 </div>
 
                 <div className="min-w-0 flex-1 text-left">
-                  <h3 className="text-sm font-semibold text-white">
+                  <h3 className="text-sm font-semibold text-white light:text-slate-900">
                     {step.title}
                   </h3>
-                  <p className="mt-1 text-xs leading-5 text-slate-400">
+                  <p className="mt-1 text-xs leading-5 text-slate-400 light:text-slate-600">
                     {step.description}
                   </p>
                 </div>
@@ -701,7 +701,7 @@ export default function PastePage() {
       {/* Exact paste count from the backend database. */}
       {pasteCount !== null ? (
         <section className="mx-auto mt-6 max-w-6xl" aria-label="Paste statistics">
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-8 sm:py-12">
+          <div className="overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] px-6 py-10 text-center shadow-[0_20px_70px_rgba(0,0,0,0.22)] sm:px-8 sm:py-12 light:border-slate-900/10 light:bg-white">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-400/10">
               <FileText className="h-6 w-6" />
             </div>
@@ -710,7 +710,7 @@ export default function PastePage() {
               {pasteCount.toLocaleString("en-IN")}
             </div>
 
-            <p className="mt-5 text-lg font-semibold text-slate-400 sm:text-2xl">
+            <p className="mt-5 text-lg font-semibold text-slate-400 sm:text-2xl light:text-slate-600">
               Pastes created on Toolverse till now !
             </p>
           </div>

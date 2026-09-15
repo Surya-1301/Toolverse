@@ -75,7 +75,7 @@ const categoryColors: Record<string, string> = {
 
 function BodyRenderer({ body, tool }: { body: BlogPost["body"]; tool?: ReturnType<typeof getPostTool> }) {
   return (
-    <div className="prose prose-slate max-w-none space-y-5 text-base leading-8 text-slate-300 [&>h2]:mt-12 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:tracking-tight [&>h2]:text-white [&>h3]:mt-8 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:text-white [&>p]:text-slate-400">
+    <div className="prose prose-slate max-w-none space-y-5 text-base leading-8 text-slate-300 [&>h2]:mt-12 [&>h2]:text-2xl [&>h2]:font-bold [&>h2]:tracking-tight [&>h2]:text-white [&>h3]:mt-8 [&>h3]:text-lg [&>h3]:font-bold [&>h3]:text-white [&>p]:text-slate-400 light:text-slate-700">
       {body.map((block, i) => {
         const key = `${block.type}-${i}`;
 
@@ -127,7 +127,7 @@ function BodyRenderer({ body, tool }: { body: BlogPost["body"]; tool?: ReturnTyp
           return (
             <pre
               key={key}
-              className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm text-slate-300"
+              className="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700"
             >
               <code>{block.text}</code>
             </pre>
@@ -181,8 +181,8 @@ function ToolCta({ tool }: { tool: ReturnType<typeof getPostTool> }) {
       <p className="text-sm font-semibold uppercase tracking-wider text-violet-300">
         Try it now
       </p>
-      <h3 className="mt-2 text-xl font-bold text-white">{tool.title}</h3>
-      <p className="mt-2 text-sm leading-6 text-slate-400">
+      <h3 className="mt-2 text-xl font-bold text-white light:text-slate-900">{tool.title}</h3>
+      <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
         {tool.description}
       </p>
       <Link
@@ -211,7 +211,7 @@ export default async function BlogArticlePage({
   if (!post) {
     return (
       <Container className="py-20 text-center">
-        <h1 className="text-3xl font-bold text-white">Post not found</h1>
+        <h1 className="text-3xl font-bold text-white light:text-slate-900">Post not found</h1>
         <Link
           href="/blog"
           className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-300 hover:text-violet-200"
@@ -285,7 +285,7 @@ export default async function BlogArticlePage({
       <article className="mx-auto max-w-3xl">
         <Link
           href="/blog"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
         >
           <ArrowLeft className="h-4 w-4" />
           Back to blog
@@ -301,14 +301,14 @@ export default async function BlogArticlePage({
           </span>
         </div>
 
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-4xl light:text-slate-900">
           {post.title}
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           {post.description}
         </p>
 
-        <div className="mt-5 flex flex-wrap items-center gap-4 border-b border-white/10 pb-6 text-xs text-slate-500">
+        <div className="mt-5 flex flex-wrap items-center gap-4 border-b border-white/10 pb-6 text-xs text-slate-500 light:border-slate-900/10 light:text-slate-500">
           <span className="inline-flex items-center gap-1.5">
             <User className="h-3.5 w-3.5" />
             {post.author}
@@ -328,8 +328,8 @@ export default async function BlogArticlePage({
         </div>
 
         {/* Table of contents */}
-        <nav className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+        <nav className="mt-8 rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
             In this article
           </p>
           <ul className="mt-2 space-y-1 text-sm">
@@ -337,7 +337,7 @@ export default async function BlogArticlePage({
               <li key={section.id}>
                 <a
                   href={`#${section.id}`}
-                  className="text-slate-400 transition hover:text-violet-300"
+                  className="text-slate-400 transition hover:text-violet-300 light:text-slate-600"
                 >
                   {section.label}
                 </a>
@@ -347,7 +347,7 @@ export default async function BlogArticlePage({
               <li>
                 <a
                   href="#try-it"
-                  className="text-slate-400 transition hover:text-violet-300"
+                  className="text-slate-400 transition hover:text-violet-300 light:text-slate-600"
                 >
                   Try it now — {tool.title.split(" - ")[0]}
                 </a>
@@ -378,8 +378,8 @@ export default async function BlogArticlePage({
           if (related.length === 0) return null;
           const shown = related.slice(0, 3);
           return (
-            <div className="mt-14 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+            <div className="mt-14 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-8 light:border-slate-900/10 light:bg-white">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 light:text-slate-500">
                 Related articles
               </p>
               <ul className="mt-3 space-y-3">
@@ -387,12 +387,12 @@ export default async function BlogArticlePage({
                   <li key={rel.slug}>
                     <Link
                       href={`/blog/${rel.slug}`}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 px-4 py-3 transition hover:border-violet-400/40 hover:bg-white/[0.05]"
+                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 px-4 py-3 transition hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
                     >
-                      <span className="text-sm font-semibold text-white transition group-hover:text-violet-200">
+                      <span className="text-sm font-semibold text-white transition group-hover:text-violet-200 light:text-slate-900">
                         {rel.title}
                       </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-600 transition group-hover:translate-x-1 group-hover:text-violet-300" />
+                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-600 transition group-hover:translate-x-1 group-hover:text-violet-300 light:text-slate-500" />
                     </Link>
                   </li>
                 ))}

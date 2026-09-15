@@ -23,7 +23,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -424,12 +424,12 @@ export default function AudioConverterPage() {
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Audio Converter
         </h1>
-        <p className="mt-4 text-base leading-7 text-slate-400">
+        <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Convert audio files between MP3, WAV, and WebM formats - Your files never leave your device.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
         {/* Upload */}
         {!info && (
           <div
@@ -439,7 +439,7 @@ export default function AudioConverterPage() {
               e.preventDefault();
               handleFile(e.dataTransfer.files?.[0]);
             }}
-            className="cursor-pointer rounded-2xl border-2 border-dashed border-white/15 bg-slate-950/50 p-10 text-center transition hover:border-violet-400/40 hover:bg-slate-950"
+            className="cursor-pointer rounded-2xl border-2 border-dashed border-white/15 bg-slate-950/50 p-10 text-center transition hover:border-violet-400/40 hover:bg-slate-950 light:border-slate-900/15 light:bg-slate-100 light:hover:bg-slate-100"
           >
             <input
               ref={fileInputRef}
@@ -451,12 +451,12 @@ export default function AudioConverterPage() {
             {loading ? (
               <Loader2 className="mx-auto h-10 w-10 animate-spin text-violet-400" />
             ) : (
-              <Upload className="mx-auto h-10 w-10 text-slate-500" />
+              <Upload className="mx-auto h-10 w-10 text-slate-500 light:text-slate-500" />
             )}
-            <p className="mt-4 text-sm font-semibold text-slate-300">
+            <p className="mt-4 text-sm font-semibold text-slate-300 light:text-slate-700">
               {loading ? "Decoding audio..." : "Click to upload or drag & drop"}
             </p>
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-slate-500 light:text-slate-500">
               MP3, WAV, OGG, WebM, M4A, AAC, FLAC and more
             </p>
           </div>
@@ -472,19 +472,19 @@ export default function AudioConverterPage() {
         {info && !error && (
           <div className="mt-2 space-y-5">
             {/* File card */}
-            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-950 p-4">
+            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
                 <Music className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold text-white">{info.file.name}</p>
-                <p className="mt-1 text-xs text-slate-400">
+                <p className="truncate text-sm font-semibold text-white light:text-slate-900">{info.file.name}</p>
+                <p className="mt-1 text-xs text-slate-400 light:text-slate-600">
                   {formatBytes(info.size)} · {formatDuration(info.duration)} · {info.sampleRate} Hz · {info.channels} ch
                 </p>
               </div>
               <button
                 onClick={reset}
-                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:border-red-500/30 hover:text-red-400"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-white/10 text-slate-400 transition hover:border-red-500/30 hover:text-red-400 light:border-slate-900/10 light:text-slate-600"
                 title="Remove file"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -493,7 +493,7 @@ export default function AudioConverterPage() {
 
             {/* Output format choice */}
             <div>
-              <p className="mb-2 text-sm font-semibold text-slate-300">Convert to</p>
+              <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Convert to</p>
               <div className="grid grid-cols-3 gap-2">
                 {(Object.keys(FORMAT_LABELS) as OutputFormat[]).map((fmt) => (
                   <button
@@ -515,10 +515,10 @@ export default function AudioConverterPage() {
             {/* Quality / bitrate */}
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <p className="text-sm font-semibold text-slate-300">
+                <p className="text-sm font-semibold text-slate-300 light:text-slate-700">
                   {outputFormat === "wav" ? "Bits per sample" : "Bitrate"}
                 </p>
-                <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300">
+                <span className="rounded-full bg-slate-800 px-3 py-1 text-xs font-semibold text-slate-300 light:bg-slate-200 light:text-slate-700">
                   {outputFormat === "wav" ? `${kbps}-bit` : `${kbps} kbps`}
                 </span>
               </div>
@@ -532,7 +532,7 @@ export default function AudioConverterPage() {
                 className="w-full accent-violet-500"
               />
               {outputFormat !== "wav" && (
-                <div className="mt-1 flex justify-between text-[10px] text-slate-600">
+                <div className="mt-1 flex justify-between text-[10px] text-slate-600 light:text-slate-500">
                   <span>32 (low)</span>
                   <span>128 (standard)</span>
                   <span>320 (high)</span>
@@ -562,8 +562,8 @@ export default function AudioConverterPage() {
                     <Check className="h-5 w-5" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-white">{output.name}</p>
-                    <p className="text-xs text-slate-400">{formatBytes(output.size)} · ready to download</p>
+                    <p className="truncate text-sm font-semibold text-white light:text-slate-900">{output.name}</p>
+                    <p className="text-xs text-slate-400 light:text-slate-600">{formatBytes(output.size)} · ready to download</p>
                   </div>
                   <button
                     onClick={download}
@@ -574,7 +574,7 @@ export default function AudioConverterPage() {
                   <button
                     onClick={copyToClipboard}
                     disabled={!navigator.clipboard || !window.ClipboardItem}
-                    className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                   >
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied" : "Copy"}

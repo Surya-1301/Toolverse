@@ -28,8 +28,8 @@ export default function PasteViewPage() {
 function PasteLoading() {
   return (
     <Container className="py-6 sm:py-8">
-      <div className="flex min-h-[70vh] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03]">
-        <div className="flex items-center gap-3 text-slate-400">
+      <div className="flex min-h-[70vh] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+        <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
           <Loader2 className="h-5 w-5 animate-spin" />
           Loading paste...
         </div>
@@ -206,15 +206,15 @@ function PasteEditor() {
             {error}
           </div>
         ) : paste ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="truncate text-sm text-slate-500">
+              <p className="truncate text-sm text-slate-500 light:text-slate-500">
                 Paste ID: {paste.id}
               </p>
 
               <div className="flex shrink-0 items-center gap-2">
                 {typeof paste.views === "number" && paste.views > 0 ? (
-                  <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400">
+                  <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400 light:text-slate-600">
                     {paste.views} view{paste.views === 1 ? "" : "s"}
                   </span>
                 ) : null}
@@ -245,7 +245,7 @@ function PasteEditor() {
               spellCheck={false}
               autoFocus
               placeholder="Start typing..."
-              className="min-h-[75vh] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-5 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500"
+              className="min-h-[75vh] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-5 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
         ) : null}

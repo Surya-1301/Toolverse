@@ -200,7 +200,7 @@ function BackToToolsLink() {
         text-slate-400
         transition
         hover:text-white
-      "
+      light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -277,7 +277,7 @@ export default function CaseConverterPage() {
             tracking-tight
             text-white
             sm:text-5xl
-          "
+          light:text-slate-900"
         >
           Case Converter
         </h1>
@@ -289,7 +289,7 @@ export default function CaseConverterPage() {
             leading-7
             text-slate-400
             sm:text-lg
-          "
+          light:text-slate-600"
         >
           Quickly convert text between uppercase, lowercase,
           title, sentence, camel, snake, kebab.
@@ -313,7 +313,7 @@ export default function CaseConverterPage() {
 
           sm:mt-10
           sm:p-6
-        "
+        light:border-slate-900/10 light:bg-white"
       >
         {/* ================================================================
             CASE SELECTOR
@@ -397,7 +397,7 @@ export default function CaseConverterPage() {
                 text-sm
                 font-semibold
                 text-slate-300
-              "
+              light:text-slate-700"
             >
               Input text
             </label>
@@ -426,7 +426,7 @@ export default function CaseConverterPage() {
                 focus:border-violet-500
 
                 sm:min-h-[360px]
-              "
+              light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -440,7 +440,7 @@ export default function CaseConverterPage() {
                 text-sm
                 font-semibold
                 text-slate-300
-              "
+              light:text-slate-700"
             >
               Output · {mode}
             </label>
@@ -465,7 +465,7 @@ export default function CaseConverterPage() {
                 placeholder:text-slate-600
 
                 sm:min-h-[360px]
-              "
+              light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -507,7 +507,7 @@ export default function CaseConverterPage() {
               disabled:cursor-not-allowed
               disabled:bg-slate-700
               disabled:text-slate-400
-            "
+            light:disabled:bg-slate-200"
           >
             <Sparkles className="h-4 w-4" />
             Convert text
@@ -537,7 +537,7 @@ export default function CaseConverterPage() {
               hover:bg-white/10
               disabled:cursor-not-allowed
               disabled:text-slate-600
-            "
+            light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
           >
             {copied ? (
               <Check className="h-4 w-4" />
