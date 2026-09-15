@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Script from "next/script";
-import { FileText, Flag, Mail, ShieldCheck } from "lucide-react";
+import { FileText, Flag, Mail, Newspaper, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import "./globals.css";
 
@@ -108,6 +108,12 @@ const jsonLd = {
 
 const footerLinks = [
   {
+    label: "Blog",
+    href: "/blog",
+    icon: Newspaper,
+    hideOnMobile: true,
+  },
+  {
     label: "Privacy",
     href: "/privacy",
     icon: ShieldCheck,
@@ -165,8 +171,8 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
 
           <footer className="border-t border-white/10 bg-slate-950/80 light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">
-            <div className="mx-auto w-full max-w-7xl px-4 py-7 sm:px-6 lg:px-8">
-              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+            <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <Link
                     href="/"
@@ -183,7 +189,7 @@ export default function RootLayout({
 
                 <nav
                   aria-label="Footer navigation"
-                  className="flex flex-wrap items-center gap-x-6 gap-y-3"
+                  className="flex flex-wrap items-center gap-x-5 gap-y-2"
                 >
                   {footerLinks.map((item) => {
                     const Icon = item.icon;
@@ -192,7 +198,7 @@ export default function RootLayout({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-violet-300 light:text-slate-600 light:hover:text-violet-700 light:text-slate-500"
+                        className={`group items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-violet-300 light:text-slate-600 light:hover:text-violet-700 light:text-slate-500 ${item.hideOnMobile ? "hidden md:inline-flex" : "inline-flex"}`}
                       >
                         <Icon className="h-4 w-4 text-slate-600 transition group-hover:text-violet-300 light:text-slate-500" />
                         <span>{item.label}</span>

@@ -234,7 +234,8 @@
   color: color-mix(in oklab, var(--color-red-600, #dc2626) 100%, transparent) !important;
 }
 [data-theme="light"] .text-emerald-100,
-[data-theme="light"] .text-emerald-200 {
+[data-theme="light"] .text-emerald-200,
+[data-theme="light"] .text-emerald-300 {
   color: color-mix(in oklab, var(--color-emerald-700, #047857) 100%, transparent) !important;
 }
 [data-theme="light"] .text-cyan-100,

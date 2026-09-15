@@ -8,6 +8,7 @@ import {
   FileUp,
   ImageDown,
   ImagePlus,
+  Images,
   Link2,
   MapPin,
   QrCode,
@@ -106,6 +107,15 @@ const popularTools = [
 
 const categoryCards = [
   {
+    title: "Image Tools",
+    description:
+      "Convert, resize, crop, watermark, blur, upscale, and remove image backgrounds.",
+    href: "/tools/image-tools",
+    icon: <Images className="h-7 w-7" />,
+    status: "live" as const,
+  },
+
+  {
     title: "Conversion Tools",
     description:
       "Convert Markdown, HTML, YAML, JSON, CSV, and Excel-compatible files.",
@@ -179,19 +189,19 @@ function CategoryToolCard({
           Existing desktop design remains unchanged
       ================================================================= */}
 
-      <div className="hidden p-6 sm:block">
+      <div className="hidden p-5 sm:block">
         {/* Icon + Status */}
 
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
+        <div className="mb-4 flex items-start justify-between gap-4">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
             {icon}
           </div>
 
           <span
             className={
               isLive
-                ? "rounded-full bg-emerald-500/10 px-3 py-1 text-sm font-semibold text-emerald-300"
-                : "rounded-full bg-amber-500/10 px-3 py-1 text-sm font-semibold text-amber-300"
+                ? "rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-300"
+                : "rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300"
             }
           >
             {isLive ? "Live" : "Coming soon"}
@@ -200,13 +210,13 @@ function CategoryToolCard({
 
         {/* Title */}
 
-        <h2 className="text-xl font-bold tracking-tight text-white light:text-slate-900">
+        <h2 className="text-lg font-bold tracking-tight text-white light:text-slate-900">
           {title}
         </h2>
 
         {/* Description */}
 
-        <p className="mt-4 min-h-[72px] text-sm leading-6 text-slate-400 light:text-slate-600">
+        <p className="mt-3 min-h-[60px] text-sm leading-5 text-slate-400 light:text-slate-600">
           {description}
         </p>
 
@@ -215,8 +225,8 @@ function CategoryToolCard({
         <div
           className={
             isLive
-              ? "mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-200"
-              : "mt-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-500"
+              ? "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-violet-200"
+              : "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500"
           }
         >
           {isLive ? "View tools" : "Launching soon"}
@@ -393,7 +403,7 @@ export default function ToolsPage() {
           </h2>
         </div>
 
-        <div className="grid items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
           {popularTools.map((tool) => (
             <ToolCard
               key={tool.title}
@@ -414,7 +424,7 @@ export default function ToolsPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
           {categoryCards.map((category) => (
             <CategoryToolCard
               key={category.title}

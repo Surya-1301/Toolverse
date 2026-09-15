@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, BookOpen, CalendarDays } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
 import { Container } from "@/components/Container";
 import { sortedPosts } from "@/lib/blogPosts";
 
@@ -49,6 +50,11 @@ export default function BlogIndexPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(blogJsonLd) }}
       />
+
+      {/* Back navigation */}
+      <div className="mb-6 flex justify-start">
+        <BackButton />
+      </div>
 
       <div className="mx-auto max-w-3xl text-center">
         <p className="text-sm font-semibold uppercase tracking-[0.3em] text-violet-300">

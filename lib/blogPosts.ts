@@ -347,6 +347,60 @@ export const blogPosts: BlogPost[] = [
       },
     ],
   },
+  {
+    slug: "qr-codes-explained-create-share-and-use-them-safely",
+    title: "QR Codes Explained: Create, Share, and Use Them Safely",
+    description:
+      "QR codes bridge the physical and digital worlds — menus, Wi-Fi, payments, and marketing. Learn how they work, how to generate one free, and how to avoid QR scams.",
+    date: "2026-09-10",
+    author: "Toolverse",
+    keywords: ["QR code", "QR generator", "QR code safety", "Wi-Fi QR", "marketing"],
+    readTime: "6 min read",
+    toolSlug: "qr-generator",
+    category: "Guides",
+    sections: [
+      { id: "what-is-a-qr-code", label: "What is a QR code?" },
+      { id: "what-to-encode", label: "What can you encode?" },
+      { id: "create-free", label: "Create a QR code for free" },
+      { id: "safety", label: "QR code safety tips" },
+    ],
+    body: [
+      {
+        type: "p",
+        text: "A QR code (Quick Response code) is a two-dimensional barcode that stores machine-readable data in a grid of black and white squares. Scan one with any phone camera and you're instantly taken to a URL, text, or action — no typing required.",
+      },
+      { type: "h2", text: "What is a QR code?" },
+      {
+        type: "p",
+        text: "QR codes were invented in 1994 by Denso Wave for tracking car parts, but they went mainstream once smartphone cameras learned to scan them natively. Each code holds up to a few thousand characters and is designed to be read even when partially damaged thanks to error correction.",
+      },
+      { type: "h2", text: "What can you encode?" },
+      {
+        type: "ul",
+        items: [
+          "URLs — link a poster, business card, or product to a webpage.",
+          "Plain text — display contact details or instructions on scan.",
+          "Wi-Fi credentials — let guests join your network instantly.",
+          "Email addresses and phone numbers — pre-fill a message or call.",
+          "Event details — add an appointment straight to a calendar.",
+        ],
+      },
+      { type: "h2", text: "Create a QR code for free" },
+      {
+        type: "p",
+        text: "You don't need paid software to generate QR codes. A good generator lets you pick the content type, set error correction, and export a high-resolution PNG or SVG — locally in your browser, so your data never leaves your device.",
+      },
+      {
+        type: "link",
+        text: "Generate a free QR code with Toolverse",
+      },
+      { type: "h2", text: "QR code safety tips" },
+      {
+        type: "p",
+        text: "QR codes themselves are neutral, but the links inside them aren't. Always check the destination URL after scanning, never scan codes stuck to unattended public property (they can be swapped), and be wary of QR codes that ask for payment or credentials.",
+      },
+    ],
+  },
 ];
 
 /** Blog posts sorted newest-first */
