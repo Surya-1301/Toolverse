@@ -274,8 +274,8 @@ export default function FaviconGeneratorPage() {
         </p>
       </div>
 
-      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
-        <div className="grid gap-6 lg:grid-cols-2">
+      <div className="mt-10 rounded-3xl border border-white/10 bg-white/[0.03] p-3 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* ================================================================
               LEFT: SOURCE + OPTIONS
           ================================================================ */}
@@ -340,11 +340,11 @@ export default function FaviconGeneratorPage() {
               />
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 onClick={generate}
                 disabled={!source || isGenerating}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -356,7 +356,7 @@ export default function FaviconGeneratorPage() {
 
               <button
                 onClick={clearAll}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -368,7 +368,7 @@ export default function FaviconGeneratorPage() {
               RIGHT: PREVIEW + DOWNLOADS
           ================================================================ */}
 
-          <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
+          <div className="rounded-2xl border border-white/10 bg-slate-950 p-3 sm:p-5 light:border-slate-900/10 light:bg-white">
             {source ? (
               <>
                 <div className="mb-4 flex items-center gap-3">
@@ -430,10 +430,10 @@ export default function FaviconGeneratorPage() {
                       ))}
                     </div>
 
-                    <div className="mt-4 flex flex-wrap gap-3">
+                    <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                       <button
                         onClick={downloadManifest}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                        className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-3 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                       >
                         <Download className="h-4 w-4" />
                         Download manifest
@@ -441,7 +441,7 @@ export default function FaviconGeneratorPage() {
 
                       <button
                         onClick={copyCode}
-                        className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                        className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-3 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
                       >
                         {copiedCode ? (
                           <Check className="h-4 w-4" />
@@ -470,7 +470,7 @@ export default function FaviconGeneratorPage() {
                 )}
               </>
             ) : (
-              <div className="flex min-h-[320px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
                 <div className="flex flex-col items-center gap-3 px-8">
                   <Sparkles className="h-8 w-8 text-slate-600 light:text-slate-500" />
                   <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
