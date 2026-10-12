@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Capacitor } from "@capacitor/core";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -22,7 +23,14 @@ function getImageApiBaseUrl() {
     return envUrl.replace(/\/$/, "");
   }
 
-  if (typeof window !== "undefined" && window.location.hostname === "localhost") {
+  // Local web dev only. Inside the native app the origin is also
+  // https://localhost, but http://localhost:10000 doesn't exist on the
+  // phone (and would be blocked as mixed content) — so never use it there.
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "localhost" &&
+    !Capacitor.isNativePlatform()
+  ) {
     return "http://localhost:10000";
   }
 

@@ -16,6 +16,8 @@ app = FastAPI(
 ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "https://toolversee.pages.dev",
+    "https://localhost",
+    "capacitor://localhost",
 ]
 
 extra_origin = os.getenv("FRONTEND_ORIGIN")
