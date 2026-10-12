@@ -88,8 +88,8 @@ const [isToolsOpen, setIsToolsOpen] =
             "
           >
             <Image
-              src="/favicon.ico"
-              alt="Toolversee logo"
+              src="/logo.png"
+              alt="Toolverse logo"
               fill
               className="object-contain p-1"
               priority
@@ -352,32 +352,11 @@ const [isToolsOpen, setIsToolsOpen] =
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/blog"
-              onClick={() => setIsMenuOpen(false)}
-              className="
-                rounded-xl
-                px-3
-                py-3
-                text-center
-                font-medium
-                transition
-                hover:bg-white/10
-                hover:text-white
-                focus:outline-none
-                focus-visible:ring-2
-                focus-visible:ring-violet-400/50
-                light:text-slate-700
-                light:hover:bg-slate-900/5
-                light:hover:text-slate-900
-              "
-            >
-              Blog
-            </Link>
             <button
               type="button"
               onClick={() => setIsToolsOpen((open) => !open)}
               className="
+                col-span-2
                 flex
                 items-center
                 justify-center

@@ -111,7 +111,6 @@ const footerLinks = [
     label: "Blog",
     href: "/blog",
     icon: Newspaper,
-    hideOnMobile: true,
   },
   {
     label: "Privacy",
@@ -198,7 +197,7 @@ export default function RootLayout({
                       <Link
                         key={item.href}
                         href={item.href}
-                        className={`group items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-violet-300 light:text-slate-600 light:hover:text-violet-700 light:text-slate-500 ${item.hideOnMobile ? "hidden md:inline-flex" : "inline-flex"}`}
+                        className="group inline-flex items-center gap-2 text-sm font-medium text-slate-500 transition hover:text-violet-300 light:text-slate-600 light:hover:text-violet-700 light:text-slate-500"
                       >
                         <Icon className="h-4 w-4 text-slate-600 transition group-hover:text-violet-300 light:text-slate-500" />
                         <span>{item.label}</span>
