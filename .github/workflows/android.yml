@@ -67,7 +67,16 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          # Maven Central sometimes rate-limits GitHub runners (429s) — retry a few times
+          for i in 1 2 3; do
+            if ./gradlew assembleDebug; then
+              echo "Gradle build succeeded on attempt $i"
+              break
+            fi
+            echo "Gradle attempt $i failed, waiting 90s before retry..."
+            sleep 90
+          done
+          test -f app/build/outputs/apk/debug/app-debug.apk
 
       - name: Rename APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk "toolverse-${{ github.ref_name }}.apk"
