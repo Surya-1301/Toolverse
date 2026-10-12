@@ -53,6 +53,28 @@ jobs:
       - name: Add Android platform
         run: npx cap add android
 
+      - name: Enable fullscreen (hide status bar)
+        run: |
+          python3 - <<'EOF'
+          import re
+          p = "android/app/src/main/res/values/styles.xml"
+          s = open(p).read()
+          if "android:windowFullscreen" not in s:
+              s2, n = re.subn(
+                  r'(<style name="AppTheme"[^>]*>)',
+                  r'\1\n        <item name="android:windowFullscreen">true</item>',
+                  s,
+                  count=1,
+              )
+              if n:
+                  open(p, "w").write(s2)
+                  print("fullscreen enabled in AppTheme")
+              else:
+                  print("AppTheme style not found, no change made")
+          else:
+              print("fullscreen already set")
+          EOF
+
       - name: Apply Toolverse app icons
         run: |
           SRC=$(dirname "$(find . -path ./node_modules -prune -o -type d -name 'mipmap-xxxhdpi' -print | head -1)")
