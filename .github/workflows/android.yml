@@ -54,7 +54,11 @@ jobs:
         run: npx cap add android
 
       - name: Apply Toolverse app icons
-        run: cp -r resources/android-icons/mipmap-* android/app/src/main/res/
+        run: |
+          SRC=$(dirname "$(find . -path ./node_modules -prune -o -type d -name 'mipmap-xxxhdpi' -print | head -1)")
+          if [ -z "$SRC" ]; then echo "android-icons folder not found"; exit 1; fi
+          echo "Copying icons from $SRC"
+          cp -r "$SRC"/mipmap-* android/app/src/main/res/
 
       - name: Sync Capacitor
         run: npx cap sync android
