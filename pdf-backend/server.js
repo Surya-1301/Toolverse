@@ -14,6 +14,8 @@ const PORT = process.env.PORT || 4000;
 
 const ALLOWED_ORIGINS = [
   "https://toolversee.pages.dev",
+  "https://localhost",
+  "capacitor://localhost",
   "http://localhost:3000",
   "http://localhost:3001",
 ];
