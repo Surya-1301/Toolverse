@@ -1,5 +1,6 @@
 # Toolverse
 
+[![GitHub release](https://img.shields.io/github/v/release/Surya-1301/PDFVerse)](https://github.com/Surya-1301/PDFVerse/releases)
 [![Live site](https://img.shields.io/website?url=https%3A%2F%2Ftoolversee.pages.dev&label=live%20site)](https://toolversee.pages.dev)
 [![Android app](https://img.shields.io/badge/Android-APK_download-3DDC84?logo=android&logoColor=white)](https://github.com/Surya-1301/Toolverse/releases)
 [![License](https://img.shields.io/github/license/Surya-1301/Toolverse)](LICENSE)
@@ -12,13 +13,14 @@ No sign-up. Most tools run entirely on your device, so your input never leaves y
 
 | 🌐 Live site | 📱 Android app |
 |---|---|
-| [toolversee.pages.dev](https://toolversee.pages.dev) | [Android App]( https://downloadtoolverse.dpdns.org/) |
+| [toolversee.pages.dev](https://toolversee.pages.dev) | [downloadtoolverse.dpdns.org]( https://downloadtoolverse.dpdns.org/) |
 
 </div>
 
 ---
 
 ## Android app
+![PDFVerse Download](public/app.png)
 
 Toolverse is also available as a native Android app — all 65 tools, wrapped with Capacitor.
 
