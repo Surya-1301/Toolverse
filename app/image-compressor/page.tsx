@@ -102,7 +102,7 @@ export default function ImageCompressorPage() {
     inputRef.current?.click();
   }
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
 
     setFeedback(null);
@@ -134,8 +134,25 @@ export default function ImageCompressorPage() {
       return;
     }
 
-    setOriginalFile(file);
-    setPreviewUrl(setOriginalPreview, originalPreview, file);
+    // Snapshot the file bytes NOW. In the Capacitor WebView, a File
+    // picked via <input type="file"> can become unreadable by the time
+    // the user taps Compress ("permission problems that have occurred
+    // after a reference to a file was acquired") — so copy the bytes
+    // while the reference is fresh and work only with this in-memory File.
+    try {
+      const buffer = await file.arrayBuffer();
+      const fresh = new File([buffer], file.name, { type: file.type });
+      setOriginalFile(fresh);
+      setPreviewUrl(setOriginalPreview, originalPreview, fresh);
+    } catch {
+      setFeedback({
+        type: "error",
+        message: "Could not read this file. Please pick it again.",
+      });
+      setOriginalFile(null);
+      if (originalPreview) URL.revokeObjectURL(originalPreview);
+      setOriginalPreview("");
+    }
   }
 
   async function compressImage(inputFile: File, targetBytes: number) {

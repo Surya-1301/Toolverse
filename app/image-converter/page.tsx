@@ -153,14 +153,13 @@ export default function ImageConverterPage() {
      FILE HANDLER
   ------------------------------------------------------------------------ */
 
-  function handleFile(
+  async function handleFile(
     event: React.ChangeEvent<HTMLInputElement>,
   ) {
     const nextFile =
       event.target.files?.[0] || null;
 
     setError("");
-    setFile(nextFile);
     setConvertedBlob(null);
 
     if (outputPreview) {
@@ -174,6 +173,26 @@ export default function ImageConverterPage() {
      * again after clearing.
      */
     event.target.value = "";
+
+    if (!nextFile) {
+      setFile(null);
+      return;
+    }
+
+    // Snapshot the file bytes NOW. In the Capacitor WebView, a File
+    // picked via <input type="file"> can become unreadable by the time
+    // the user taps Convert ("permission problems that have occurred
+    // after a reference to a file was acquired") — so copy the bytes
+    // while the reference is fresh and work only with this in-memory File.
+    try {
+      const buffer = await nextFile.arrayBuffer();
+      setFile(
+        new File([buffer], nextFile.name, { type: nextFile.type }),
+      );
+    } catch {
+      setError("Could not read this file. Please pick it again.");
+      setFile(null);
+    }
   }
 
   /* ------------------------------------------------------------------------
