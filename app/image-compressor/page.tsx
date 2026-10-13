@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Dispatch, SetStateAction } from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import imageCompression from "browser-image-compression";
 import {
   ArrowLeft,
@@ -46,6 +46,29 @@ function formatTargetSize(bytes: number) {
   return `${(bytes / 1024).toFixed(0)} KB`;
 }
 
+/*
+ * HEIC CONTENT CHECK — a HEIC photo saved with a .jpg extension (common
+ * for phone photos) is not detected by name/type, and the WebView cannot
+ * decode HEIC at all — so sniff the ftyp box in the file header.
+ */
+async function isHeicByContent(inputFile: Blob) {
+  try {
+    const header = new Uint8Array(
+      await inputFile.slice(0, 12).arrayBuffer(),
+    );
+    if (header.length < 12) return false;
+    const ftyp = String.fromCharCode(...header.subarray(4, 8));
+    if (ftyp !== "ftyp") return false;
+    const brand = String.fromCharCode(...header.subarray(8, 12));
+    return [
+      "heic", "heix", "hevc", "hevx", "heim", "heis", "hevm", "hevs",
+      "mif1", "msf1",
+    ].includes(brand);
+  } catch {
+    return false;
+  }
+}
+
 export default function ImageCompressorPage() {
   const [mode, setMode] = useState<Mode>("image");
 
@@ -72,6 +95,12 @@ export default function ImageCompressorPage() {
 
     return Math.max(0, Math.round(percentage));
   }, [originalFile, compressedFile]);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openPicker() {
+    inputRef.current?.click();
+  }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -109,7 +138,26 @@ export default function ImageCompressorPage() {
     setPreviewUrl(setOriginalPreview, originalPreview, file);
   }
 
-  async function compressImage(file: File, targetBytes: number) {
+  async function compressImage(inputFile: File, targetBytes: number) {
+    let file = inputFile;
+
+    // HEIC photos saved with a .jpg extension (common for phone photos)
+    // cannot be decoded by the WebView — convert to PNG first.
+    if (await isHeicByContent(file)) {
+      const { default: heic2any } = await import("heic2any");
+      const converted = await heic2any({
+        blob: file,
+        toType: "image/png",
+        quality: 1,
+      });
+      const pngBlob = Array.isArray(converted) ? converted[0] : converted;
+      file = new File(
+        [pngBlob],
+        file.name.replace(/\.[^/.]+$/, "") + ".png",
+        { type: "image/png" },
+      );
+    }
+
     let smallest: File | null = null;
 
     // Sweep quality AND max dimensions so the target is actually reachable.
@@ -121,7 +169,9 @@ export default function ImageCompressorPage() {
         const options = {
           maxSizeMB: targetBytes / (1024 * 1024),
           maxWidthOrHeight,
-          useWebWorker: true,
+          // Web Workers created from blob URLs fail inside the Capacitor
+          // Android WebView — run on the main thread instead.
+          useWebWorker: false,
           initialQuality: attemptQuality,
         };
 
@@ -306,7 +356,7 @@ export default function ImageCompressorPage() {
       setFeedback({
         type: "error",
         message:
-          caughtError instanceof Error
+          caughtError instanceof Error || caughtError instanceof DOMException
             ? caughtError.message
             : mode === "image"
               ? "Could not compress this image. Please try another image."
@@ -428,7 +478,21 @@ export default function ImageCompressorPage() {
               Upload {mode === "image" ? "image" : "PDF"}
             </label>
 
-            <label className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
+            {/* Upload — the input is opened with an explicit click() call:
+                a <label> wrapping a display:none input does not reliably
+                open the file chooser inside the Capacitor Android WebView. */}
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={openPicker}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  openPicker();
+                }
+              }}
+              className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
+            >
               <Upload className="mb-3 h-8 w-8 text-violet-300" />
 
               <span className="font-medium text-white light:text-slate-900">
@@ -442,12 +506,13 @@ export default function ImageCompressorPage() {
               </span>
 
               <input
+                ref={inputRef}
                 type="file"
                 accept={mode === "image" ? "image/*" : "application/pdf"}
                 onChange={handleFileChange}
-                className="hidden"
+                className="sr-only"
               />
-            </label>
+            </div>
 
             {originalFile ? (
               <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">

@@ -63,17 +63,19 @@ jobs:
           p = "android/app/src/main/res/values/styles.xml"
           s = open(p).read()
           if "android:windowFullscreen" not in s:
+              # Patch EVERY AppTheme* style. MainActivity uses
+              # AppTheme.NoActionBarLaunch, which does NOT inherit from
+              # AppTheme — patching AppTheme alone left the status bar visible.
               s2, n = re.subn(
-                  r'(<style name="AppTheme"[^>]*>)',
+                  r'(<style name="AppTheme[^"]*"[^>]*>)',
                   r'\1\n        <item name="android:windowFullscreen">true</item>',
                   s,
-                  count=1,
               )
               if n:
                   open(p, "w").write(s2)
-                  print("fullscreen enabled in AppTheme")
+                  print(f"fullscreen enabled in {n} theme(s)")
               else:
-                  print("AppTheme style not found, no change made")
+                  print("AppTheme styles not found, no change made")
           else:
               print("fullscreen already set")
           EOF

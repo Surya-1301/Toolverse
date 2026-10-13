@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   ArrowLeft,
   BarChart3,
@@ -56,6 +56,12 @@ type UploadResult = {
 export default function FileSharePage() {
   const [file, setFile] = useState<File | null>(null);
   const [expiry, setExpiry] = useState("never");
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openPicker() {
+    inputRef.current?.click();
+  }
   const [result, setResult] = useState<UploadResult | null>(null);
   const [uploadKind, setUploadKind] = useState<UploadKind>("file");
 
@@ -347,7 +353,21 @@ export default function FileSharePage() {
             Upload image, PDF, or file
           </label>
 
-          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
+          {/* Upload — the input is opened with an explicit click() call:
+              a <label> wrapping a display:none input does not reliably
+              open the file chooser inside the Capacitor Android WebView. */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={openPicker}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openPicker();
+              }
+            }}
+            className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
+          >
             <Upload className="mb-3 h-8 w-8 text-violet-300" />
 
             <span className="font-medium text-white light:text-slate-900">
@@ -360,12 +380,13 @@ export default function FileSharePage() {
             </span>
 
             <input
+              ref={inputRef}
               type="file"
               accept="image/*,application/pdf,text/*,.txt,.md,.csv,.json,.xml,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.rtf,.odt,.ods,.odp,.zip"
               onChange={handleFileChange}
-              className="hidden"
+              className="sr-only"
             />
-          </label>
+          </div>
 
           {file ? (
             <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">

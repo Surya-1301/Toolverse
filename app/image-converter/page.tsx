@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -117,6 +117,12 @@ export default function ImageConverterPage() {
   const [isProcessing, setIsProcessing] =
     useState(false);
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function openPicker() {
+    inputRef.current?.click();
+  }
+
   /* ------------------------------------------------------------------------
      OUTPUT EXTENSION
   ------------------------------------------------------------------------ */
@@ -171,6 +177,64 @@ export default function ImageConverterPage() {
   }
 
   /* ------------------------------------------------------------------------
+     HEIC CONTENT CHECK
+     A HEIC photo saved with a .jpg extension (common for phone photos)
+     is not detected by name/type, and the WebView cannot decode HEIC at
+     all — so sniff the ftyp box in the file header.
+  ------------------------------------------------------------------------ */
+
+  async function isHeicByContent(inputFile: Blob) {
+    try {
+      const header = new Uint8Array(
+        await inputFile.slice(0, 12).arrayBuffer(),
+      );
+      if (header.length < 12) return false;
+      const ftyp = String.fromCharCode(...header.subarray(4, 8));
+      if (ftyp !== "ftyp") return false;
+      const brand = String.fromCharCode(...header.subarray(8, 12));
+      return [
+        "heic", "heix", "hevc", "hevx", "heim", "heis", "hevm", "hevs",
+        "mif1", "msf1",
+      ].includes(brand);
+    } catch {
+      return false;
+    }
+  }
+
+  /* ------------------------------------------------------------------------
+     IMAGE DECODING
+     createImageBitmap decodes the Blob directly (no object URL), which is
+     the most reliable path inside the Capacitor WebView. Falls back to
+     <img> + object URL.
+  ------------------------------------------------------------------------ */
+
+  async function loadImageBitmap(
+    source: Blob,
+  ): Promise<ImageBitmap | HTMLImageElement> {
+    if (typeof createImageBitmap === "function") {
+      try {
+        return await createImageBitmap(source);
+      } catch {
+        // Fall through to the <img> path.
+      }
+    }
+
+    const url = URL.createObjectURL(source);
+    try {
+      const image = new Image();
+      image.src = url;
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () =>
+          reject(new Error("Image could not be loaded"));
+      });
+      return image;
+    } finally {
+      URL.revokeObjectURL(url);
+    }
+  }
+
+  /* ------------------------------------------------------------------------
      IMAGE CONVERSION
   ------------------------------------------------------------------------ */
 
@@ -200,7 +264,7 @@ export default function ImageConverterPage() {
        * at the top of the file. This prevents the package from being
        * evaluated during Next.js server-side prerendering.
        */
-      if (isHeicFile(file)) {
+      if (isHeicFile(file) || (await isHeicByContent(file))) {
         try {
           const { default: heic2any } =
             await import("heic2any");
@@ -233,27 +297,11 @@ export default function ImageConverterPage() {
          LOAD SOURCE IMAGE
       -------------------------------------------------------------------- */
 
-      const sourceUrl =
-        URL.createObjectURL(sourceBlob);
-
-      const image = new Image();
-
-      image.src = sourceUrl;
-
-      await new Promise<void>(
-        (resolve, reject) => {
-          image.onload = () => resolve();
-
-          image.onerror = () =>
-            reject(
-              new Error(
-                "Image could not be loaded",
-              ),
-            );
-        },
-      );
-
-      URL.revokeObjectURL(sourceUrl);
+      const bitmap = await loadImageBitmap(sourceBlob);
+      const sourceWidth =
+        "naturalWidth" in bitmap ? bitmap.naturalWidth : bitmap.width;
+      const sourceHeight =
+        "naturalHeight" in bitmap ? bitmap.naturalHeight : bitmap.height;
 
       /* --------------------------------------------------------------------
          CANVAS
@@ -262,8 +310,8 @@ export default function ImageConverterPage() {
       const canvas =
         document.createElement("canvas");
 
-      canvas.width = image.naturalWidth;
-      canvas.height = image.naturalHeight;
+      canvas.width = sourceWidth;
+      canvas.height = sourceHeight;
 
       const ctx =
         canvas.getContext("2d");
@@ -292,11 +340,8 @@ export default function ImageConverterPage() {
         );
       }
 
-      ctx.drawImage(
-        image,
-        0,
-        0,
-      );
+      ctx.drawImage(bitmap, 0, 0);
+      if ("close" in bitmap) bitmap.close();
 
       /* --------------------------------------------------------------------
          CREATE OUTPUT
@@ -330,7 +375,11 @@ export default function ImageConverterPage() {
       );
 
       setError(
-        "Could not convert this image. Please make sure the file is valid and try again.",
+        `Could not convert this image. ${
+          conversionError instanceof Error
+            ? conversionError.message
+            : "Please make sure the file is valid and try again."
+        }`,
       );
 
       setIsProcessing(false);
@@ -409,7 +458,19 @@ export default function ImageConverterPage() {
 
           {/* Upload */}
 
-          <label
+          {/* Upload — the input is opened with an explicit click() call:
+              a <label> wrapping a display:none input does not reliably
+              open the file chooser inside the Capacitor Android WebView. */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={openPicker}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                openPicker();
+              }
+            }}
             className="
               flex
               min-h-[230px]
@@ -440,6 +501,7 @@ export default function ImageConverterPage() {
             </span>
 
             <input
+              ref={inputRef}
               type="file"
               accept="
                 image/png,
@@ -455,9 +517,9 @@ export default function ImageConverterPage() {
                 .heif
               "
               onChange={handleFile}
-              className="hidden"
+              className="sr-only"
             />
-          </label>
+          </div>
 
           {/* Selected file */}
 
