@@ -1,79 +1,129 @@
 # Toolverse
 
-Toolverse is a privacy-friendly collection of browser-first utilities for developers, creators, and everyday users. It includes formatters, converters, generators, image tools, PDF workflows, sharing tools, and developer utilities.
+[![Live site](https://img.shields.io/website?url=https%3A%2F%2Ftoolversee.pages.dev&label=live%20site)](https://toolversee.pages.dev)
+[![Android app](https://img.shields.io/badge/Android-APK_download-3DDC84?logo=android&logoColor=white)](https://github.com/Surya-1301/Toolverse/releases)
+[![License](https://img.shields.io/github/license/Surya-1301/Toolverse)](LICENSE)
 
-## Live Services
+**Free online utilities — formatters, converters, generators, image tools, PDF tools, and sharing tools, right in your browser.**
 
-- Frontend: `https://toolversee.pages.dev`
-- Cloudflare API: `https://toolversex-api.jethalalmirror.workers.dev`
-- PDF backend: `https://toolverse-pdf-api-i6av.onrender.com`
-- PDF health check: `https://toolverse-pdf-api-i6av.onrender.com/health`
+No sign-up. Most tools run entirely on your device, so your input never leaves your computer.
+
+<div align="center">
+
+| 🌐 Live site | 📱 Android app |
+|---|---|
+| [toolversee.pages.dev](https://toolversee.pages.dev) | [Android App]( https://downloadtoolverse.dpdns.org/) |
+
+</div>
+
+---
+
+## Android app
+
+Toolverse is also available as a native Android app — all 65 tools, wrapped with Capacitor.
+
+📥 **Download:** https://downloadtoolverse.dpdns.org/
+
+- Free forever, no account needed
+- Most tools work fully offline on your device
+- APKs are built with Capacitor + GitHub Actions and attached to each release
+
+> The APK is debug-signed, so Android will show an "unknown developer" warning during sideloading. This is expected for apps installed outside the Play Store.
+
+---
 
 ## Features
 
-### Sharing and Hosting
+65 tools across 6 categories. Every tool has its own page with step-by-step guidance and FAQs.
 
-- Paste and paste viewer for text and code
-- URL shortener with redirect tracking and expiry support
-- Image hosting
-- File sharing and shared-file viewers
-- Owner dashboard for hosted files and images
-- Client-side encryption support for shared uploads
+### Sharing & Hosting
+
+<div align="center">
+
+| Tool | What it does |
+|---|---|
+| Paste | Share text & code with a link, viewer included |
+| URL Shortener | Short links with redirect tracking & expiry |
+| Image Hosting | Host images with a direct link |
+| File Sharing | Share files with a download link |
+| Owner Dashboard | Manage your hosted files & images |
+| Encrypted Uploads | Client-side encryption for shared uploads |
+
+</div>
 
 ### Conversion Tools
 
-- Markdown to PDF
-- Markdown to HTML
-- YAML to JSON and JSON to YAML
-- CSV to JSON and JSON to CSV
-- Excel to CSV and CSV to Excel
-- RGB, HEX, and HSL color conversion
-- Regex tester
-- JSON to XML and XML to JSON
-- Image to Base64 conversion
+<div align="center">
 
-### Formatter Tools
+| Tool | What it does |
+|---|---|
+| Markdown to PDF | Convert Markdown documents to PDF |
+| Markdown to HTML | Convert Markdown to HTML |
+| YAML ↔ JSON | Convert between YAML and JSON |
+| CSV ↔ JSON | Convert between CSV and JSON |
+| Excel ↔ CSV | Convert between spreadsheets and CSV |
+| Color Converter | Convert between RGB, HEX, and HSL |
+| Regex Tester | Test regular expressions live |
+| JSON ↔ XML | Convert between JSON and XML |
+| Image to Base64 | Encode images as Base64 data URLs |
 
-- HTML, CSS, JavaScript, TypeScript, JSON, and SQL formatters
+</div>
+
+### Formatters
+
+HTML Formatter · CSS Formatter · JavaScript Formatter · TypeScript Formatter · JSON Formatter · SQL Formatter
 
 ### Image Tools
 
-- Image converter
-- Image compressor
-- Image resizer and cropper
-- Image blur
-- Image watermark tool
-- Background remover
-- Favicon generator
-- OG image generator
-- Image upscaler
-- Image placeholder
-- Image host
+<div align="center">
 
-### Text and Developer Tools
+| Tool | What it does |
+|---|---|
+| Image Converter | Convert PNG, JPG, WebP, HEIC, HEIF |
+| Image Compressor | Shrink images to a target file size |
+| Image Resizer & Cropper | Resize and crop with live preview |
+| Image Blur | Blur all or part of an image |
+| Image Watermark | Add text watermarks to images |
+| Background Remover | Remove image backgrounds (AI) |
+| Favicon Generator | Generate favicons in every size |
+| OG Image Generator | Generate Open Graph social images |
+| Image Upscaler | Enlarge images |
+| Image Placeholder | Generate placeholder images |
+| Image Host | Host and share images |
 
-- IP address lookup
-- Credit card generator and validator
-- Fake address and user generator with 16 locales
-- UUID generator
-- Password generator with integrated strength analysis
-- Hash generator
-- Random string generator
-- Base64 encoder and decoder
-- JWT decoder
-- Lorem Ipsum generator
-- Text counter
-- Case converter
-- Duplicate line remover
-- Timestamp converter
-- URL tools
-- Text to speech
-- Audio converter
-- Domain lookup with WHOIS and DNS support
-- HTTP request/API tester
-- Text compare and diff
-- Email, phone, and IBAN validator
-- QR generator
+</div>
+
+### Text & Developer Tools
+
+<div align="center">
+
+| Tool | What it does |
+|---|---|
+| IP Lookup | Look up IP address details |
+| Credit Card Generator & Validator | Generate test cards, validate with Luhn |
+| Fake Address & User Generator | Realistic fake data in 16 locales |
+| UUID Generator | Generate UUIDs in bulk |
+| Password Generator | Secure passwords with strength analysis |
+| Password Strength Checker | Score any password |
+| Hash Generator | MD5, SHA-1, SHA-256, and more |
+| Random String Generator | Random strings with custom alphabets |
+| Base64 Encoder / Decoder | Encode & decode Base64 |
+| JWT Decoder | Decode JWT headers & payloads |
+| Lorem Ipsum Generator | Placeholder text in any length |
+| Text Counter | Words, characters, sentences, reading time |
+| Case Converter | UPPER, lower, Title, camel, snake, kebab |
+| Duplicate Line Remover | Deduplicate lines in any text |
+| Timestamp Converter | Unix ↔ human-readable dates |
+| URL Tools | Encode, decode, parse URLs |
+| Text to Speech | Read text aloud in the browser |
+| Audio Converter | Convert audio formats in the browser |
+| Domain Lookup | WHOIS & DNS records for any domain |
+| HTTP Request Tester | Test API endpoints from the browser |
+| Text Compare & Diff | Side-by-side text diff |
+| Email, Phone & IBAN Validator | Validate emails, phones, IBANs |
+| QR Generator | Generate QR codes for any text or URL |
+
+</div>
 
 ### PDF Tools
 
@@ -88,132 +138,172 @@ The PDF workspace includes a browser-based PDF editor and dedicated routes for:
 - Unlocking, protecting, redacting, and comparing PDFs
 - Converting PDFs to Markdown
 
-## Technology Stack
+---
+
+## How it works
+
+**Browser-first architecture.** The vast majority of tools run 100% client-side — formatters, converters, generators, image tools, and the PDF editor never upload your input.
+
+**Cloudflare Worker API.** Sharing tools (paste, URL shortener, image/file hosting) run on the Toolverse API — Cloudflare Workers with D1 metadata and R2 file storage.
+
+**Image backend.** Background removal runs on the Toolverse image API (FastAPI + remove.bg).
+
+**PDF backend.** Heavier PDF operations run on the Toolverse PDF API (Node.js + Express).
+
+---
+
+## Tech Stack
 
 ### Frontend
 
-- Next.js 16 and React 19
-- TypeScript
-- Tailwind CSS 4
-- `lucide-react` icons
-- `pdf-lib` and `pdfjs-dist` for PDF editing and rendering
-- `qrcode` for QR generation
-- `browser-image-compression` and `heic2any` for image workflows
-- `lamejs` for browser-side MP3 encoding
-- `xlsx` for spreadsheet conversion
-- `@dnd-kit` for drag-and-drop interactions
-- `bcryptjs` for client-side hashing workflows
-- `sharp` for supported image processing workflows
+- **Next.js 16** (App Router) + **React 19**
+- **TypeScript** · **Tailwind CSS 4**
+- `pdf-lib` / `pdfjs-dist` — PDF editing & rendering
+- `browser-image-compression`, `heic2any` — image workflows
+- `qrcode`, `xlsx`, `lamejs`, `@dnd-kit`, `bcryptjs`, `lucide-react`
 
-### Cloudflare API Worker
+### Cloudflare API Worker (`backend/`)
 
-The Worker in `backend/` provides persistent sharing and storage APIs.
+- **Cloudflare Workers + Wrangler**
+- **Cloudflare D1** — metadata
+- **Cloudflare R2** — uploaded files & images
 
-- Cloudflare Workers and Wrangler
-- Cloudflare D1 for metadata
-- Cloudflare R2 for uploaded files and images
+Bindings in `backend/wrangler.jsonc`: `DB` (D1), `FILES_BUCKET` (R2).
 
-Bindings configured in `backend/wrangler.jsonc`:
+### Image Backend (`image-backend/`)
 
-- `DB` for the D1 database
-- `FILES_BUCKET` for the R2 bucket
+Deployed separately on Render (Docker).
 
-### Image Backend
+- **Python + FastAPI + Uvicorn** — API
+- **Pillow**, `python-multipart`, `requests` — image handling & remove.bg
 
-The `image-backend/` service is a small Python HTTP service used by image-processing tools.
+### PDF Backend (`pdf-backend/`)
 
-- FastAPI
-- Uvicorn
-- Pillow
-- `python-multipart`
-- Requests
+Deployed separately on Render (Docker).
 
-### PDF Backend
+- **Node.js + Express + Multer** — API & file intake
 
-The `pdf-backend/` service is a Node.js and Express backend for heavier PDF operations and is suitable for Docker or Render deployment.
-
-- Node.js
-- Express
-- Multer
-- CORS support
-- Docker deployment via `pdf-backend/Dockerfile`
+---
 
 ## Project Structure
 
-```text
-app/                         Next.js App Router pages and tool routes
-  tools/                     Tool index and category pages
-  pdf/                       PDF utility routes
-  pdf-editor/                Browser-based PDF editor
-  paste/, paste-view/        Paste creation and viewing
-  file/, file-share/         File management and sharing
-  image-*/                   Image tools
-  *-formatter/               Code and data formatters
-
-components/                  Shared React components
-lib/                         Shared frontend helpers and data generators
-backend/                     Cloudflare Worker API and D1 migrations
-backend-routes/              Next.js proxy routes for backend APIs
-image-backend/               Python image-processing service
-pdf-backend/                 Express PDF service
-public/                      Static assets, icons, sitemap, and robots files
-schema.sql                   Root database schema
-wrangler.jsonc               OpenNext/Cloudflare frontend configuration
+```txt
+Toolverse/
+├─ app/                          # Next.js App Router pages & tool routes
+│  ├─ tools/                     # Tool index & category pages
+│  ├─ pdf/                       # PDF utility routes
+│  ├─ pdf-editor/                # Browser-based PDF editor
+│  ├─ paste/, paste-view/        # Paste creation & viewing
+│  ├─ file/, file-share/         # File management & sharing
+│  ├─ image-*/                   # Image tools
+│  └─ *-formatter/               # Code & data formatters
+├─ components/                   # Shared React components
+├─ lib/                          # Shared helpers, apiBase, seoTools
+├─ backend/                      # Cloudflare Worker API + D1 migrations
+├─ backend-routes/               # Next.js proxy routes for backend APIs
+├─ image-backend/                # Python image-processing service
+├─ pdf-backend/                  # Express PDF service
+├─ public/                       # Static assets, icons, sitemap, robots
+├─ resources/android-icons/       # Android launcher icons (Capacitor)
+├─ capacitor.config.ts           # Capacitor app config
+├─ .github/workflows/android.yml # GitHub Actions Android APK build
+├─ wrangler.jsonc                # OpenNext / Cloudflare frontend config
+└─ package.json
 ```
 
-## Environment Variables
+---
 
-The frontend resolves API endpoints from environment variables or the configured production defaults in `lib/apiBase.ts`.
+## Getting Started
 
-```env
-NEXT_PUBLIC_API_BASE_URL=https://toolversex-api.jethalalmirror.workers.dev
-NEXT_PUBLIC_PDF_API_BASE_URL=https://toolverse-pdf-api-i6av.onrender.com
-NEXT_PUBLIC_IMAGE_API_BASE_URL=https://your-image-service.example.com
+### Prerequisites
+
+- Node.js 22+ and npm
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Surya-1301/Toolverse.git
+cd Toolverse
 ```
 
-For local services:
-
-```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8787
-NEXT_PUBLIC_PDF_API_BASE_URL=http://localhost:4000
-NEXT_PUBLIC_IMAGE_API_BASE_URL=http://localhost:8000
-```
-
-Keep local environment files out of version control. The repository ignores `env.local` and `.env*` files.
-
-## Local Development
-
-### Frontend
+### 2. Install dependencies
 
 ```bash
 npm install
+```
+
+### 3. Configure environment
+
+Create a `.env.local` file in the project root:
+
+```env
+NEXT_PUBLIC_API_BASE_URL=....
+NEXT_PUBLIC_PDF_API_BASE_URL=....
+NEXT_PUBLIC_IMAGE_API_BASE_URL=....
+
+> For local backend development, point these at your local servers (Worker `http://localhost:8787`, PDF `http://localhost:4000`, image `http://localhost:8000`).
+
+### 4. Run the dev server
+
+```bash
 npm run dev
 ```
 
-Open `http://localhost:3000`.
+Open http://localhost:3000
 
-Useful frontend commands:
+---
 
-```bash
-npm run lint
-npm run build
-npm run build:cloudflare
-npm run preview:cloudflare
-```
+## Environment Variables
 
-### Cloudflare API Worker
+<div align="center">
+
+| Variable | Required | Description |
+|---|---|---|
+| `NEXT_PUBLIC_API_BASE_URL` | Yes | Base URL of the Cloudflare Worker API (sharing tools) |
+| `NEXT_PUBLIC_PDF_API_BASE_URL` | Yes | Base URL of the PDF backend (heavy PDF operations) |
+| `NEXT_PUBLIC_IMAGE_API_BASE_URL` | Yes | Base URL of the image backend (background remover) |
+
+</div>
+
+> Keep local environment files out of version control. The repository ignores `.env*` files.
+
+---
+
+## Available Scripts
+
+<div align="center">
+
+| Command | Description |
+|---|---|
+| `npm run dev` | Start the dev server |
+| `npm run build` | Production build (static export) |
+| `npm run start` | Start the production server |
+| `npm run lint` | Run ESLint |
+| `npm run build:cloudflare` | Build with OpenNext for Cloudflare |
+| `npm run preview:cloudflare` | Preview the Cloudflare build |
+| `npm run deploy:cloudflare` | Build & deploy to Cloudflare Pages |
+
+</div>
+
+---
+
+## Deployment
+
+### Frontend — Cloudflare Pages
+
+- **Build command:** `npm run build:cloudflare`
+- **Config:** `wrangler.jsonc`, `open-next.config.ts`
+- **Environment variables:** `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_PDF_API_BASE_URL`, `NEXT_PUBLIC_IMAGE_API_BASE_URL`
+
+Or deploy via CLI: `npm run deploy:cloudflare` (requires `wrangler` login).
+
+### Cloudflare API — Workers
+
+Deploy from `backend/`:
 
 ```bash
 cd backend
 npm install
-npm run dev
-```
-
-The Worker normally runs at `http://localhost:8787`.
-
-Deploy it with:
-
-```bash
 npm run deploy
 ```
 
@@ -223,89 +313,98 @@ Run the remote D1 schema migration with:
 npm run db:migrate
 ```
 
+### Image Backend — Render
+
+- **Service type:** Web Service
+- **Environment:** Docker
+- **Root directory:** `image-backend`
+- **Dockerfile path:** `./Dockerfile`
+- **Environment variable:** `REMOVEBG_API_KEY`
+
+### PDF Backend — Render
+
+- **Service type:** Web Service
+- **Environment:** Docker
+- **Root directory:** `pdf-backend`
+- **Dockerfile path:** `./Dockerfile`
+
+### Android App — GitHub Actions
+
+The APK is built in the cloud on tag push — no Android Studio needed.
+
+```bash
+git tag -a v0.1.0 -m "v0.1.0"
+git push origin v0.1.0
+```
+
+The workflow (`.github/workflows/android.yml`) builds the web app, adds the Android platform with Capacitor, and attaches the APK to the GitHub release. Manual runs: **Actions → Android APK → Run workflow**.
+
+---
+
+## Backend API Overview
+
+### Cloudflare Worker API
+
+Base URL: `NEXT_PUBLIC_API_BASE_URL`
+
+<div align="center">
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/paste/create` | Create a paste |
+| `GET` | `/api/paste/:id` | View a paste |
+| `PUT` | `/api/paste/:id` | Update a paste |
+| `POST` | `/api/shorten` | Shorten a URL |
+| `GET` | `/s/:slug` | Redirect a short link |
+| `POST` | `/api/image/upload` | Upload an image |
+| `GET` | `/api/image/:id/direct` | Direct image link |
+| `POST` | `/api/file/upload` | Upload a file |
+| `GET` | `/api/file/:id/download` | Download a shared file |
+
+</div>
+
+### PDF Backend
+
+Base URL: `NEXT_PUBLIC_PDF_API_BASE_URL`
+
+`GET /health` — health check. PDF conversion, editing, security, and comparison routes under `/api/pdf/*`.
+
 ### Image Backend
 
-```bash
-cd image-backend
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
+Base URL: `NEXT_PUBLIC_IMAGE_API_BASE_URL`
 
-### PDF Backend
+<div align="center">
 
-```bash
-cd pdf-backend
-npm install
-npm run dev
-```
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Health check |
+| `POST` | `/api/image/remove-background` | Remove image background |
 
-The PDF backend normally runs at `http://localhost:4000`.
+</div>
 
-Health check:
+---
 
-```bash
-curl -i http://localhost:4000/health
-```
+## Privacy & File Handling
 
-## Deployment
+- **Browser tools:** files never leave the user's device. No upload, no tracking of file contents.
+- **Sharing tools:** pastes, images, and files are uploaded to the Cloudflare API (D1 + R2) so they can be shared via link.
+- **Server processing:** background removal and heavy PDF operations are processed over HTTPS; temporary copies are deleted afterward.
+- Full details: https://toolversee.pages.dev/privacy
+- Report abuse: https://toolversee.pages.dev/report-abuse
 
-### Cloudflare Frontend
+---
 
-Build and deploy with OpenNext:
+## SEO
 
-```bash
-npm run build:cloudflare
-npm run deploy:cloudflare
-```
+- `public/sitemap.xml` — submitted to Search Console
+- `public/robots.txt` — allows all, references sitemap
+- Per-tool pages emit Open Graph / Twitter cards and `FAQPage` JSON-LD from `lib/seoTools.ts`
 
-The frontend configuration is in `wrangler.jsonc` and `open-next.config.ts`.
+---
 
-### Cloudflare API
+## License
 
-Deploy from `backend/`:
+MIT — see [LICENSE](LICENSE).
 
-```bash
-cd backend
-npm run deploy
-```
+---
 
-The Worker configuration and bindings are in `backend/wrangler.jsonc`.
-
-### PDF Backend
-
-Deploy `pdf-backend/` using its Dockerfile. The production health endpoint is:
-
-```text
-https://toolverse-pdf-api-i6av.onrender.com/health
-```
-
-## API Overview
-
-The Cloudflare Worker API supports paste, shortening, image, and file workflows. Representative endpoints include:
-
-```text
-POST /api/paste/create
-GET  /api/paste/:id
-PUT  /api/paste/:id
-POST /api/shorten
-GET  /api/shorten/:slug
-GET  /s/:slug
-POST /api/image/upload
-GET  /api/image/:id/meta
-GET  /api/image/:id/direct
-POST /api/file/upload
-GET  /api/file/:id/meta
-GET  /api/file/:id/download
-```
-
-The PDF backend exposes a health endpoint plus PDF conversion, editing, security, and comparison routes under `/api/pdf/*`.
-
-## Notes
-
-- Many tools process input entirely in the browser.
-- Uploaded files and shared resources use the Cloudflare API and storage services.
-- Heavy PDF processing runs through the separate PDF backend.
-- PDF-to-spreadsheet conversion cannot always preserve exact visual layout because PDF pages are position-based while spreadsheets are cell-based.
-- Generated build output such as `.next/`, `out/`, and `.open-next/` is ignored and can be recreated from the source tree.
