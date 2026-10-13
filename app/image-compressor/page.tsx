@@ -158,6 +158,65 @@ export default function ImageCompressorPage() {
       );
     }
 
+    try {
+      return await compressWithLibrary(file, targetBytes);
+    } catch (libraryError) {
+      // If the library cannot decode the file inside the WebView, fall
+      // back to a manual canvas pass (data URL decode). If that fails too,
+      // surface the original library error.
+      try {
+        return await manualCompress(file, targetBytes);
+      } catch {
+        throw libraryError;
+      }
+    }
+  }
+
+  // Manual canvas compression — decodes via a data URL (no blob URL, no
+  // worker), the most compatible path inside the Capacitor WebView.
+  async function manualCompress(file: File, targetBytes: number) {
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () =>
+        reject(reader.error ?? new Error("FileReader failed"));
+      reader.readAsDataURL(file);
+    });
+
+    const img = new Image();
+    img.src = dataUrl;
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () =>
+        reject(new Error("Image could not be decoded (data URL)"));
+    });
+
+    let best: File | null = null;
+    for (const scale of [1, 0.75, 0.5, 0.35, 0.25]) {
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+      const ctx = canvas.getContext("2d");
+      if (!ctx) throw new Error("Could not prepare image canvas.");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/jpeg", 0.85),
+      );
+      if (!blob) continue;
+      const out = new File(
+        [blob],
+        file.name.replace(/\.[^/.]+$/, "") + ".jpg",
+        { type: "image/jpeg" },
+      );
+      if (!best || out.size < best.size) best = out;
+      if (out.size <= targetBytes) return out;
+    }
+
+    if (!best) throw new Error("Manual compression produced no output.");
+    return best;
+  }
+
+  async function compressWithLibrary(file: File, targetBytes: number) {
     let smallest: File | null = null;
 
     // Sweep quality AND max dimensions so the target is actually reachable.

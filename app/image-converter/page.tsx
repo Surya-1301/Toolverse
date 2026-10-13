@@ -203,35 +203,77 @@ export default function ImageConverterPage() {
 
   /* ------------------------------------------------------------------------
      IMAGE DECODING
-     createImageBitmap decodes the Blob directly (no object URL), which is
-     the most reliable path inside the Capacitor WebView. Falls back to
-     <img> + object URL.
+     Tries three decode paths in order, collecting each failure — the final
+     error names every path so a failure can actually be diagnosed.
+     1. createImageBitmap decodes the Blob directly (no object URL).
+     2. <img> + blob URL.
+     3. <img> + data URL (most compatible; no blob URL involved).
   ------------------------------------------------------------------------ */
+
+  async function blobToDataURL(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () =>
+        reject(reader.error ?? new Error("FileReader failed"));
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function loadImageFromUrl(
+    url: string,
+    label: string,
+  ): Promise<HTMLImageElement> {
+    const image = new Image();
+    image.src = url;
+    await new Promise<void>((resolve, reject) => {
+      image.onload = () => resolve();
+      image.onerror = () =>
+        reject(new Error(`Image could not be loaded (${label})`));
+    });
+    return image;
+  }
 
   async function loadImageBitmap(
     source: Blob,
   ): Promise<ImageBitmap | HTMLImageElement> {
+    const failures: string[] = [];
+
     if (typeof createImageBitmap === "function") {
       try {
         return await createImageBitmap(source);
-      } catch {
-        // Fall through to the <img> path.
+      } catch (error) {
+        failures.push(
+          `createImageBitmap: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
 
-    const url = URL.createObjectURL(source);
     try {
-      const image = new Image();
-      image.src = url;
-      await new Promise<void>((resolve, reject) => {
-        image.onload = () => resolve();
-        image.onerror = () =>
-          reject(new Error("Image could not be loaded"));
-      });
-      return image;
-    } finally {
-      URL.revokeObjectURL(url);
+      const url = URL.createObjectURL(source);
+      try {
+        return await loadImageFromUrl(url, "blob URL");
+      } finally {
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      failures.push(
+        `blob URL: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
+
+    try {
+      const dataUrl = await blobToDataURL(source);
+      return await loadImageFromUrl(dataUrl, "data URL");
+    } catch (error) {
+      failures.push(
+        `data URL: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
+
+    throw new Error(
+      `Image could not be decoded (${failures.join("; ")})`,
+    );
   }
 
   /* ------------------------------------------------------------------------

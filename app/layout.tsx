@@ -5,6 +5,7 @@ import { FileText, Flag, Mail, Newspaper, ShieldCheck } from "lucide-react";
 import { Header } from "@/components/Header";
 import { BackButtonHandler } from "@/components/BackButtonHandler";
 import { DownloadInterceptor } from "@/components/DownloadInterceptor";
+import { StatusBarHandler } from "@/components/StatusBarHandler";
 import "./globals.css";
 
 const siteUrl = "https://toolversee.pages.dev";
@@ -169,6 +170,7 @@ export default function RootLayout({
         <div className="flex min-h-screen flex-col">
           <BackButtonHandler />
           <DownloadInterceptor />
+          <StatusBarHandler />
           <Header />
 
           <main className="flex-1">{children}</main>
