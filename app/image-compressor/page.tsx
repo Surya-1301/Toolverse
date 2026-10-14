@@ -565,10 +565,7 @@ export default function ImageCompressorPage() {
         });
       } else {
         setTargetSizeHit(true);
-        setFeedback({
-          type: "success",
-          message: `Compressed to exactly ${formatTargetSize(targetBytes)}.`,
-        });
+        setFeedback(null);
       }
     } catch (caughtError) {
       setFeedback({
