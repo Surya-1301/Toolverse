@@ -1,0 +1,13 @@
+# How to create cookies.txt (do this in YOUR browser, logged into YouTube):
+#
+# 1. Install the "Get cookies.txt LOCALLY" extension (Chrome/Firefox).
+# 2. Go to youtube.com and make sure you're logged in.
+# 3. Click the extension → Export → saves cookies.txt.
+# 4. Place that file next to server.js as "cookies.txt" (exact name).
+#    - Docker Compose: mount it (see docker-compose.yml) or COPY it in the Dockerfile.
+#    - Render: upload via dashboard file / secret file, or bake into the image.
+#
+# Why: YouTube blocks anonymous datacenter IPs ("Sign in to confirm you're
+# not a bot"). Requests authenticated with YOUR cookies are trusted far more.
+# Keep this file private — it grants access to your YouTube account.
+# Refresh it when downloads start failing (cookies expire).

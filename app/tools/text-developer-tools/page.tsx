@@ -6,7 +6,9 @@ import {
   AudioLines,
   Bot,
   Braces,
+  Clapperboard,
   Clock,
+  Film,
   Fingerprint,
   GitCompare,
   GitMerge,
@@ -16,6 +18,7 @@ import {
   Link2,
   LockKeyhole,
   MapPin,
+  Music,
   Network,
   Send,
   ShieldCheck,
@@ -187,6 +190,24 @@ const tools = [
       "Build crawl rules, crawl delays and sitemaps, then download a ready robots.txt file.",
     href: "/robots-txt-generator",
     icon: <Bot className="h-6 w-6" />,
+  },
+  {
+    title: "YouTube Downloader",
+    description: "Download YouTube videos as MP4 in HD or extract audio as MP3.",
+    href: "/youtube-downloader",
+    icon: <Clapperboard className="h-6 w-6" />,
+  },
+  {
+    title: "Instagram Reels Downloader",
+    description: "Download Instagram reels, posts and carousels in HD.",
+    href: "/instagram-reels-downloader",
+    icon: <Film className="h-6 w-6" />,
+  },
+  {
+    title: "Music Downloader",
+    description: "Extract audio as MP3, OGG, WAV or OPUS from video links.",
+    href: "/music-downloader",
+    icon: <Music className="h-6 w-6" />,
   },
 ];
 

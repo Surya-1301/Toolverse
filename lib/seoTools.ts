@@ -930,6 +930,66 @@ export const toolSeo: Record<string, ToolSeo> = {
       },
     ],
   },
+  "instagram-reels-downloader": {
+    slug: "instagram-reels-downloader",
+    title: "Instagram Reels Downloader - Download Reels in HD",
+    description:
+      "Download Instagram reels, posts and carousels in HD online for free. Paste the link and save the video with Toolverse — no signup.",
+    faq: [
+      {
+        q: "How do I download an Instagram reel?",
+        a: "Copy the reel link from Instagram, paste it into the tool, and hit Get download link to save the video in HD.",
+      },
+      {
+        q: "Does it work with carousels?",
+        a: "Yes, carousel posts show one download button per item.",
+      },
+      {
+        q: "Is the Instagram reels downloader free?",
+        a: "Yes, downloading reels is completely free with no signup.",
+      },
+    ],
+  },
+  "music-downloader": {
+    slug: "music-downloader",
+    title: "Music Downloader - Extract Audio as MP3 Online",
+    description:
+      "Extract audio from videos as MP3, OGG, WAV or OPUS online for free. Paste a link and download the track with Toolverse — no signup.",
+    faq: [
+      {
+        q: "How do I download music as MP3?",
+        a: "Paste the video or track link, pick a format and bitrate, then hit Extract audio to get your download link.",
+      },
+      {
+        q: "Which sites are supported?",
+        a: "YouTube, SoundCloud, TikTok and many other platforms are supported.",
+      },
+      {
+        q: "What audio quality can I choose?",
+        a: "Bitrates from 96 kbps up to 320 kbps in MP3, OGG, OPUS or WAV formats.",
+      },
+    ],
+  },
+  "youtube-downloader": {
+    slug: "youtube-downloader",
+    title: "YouTube Video Downloader - Download MP4 & MP3 Online",
+    description:
+      "Download YouTube videos as MP4 in 360p to 1080p or extract audio as MP3 online for free. No signup, works with Toolverse.",
+    faq: [
+      {
+        q: "How do I download a YouTube video?",
+        a: "Paste the YouTube link, choose a quality, and hit Get download link to save the MP4.",
+      },
+      {
+        q: "Can I download just the audio?",
+        a: "Yes, tick Audio only to extract the soundtrack as an MP3 file.",
+      },
+      {
+        q: "Is the YouTube downloader free?",
+        a: "Yes, it is completely free with no signup. Only download videos you own or have permission to keep.",
+      },
+    ],
+  },
   "markdown-to-html": {
     slug: "markdown-to-html",
     title: "Markdown to HTML Converter - Convert MD Online",
