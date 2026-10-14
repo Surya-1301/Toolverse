@@ -1,32 +1,4 @@
 "use strict";
-/**
- * Toolverse YouTube download backend (yt-dlp) — vidssave-style API.
- *
- * Why this exists: YouTube blocks anonymous datacenter IPs outright
- * ("Sign in to confirm you're not a bot"). Authenticated requests with the
- * owner's own browser cookies are trusted far more — this backend uses an
- * optional cookies.txt exported from your logged-in browser.
- *
- * Endpoints:
- *   GET  /                           -> health check
- *   POST /api/info   {url}           -> { title, thumbnail, duration,
- *                                         uploader, resources[] }
- *       resources[]: { id, quality, ext, size (bytes, approx),
- *                      hasAudio, fps }  — like vidssave's resource table
- *   GET  /api/download?url=&format_id=&audio=0|1 -> the file (attachment)
- *       format_id = a resource id from /api/info (most precise), or
- *       omit it and use quality=720 to auto-pick.
- *
- * Env:
- *   PORT        listen port (default 3000; Render injects its own)
- *   TMPDIR      temp dir for in-progress downloads (default os.tmpdir())
- *   MAX_MINUTES max download time per request (default 10)
- *   CACHE_MIN   parse-result cache TTL in minutes (default 10)
- *
- * Cookies: place a Netscape-format cookies.txt next to server.js
- * (export with the "Get cookies.txt LOCALLY" browser extension while
- * logged into YouTube). The server uses it automatically when present.
- */
 
 const express = require("express");
 const { spawn } = require("child_process");
@@ -48,14 +20,30 @@ const CACHE_MS = Number(process.env.CACHE_MIN || 10) * 60 * 1000;
 const COOKIES_PATH = path.join(__dirname, "cookies.txt");
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
 
+
+const API_KEY = process.env.API_KEY || "";
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+
 // ---- CORS (the Toolverse site calls this from the browser) ----
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Origin", CORS_ORIGIN);
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Api-Key");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
+
+// ---- API key gate (only when API_KEY is set) ----
+if (API_KEY) {
+  app.use((req, res, next) => {
+    // Plain anchor downloads can't send headers, so accept ?api_key= too.
+    const provided = req.headers["x-api-key"] || req.query.api_key;
+    if (provided !== API_KEY) {
+      return res.status(401).json({ error: "Unauthorized." });
+    }
+    next();
+  });
+}
 
 // ---- tiny rate limiter (per IP, in-memory) ----
 const hits = new Map(); // ip -> { n, reset }

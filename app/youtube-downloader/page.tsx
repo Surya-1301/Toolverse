@@ -5,20 +5,18 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Check,
-  ChevronDown,
   Clapperboard,
   ClipboardPaste,
   Download,
   Eraser,
-  KeyRound,
   Link2,
   Loader2,
   Music,
-  Server,
-  Settings2,
+  KeyRound,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
 
 function BackToToolsLink() {
   return (
@@ -140,17 +138,9 @@ function qualityNum(label: string): number {
 
 export default function YoutubeDownloaderPage() {
   const [url, setUrl] = useState("");
-  const [apiKey, setApiKey] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : localStorage.getItem("tv_rapidapi_key") || "",
-  );
-  const [serverUrl, setServerUrl] = useState(() =>
-    typeof window === "undefined"
-      ? ""
-      : localStorage.getItem("tv_yt_server") || "",
-  );
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // Private server, baked in and hidden from the UI.
+  const serverUrl = PRIVATE_YT_BACKEND;
+  const ytKey = PRIVATE_YT_KEY;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<VideoDetails | null>(null);
@@ -159,106 +149,14 @@ export default function YoutubeDownloaderPage() {
   );
   const abortRef = useRef<AbortController | null>(null);
 
-  function saveApiKey(v: string) {
-    setApiKey(v);
-    try {
-      localStorage.setItem("tv_rapidapi_key", v);
-    } catch {
-      /* ignore */
-    }
-  }
-
-  function saveServerUrl(v: string) {
-    setServerUrl(v);
-    try {
-      localStorage.setItem("tv_yt_server", v);
-    } catch {
-      /* ignore */
-    }
-  }
-
-  async function fetchViaRapidApi(videoId: string, key: string) {
-    const res = await fetch(
-      `https://${RAPID_HOST}/v2/video/details?videoId=${videoId}`,
-      {
-        headers: {
-          "x-rapidapi-key": key.trim(),
-          "x-rapidapi-host": RAPID_HOST,
-        },
-        signal: abortRef.current?.signal,
-      },
-    );
-    if (res.status === 401 || res.status === 403) {
-      throw new Error("API key rejected — check the key in Advanced settings.");
-    }
-    if (res.status === 429) {
-      throw new Error(
-        "Free quota used up (100 lookups/month). It resets next month, or use your own download server below.",
-      );
-    }
-    const data = await res.json();
-    if (!res.ok || data?.errorId) {
-      throw new Error(
-        data?.message || `Lookup failed (HTTP ${res.status}).`,
-      );
-    }
-
-    const videos: ApiVideo[] = (data?.videos?.items || [])
-      .filter((v: any) => v?.url)
-      .map((v: any) => {
-        const { container, codec } = parseMime(v.mimeType);
-        return {
-          label: String(v.quality || v.qualityLabel || "?"),
-          quality: qualityNum(v.quality || v.qualityLabel),
-          url: v.url,
-          size: Number(v.size) || 0,
-          sizeLabel: fmtBytes(v.size),
-          hasAudio: !!v.hasAudio,
-          mimeType: String(v.mimeType || ""),
-          container,
-          codec,
-        };
-      })
-      .sort((a: ApiVideo, b: ApiVideo) => a.quality - b.quality);
-
-    const audios: ApiAudio[] = (data?.audios?.items || [])
-      .filter((a: any) => a?.url)
-      .map((a: any) => {
-        const { container, codec } = parseMime(a.mimeType || a.extension);
-        return {
-          label: String(
-            a.quality || a.audioQuality || a.bitrate || "Audio",
-          ),
-          url: a.url,
-          size: Number(a.size) || 0,
-          sizeLabel: fmtBytes(a.size),
-          mimeType: String(a.mimeType || a.extension || ""),
-          container,
-          codec,
-        };
-      })
-      .sort((a: ApiAudio, b: ApiAudio) => b.size - a.size);
-
-    if (!videos.length && !audios.length) {
-      throw new Error("No downloadable formats found for this video.");
-    }
-
-    setDetails({
-      title: data?.title || "video",
-      thumbnail: pickThumbnail(data),
-      duration: fmtDuration(data?.duration || data?.lengthSeconds),
-      uploader:
-        data?.channelTitle || data?.author || data?.channel?.name || null,
-      videos,
-      audios,
-    });
-    setServerResources(null);
-  }
-
   async function fetchViaServer(videoUrl: string, base: string) {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (ytKey) headers["x-api-key"] = ytKey;
     const res = await fetch(`${base}/api/info`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ url: videoUrl }),
       signal: abortRef.current?.signal,
     });
@@ -279,18 +177,11 @@ export default function YoutubeDownloaderPage() {
 
   async function fetchInfo() {
     const clean = url.trim();
-    const videoId = getVideoId(clean);
-    if (!videoId) {
+    if (!getVideoId(clean)) {
       setError("Paste a valid YouTube link first.");
       return;
     }
-    const key = apiKey.trim();
     const base = serverUrl.trim().replace(/\/+$/, "");
-    if (!key && !base) {
-      setError("Add your free API key in Advanced settings first — no server, no cookies needed.");
-      setShowAdvanced(true);
-      return;
-    }
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -300,8 +191,7 @@ export default function YoutubeDownloaderPage() {
     setServerResources(null);
 
     try {
-      if (key) await fetchViaRapidApi(videoId, key);
-      else await fetchViaServer(clean, base);
+      await fetchViaServer(clean, base);
     } catch (e) {
       if ((e as Error).name !== "AbortError") {
         setError((e as Error).message || "Lookup failed.");
@@ -317,6 +207,7 @@ export default function YoutubeDownloaderPage() {
       format_id: r.id,
       audio: r.audioOnly ? "1" : "0",
     });
+    if (ytKey) params.set("api_key", ytKey);
     return `${serverUrl.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
   }
 
@@ -576,69 +467,6 @@ export default function YoutubeDownloaderPage() {
                 </div>
               </>
             ) : null}
-          </div>
-        ) : null}
-
-        <button
-          type="button"
-          onClick={() => setShowAdvanced((v) => !v)}
-          className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-slate-500 transition hover:text-slate-300"
-        >
-          <Settings2 className="h-4 w-4" />
-          Advanced settings
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
-          />
-        </button>
-        {showAdvanced ? (
-          <div className="mt-3 space-y-4">
-            <label className="block">
-              <span className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-300 light:text-slate-700">
-                <KeyRound className="h-4 w-4" />
-                RapidAPI key (free)
-              </span>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => saveApiKey(e.target.value)}
-                placeholder="paste your RapidAPI key"
-                className={inputClass}
-                autoComplete="off"
-              />
-            </label>
-            <p className="-mt-2 text-xs leading-5 text-slate-500">
-              Get one free at{" "}
-              <a
-                href="https://rapidapi.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-slate-300"
-              >
-                rapidapi.com
-              </a>{" "}
-              → search “YouTube Media Downloader” → subscribe to the free plan
-              (100 lookups/month, no credit card) → copy the key. It stays in
-              your browser only.
-            </p>
-            <label className="block">
-              <span className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-300 light:text-slate-700">
-                <Server className="h-4 w-4" />
-                Your own download server (optional)
-              </span>
-              <input
-                type="url"
-                value={serverUrl}
-                onChange={(e) => saveServerUrl(e.target.value)}
-                placeholder="https://your-yt-backend.onrender.com"
-                className={inputClass}
-                inputMode="url"
-              />
-            </label>
-            <p className="-mt-2 text-xs leading-5 text-slate-500">
-              Only needed if you run out of free API lookups — the yt-backend
-              from the Toolverse download-server pack works as a fallback
-              (no cookies needed).
-            </p>
           </div>
         ) : null}
 

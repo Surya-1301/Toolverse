@@ -5,12 +5,10 @@ import Link from "next/link";
 import {
   ArrowLeft,
   Check,
-  ChevronDown,
   ClipboardPaste,
   Download,
   Eraser,
   Film,
-  KeyRound,
   Link2,
   Loader2,
   Settings2,
@@ -18,15 +16,17 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { TurnstileChallenge } from "@/components/TurnstileChallenge";
-import { ServerRequiredCard } from "@/components/ServerRequiredCard";
 import {
-  DEFAULT_COBALT_API,
   cobaltErrorMessage,
   looksLikeUrl,
   type CobaltPickerItem,
   type CobaltResponse,
 } from "@/lib/cobalt";
 import { useCobaltDownloader } from "@/lib/useCobalt";
+import {
+  PRIVATE_COBALT_API,
+  PRIVATE_COBALT_KEY,
+} from "@/lib/downloadServers";
 
 function BackToToolsLink() {
   return (
@@ -45,9 +45,9 @@ const inputClass =
 
 export default function InstagramReelsDownloaderPage() {
   const [url, setUrl] = useState("");
-  const [apiBase, setApiBase] = useState(DEFAULT_COBALT_API);
-  const [apiKey, setApiKey] = useState("");
-  const [showAdvanced, setShowAdvanced] = useState(false);
+  // Private server, baked in and hidden from the UI.
+  const apiBase = PRIVATE_COBALT_API;
+  const apiKey = PRIVATE_COBALT_KEY;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<CobaltPickerItem[]>([]);
@@ -219,23 +219,10 @@ export default function InstagramReelsDownloaderPage() {
           </div>
         ) : null}
 
-        {cobalt.authState === "needs-server" ? (
-          <ServerRequiredCard
-            apiBase={apiBase}
-            apiKey={apiKey}
-            onApiBaseChange={(v) => {
-              setApiBase(v);
-              cobalt.resetChallenge();
-            }}
-            onApiKeyChange={setApiKey}
-            onRetry={fetchDownload}
-          />
-        ) : null}
-
         {cobalt.authState === "key-error" ? (
           <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-200 light:text-red-700">
-            The server rejected your API key. Check it in Advanced settings and
-            try again.
+            The download server rejected the request. Please try again in a
+            moment.
           </div>
         ) : null}
 
@@ -281,66 +268,6 @@ export default function InstagramReelsDownloaderPage() {
             <p className="text-xs text-slate-500">
               If it opens in a new tab instead of downloading, use your
               browser&apos;s save option there.
-            </p>
-          </div>
-        ) : null}
-
-        <button
-          type="button"
-          onClick={() => setShowAdvanced((v) => !v)}
-          className="mt-5 inline-flex items-center gap-2 text-xs font-semibold text-slate-500 transition hover:text-slate-300"
-        >
-          <Settings2 className="h-4 w-4" />
-          Advanced: API instance
-          <ChevronDown
-            className={`h-4 w-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`}
-          />
-        </button>
-        {showAdvanced ? (
-          <div className="mt-3 space-y-4">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-slate-300 light:text-slate-700">
-                Download API instance
-              </span>
-              <input
-                type="url"
-                value={apiBase}
-                onChange={(e) => {
-                  setApiBase(e.target.value);
-                  cobalt.resetChallenge();
-                }}
-                placeholder={DEFAULT_COBALT_API}
-                className={inputClass}
-                inputMode="url"
-              />
-            </label>
-            <label className="block">
-              <span className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-slate-300 light:text-slate-700">
-                <KeyRound className="h-4 w-4" />
-                API key (optional)
-              </span>
-              <input
-                type="password"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                placeholder="Only if your instance requires an API key"
-                className={inputClass}
-                autoComplete="off"
-              />
-            </label>
-            <p className="text-xs leading-5 text-slate-500">
-              Powered by the open-source cobalt API. If the default instance is
-              down or rate-limited, paste another public instance URL here
-              (see{" "}
-              <a
-                href="https://github.com/imputnet/cobalt"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-slate-300"
-              >
-                imputnet/cobalt
-              </a>{" "}
-              for the instance list).
             </p>
           </div>
         ) : null}
