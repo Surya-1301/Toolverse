@@ -1,9 +1,3 @@
-/**
- * Central catalog of SEO metadata + FAQ schema for every Toolverse tool.
- * Each layout.tsx imports its entry — edit here to update titles,
- * descriptions, and FAQ content site-wide.
- */
-
 export type ToolSeo = {
   slug: string;
   title: string;
@@ -30,6 +24,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Are my audio files uploaded to a server?",
         a: "No. Conversion happens locally in your browser, so your files never leave your device.",
       },
+      {
+        q: "Can I convert multiple audio files at once?",
+        a: "Yes, queue up several audio files and convert them one after another without reloading the page.",
+      },
+      {
+        q: "Does converting audio reduce its quality?",
+        a: "Quality depends on the target format and bitrate. Converting between lossless formats keeps full quality, while MP3 and OGG apply compression to shrink file size.",
+      },
     ],
   },
   "background-remover": {
@@ -49,6 +51,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "What image formats are supported?",
         a: "You can upload JPG, PNG, and WEBP images and download the result as a transparent PNG.",
+      },
+      {
+        q: "Do I need to sign up to remove backgrounds?",
+        a: "No signup or account is needed — open the tool, upload an image, and download the result.",
+      },
+      {
+        q: "Does the background remover work on mobile?",
+        a: "Yes, it works in any modern mobile or desktop browser with no app install required.",
       },
     ],
   },
@@ -70,6 +80,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is Base64 encoding secure?",
         a: "Base64 is an encoding, not encryption. It is not secure for protecting data, but it is useful for safe data transfer.",
       },
+      {
+        q: "Is there a size limit for Base64 conversion?",
+        a: "No hard limit — text of any practical length converts instantly, and files are processed locally in your browser.",
+      },
+      {
+        q: "Does Base64 encoding work offline?",
+        a: "Yes, once the page loads, all encoding and decoding runs locally so it works without an internet connection.",
+      },
     ],
   },
   "case-converter": {
@@ -89,6 +107,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Does case conversion happen in my browser?",
         a: "Yes, all conversion is done locally on your device so your text is never uploaded.",
+      },
+      {
+        q: "Is there a character limit for case conversion?",
+        a: "No, paste anything from a single word to a full document and convert it instantly.",
+      },
+      {
+        q: "Can I convert code variable names with this tool?",
+        a: "Yes, camelCase, PascalCase, snake_case, and kebab-case outputs are handy for renaming variables and identifiers.",
       },
     ],
   },
@@ -110,6 +136,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Can I preview the color?",
         a: "Yes, the tool shows a live color preview alongside the converted values.",
       },
+      {
+        q: "Can I copy the converted color values?",
+        a: "Yes, every converted HEX, RGB, and HSL value has a one-click copy button.",
+      },
+      {
+        q: "Does the color converter work on mobile?",
+        a: "Yes, it is fully responsive and works in any modern mobile or desktop browser.",
+      },
     ],
   },
   "credit-card-generator": {
@@ -130,6 +164,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Which card brands are supported?",
         a: "Visa, Mastercard, American Express, and Discover test numbers can be generated.",
       },
+      {
+        q: "Can I use generated cards for real purchases?",
+        a: "No. They are dummy numbers for testing checkout forms and validation logic only.",
+      },
+      {
+        q: "Is the credit card generator free?",
+        a: "Yes, generating test card numbers is completely free with no signup.",
+      },
     ],
   },
   "css-formatter": {
@@ -145,6 +187,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is my CSS sent to a server?",
         a: "No, all formatting runs locally in your browser for complete privacy.",
+      },
+      {
+        q: "Can I minify CSS as well as format it?",
+        a: "Yes, switch between beautify mode for readable code and minify mode for smaller production files.",
+      },
+      {
+        q: "Does the CSS formatter work offline?",
+        a: "Yes, once the page loads, all formatting runs locally with no internet connection needed.",
       },
       {
         q: "Is the CSS tool free?",
@@ -170,6 +220,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the CSV and JSON converter free?",
         a: "Yes, completely free with no limits or signup required.",
       },
+      {
+        q: "Does it handle headers and custom delimiters?",
+        a: "Yes, the first row is treated as headers and you can switch between comma, semicolon, tab, and pipe delimiters.",
+      },
+      {
+        q: "Is my data uploaded anywhere?",
+        a: "No, all conversion runs locally in your browser so your data stays private.",
+      },
     ],
   },
   "domain-lookup": {
@@ -189,6 +247,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Do I need an account?",
         a: "No account is required — just enter a domain and get results instantly.",
+      },
+      {
+        q: "Why is some WHOIS data hidden or redacted?",
+        a: "Registrars mask personal contact details to comply with privacy regulations like GDPR.",
+      },
+      {
+        q: "Can I check if a domain is available to register?",
+        a: "Yes, if no registration records are found the domain is likely available for purchase.",
       },
     ],
   },
@@ -210,6 +276,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is my text uploaded anywhere?",
         a: "No, everything runs locally in your browser so your data stays private.",
       },
+      {
+        q: "Is duplicate removal case-sensitive?",
+        a: "By default lines must match exactly, with options to ignore case or extra whitespace.",
+      },
+      {
+        q: "Can I sort lines while removing duplicates?",
+        a: "Yes, enable sorting to alphabetize the cleaned list in one step.",
+      },
     ],
   },
   "email-phone-iban-validator": {
@@ -229,6 +303,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Do validations use live checks?",
         a: "Format and checksum validation runs locally; email deliverability is not guaranteed by format checks alone.",
+      },
+      {
+        q: "Which countries are supported for phone and IBAN checks?",
+        a: "Phone validation covers international formats with country detection, and IBAN checks support all official IBAN-registry countries.",
+      },
+      {
+        q: "Is my input uploaded anywhere?",
+        a: "No, all validation runs locally in your browser so your data never leaves your device.",
       },
     ],
   },
@@ -250,6 +332,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is Excel to CSV conversion free?",
         a: "Yes, the converter is completely free with no file size limits enforced.",
       },
+      {
+        q: "Which Excel formats are supported?",
+        a: "Both modern XLSX and legacy XLS workbooks are supported, including multi-sheet files.",
+      },
+      {
+        q: "Are my spreadsheets uploaded to a server?",
+        a: "No, files are parsed locally in your browser so your data never leaves your device.",
+      },
     ],
   },
   "fake-address-generator": {
@@ -269,6 +359,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the generator free?",
         a: "Yes, you can generate unlimited random addresses for free.",
+      },
+      {
+        q: "Which countries are supported?",
+        a: "Addresses can be generated for the US, UK, Canada, Australia, India, and many more countries.",
+      },
+      {
+        q: "Can I generate addresses in bulk?",
+        a: "Yes, generate multiple addresses at once and copy or export the whole list.",
       },
     ],
   },
@@ -290,6 +388,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the favicon generator free?",
         a: "Yes, it is completely free with no watermark.",
       },
+      {
+        q: "Which file formats can I upload?",
+        a: "PNG, JPG, SVG, and WEBP images all work as favicon sources.",
+      },
+      {
+        q: "Will the favicon work in all browsers?",
+        a: "Yes, the bundle includes ICO plus PNG sizes so it displays in every modern browser.",
+      },
     ],
   },
   "file-share": {
@@ -309,6 +415,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is there a file size limit?",
         a: "Free uploads include a generous size limit, with larger options available for heavier files.",
+      },
+      {
+        q: "How long do file links last?",
+        a: "You choose the expiry when uploading, from one hour up to never expiring.",
+      },
+      {
+        q: "Do I need an account to share files?",
+        a: "No account or signup is needed — upload a file and share the link instantly.",
       },
     ],
   },
@@ -330,6 +444,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is hash generation free?",
         a: "Yes, generate unlimited hashes for free with no limits.",
       },
+      {
+        q: "Are hashes reversible?",
+        a: "No, hashes are one-way — the original text cannot be recovered from a hash value.",
+      },
+      {
+        q: "Can I compare two hashes?",
+        a: "Yes, generate a hash and compare it against a known value to verify data integrity.",
+      },
     ],
   },
   "html-formatter": {
@@ -349,6 +471,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the HTML formatter free?",
         a: "Yes, completely free with unlimited formatting.",
+      },
+      {
+        q: "Can I minify HTML as well as format it?",
+        a: "Yes, switch between beautify mode for readable code and minify mode for smaller production files.",
+      },
+      {
+        q: "Does the HTML formatter work offline?",
+        a: "Yes, once the page loads, all formatting runs locally with no internet connection needed.",
       },
     ],
   },
@@ -370,6 +500,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the HTTP tester free?",
         a: "Yes, it is free to use with unlimited requests while testing locally.",
       },
+      {
+        q: "Can I add authentication headers?",
+        a: "Yes, add any custom headers including Authorization bearer tokens and API keys.",
+      },
+      {
+        q: "Is my request data stored anywhere?",
+        a: "No, requests go straight from your browser to the target URL and nothing is logged.",
+      },
     ],
   },
   "image-blur": {
@@ -389,6 +527,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the image blur tool free?",
         a: "Yes, it is completely free and all processing happens in your browser.",
+      },
+      {
+        q: "Can I blur only part of an image?",
+        a: "Yes, brush over specific areas to blur faces, plates, or text while keeping the rest sharp.",
+      },
+      {
+        q: "Are my images uploaded to a server?",
+        a: "No, blurring happens locally in your browser so your photos never leave your device.",
       },
     ],
   },
@@ -410,6 +556,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is image compression free?",
         a: "Yes, compress unlimited images for free with no signup or watermark.",
       },
+      {
+        q: "Which image formats are supported?",
+        a: "JPG, PNG, WEBP, and AVIF images can all be compressed right in your browser.",
+      },
+      {
+        q: "Are my images uploaded anywhere?",
+        a: "No, compression runs locally on your device so your photos stay private.",
+      },
     ],
   },
   "image-converter": {
@@ -429,6 +583,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the image converter free?",
         a: "Yes, completely free with unlimited conversions.",
+      },
+      {
+        q: "Will converting change my image quality?",
+        a: "Converting between lossless formats keeps full quality, while JPG and WEBP targets let you balance quality and size.",
+      },
+      {
+        q: "Are my images uploaded to a server?",
+        a: "No, all conversion happens locally in your browser so your images never leave your device.",
       },
     ],
   },
@@ -450,6 +612,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Can I hotlink hosted images?",
         a: "Yes, you can use the direct image URL in forums, websites, and embeds.",
       },
+      {
+        q: "How long are hosted images kept?",
+        a: "You pick the expiry when uploading, from one hour to indefinitely.",
+      },
+      {
+        q: "Is there a file size limit for uploads?",
+        a: "Yes, a generous per-file size limit applies so images load fast everywhere they are embedded.",
+      },
     ],
   },
   "image-placeholder": {
@@ -469,6 +639,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the placeholder generator free?",
         a: "Yes, it is completely free with unlimited generation.",
+      },
+      {
+        q: "Can I customize colors and text?",
+        a: "Yes, set any width, height, background and text colors, plus custom label text.",
+      },
+      {
+        q: "How do I embed a placeholder in my HTML?",
+        a: "Copy the generated image URL straight into an img tag or use it as a CSS background.",
       },
     ],
   },
@@ -490,6 +668,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the resizer free?",
         a: "Yes, resize and crop unlimited images for free in your browser.",
       },
+      {
+        q: "Will resizing reduce my image quality?",
+        a: "Downsizing keeps sharp results, while enlarging beyond the original size can soften details.",
+      },
+      {
+        q: "Are my images uploaded anywhere?",
+        a: "No, resizing and cropping run locally in your browser so your photos stay private.",
+      },
     ],
   },
   "image-to-base64": {
@@ -509,6 +695,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is image to Base64 conversion free?",
         a: "Yes, completely free with no file size limits for reasonable images.",
+      },
+      {
+        q: "Is there a file size limit?",
+        a: "No hard limit, but very large images produce very long strings — compress first for embedding.",
+      },
+      {
+        q: "Does conversion happen locally?",
+        a: "Yes, your image is encoded in the browser and never uploaded to any server.",
       },
     ],
   },
@@ -530,6 +724,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the upscaler free?",
         a: "Yes, upscaling is free for images within the supported size limits.",
       },
+      {
+        q: "Which image formats can I upscale?",
+        a: "JPG, PNG, and WEBP images are supported, up to the maximum input resolution.",
+      },
+      {
+        q: "Are my images uploaded to a server?",
+        a: "Processing runs through the Toolverse image API over HTTPS, and temporary copies are deleted afterward.",
+      },
     ],
   },
   "image-watermark-tool": {
@@ -549,6 +751,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the watermark tool free?",
         a: "Yes, completely free with no watermark added by Toolverse itself.",
+      },
+      {
+        q: "Can I use my own logo as a watermark?",
+        a: "Yes, upload any PNG logo and place it with adjustable opacity, size, and position.",
+      },
+      {
+        q: "Are my images uploaded anywhere?",
+        a: "No, watermarking runs locally in your browser so your photos never leave your device.",
       },
     ],
   },
@@ -570,6 +780,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the IP lookup tool free?",
         a: "Yes, unlimited IP lookups are completely free.",
       },
+      {
+        q: "Can I look up any IP address?",
+        a: "Yes, enter any public IPv4 or IPv6 address to see its location, ISP, and network details.",
+      },
+      {
+        q: "Is my own IP stored when I use this tool?",
+        a: "No, lookups are stateless and neither your IP nor your queries are stored.",
+      },
     ],
   },
   "javascript-formatter": {
@@ -589,6 +807,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the JavaScript formatter free?",
         a: "Yes, completely free with unlimited formatting.",
+      },
+      {
+        q: "Can I minify JavaScript as well as format it?",
+        a: "Yes, switch between beautify mode for readable code and minify mode for smaller production files.",
+      },
+      {
+        q: "Does the JavaScript formatter work offline?",
+        a: "Yes, once the page loads, all formatting runs locally with no internet connection needed.",
       },
     ],
   },
@@ -610,6 +836,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is JSON formatting free?",
         a: "Yes, completely free with no limits and full browser-side privacy.",
       },
+      {
+        q: "Can I minify JSON as well as format it?",
+        a: "Yes, use minify mode to strip whitespace for compact payloads, or format mode for readable output.",
+      },
+      {
+        q: "Is my JSON uploaded anywhere?",
+        a: "No, all parsing and formatting runs locally in your browser so your data stays private.",
+      },
     ],
   },
   "json-xml-converter": {
@@ -629,6 +863,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the JSON XML converter free?",
         a: "Yes, completely free with unlimited conversions.",
+      },
+      {
+        q: "Can I customize the XML root element?",
+        a: "Yes, set a custom root tag name and control how arrays and attributes are converted.",
+      },
+      {
+        q: "Is my data uploaded anywhere?",
+        a: "No, all conversion runs locally in your browser so your data stays private.",
       },
     ],
   },
@@ -650,6 +892,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is JWT decoding free?",
         a: "Yes, completely free and done locally in your browser.",
       },
+      {
+        q: "Is my token sent to a server?",
+        a: "No, decoding happens entirely in your browser so your tokens stay private.",
+      },
+      {
+        q: "What happens if a token is expired?",
+        a: "The tool still decodes the payload and flags the expiry claim so you can inspect it.",
+      },
     ],
   },
   "lorem-ipsum-generator": {
@@ -669,6 +919,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the lorem ipsum generator free?",
         a: "Yes, generate unlimited placeholder text for free.",
+      },
+      {
+        q: "Can I generate paragraphs, sentences, or words?",
+        a: "Yes, choose the unit type and how many you need for your mockup.",
+      },
+      {
+        q: "Does the generator work offline?",
+        a: "Yes, once the page loads, text generation runs locally with no internet needed.",
       },
     ],
   },
@@ -690,6 +948,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is Markdown to HTML conversion free?",
         a: "Yes, completely free with live preview as you type.",
       },
+      {
+        q: "Is my Markdown uploaded anywhere?",
+        a: "No, conversion runs locally in your browser so your documents stay private.",
+      },
+      {
+        q: "Can I preview the rendered output?",
+        a: "Yes, a live preview shows the formatted result side by side as you type.",
+      },
     ],
   },
   "markdown-to-pdf": {
@@ -709,6 +975,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is Markdown to PDF free?",
         a: "Yes, the converter is completely free to use.",
+      },
+      {
+        q: "Can I customize the PDF styling?",
+        a: "Yes, adjust page size, margins, and theme before exporting your document.",
+      },
+      {
+        q: "Are my documents uploaded anywhere?",
+        a: "No, PDF generation happens locally in your browser so your content stays private.",
       },
     ],
   },
@@ -730,6 +1004,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the OG image generator free?",
         a: "Yes, generate unlimited share images for free.",
       },
+      {
+        q: "Which templates are available?",
+        a: "Pick from blog, product, announcement, and minimal templates, each fully customizable.",
+      },
+      {
+        q: "Can I use my own fonts and images?",
+        a: "Yes, upload background images and brand assets to match your site design.",
+      },
     ],
   },
   "password-generator": {
@@ -749,6 +1031,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the password generator free and secure?",
         a: "Yes, free, and generation happens entirely in your browser — no passwords are sent to any server.",
+      },
+      {
+        q: "What password length should I use?",
+        a: "Use at least 16 characters with mixed character types for strong, secure passwords.",
+      },
+      {
+        q: "Are generated passwords stored anywhere?",
+        a: "No, passwords are created locally in your browser and never sent or stored.",
       },
     ],
   },
@@ -770,6 +1060,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the strength checker free?",
         a: "Yes, completely free with unlimited checks.",
       },
+      {
+        q: "What makes a password strong?",
+        a: "Length plus a mix of upper and lowercase letters, numbers, and symbols — ideally over 60 bits of entropy.",
+      },
+      {
+        q: "Can I test multiple passwords?",
+        a: "Yes, type or paste a new password any time to get an instant fresh analysis.",
+      },
     ],
   },
   paste: {
@@ -789,6 +1087,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the paste service free?",
         a: "Yes, creating pastes is completely free.",
+      },
+      {
+        q: "How long do pastes last?",
+        a: "You choose the expiry when creating a paste, from one hour up to never expiring.",
+      },
+      {
+        q: "Can I edit a paste after creating it?",
+        a: "Yes, reopen your paste from recent history and save an updated version.",
       },
     ],
   },
@@ -810,6 +1116,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is PDF editing free?",
         a: "Yes, the core PDF editor is completely free to use.",
       },
+      {
+        q: "Are my PDFs uploaded to a server?",
+        a: "No, all editing happens locally in your browser so your documents stay private.",
+      },
+      {
+        q: "Do I need to sign up to edit PDFs?",
+        a: "No account is needed — open the editor and start working on your PDF instantly.",
+      },
     ],
   },
   "pdf-to-markdown": {
@@ -829,6 +1143,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the converter free?",
         a: "Yes, PDF to Markdown conversion is completely free.",
+      },
+      {
+        q: "Are my PDFs uploaded to a server?",
+        a: "Files are processed securely over HTTPS and temporary copies are deleted afterward.",
+      },
+      {
+        q: "How long does conversion take?",
+        a: "Most documents convert in seconds, with larger files taking a little longer.",
       },
     ],
   },
@@ -850,6 +1172,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the QR generator free?",
         a: "Yes, generate unlimited QR codes for free and download them in PNG or SVG.",
       },
+      {
+        q: "Can I download the QR code as PNG or SVG?",
+        a: "Yes, export your QR code in either format with a single click.",
+      },
+      {
+        q: "Do QR codes expire?",
+        a: "No, codes encoding text or URLs work forever since the data lives inside the code itself.",
+      },
     ],
   },
   "random-string-generator": {
@@ -869,6 +1199,70 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the generator free?",
         a: "Yes, generate unlimited random strings for free.",
+      },
+      {
+        q: "How long can the generated strings be?",
+        a: "Generate strings from a single character up to thousands of characters long.",
+      },
+      {
+        q: "Are generated strings truly random?",
+        a: "Yes, they use the browser cryptographic random generator, suitable for tokens and secrets.",
+      },
+    ],
+  },
+  "meta-tag-generator": {
+    slug: "meta-tag-generator",
+    title: "Meta Tag Generator - SEO, Open Graph & Twitter Cards",
+    description:
+      "Generate SEO meta tags, Open Graph and Twitter card tags online for free. Preview Google and social snippets, then copy the HTML head snippet with Toolverse.",
+    faq: [
+      {
+        q: "What does the meta tag generator create?",
+        a: "A ready-to-paste HTML head snippet with title, description, keywords, canonical, robots, theme-color, Open Graph and Twitter card tags.",
+      },
+      {
+        q: "Can I preview how my page looks on Google?",
+        a: "Yes, the tool shows a live Google search result preview and a social share card preview as you type.",
+      },
+      {
+        q: "Is the meta tag generator free?",
+        a: "Yes, generating meta tags is completely free and everything runs in your browser.",
+      },
+      {
+        q: "Which platforms are covered?",
+        a: "Google search results, Open Graph for Facebook and LinkedIn, and Twitter cards are all included.",
+      },
+      {
+        q: "Where do I paste the generated tags?",
+        a: "Copy the snippet into the head section of your HTML page, before the closing head tag.",
+      },
+    ],
+  },
+  "robots-txt-generator": {
+    slug: "robots-txt-generator",
+    title: "robots.txt Generator - Create Crawl Rules Online",
+    description:
+      "Generate a robots.txt file online for free. Build per-bot allow/disallow rules, crawl delays and sitemap entries, then download robots.txt with Toolverse.",
+    faq: [
+      {
+        q: "What is a robots.txt file?",
+        a: "A text file at your domain root that tells search engine crawlers which pages they may or may not visit.",
+      },
+      {
+        q: "Where do I put the generated robots.txt?",
+        a: "Upload it to your domain root so it is served at https://yourdomain.com/robots.txt.",
+      },
+      {
+        q: "Do all bots obey robots.txt?",
+        a: "Well-behaved crawlers like Googlebot obey it. It is advisory — malicious scrapers may ignore it.",
+      },
+      {
+        q: "Can I block specific pages from crawlers?",
+        a: "Yes, add disallow rules for any path, from single pages to whole directories.",
+      },
+      {
+        q: "Is the robots.txt generator free?",
+        a: "Yes, building and downloading robots.txt files is completely free.",
       },
     ],
   },
@@ -890,6 +1284,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the regex tester free?",
         a: "Yes, it is completely free with unlimited testing.",
       },
+      {
+        q: "Which regex flavor is used?",
+        a: "Patterns run on the JavaScript regex engine, matching behavior in browsers and Node.js.",
+      },
+      {
+        q: "Is my test data uploaded anywhere?",
+        a: "No, all matching runs locally in your browser so your patterns and data stay private.",
+      },
     ],
   },
   "share-file": {
@@ -909,6 +1311,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Are my files secure?",
         a: "Yes, files are encrypted at rest and links can expire automatically.",
+      },
+      {
+        q: "How long do share links last?",
+        a: "Pick an expiry when uploading — links can last from one hour to indefinitely.",
+      },
+      {
+        q: "Is there a file size limit?",
+        a: "Yes, a generous per-file limit applies so uploads stay fast and reliable.",
       },
     ],
   },
@@ -930,6 +1340,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the SQL formatter free?",
         a: "Yes, completely free with unlimited formatting.",
       },
+      {
+        q: "Can I minify SQL as well as format it?",
+        a: "Yes, switch between readable formatting and compact minified output.",
+      },
+      {
+        q: "Is my SQL uploaded anywhere?",
+        a: "No, all formatting runs locally in your browser so your queries stay private.",
+      },
     ],
   },
   "text-compare": {
@@ -949,6 +1367,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is text comparison free?",
         a: "Yes, completely free with unlimited comparisons.",
+      },
+      {
+        q: "Is my text uploaded anywhere?",
+        a: "No, comparison runs locally in your browser so your content stays private.",
+      },
+      {
+        q: "Can I ignore whitespace when comparing?",
+        a: "Yes, toggle whitespace-insensitive mode to focus on real content differences.",
       },
     ],
   },
@@ -970,6 +1396,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the text counter free?",
         a: "Yes, completely free with no limits on text length.",
       },
+      {
+        q: "Is there a text length limit?",
+        a: "No, paste anything from a sentence to a full manuscript and get instant counts.",
+      },
+      {
+        q: "Is my text uploaded anywhere?",
+        a: "No, all counting runs locally in your browser so your content stays private.",
+      },
     ],
   },
   "text-to-speech": {
@@ -989,6 +1423,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is text to speech free?",
         a: "Yes, text to speech is completely free with no character limits.",
+      },
+      {
+        q: "Can I download the spoken audio?",
+        a: "Yes, export the narration as an audio file to reuse in videos and presentations.",
+      },
+      {
+        q: "Does text to speech work on mobile?",
+        a: "Yes, it works in any modern mobile or desktop browser with sound enabled.",
       },
     ],
   },
@@ -1010,6 +1452,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the timestamp converter free?",
         a: "Yes, completely free with instant conversion.",
       },
+      {
+        q: "Which timezones are supported?",
+        a: "Convert in UTC or your local timezone, with support for common named zones.",
+      },
+      {
+        q: "Does it handle millisecond timestamps?",
+        a: "Yes, both second and millisecond epoch values are detected and converted automatically.",
+      },
     ],
   },
   "typescript-formatter": {
@@ -1029,6 +1479,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the TypeScript formatter free?",
         a: "Yes, completely free with unlimited formatting.",
+      },
+      {
+        q: "Can I minify TypeScript as well as format it?",
+        a: "Yes, switch between beautify mode for readable code and minify mode for smaller files.",
+      },
+      {
+        q: "Does the TypeScript formatter work offline?",
+        a: "Yes, once the page loads, all formatting runs locally with no internet connection needed.",
       },
     ],
   },
@@ -1050,6 +1508,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is URL shortening free?",
         a: "Yes, shrinking links is completely free.",
       },
+      {
+        q: "Can I use a custom alias for my link?",
+        a: "Yes, pick your own short alias instead of a random code, subject to availability.",
+      },
+      {
+        q: "Do shortened links expire?",
+        a: "You choose — links can last from one hour up to permanently.",
+      },
     ],
   },
   "url-tools": {
@@ -1069,6 +1535,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the URL toolkit free?",
         a: "Yes, all URL tools are completely free.",
+      },
+      {
+        q: "Is my URL data uploaded anywhere?",
+        a: "No, all parsing and encoding runs locally in your browser.",
+      },
+      {
+        q: "Can I build query strings from scratch?",
+        a: "Yes, add key-value pairs and the tool assembles a properly encoded query string.",
       },
     ],
   },
@@ -1090,6 +1564,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the UUID generator free?",
         a: "Yes, completely free with no limits.",
       },
+      {
+        q: "What is a UUID used for?",
+        a: "UUIDs serve as unique IDs for database rows, API resources, files, and distributed systems.",
+      },
+      {
+        q: "Are generated UUIDs truly unique?",
+        a: "Yes, v4 UUIDs use cryptographic randomness making collisions practically impossible.",
+      },
     ],
   },
   "yaml-json-converter": {
@@ -1109,6 +1591,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the YAML JSON converter free?",
         a: "Yes, completely free with unlimited conversions.",
+      },
+      {
+        q: "Does it validate my YAML syntax?",
+        a: "Yes, invalid YAML shows a clear error message pointing at the problem.",
+      },
+      {
+        q: "Is my data uploaded anywhere?",
+        a: "No, all conversion runs locally in your browser so your data stays private.",
       },
     ],
   },

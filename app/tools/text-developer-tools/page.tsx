@@ -4,6 +4,7 @@ import {
   ArrowLeft,
   ArrowRight,
   AudioLines,
+  Bot,
   Braces,
   Clock,
   Fingerprint,
@@ -19,6 +20,7 @@ import {
   Send,
   ShieldCheck,
   Shuffle,
+  Tags,
   TextQuote,
   CaseSensitive,
   WalletCards,
@@ -171,7 +173,21 @@ const tools = [
     "Validate emails, phone numbers, and IBANs in one private, local tool.",
   href: "/email-phone-iban-validator",
   icon: <ShieldCheck className="h-6 w-6" />,
-},
+  },
+  {
+    title: "Meta Tag Generator",
+    description:
+      "Generate SEO meta tags, Open Graph and Twitter cards with live Google and social previews.",
+    href: "/meta-tag-generator",
+    icon: <Tags className="h-6 w-6" />,
+  },
+  {
+    title: "robots.txt Generator",
+    description:
+      "Build crawl rules, crawl delays and sitemaps, then download a ready robots.txt file.",
+    href: "/robots-txt-generator",
+    icon: <Bot className="h-6 w-6" />,
+  },
 ];
 
 function RelatedToolCard({
