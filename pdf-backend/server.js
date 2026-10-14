@@ -188,7 +188,13 @@ function getImageResolution(quality) {
     return { color: "100", gray: "100", mono: "150" };
   }
 
-  return { color: "72", gray: "72", mono: "100" };
+  if (value >= 0.05) {
+    return { color: "72", gray: "72", mono: "100" };
+  }
+
+  // Ultra tier — forces the smallest possible output when the target
+  // is tiny. Text stays vector (sharp); embedded images go to 50 dpi.
+  return { color: "50", gray: "50", mono: "72" };
 }
 
 function compressWithGhostscript(inputPath, outputPath, quality) {

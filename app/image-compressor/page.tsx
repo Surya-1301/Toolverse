@@ -47,6 +47,100 @@ function formatTargetSize(bytes: number) {
 }
 
 /*
+ * EXACT-SIZE PADDING — after compression reaches (or beats) the target,
+ * pad the file up to EXACTLY the target byte count, so the output always
+ * matches what the user typed. The padding is format-safe (decoders
+ * ignore it):
+ * - JPEG: decoders stop at the EOI marker; trailing bytes are ignored.
+ * - PNG: a valid tEXt ancillary chunk is inserted before IEND.
+ * - WebP / GIF / PDF: trailing bytes after the logical end are ignored.
+ */
+const CRC32_TABLE = (() => {
+  const table = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) {
+      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    }
+    table[n] = c;
+  }
+  return table;
+})();
+
+function crc32(bytes: Uint8Array): number {
+  let c = 0xffffffff;
+  for (let i = 0; i < bytes.length; i++) {
+    c = CRC32_TABLE[(c ^ bytes[i]) & 0xff] ^ (c >>> 8);
+  }
+  return (c ^ 0xffffffff) >>> 0;
+}
+
+function padPngToSize(
+  bytes: Uint8Array,
+  targetBytes: number,
+): Uint8Array<ArrayBuffer> {
+  const out: Uint8Array<ArrayBuffer> = new Uint8Array(targetBytes);
+  const padNeeded = targetBytes - bytes.length;
+  // tEXt chunk layout: length(4 BE) + "tEXt"(4) + keyword + 0x00 + data + crc(4 BE)
+  const keyword = [80, 97, 100, 100, 105, 110, 103]; // "Padding"
+  const overhead = 4 + 4 + keyword.length + 1 + 4;
+
+  if (padNeeded > overhead) {
+    const dataLen = padNeeded - overhead;
+    const chunk = new Uint8Array(overhead + dataLen);
+    const view = new DataView(chunk.buffer);
+    view.setUint32(0, keyword.length + 1 + dataLen);
+    chunk.set([0x74, 0x45, 0x58, 0x74], 4); // "tEXt"
+    chunk.set(keyword, 8);
+    chunk[8 + keyword.length] = 0; // null separator (data stays zero-filled)
+    const crc = crc32(chunk.subarray(4, 8 + keyword.length + 1 + dataLen));
+    view.setUint32(8 + keyword.length + 1 + dataLen, crc);
+
+    // Insert before IEND (last 12 bytes); fall back to trailing append.
+    let insertAt = bytes.length;
+    if (
+      bytes.length >= 12 &&
+      bytes[bytes.length - 12] === 0 &&
+      bytes[bytes.length - 11] === 0 &&
+      bytes[bytes.length - 10] === 0 &&
+      bytes[bytes.length - 9] === 0 &&
+      bytes[bytes.length - 8] === 0x49 && // I
+      bytes[bytes.length - 7] === 0x45 && // E
+      bytes[bytes.length - 6] === 0x4e && // N
+      bytes[bytes.length - 5] === 0x44 // D
+    ) {
+      insertAt = bytes.length - 12;
+    }
+
+    out.set(bytes.subarray(0, insertAt), 0);
+    out.set(chunk, insertAt);
+    out.set(bytes.subarray(insertAt), insertAt + chunk.length);
+    return out;
+  }
+
+  // Tiny pad: trailing zeros after IEND are ignored by decoders.
+  out.set(bytes, 0);
+  return out;
+}
+
+async function padFileToExactSize(
+  file: File,
+  targetBytes: number,
+): Promise<File> {
+  if (file.size >= targetBytes) return file;
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const padded =
+    file.type === "image/png"
+      ? padPngToSize(bytes, targetBytes)
+      : (() => {
+          const out = new Uint8Array(targetBytes);
+          out.set(bytes);
+          return out;
+        })();
+  return new File([padded], file.name, { type: file.type });
+}
+
+/*
  * HEIC CONTENT CHECK — a HEIC photo saved with a .jpg extension (common
  * for phone photos) is not detected by name/type, and the WebView cannot
  * decode HEIC at all — so sniff the ftyp box in the file header.
@@ -175,23 +269,29 @@ export default function ImageCompressorPage() {
       );
     }
 
+    let libraryError: unknown = null;
     try {
-      return await compressWithLibrary(file, targetBytes);
-    } catch (libraryError) {
+      const fromLibrary = await compressWithLibrary(file, targetBytes);
+      if (fromLibrary.size <= targetBytes) return fromLibrary;
+      // The library got close but not under target — the force path
+      // below keeps shrinking until it fits.
+    } catch (error) {
       // If the library cannot decode the file inside the WebView, fall
-      // back to a manual canvas pass (data URL decode). If that fails too,
+      // back to the force path (data URL decode). If that fails too,
       // surface the original library error.
-      try {
-        return await manualCompress(file, targetBytes);
-      } catch {
-        throw libraryError;
-      }
+      libraryError = error;
+    }
+
+    try {
+      return await forceImageToTarget(file, targetBytes);
+    } catch {
+      throw libraryError ?? new Error("Could not compress this image.");
     }
   }
 
-  // Manual canvas compression — decodes via a data URL (no blob URL, no
-  // worker), the most compatible path inside the Capacitor WebView.
-  async function manualCompress(file: File, targetBytes: number) {
+  // Decode via a data URL (no blob URL, no worker) — the most compatible
+  // path inside the Capacitor Android WebView.
+  async function decodeImageElement(file: File): Promise<HTMLImageElement> {
     const dataUrl = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
@@ -207,30 +307,66 @@ export default function ImageCompressorPage() {
       img.onerror = () =>
         reject(new Error("Image could not be decoded (data URL)"));
     });
+    return img;
+  }
 
-    let best: File | null = null;
-    for (const scale of [1, 0.75, 0.5, 0.35, 0.25]) {
-      const canvas = document.createElement("canvas");
-      canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
-      canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
-      const ctx = canvas.getContext("2d");
-      if (!ctx) throw new Error("Could not prepare image canvas.");
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const blob = await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob(resolve, "image/jpeg", 0.85),
-      );
-      if (!blob) continue;
-      const out = new File(
-        [blob],
-        file.name.replace(/\.[^/.]+$/, "") + ".jpg",
-        { type: "image/jpeg" },
-      );
-      if (!best || out.size < best.size) best = out;
-      if (out.size <= targetBytes) return out;
+  async function encodeJpegAt(
+    img: HTMLImageElement,
+    file: File,
+    scale: number,
+    quality: number,
+  ): Promise<File | null> {
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(img.naturalWidth * scale));
+    canvas.height = Math.max(1, Math.round(img.naturalHeight * scale));
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob(resolve, "image/jpeg", quality),
+    );
+    if (!blob) return null;
+    return new File([blob], file.name.replace(/\.[^/.]+$/, "") + ".jpg", {
+      type: "image/jpeg",
+    });
+  }
+
+  /*
+   * FORCE PATH — guarantees the output gets UNDER the target: sweep
+   * shrinking dimensions, binary-searching JPEG quality at each step for
+   * the highest quality that fits. Returns the first (largest, sharpest)
+   * hit, or the smallest result found if the target is unreachable.
+   */
+  async function forceImageToTarget(
+    file: File,
+    targetBytes: number,
+  ): Promise<File> {
+    const img = await decodeImageElement(file);
+    let smallest: File | null = null;
+
+    for (const scale of [1, 0.75, 0.5, 0.35, 0.25, 0.18, 0.12, 0.08, 0.05]) {
+      let low = 0.02;
+      let high = 0.95;
+      let hit: File | null = null;
+
+      for (let i = 0; i < 7; i++) {
+        const quality = (low + high) / 2;
+        const out = await encodeJpegAt(img, file, scale, quality);
+        if (!out) break;
+        if (!smallest || out.size < smallest.size) smallest = out;
+        if (out.size <= targetBytes) {
+          hit = out;
+          low = quality; // fits — try a higher quality
+        } else {
+          high = quality; // too big — go lower
+        }
+      }
+
+      if (hit) return hit;
     }
 
-    if (!best) throw new Error("Manual compression produced no output.");
-    return best;
+    if (!smallest) throw new Error("Could not encode this image.");
+    return smallest;
   }
 
   async function compressWithLibrary(file: File, targetBytes: number) {
@@ -267,7 +403,9 @@ export default function ImageCompressorPage() {
   async function compressPdf(file: File, targetBytes: number) {
     let bestBlob: Blob | null = null;
 
-    const qualities = [0.6, 0.35, 0.1];
+    // Sweep from gentle to ultra — the backend maps < 0.05 to a 50 dpi
+    // ultra tier, so tiny targets are reachable.
+    const qualities = [0.6, 0.35, 0.1, 0.04, 0.01];
 
     for (const attemptQuality of qualities) {
       try {
@@ -388,7 +526,10 @@ export default function ImageCompressorPage() {
       );
       setPreviewUrl(setCompressedPreview, compressedPreview, originalFile);
       setTargetSizeHit(true);
-      setFeedback(null);
+      setFeedback({
+        type: "success",
+        message: `Already under ${formatTargetSize(targetBytes)} — no compression needed.`,
+      });
       return;
     }
 
@@ -402,31 +543,32 @@ export default function ImageCompressorPage() {
           ? await compressImage(originalFile, targetBytes)
           : await compressPdf(originalFile, targetBytes);
 
-      setCompressedFile(compressed);
+      // Force the exact value the user typed: pad up to the target byte
+      // count with format-safe padding (decoders ignore it).
+      const exactSized =
+        compressed.size < targetBytes
+          ? await padFileToExactSize(compressed, targetBytes)
+          : compressed;
+
+      setCompressedFile(exactSized);
       setOutputFileName(
-        compressed.name.replace(/\.(pdf|jpg|jpeg|png|webp)$/i, ""),
+        exactSized.name.replace(/\.(pdf|jpg|jpeg|png|webp)$/i, ""),
       );
 
-      setPreviewUrl(setCompressedPreview, compressedPreview, compressed);
+      setPreviewUrl(setCompressedPreview, compressedPreview, exactSized);
 
-      if (compressed.size > targetBytes) {
+      if (exactSized.size > targetBytes) {
         setTargetSizeHit(false);
         setFeedback({
           type: "warning",
-          message: `Couldn't quite reach ${formatTargetSize(targetBytes)} — smallest result is ${formatFileSize(compressed.size)}. Try a larger target size.`,
+          message: `Couldn't quite reach ${formatTargetSize(targetBytes)} — smallest result is ${formatFileSize(exactSized.size)}. Try a larger target size.`,
         });
       } else {
         setTargetSizeHit(true);
-
-        if (compressed.size >= originalFile.size) {
-          setFeedback({
-            type: "warning",
-            message:
-              mode === "pdf"
-                ? "This PDF could not be reduced much. It may already be optimized."
-                : "This image could not be reduced much. Try a larger target size.",
-          });
-        }
+        setFeedback({
+          type: "success",
+          message: `Compressed to exactly ${formatTargetSize(targetBytes)}.`,
+        });
       }
     } catch (caughtError) {
       setFeedback({
@@ -855,7 +997,7 @@ export default function ImageCompressorPage() {
             {
               title: "Set target size",
               description:
-                "Optionally set a target file size in KB or MB.",
+                "Set a target file size in KB or MB — the output is forced to exactly that size.",
               icon: <ImageIcon className="h-5 w-5" />,
             },
             {
@@ -906,7 +1048,7 @@ export default function ImageCompressorPage() {
               {
                 title: "Set target size",
                 description:
-                  "Optionally set a target file size in KB or MB.",
+                  "Set a target file size in KB or MB — the output is forced to exactly that size.",
                 icon: <ImageIcon className="h-5 w-5" />,
               },
               {
