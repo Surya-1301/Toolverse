@@ -197,9 +197,27 @@ function getImageResolution(quality) {
   return { color: "50", gray: "50", mono: "72" };
 }
 
+/*
+ * JPEG recompression level for the aggressive tiers. Downsampling alone
+ * doesn't shrink already-small images — forcing JPEG (DCT) re-encoding
+ * at a low quality does (this is how pi7-style compressors hit tiny
+ * targets: text/fonts/layout stay untouched, images get re-encoded).
+ * Returns null when the presets should decide (gentle tiers).
+ */
+function getJpegQuality(quality) {
+  const value = Number(quality);
+
+  if (Number.isNaN(value)) return null;
+  if (value >= 0.35) return null;
+  if (value >= 0.05) return "50";
+
+  return "25";
+}
+
 function compressWithGhostscript(inputPath, outputPath, quality) {
   const pdfSettings = getPdfSettings(quality);
   const resolution = getImageResolution(quality);
+  const jpegQuality = getJpegQuality(quality);
 
   const args = [
     "-sDEVICE=pdfwrite",
@@ -222,9 +240,22 @@ function compressWithGhostscript(inputPath, outputPath, quality) {
     "-dColorImageDownsampleThreshold=1.0",
     "-dGrayImageDownsampleThreshold=1.0",
     "-dMonoImageDownsampleThreshold=1.0",
-    `-sOutputFile=${outputPath}`,
-    inputPath,
   ];
+
+  // Aggressive tiers: force JPEG re-encoding of color/gray images at a
+  // fixed low quality instead of letting Ghostscript auto-pick the
+  // filter. Text, fonts and layout are untouched — only images shrink.
+  if (jpegQuality !== null) {
+    args.push(
+      "-dAutoFilterColorImages=false",
+      "-dColorImageFilter=/DCTEncode",
+      "-dAutoFilterGrayImages=false",
+      "-dGrayImageFilter=/DCTEncode",
+      `-dJPEGQ=${jpegQuality}`,
+    );
+  }
+
+  args.push(`-sOutputFile=${outputPath}`, inputPath);
 
   return new Promise((resolve, reject) => {
     execFile("gs", args, { timeout: 120000 }, (error, stdout, stderr) => {
