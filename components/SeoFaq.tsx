@@ -67,9 +67,11 @@ type SeoFaqProps = {
   pageUrl: string;
   crumbs?: { name: string; url: string }[];
   pageName?: string;
+  heading?: string;
+  subheading?: string;
 };
 
-export default function SeoFaq({ faq, pageUrl, crumbs, pageName }: SeoFaqProps) {
+export default function SeoFaq({ faq, pageUrl, crumbs, pageName, heading, subheading }: SeoFaqProps) {
   // BreadcrumbList schema — tool pages get "Home > Tools > {parent} > {tool}".
   // Uses the passed trail, or derives one from the tool-slug mapping above.
   // Tools not listed in a category page get a 2-level "Home > Tools > {tool}".
@@ -141,6 +143,54 @@ export default function SeoFaq({ faq, pageUrl, crumbs, pageName }: SeoFaqProps) 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
+      {faq && faq.length > 0 ? (
+        <section
+          id="faq"
+          aria-labelledby="tool-faq-heading"
+          className="mx-auto mt-10 w-full max-w-6xl scroll-mt-24 px-4 pb-10 sm:px-6 sm:pb-14 lg:px-8"
+        >
+          <div className="text-center">
+            <p className="text-xs font-mono font-medium tracking-[0.28em] text-slate-500 light:text-slate-500">
+              FAQ
+            </p>
+            <h2
+              id="tool-faq-heading"
+              className="mt-2 text-3xl font-bold tracking-tight text-white sm:text-4xl light:text-slate-900"
+            >
+              {heading || `Frequently asked questions`}
+            </h2>
+            {subheading ? (
+              <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-400 sm:text-base light:text-slate-600">
+                {subheading}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mx-auto mt-8 max-w-3xl space-y-3">
+            {faq.map((item, index) => (
+              <details
+                key={`${item.q}-${index}`}
+                className="group rounded-2xl border border-white/10 bg-white/[0.03] transition open:border-violet-500/40 open:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:open:bg-slate-50"
+              >
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 text-left text-sm font-semibold text-white marker:hidden light:text-slate-900 [&::-webkit-details-marker]:hidden">
+                  <span>{item.q}</span>
+                  <span
+                    aria-hidden="true"
+                    className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 text-lg font-medium leading-none text-slate-300 transition group-open:rotate-45 group-open:border-violet-500/40 group-open:text-violet-300 light:border-slate-900/10 light:text-slate-500 light:group-open:text-violet-600"
+                  >
+                    +
+                  </span>
+                </summary>
+                <div className="px-5 pb-5">
+                  <p className="text-sm leading-6 text-slate-400 light:text-slate-600">
+                    {item.a}
+                  </p>
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
+      ) : null}
     </>
   );
 }
