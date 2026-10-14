@@ -1,17 +1,8 @@
-# Render.com web-service image for the YouTube backend (yt-dlp + ffmpeg).
-#
-# In the Render dashboard: New → Web Service → Docker
-#   Dockerfile Path: ./download-server/Dockerfile.yt-backend
-# (build context stays at the repo root; COPY paths below assume that)
-#
-# No env vars required — Render injects PORT and server.js reads it.
-# Free tier sleeps when idle; first request after a nap takes ~30-60s to wake.
 
 FROM node:22-slim
 
-# yt-dlp (standalone binary) + ffmpeg (merging video+audio, MP3 extraction)
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl ffmpeg ca-certificates \
+  && apt-get install -y --no-install-recommends curl ffmpeg ca-certificates python3 \
   && rm -rf /var/lib/apt/lists/* \
   && curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp \
        -o /usr/local/bin/yt-dlp \
@@ -23,9 +14,6 @@ COPY download-server/yt-backend/package*.json ./
 RUN npm install --omit=dev
 COPY download-server/yt-backend/server.js ./
 
-# Optional: bake in cookies.txt (only if YouTube ever rate-limits this IP).
-# Place the file at download-server/yt-backend/cookies.txt, then uncomment:
-# COPY download-server/yt-backend/cookies.txt ./
 
 EXPOSE 3000
 CMD ["node", "server.js"]
