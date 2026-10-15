@@ -143,13 +143,6 @@ const tools = [
     icon: <AudioLines className="h-6 w-6" />,
   },
   {
-    title: "Audio Converter",
-    description:
-      "Convert audio between MP3, WAV, and WebM right in your browser.",
-    href: "/audio-converter",
-    icon: <Waves className="h-6 w-6" />,
-  },
-  {
     title: "Domain Lookup",
     description:
       "Query DNS records or look up WHOIS ownership, registrar, status, and dates in one place.",
@@ -192,22 +185,17 @@ const tools = [
     icon: <Bot className="h-6 w-6" />,
   },
   {
-    title: "YouTube Downloader",
-    description: "Download YouTube videos as MP4 in HD or extract audio as MP3.",
-    href: "/youtube-downloader",
-    icon: <Clapperboard className="h-6 w-6" />,
+    title: "Audio Converter",
+    description:
+      "Convert audio between MP3, WAV, and WebM right in your browser.",
+    href: "/audio-converter",
+    icon: <Waves className="h-6 w-6" />,
   },
   {
     title: "Instagram Reels Downloader",
     description: "Download Instagram reels, posts and carousels in HD.",
     href: "/instagram-reels-downloader",
     icon: <Film className="h-6 w-6" />,
-  },
-  {
-    title: "Music Downloader",
-    description: "Extract audio as MP3, OGG, WAV or OPUS from video links.",
-    href: "/music-downloader",
-    icon: <Music className="h-6 w-6" />,
   },
 ];
 
