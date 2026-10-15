@@ -34,11 +34,6 @@ if (process.env.COOKIES_B64 && !fs.existsSync(COOKIES_PATH)) {
 }
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
 
-// ---- private mode: optional API key + CORS lockdown ----
-// Set API_KEY on the server (e.g. Render env var) and bake the same value
-// into the frontend (lib/downloadServers.ts). Requests without the key
-// get 401. CORS_ORIGIN restricts which sites may call the API
-// (default "*" — set it to your site, e.g. https://toolversee.pages.dev).
 const API_KEY = process.env.API_KEY || "";
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 
@@ -95,6 +90,9 @@ function runYtDlp(args, timeoutMs) {
   return new Promise((resolve, reject) => {
     const fullArgs = [
       ...(HAS_COOKIES ? ["--cookies", COOKIES_PATH] : []),
+      // Optional residential/datacenter proxy, e.g.
+      // PROXY_URL=http://user:pass@host:port  (Render: Environment tab)
+      ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       ...args,
     ];
     const proc = spawn("yt-dlp", fullArgs, { timeout: timeoutMs });
@@ -118,10 +116,6 @@ function runYtDlp(args, timeoutMs) {
   });
 }
 
-// Run yt-dlp, falling back to the Android player client when the default
-// web client is blocked ("not a bot", "format not available", etc.).
-// The Android client uses a different YouTube API surface and is far less
-// likely to be challenged.
 async function runYtDlpWithFallback(args, timeoutMs) {
   try {
     return await runYtDlp(args, timeoutMs);
@@ -210,13 +204,9 @@ function buildResources(info) {
   }
 
   const resources = [...byHeight.values()].sort((a, b) => a.quality - b.quality);
-  // Keep the standard ladder + anything higher the video actually has.
-  const standards = [144, 240, 360, 480, 720, 1080, 1440, 2160];
-  const ladder = resources.filter((r) =>
-    standards.some((s) => Math.abs(r.quality - s) <= s * 0.1),
-  );
-  const extra = resources.filter((r) => !ladder.includes(r) && r.quality > 1080);
-  const video = [...ladder, ...extra].sort((a, b) => a.quality - b.quality);
+  // Show every distinct quality the source actually has (YouTube's standard
+  // ladder as well as odd heights like Instagram's 960p).
+  const video = resources;
 
   if (bestAudio) {
     video.push({
