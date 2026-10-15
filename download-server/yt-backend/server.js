@@ -111,6 +111,26 @@ function runYtDlp(args, timeoutMs) {
   });
 }
 
+async function runYtDlpWithFallback(args, timeoutMs) {
+  try {
+    return await runYtDlp(args, timeoutMs);
+  } catch (e1) {
+    const msg = String((e1 && e1.message) || e1);
+    if (
+      !/not a bot|format is not available|page needs to be reloaded|unable to extract/i.test(
+        msg,
+      )
+    ) {
+      throw e1;
+    }
+    const r = await runYtDlp(
+      ["--extractor-args", "youtube:player_client=android", ...args],
+      timeoutMs,
+    );
+    return { ...r, fallbackClient: "android" };
+  }
+}
+
 function isValidUrl(u) {
   try {
     const p = new URL(String(u));
@@ -226,7 +246,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   }
 
   try {
-    const { stdout } = await runYtDlp(
+    const { stdout } = await runYtDlpWithFallback(
       ["--dump-json", "--no-playlist", "--no-warnings", key],
       90000,
     );
@@ -302,7 +322,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   };
 
   try {
-    await runYtDlp(
+    await runYtDlpWithFallback(
       [
         ...args,
         "--no-playlist",
