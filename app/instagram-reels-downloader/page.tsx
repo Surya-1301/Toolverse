@@ -70,8 +70,6 @@ export default function InstagramReelsDownloaderPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [items, setItems] = useState<(CobaltPickerItem & { filename?: string })[]>([]);
-  const [quality, setQuality] = useState("max");
-  const [downloadingIdx, setDownloadingIdx] = useState<number | null>(null);
   const [meta, setMeta] = useState<MediaMeta | null>(null);
   const [serverResources, setServerResources] = useState<ServerResource[] | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -146,7 +144,7 @@ export default function InstagramReelsDownloaderPage() {
 
     try {
       const res = await cobalt.download(
-        { url: clean, videoQuality: quality, filenameStyle: "pretty" },
+        { url: clean, videoQuality: "max", filenameStyle: "pretty" },
         controller.signal,
       );
       if (res === "challenge") return; // widget shown below; on solve we retry
@@ -176,28 +174,6 @@ export default function InstagramReelsDownloaderPage() {
       setError("Something went wrong — please try again.");
     } finally {
       setLoading(false);
-    }
-  }
-
-  async function directDownload(item: CobaltPickerItem & { filename?: string }, idx: number) {
-    setDownloadingIdx(idx);
-    setError(null);
-    try {
-      const res = await fetch(item.url);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = item.filename || `instagram-${Date.now()}.mp4`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setTimeout(() => URL.revokeObjectURL(blobUrl), 4000);
-    } catch {
-      window.open(item.url, "_blank", "noopener,noreferrer");
-    } finally {
-      setDownloadingIdx(null);
     }
   }
 
@@ -283,32 +259,6 @@ export default function InstagramReelsDownloaderPage() {
             <Eraser className="h-4 w-4" />
             Clear
           </button>
-        </div>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
-          <span className="text-xs text-slate-500 light:text-slate-500">Quality:</span>
-          {[
-            { id: "max", label: "Best" },
-            { id: "1080", label: "1080p" },
-            { id: "720", label: "720p" },
-            { id: "480", label: "480p" },
-          ].map((q) => (
-            <button
-              key={q.id}
-              type="button"
-              onClick={() => {
-                setQuality(q.id);
-                setItems([]);
-                setError(null);
-              }}
-              className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
-                quality === q.id
-                  ? "bg-pink-600 text-white"
-                  : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white light:bg-slate-900/5 light:text-slate-600 light:hover:bg-slate-900/10"
-              }`}
-            >
-              {q.label}
-            </button>
-          ))}
         </div>
 
         {error ? (
@@ -437,86 +387,47 @@ export default function InstagramReelsDownloaderPage() {
           </div>
         ) : null}
 
-        {items.length > 0 ? (
-          <div className="mt-4 space-y-3">
-            <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
-              <Check className="h-4 w-4" />
-              {items.length === 1
-                ? "Ready to download"
-                : `${items.length} items found — download each one`}
-            </p>
-            {items.map((item, i) => (
-              <div
-                key={item.url}
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-slate-50"
-              >
-                {item.thumb ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={item.thumb}
-                    alt={`Item ${i + 1}`}
-                    className="h-14 w-14 shrink-0 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-pink-600/20 text-pink-300">
-                    <Film className="h-6 w-6" />
-                  </div>
-                )}
-                <span className="min-w-0 flex-1 truncate text-sm text-slate-400">
-                  {item.type ? `${item.type} ` : ""}Item {i + 1}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => directDownload(item, i)}
-                  disabled={downloadingIdx === i}
-                  className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-wait disabled:opacity-60"
-                >
-                  {downloadingIdx === i ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Download className="h-4 w-4" />
-                  )}
-                  {downloadingIdx === i ? "Downloading\u2026" : "Download"}
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
       </div>
 
       <div className="mt-10">
         <HowToUse
-          title="How to use the Reels Downloader"
+          title="How to download Instagram reels"
           subtitle=""
           steps={[
             {
-              title: "Copy the reel link",
-              description: "Tap Share → Copy link on any public reel, post or video.",
-              icon: <Link2 className="h-5 w-5" />,
-            },
-            {
-              title: "Paste it above",
-              description: "Paste the Instagram URL into the field — or tap the paste button.",
-              icon: <ClipboardPaste className="h-5 w-5" />,
-            },
-            {
-              title: "Get the download link",
-              description: "Hit the button and wait a few seconds while the video is fetched.",
-              icon: <Download className="h-5 w-5" />,
-            },
-            {
-              title: "Pass the human check",
-              description: "Complete the quick verification if the server asks for it.",
-              icon: <Check className="h-5 w-5" />,
-            },
-            {
-              title: "Download in HD",
-              description: "Tap Download — carousels show one button per item.",
+              title: "Find the reel or video",
+              description:
+                "Open the Instagram app and navigate to the reel, post or video you want to save.",
               icon: <Film className="h-5 w-5" />,
             },
             {
-              title: "Respect creators",
-              description: "Only save content you own or are allowed to download.",
+              title: "Copy the link",
+              description:
+                "Tap the Share icon on the post, then choose Copy link to copy the URL to your clipboard.",
+              icon: <Link2 className="h-5 w-5" />,
+            },
+            {
+              title: "Paste the URL",
+              description:
+                "Paste the copied link into the input field above — or tap the clipboard button to paste it automatically.",
+              icon: <ClipboardPaste className="h-5 w-5" />,
+            },
+            {
+              title: "Fetch the media",
+              description:
+                "Click Get download link and wait a few seconds while the title, preview thumbnail and available qualities load.",
+              icon: <Download className="h-5 w-5" />,
+            },
+            {
+              title: "Choose quality and save",
+              description:
+                "Pick a video quality from the list — or grab the audio-only MP3 — then tap Download to save the file directly to your device.",
+              icon: <Check className="h-5 w-5" />,
+            },
+            {
+              title: "Watch offline anytime",
+              description:
+                "The video saves directly to your device — watch it anytime without internet, or share it with friends.",
               icon: <Check className="h-5 w-5" />,
             },
           ]}

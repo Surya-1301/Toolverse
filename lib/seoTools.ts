@@ -948,6 +948,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "Is the Instagram reels downloader free?",
         a: "Yes, downloading reels is completely free with no signup.",
       },
+      {
+        q: "What video quality can I download?",
+        a: "Reels download in the highest quality available, up to full HD when the source supports it.",
+      },
+      {
+        q: "Do I need an Instagram account to download reels?",
+        a: "No, just paste the public reel or post link — no login or account needed.",
+      },
     ],
   },
   "music-downloader": {
@@ -968,6 +976,14 @@ export const toolSeo: Record<string, ToolSeo> = {
         q: "What audio quality can I choose?",
         a: "Bitrates from 96 kbps up to 320 kbps in MP3, OGG, OPUS or WAV formats.",
       },
+      {
+        q: "Is the music downloader free?",
+        a: "Yes, extracting audio is completely free with no signup. Only download tracks you own or have permission to keep.",
+      },
+      {
+        q: "Does it work on mobile?",
+        a: "Yes, paste a link and download the audio straight from any modern mobile or desktop browser.",
+      },
     ],
   },
   "youtube-downloader": {
@@ -987,6 +1003,14 @@ export const toolSeo: Record<string, ToolSeo> = {
       {
         q: "Is the YouTube downloader free?",
         a: "Yes, it is completely free with no signup. Only download videos you own or have permission to keep.",
+      },
+      {
+        q: "What video qualities are available?",
+        a: "MP4 downloads from 360p up to 1080p, depending on the source video's available resolutions.",
+      },
+      {
+        q: "Does it work on mobile?",
+        a: "Yes, paste a link and download directly from any modern mobile or desktop browser.",
       },
     ],
   },

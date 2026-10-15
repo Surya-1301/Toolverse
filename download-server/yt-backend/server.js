@@ -90,8 +90,6 @@ function runYtDlp(args, timeoutMs) {
   return new Promise((resolve, reject) => {
     const fullArgs = [
       ...(HAS_COOKIES ? ["--cookies", COOKIES_PATH] : []),
-      // Optional residential/datacenter proxy, e.g.
-      // PROXY_URL=http://user:pass@host:port  (Render: Environment tab)
       ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       ...args,
     ];
@@ -280,7 +278,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
 
 // Download a specific resource (or auto-pick by quality / audio flag).
 app.get("/api/download", rateLimit(20), async (req, res) => {
-  const { url, format_id, quality, audio } = req.query;
+  const { url, format_id, quality, audio, audio_format } = req.query;
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
   }
@@ -290,7 +288,10 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
 
   let args;
   if (audioOnly) {
-    args = ["-x", "--audio-format", "mp3", "--audio-quality", "0"];
+    const af = ["mp3", "ogg", "opus", "wav", "m4a"].includes(String(audio_format))
+      ? String(audio_format)
+      : "mp3";
+    args = ["-x", "--audio-format", af, "--audio-quality", "0"];
   } else if (format_id && /^[A-Za-z0-9_-]+$/.test(String(format_id))) {
     // Exact resource from /api/info; merge with best audio when needed.
     args = [
