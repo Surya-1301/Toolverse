@@ -19,6 +19,8 @@ const MAX_MS = Number(process.env.MAX_MINUTES || 10) * 60 * 1000;
 const CACHE_MS = Number(process.env.CACHE_MIN || 10) * 60 * 1000;
 const COOKIES_PATH = path.join(__dirname, "cookies.txt");
 
+// Cookies can also arrive via env var (base64) — the safe way on Render,
+// so the file never has to live in a public git repo.
 if (process.env.COOKIES_B64 && !fs.existsSync(COOKIES_PATH)) {
   try {
     fs.writeFileSync(
@@ -32,6 +34,11 @@ if (process.env.COOKIES_B64 && !fs.existsSync(COOKIES_PATH)) {
 }
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
 
+// ---- private mode: optional API key + CORS lockdown ----
+// Set API_KEY on the server (e.g. Render env var) and bake the same value
+// into the frontend (lib/downloadServers.ts). Requests without the key
+// get 401. CORS_ORIGIN restricts which sites may call the API
+// (default "*" — set it to your site, e.g. https://toolversee.pages.dev).
 const API_KEY = process.env.API_KEY || "";
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
 
@@ -111,6 +118,10 @@ function runYtDlp(args, timeoutMs) {
   });
 }
 
+// Run yt-dlp, falling back to the Android player client when the default
+// web client is blocked ("not a bot", "format not available", etc.).
+// The Android client uses a different YouTube API surface and is far less
+// likely to be challenged.
 async function runYtDlpWithFallback(args, timeoutMs) {
   try {
     return await runYtDlp(args, timeoutMs);
