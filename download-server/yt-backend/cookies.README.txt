@@ -1,13 +1,29 @@
-# How to create cookies.txt (do this in YOUR browser, logged into YouTube):
+# cookies.txt — only needed when YouTube blocks your server's IP
+# ("Sign in to confirm you're not a bot"). Your own logged-in cookies make
+# YouTube treat the server like your browser.
 #
-# 1. Install the "Get cookies.txt LOCALLY" extension (Chrome/Firefox).
-# 2. Go to youtube.com and make sure you're logged in.
-# 3. Click the extension → Export → saves cookies.txt.
-# 4. Place that file next to server.js as "cookies.txt" (exact name).
-#    - Docker Compose: mount it (see docker-compose.yml) or COPY it in the Dockerfile.
-#    - Render: upload via dashboard file / secret file, or bake into the image.
+# ⚠️  SECURITY: cookies.txt is your Google login session. NEVER commit it to
+# a public git repo — anyone with it can hijack your Google account.
 #
-# Why: YouTube blocks anonymous datacenter IPs ("Sign in to confirm you're
-# not a bot"). Requests authenticated with YOUR cookies are trusted far more.
-# Keep this file private — it grants access to your YouTube account.
-# Refresh it when downloads start failing (cookies expire).
+# RECOMMENDED — Render secret env var (nothing in git):
+# 1. In your desktop browser, while logged into YouTube, export cookies with
+#    the "Get cookies.txt LOCALLY" extension (Chrome/Firefox).
+# 2. Base64-encode the file:
+#      macOS:   base64 -i cookies.txt | pbcopy
+#      Linux:   base64 -w0 cookies.txt | xclip -selection clipboard
+#      Windows (PowerShell):
+#        [Convert]::ToBase64String([IO.File]::ReadAllBytes("cookies.txt")) | Set-Clipboard
+# 3. Render dashboard → your yt-backend service → Environment → add:
+#      COOKIES_B64 = <paste the base64 string>
+#    Save — the service redeploys and picks the cookies up automatically.
+# 4. Verify: open https://<your-service>.onrender.com/ — it should now show
+#    "cookies": true.
+#
+# LOCAL / Docker Compose alternative (private server only):
+#   Place the exported file next to server.js as "cookies.txt" (exact name)
+#   and uncomment the cookies volume line in docker-compose.yml.
+#   Do NOT do this if the folder is pushed to a public repo.
+#
+# Refresh the cookies when downloads start failing again (they expire).
+# To remove cookies later: delete the COOKIES_B64 env var (or the file) and
+# redeploy. Consider changing your Google password to invalidate old exports.

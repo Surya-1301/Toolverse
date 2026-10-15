@@ -18,8 +18,19 @@ const TMPDIR = process.env.TMPDIR || os.tmpdir();
 const MAX_MS = Number(process.env.MAX_MINUTES || 10) * 60 * 1000;
 const CACHE_MS = Number(process.env.CACHE_MIN || 10) * 60 * 1000;
 const COOKIES_PATH = path.join(__dirname, "cookies.txt");
-const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
 
+if (process.env.COOKIES_B64 && !fs.existsSync(COOKIES_PATH)) {
+  try {
+    fs.writeFileSync(
+      COOKIES_PATH,
+      Buffer.from(process.env.COOKIES_B64, "base64"),
+      { mode: 0o600 },
+    );
+  } catch (e) {
+    console.error("Could not write COOKIES_B64:", String(e).slice(0, 120));
+  }
+}
+const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
 
 const API_KEY = process.env.API_KEY || "";
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
