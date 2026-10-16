@@ -5,6 +5,8 @@
 [![Android app](https://img.shields.io/badge/Android-APK_download-3DDC84?logo=android&logoColor=white)](https://github.com/Surya-1301/Toolverse/releases)
 [![License](https://img.shields.io/github/license/Surya-1301/Toolverse)](LICENSE)
 
+![Toolverse Home](public/home.png)
+
 **Free online utilities — formatters, converters, generators, image tools, PDF tools, and sharing tools, right in your browser.**
 
 No sign-up. Most tools run entirely on your device, so your input never leaves your computer.
@@ -20,7 +22,7 @@ No sign-up. Most tools run entirely on your device, so your input never leaves y
 ---
 
 ## Android app
-![PDFVerse Download](public/app.png)
+![Toolverse Download](public/app.png)
 
 Toolverse is also available as a native Android app — all 65 tools, wrapped with Capacitor.
 
