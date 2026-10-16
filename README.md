@@ -1,6 +1,6 @@
 # Toolverse
 
-[![GitHub release](https://img.shields.io/github/v/release/Surya-1301/PDFVerse)](https://github.com/Surya-1301/PDFVerse/releases)
+[![GitHub release](https://img.shields.io/github/v/release/Surya-1301/Toolverse)](https://github.com/Surya-1301/Toolverse/releases)
 [![Live site](https://img.shields.io/website?url=https%3A%2F%2Ftoolversee.pages.dev&label=live%20site)](https://toolversee.pages.dev)
 [![Android app](https://img.shields.io/badge/Android-APK_download-3DDC84?logo=android&logoColor=white)](https://github.com/Surya-1301/Toolverse/releases)
 [![License](https://img.shields.io/github/license/Surya-1301/Toolverse)](LICENSE)
