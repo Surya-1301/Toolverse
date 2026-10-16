@@ -19,6 +19,7 @@ const staticPaths = [
   "tools",
   "blog",
   "tools/conversion-tools",
+  "tools/download-tools",
   "tools/formatter-tools",
   "tools/image-tools",
   "tools/text-developer-tools",
@@ -36,23 +37,26 @@ const staticPaths = [
 const legalPaths = ["contact", "privacy", "terms", "report-abuse"];
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  // Site uses trailingSlash: true, so canonical URLs end with "/".
+  const withSlash = (url: string) => (url.endsWith("/") ? url : `${url}/`);
+
   const toolUrls = toolSlugs.map((slug) => ({
-    url: `${siteUrl}/${slug}`,
+    url: withSlash(`${siteUrl}/${slug}`),
     lastModified: lastmod,
   }));
 
   const blogUrls = blogPosts.map((post) => ({
-    url: `${siteUrl}/blog/${post.slug}`,
+    url: withSlash(`${siteUrl}/blog/${post.slug}`),
     lastModified: new Date(post.updated ?? post.date),
   }));
 
   const staticUrls = staticPaths.map((path) => ({
-    url: path ? `${siteUrl}/${path}` : siteUrl,
+    url: withSlash(path ? `${siteUrl}/${path}` : siteUrl),
     lastModified: lastmod,
   }));
 
   const legalUrls = legalPaths.map((path) => ({
-    url: `${siteUrl}/${path}`,
+    url: withSlash(`${siteUrl}/${path}`),
     lastModified: lastmod,
   }));
 
