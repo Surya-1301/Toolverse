@@ -144,6 +144,14 @@ The PDF workspace includes a browser-based PDF editor and dedicated routes for:
 
 ---
 
+## Screenshots
+
+![Toolverse Scr-1](public/Scr-1.png)
+![Toolverse Scr-2](public/Scr-2.png)
+![Toolverse Scr-3](public/Scr-3.png)
+
+---
+
 ## How it works
 
 **Browser-first architecture.** The vast majority of tools run 100% client-side — formatters, converters, generators, image tools, and the PDF editor never upload your input.
