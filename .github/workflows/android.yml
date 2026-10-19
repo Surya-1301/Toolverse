@@ -51,6 +51,8 @@ jobs:
         run: npm run build
         env:
           # Set in GitHub repo Settings → Secrets and variables → Actions → Variables
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_PDF_API_BASE_URL: ${{ vars.NEXT_PUBLIC_PDF_API_BASE_URL }}
           NEXT_PUBLIC_IMAGE_API_BASE_URL: ${{ vars.NEXT_PUBLIC_IMAGE_API_BASE_URL }}
 
       - name: Sync Capacitor Android
