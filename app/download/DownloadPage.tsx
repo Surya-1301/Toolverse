@@ -12,19 +12,18 @@ import {
 
 export function DownloadPage() {
   const [url, setUrl] = useState(
-    "https://github.com/Surya-1301/ToolverseX/releases/latest/download/toolverse.apk",
+    "https://github.com/Surya-1301/ToolverseX/releases/latest/download/toolverse-v1.0.0.apk",
   );
-  const [filename, setFilename] = useState("toolverse.apk");
+  const [filename, setFilename] = useState("toolverse-v1.0.0.apk");
   const [progress, setProgress] = useState(0);
   const [downloading, setDownloading] = useState(false);
   const [downloaded, setDownloaded] = useState(false);
   const [error, setError] = useState("");
-  const [notifPerm, setNotifPerm] = useState(false);
 
   const isNativePlatform = isNative();
 
   useEffect(() => {
-    requestNotificationPermission().then(() => setNotifPerm(true));
+    requestNotificationPermission();
   }, []);
 
   const handleDownload = useCallback(async () => {
@@ -114,9 +113,11 @@ export function DownloadPage() {
               )}
             </button>
 
-            {downloaded && notifPerm && (
+            {downloaded && (
               <p className="text-xs text-emerald-400">
-                Saved to device Downloads &amp; status bar notification shown.
+                {isNativePlatform
+                  ? "Saved to Downloads — pull down the notification shade, then tap the file to install (allow “Install unknown apps” if asked)."
+                  : "Download started via your browser."}
               </p>
             )}
 

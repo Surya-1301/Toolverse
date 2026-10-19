@@ -1,6 +1,22 @@
-import { Capacitor } from "@capacitor/core";
-import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { Capacitor, registerPlugin } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
 import { LocalNotifications } from "@capacitor/local-notifications";
+
+type ToolverseDownloadPlugin = {
+  downloadUrl(options: {
+    url: string;
+    filename: string;
+    mimeType?: string;
+  }): Promise<{ id: number; filename: string }>;
+  saveBase64(options: {
+    data: string;
+    filename: string;
+    mimeType?: string;
+  }): Promise<{ path: string; filename: string }>;
+};
+
+const ToolverseDownload =
+  registerPlugin<ToolverseDownloadPlugin>("ToolverseDownload");
 
 export function isNative() {
   return Capacitor.isNativePlatform();
@@ -20,21 +36,53 @@ export async function openInBrowser(url: string) {
 
 export async function requestNotificationPermission() {
   if (!isNative()) return;
-  await LocalNotifications.requestPermissions();
+  try {
+    await LocalNotifications.requestPermissions();
+  } catch {
+    // ignore — notifications are best-effort
+  }
 }
 
 export async function showDownloadNotification(title: string, body: string) {
   if (!isNative()) return;
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id: Date.now(),
-        title,
-        body,
-        smallIcon: "ic_launcher",
-      },
-    ],
-  });
+  try {
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: Math.floor(Date.now() % 2147483647),
+          title,
+          body,
+          smallIcon: "ic_launcher",
+        },
+      ],
+    });
+  } catch {
+    // ignore — permission may not be granted
+  }
+}
+
+function sanitizeFilename(name: string): string {
+  const clean = (name || "download")
+    .split("?")[0]
+    .split("#")[0]
+    .split("/")
+    .pop()!
+    .replace(/[\\/:*?"<>|]/g, "_")
+    .slice(0, 120)
+    .trim();
+  return clean || "download";
+}
+
+function guessMime(filename: string): string {
+  const ext = filename.split(".").pop()?.toLowerCase() || "";
+  const map: Record<string, string> = {
+    apk: "application/vnd.android.package-archive",
+    pdf: "application/pdf",
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+  };
+  return map[ext] || "application/octet-stream";
 }
 
 async function blobToBase64(blob: Blob): Promise<string> {
@@ -50,57 +98,79 @@ async function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
+export async function saveBlobNative(blob: Blob, filename: string) {
+  const safeName = sanitizeFilename(filename);
+  const type = blob.type || guessMime(safeName);
+  if (!isNative()) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = safeName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    return { path: safeName, downloaded: true };
+  }
+  const base64 = await blobToBase64(blob);
+  const result = await ToolverseDownload.saveBase64({
+    data: base64,
+    filename: safeName,
+    mimeType: type,
+  });
+  await showDownloadNotification("Download complete", safeName);
+  return { path: result.path, downloaded: true };
+}
+
 export async function downloadFile(
   url: string,
   filename: string,
   onProgress?: (percent: number) => void,
 ) {
+  const safeName = sanitizeFilename(filename);
   if (!isNative()) {
     const link = document.createElement("a");
     link.href = url;
-    link.download = filename;
+    link.download = safeName;
+    link.rel = "noopener";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    return { path: filename, downloaded: true };
+    return { path: safeName, downloaded: true };
   }
-
-  const response = await fetch(url);
-  if (!response.ok || !response.body) {
-    throw new Error(`Download failed: ${response.status}`);
+  if (url.startsWith("blob:") || url.startsWith("data:")) {
+    onProgress?.(10);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Download failed: HTTP ${res.status}`);
+    const blob = await res.blob();
+    onProgress?.(60);
+    const out = await saveBlobNative(blob, safeName);
+    onProgress?.(100);
+    return out;
   }
-
-  const contentLength = response.headers.get("content-length");
-  const total = contentLength ? parseInt(contentLength, 10) : 0;
-  const chunks: ArrayBuffer[] = [];
-  let loaded = 0;
-
-  const reader = response.body.getReader();
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done || !value) break;
-    chunks.push(value.buffer);
-    loaded += value.byteLength;
-    if (total > 0 && onProgress) {
-      onProgress(Math.round((loaded / total) * 100));
-    }
+  try {
+    const result = await ToolverseDownload.downloadUrl({
+      url,
+      filename: safeName,
+      mimeType: guessMime(safeName),
+    });
+    onProgress?.(100);
+    await showDownloadNotification("Download started", safeName);
+    return { path: safeName, id: result.id, downloaded: true };
+  } catch (err) {
+    console.warn("DownloadManager unavailable, fallback:", err);
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`);
+    const blob = await response.blob();
+    onProgress?.(80);
+    const base64 = await blobToBase64(blob);
+    const saved = await Filesystem.writeFile({
+      path: safeName,
+      data: base64,
+      directory: Directory.Cache,
+    });
+    onProgress?.(100);
+    await showDownloadNotification("Download complete", safeName);
+    return { path: saved.uri ?? safeName, downloaded: true };
   }
-
-  const blob = new Blob(chunks);
-  const dataUrl = await blobToBase64(blob);
-  const base64 = dataUrl.split(",")[1];
-
-  const directory = Directory.Documents;
-  const path = `Download/${filename}`;
-
-  await Filesystem.writeFile({
-    path,
-    data: base64,
-    directory,
-    encoding: Encoding.UTF8,
-  });
-
-  await showDownloadNotification("Download complete", filename);
-
-  return { path, directory, downloaded: true };
 }

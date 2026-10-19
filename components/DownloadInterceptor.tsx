@@ -2,53 +2,7 @@
 
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
-import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
-import { LocalNotifications } from "@capacitor/local-notifications";
-
-function blobToBase64(blob: Blob): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const dataUrl = reader.result as string;
-      const comma = dataUrl.indexOf(",");
-      resolve(comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl);
-    };
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(blob);
-  });
-}
-
-function sanitizeFilename(name: string): string {
-  const clean = (name || "download").replace(/[\\/:*?"<>|]/g, "_").slice(0, 120).trim();
-  return clean || "download";
-}
-
-async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> {
-  const base64 = await blobToBase64(blob);
-  const safeName = sanitizeFilename(filename);
-
-  await Filesystem.writeFile({
-    path: safeName,
-    data: base64,
-    directory: Directory.Data,
-    encoding: "base64" as Encoding,
-  });
-
-  try {
-    await LocalNotifications.schedule({
-      notifications: [
-        {
-          id: Date.now(),
-          title: "Download complete",
-          body: safeName,
-          smallIcon: "ic_launcher",
-        },
-      ],
-    });
-  } catch {
-    // Notification permission may not be granted — ignore.
-  }
-}
+import { saveBlobNative } from "@/lib/capacitor";
 
 export function DownloadInterceptor() {
   useEffect(() => {
@@ -56,7 +10,9 @@ export function DownloadInterceptor() {
 
     async function onClick(event: MouseEvent) {
       const target = event.target as HTMLElement | null;
-      const anchor = target?.closest?.("a[download]") as HTMLAnchorElement | null;
+      const anchor = target?.closest?.(
+        "a[download]",
+      ) as HTMLAnchorElement | null;
       if (!anchor) return;
 
       const href = anchor.getAttribute("href") || "";
@@ -65,30 +21,16 @@ export function DownloadInterceptor() {
       event.preventDefault();
       event.stopPropagation();
 
-      const fileName = anchor.download || "download";
-      if (!window.confirm(`Download "${fileName}"?`)) return;
+      const fileName =
+        anchor.download || href.split("/").pop() || "download";
 
       try {
-        let blob: Blob;
-
-        if (href.startsWith("blob:") || href.startsWith("data:")) {
-          const response = await fetch(href);
-          if (!response.ok) {
-            // Blob URL already revoked — fall back to native browser download.
-            window.location.href = href;
-            return;
-          }
-          blob = await response.blob();
-        } else {
-          const response = await fetch(href);
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          blob = await response.blob();
-        }
-
-        await saveFileToDownloads(blob, fileName);
+        const response = await fetch(href);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        await saveBlobNative(blob, fileName);
       } catch (error) {
         console.error("Native file download failed:", error);
-        window.location.href = href;
       }
     }
 
