@@ -88,6 +88,10 @@ export function DownloadInterceptor() {
       event.preventDefault();
       event.stopPropagation();
 
+      // Confirm before downloading (native dialog)
+      const fileName = anchor.download || "download";
+      if (!window.confirm(`Download "${fileName}"?`)) return;
+
       try {
         let blob: Blob;
 
