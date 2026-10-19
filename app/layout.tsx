@@ -137,7 +137,7 @@ const footerLinks = [
   },
   {
     label: "Download app",
-    href: "/download",
+    href: "https://downloadtoolverse.dpdns.org/",
     icon: Download,
   },
 ];
