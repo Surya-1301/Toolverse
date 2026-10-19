@@ -14,8 +14,13 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { isNative, saveBlobNative } from "@/lib/capacitor";
 
-function downloadBlob(blob: Blob, filename: string) {
+async function downloadBlob(blob: Blob, filename: string) {
+  if (isNative()) {
+    await saveBlobNative(blob, filename);
+    return;
+  }
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
 
@@ -26,7 +31,7 @@ function downloadBlob(blob: Blob, filename: string) {
   link.click();
   document.body.removeChild(link);
 
-  URL.revokeObjectURL(url);
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 
 function baseName(file: File | null) {

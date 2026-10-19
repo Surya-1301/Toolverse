@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { isNative, saveBlobNative } from "@/lib/capacitor";
 
 type CsvRow = Record<string, string>;
 
@@ -233,7 +234,7 @@ export default function CsvJsonConverterPage() {
     }, 1500);
   }
 
-  function downloadOutput() {
+  async function downloadOutput() {
     if (!output) return;
 
     const isJson =
@@ -242,17 +243,22 @@ export default function CsvJsonConverterPage() {
     const blob = new Blob([output], {
       type: isJson ? "application/json" : "text/csv",
     });
+    const filename = isJson ? "converted.json" : "converted.csv";
+    if (isNative()) {
+      await saveBlobNative(blob, filename);
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
     link.href = url;
-    link.download = isJson ? "converted.json" : "converted.csv";
+    link.download = filename;
 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
   function clearAll() {

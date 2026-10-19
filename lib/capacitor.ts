@@ -98,6 +98,77 @@ async function blobToBase64(blob: Blob): Promise<string> {
   });
 }
 
+/**
+ * Copy text on web AND in the APK WebView.
+ * navigator.clipboard requires a secure context + focus — both can be
+ * missing on device — so fall back to execCommand and finally the native
+ * Share sheet (which always lets the user copy the text).
+ * Returns true if the text is on the clipboard (or was handed to Share).
+ */
+export async function copyTextNative(text: string): Promise<boolean> {
+  if (!text) return false;
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch {
+    // fall through to legacy + native fallbacks
+  }
+  try {
+    const area = document.createElement("textarea");
+    area.value = text;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.select();
+    area.setSelectionRange(0, area.value.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(area);
+    if (ok) return true;
+  } catch {
+    // fall through
+  }
+  if (isNative()) {
+    try {
+      const { Share } = await import("@capacitor/share");
+      await Share.share({
+        title: "Copy text",
+        text,
+        dialogTitle: "Copy text",
+      });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  return false;
+}
+
+/** Read text from the clipboard (paste buttons). Null when unavailable. */
+export async function readTextNative(): Promise<string | null> {
+  try {
+    if (navigator.clipboard?.readText) {
+      return await navigator.clipboard.readText();
+    }
+  } catch {
+    // clipboard read blocked — caller shows a manual-paste hint
+  }
+  return null;
+}
+
+/**
+ * Save a canvas / preview data URL (image-blur, upscaler, resizer
+ * previews, favicon generator…) to device Downloads in the APK.
+ */
+export async function saveDataUrlNative(dataUrl: string, filename: string) {
+  const res = await fetch(dataUrl);
+  if (!res.ok) throw new Error("Could not read the generated image.");
+  const blob = await res.blob();
+  return saveBlobNative(blob, filename);
+}
+
 export async function saveBlobNative(blob: Blob, filename: string) {
   const safeName = sanitizeFilename(filename);
   const type = blob.type || guessMime(safeName);

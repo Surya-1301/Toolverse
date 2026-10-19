@@ -18,6 +18,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { Mp3Encoder } from "@breezystack/lamejs";
+import { isNative, saveBlobNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -219,6 +220,16 @@ async function encodeToWebm(
   buffer: AudioBuffer,
   kbps: number,
 ): Promise<Blob> {
+  if (
+    typeof MediaRecorder === "undefined" ||
+    typeof MediaRecorder.isTypeSupported !== "function" ||
+    (!MediaRecorder.isTypeSupported("audio/webm;codecs=opus") &&
+      !MediaRecorder.isTypeSupported("audio/webm"))
+  ) {
+    throw new Error(
+      "WebM output is not supported in this app build — convert to MP3 or WAV instead.",
+    );
+  }
   const AudioContextCtor =
     window.AudioContext ||
     (window as unknown as { webkitAudioContext: typeof AudioContext })
@@ -369,8 +380,20 @@ export default function AudioConverterPage() {
     }
   }
 
-  function download() {
+  async function download() {
     if (!output) return;
+    if (isNative()) {
+      try {
+        await saveBlobNative(output.blob, output.name);
+      } catch (caughtError) {
+        setError(
+          caughtError instanceof Error
+            ? caughtError.message
+            : "Could not save the audio file.",
+        );
+      }
+      return;
+    }
     const a = document.createElement("a");
     const url = URL.createObjectURL(output.blob);
     a.href = url;

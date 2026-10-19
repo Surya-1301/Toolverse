@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { isNative, saveBlobNative } from "@/lib/capacitor";
 
 function parseCsvLine(line: string) {
   const values: string[] = [];
@@ -247,12 +248,16 @@ export default function ExcelCsvConverterPage() {
     }, 1500);
   }
 
-  function downloadExcel() {
+  async function downloadExcel() {
     if (!output) return;
 
     const blob = new Blob([output], {
       type: "application/vnd.ms-excel",
     });
+    if (isNative()) {
+      await saveBlobNative(blob, "spreadsheet.xls");
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
@@ -263,15 +268,19 @@ export default function ExcelCsvConverterPage() {
     link.click();
     document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
-  function downloadCsv() {
+  async function downloadCsv() {
     if (!output) return;
 
     const blob = new Blob([output], {
       type: "text/csv",
     });
+    if (isNative()) {
+      await saveBlobNative(blob, "spreadsheet.csv");
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
@@ -282,7 +291,7 @@ export default function ExcelCsvConverterPage() {
     link.click();
     document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
   function clearAll() {

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { isNative, saveBlobNative } from "@/lib/capacitor";
 
 type JsonValue =
   | string
@@ -292,10 +293,14 @@ export default function JsonXmlConverterPage() {
     }, 1500);
   }
 
-  function downloadOutput() {
+  async function downloadOutput() {
     if (!output) return;
 
     const blob = new Blob([output], { type: "text/plain" });
+    if (isNative()) {
+      await saveBlobNative(blob, "converted.txt");
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
 
@@ -306,7 +311,7 @@ export default function JsonXmlConverterPage() {
     link.click();
     document.body.removeChild(link);
 
-    URL.revokeObjectURL(url);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
   }
 
   function clearAll() {
