@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    COMMON
@@ -190,7 +191,7 @@ export default function UrlToolsPage() {
 
   async function copyParsed() {
     if (!formattedOutput) return;
-    await navigator.clipboard.writeText(formattedOutput);
+    if (!(await copyTextNative(formattedOutput))) return;
     setParseCopied(true);
     setTimeout(() => setParseCopied(false), 1500);
   }
@@ -234,7 +235,7 @@ export default function UrlToolsPage() {
 
   async function copyEncoded() {
     if (!encOutput) return;
-    await navigator.clipboard.writeText(encOutput);
+    if (!(await copyTextNative(encOutput))) return;
     setEncCopied(true);
     setTimeout(() => setEncCopied(false), 1500);
   }

@@ -96,14 +96,7 @@ export default function TextToSpeechPage() {
       if (!available.length) {
         return;
       }
-
-      /*
-       * Some browsers/platforms can return duplicate voices
-       * with the same voiceURI. React requires unique keys,
-       * and voiceURI is also what we use as the select value.
-       *
-       * Keep only the first occurrence of each voiceURI.
-       */
+      // Some platforms return duplicate voiceURIs — keep first occurrence.
       const uniqueVoices = Array.from(
         new Map(
           available.map((voice) => [
@@ -130,16 +123,37 @@ export default function TextToSpeechPage() {
 
     loadVoices();
 
+    // Android WebView often delivers voices late and fires
+    // voiceschanged zero or multiple times — poll briefly too.
+    const retries = [500, 1500, 3000];
+    const timers = retries.map((ms) =>
+      setTimeout(() => {
+        if (window.speechSynthesis.getVoices().length) loadVoices();
+      }, ms),
+    );
+
+    // Some WebViews need a kick to populate the voice list.
+    try {
+      const kick = new SpeechSynthesisUtterance(" ");
+      kick.volume = 0;
+      window.speechSynthesis.speak(kick);
+      window.speechSynthesis.cancel();
+    } catch {
+      // ignore — kick is best-effort
+    }
+
     window.speechSynthesis.addEventListener(
       "voiceschanged",
       loadVoices,
     );
 
     return () => {
+      timers.forEach(clearTimeout);
       window.speechSynthesis.removeEventListener(
         "voiceschanged",
         loadVoices,
       );
+      window.speechSynthesis.cancel();
     };
   }, [supported]);
 

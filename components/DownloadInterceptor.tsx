@@ -63,6 +63,7 @@ async function saveHref(href: string, fileName: string): Promise<boolean> {
       const entry = pending.get(href);
       if (entry && !entry.revoked) {
         await saveBlobNative(entry.blob, name);
+        toastSaved(name);
         return true;
       }
       // Fall through to fetch — still works if the URL is alive.
@@ -70,11 +71,60 @@ async function saveHref(href: string, fileName: string): Promise<boolean> {
     const response = await fetch(href);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const blob = await response.blob();
-    await saveBlobNative(blob, name);
+    // fetch() on a data: URL returns text/plain in some WebViews —
+    // restore the real mime type from the URL header.
+    const fixed =
+      href.startsWith("data:") && blob.type.startsWith("text/plain")
+        ? new Blob([await blob.arrayBuffer()], {
+            type: dataUrlMime(href) || "application/octet-stream",
+          })
+        : blob;
+    await saveBlobNative(fixed, name);
+    toastSaved(name);
     return true;
   } catch (error) {
     console.error("Native file download failed:", error);
+    toastFailed();
     return false;
+  }
+}
+
+/** Extract `image/png` from `data:image/png;base64,…`. */
+function dataUrlMime(href: string): string {
+  const match = href.slice(0, 80).match(/^data:([^;,]+)/);
+  return match ? match[1] : "";
+}
+
+/** Tiny non-blocking toast so the user knows the save happened. */
+function toastSaved(name: string) {
+  try {
+    const el = document.createElement("div");
+    el.textContent = `Saved ${name} to Downloads`;
+    el.style.cssText =
+      "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99999;" +
+      "background:#16a34a;color:#fff;font-size:13px;font-weight:600;" +
+      "padding:10px 18px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.35);" +
+      "pointer-events:none;max-width:88vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  } catch {
+    // ignore — toast is best-effort
+  }
+}
+
+function toastFailed() {
+  try {
+    const el = document.createElement("div");
+    el.textContent = "Download failed — please try again";
+    el.style.cssText =
+      "position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99999;" +
+      "background:#dc2626;color:#fff;font-size:13px;font-weight:600;" +
+      "padding:10px 18px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.35);" +
+      "pointer-events:none;max-width:88vw;white-space:nowrap;";
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 2600);
+  } catch {
+    // ignore
   }
 }
 

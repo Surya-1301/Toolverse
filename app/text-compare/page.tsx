@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative, readTextNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -136,7 +137,7 @@ export default function TextComparePage() {
     const lines = changes.map((c) =>
       c.type === "add" ? `+ ${c.text}` : c.type === "remove" ? `- ${c.text}` : `  ${c.text}`,
     );
-    await navigator.clipboard.writeText(lines.join("\n"));
+    if (!(await copyTextNative(lines.join("\n")))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -212,7 +213,10 @@ export default function TextComparePage() {
               Changed text
             </label>
             <button
-              onClick={() => navigator.clipboard.readText().then((t) => setRight(t))}
+              onClick={async () => {
+                const pasted = await readTextNative();
+                if (pasted !== null) setRight(pasted);
+              }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
             >
               <ClipboardPaste className="h-3.5 w-3.5" />

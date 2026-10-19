@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 type MatchItem = {
   index: number;
@@ -227,7 +228,7 @@ export default function RegexTesterPage() {
   async function copyMatches() {
     if (!matchOutput) return;
 
-    await navigator.clipboard.writeText(matchOutput);
+    if (!(await copyTextNative(matchOutput))) return;
 
     setCopied(true);
 

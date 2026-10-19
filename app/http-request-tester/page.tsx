@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    TYPES
@@ -584,7 +585,7 @@ export default function HttpRequestTesterPage() {
     )
       .map(([key, value]) => `${key}: ${value}`)
       .join("\n")}\n\nBody:\n${result.body}`;
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }

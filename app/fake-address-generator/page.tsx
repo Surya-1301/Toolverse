@@ -18,6 +18,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { type Locale, type Address, type FakeUser, locales, formatAddress, generateUser } from "@/lib/fakeData";
+import { copyTextNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -114,7 +115,7 @@ export default function FakeAddressGeneratorPage() {
         : "";
       return userBlock ? `${userBlock}\n${formatAddress(a, style)}` : formatAddress(a, style);
     }).join("\n\n");
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -169,7 +170,7 @@ export default function FakeAddressGeneratorPage() {
     const text = user
       ? `${user.firstName} ${user.lastName} (${user.gender})\n${user.email} | ${user.phone}\n${addressText}`
       : addressText;
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setCopiedIndex(index);
     setTimeout(() => setCopiedIndex(null), 1400);
   }

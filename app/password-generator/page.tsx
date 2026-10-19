@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 const LOWERCASE = "abcdefghijklmnopqrstuvwxyz";
 const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -308,7 +309,7 @@ export default function PasswordGeneratorPage() {
   async function copyPassword() {
     if (!password) return;
 
-    await navigator.clipboard.writeText(password);
+    if (!(await copyTextNative(password))) return;
     setCopied(true);
 
     setTimeout(() => {

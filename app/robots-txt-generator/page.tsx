@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -115,7 +116,7 @@ export default function RobotsTxtGeneratorPage() {
 
   async function copyTxt() {
     try {
-      await navigator.clipboard.writeText(robotsTxt);
+      if (!(await copyTextNative(robotsTxt))) return;
     } catch {
       const ta = document.createElement("textarea");
       ta.value = robotsTxt;

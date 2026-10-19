@@ -21,6 +21,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { fetchApi } from "@/lib/apiBase";
+import { copyTextNative } from "@/lib/capacitor";
 
 type IpInfo = {
   ip: string | null;
@@ -221,7 +222,7 @@ export default function IpLookupPage() {
   async function copyIp() {
     if (!data?.ip) return;
 
-    await navigator.clipboard.writeText(data.ip);
+    if (!(await copyTextNative(data.ip))) return;
     setCopied(true);
 
     setTimeout(() => {

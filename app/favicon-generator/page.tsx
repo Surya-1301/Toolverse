@@ -19,6 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import UploadZone from "@/components/UploadZone";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    GENERATION SIZES
@@ -245,7 +246,7 @@ export default function FaviconGeneratorPage() {
     const code = htmlSnippet();
     if (!code) return;
 
-    await navigator.clipboard.writeText(code);
+    if (!(await copyTextNative(code))) return;
     setCopiedCode(true);
 
     setTimeout(() => {

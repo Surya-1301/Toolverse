@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    SVG PLACEHOLDER GENERATOR
@@ -148,7 +149,7 @@ export default function ImagePlaceholderPage() {
   }
 
   async function copyUrl() {
-    await navigator.clipboard.writeText(externalUrl);
+    if (!(await copyTextNative(externalUrl))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }

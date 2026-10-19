@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 type HashAlgorithm = "MD5" | "SHA-1" | "SHA-256" | "SHA-512";
 
@@ -311,7 +312,7 @@ export default function HashGeneratorPage() {
   }
 
   async function copyValue(value: string) {
-    await navigator.clipboard.writeText(value);
+    if (!(await copyTextNative(value))) return;
     setCopiedValue(value);
 
     setTimeout(() => {

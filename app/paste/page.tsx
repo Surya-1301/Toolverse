@@ -19,7 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
-import { openInBrowser, getFrontendOrigin } from "@/lib/capacitor";
+import { copyTextNative, getFrontendOrigin, openInBrowser } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -303,7 +303,7 @@ export default function PastePage() {
     const value = type === "page" ? pasteUrl : rawUrl;
     if (!value) return;
 
-    await navigator.clipboard.writeText(value);
+    if (!(await copyTextNative(value))) return;
     setCopied(type);
 
     setTimeout(() => {

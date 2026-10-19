@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    HOW TO USE
@@ -192,14 +193,14 @@ export default function TextCounterPage() {
 
   async function copyText() {
     if (!text) return;
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setCopied(true);
     window.setTimeout(() => setCopied(false), 1500);
   }
 
   async function copyResult() {
     try {
-      await navigator.clipboard.writeText(String(resultValue));
+      if (!(await copyTextNative(String(resultValue)))) return;
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {

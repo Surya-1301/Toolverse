@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -193,7 +194,7 @@ export default function MetaTagGeneratorPage() {
   async function copySnippet() {
     if (!snippet) return;
     try {
-      await navigator.clipboard.writeText(snippet);
+      if (!(await copyTextNative(snippet))) return;
     } catch {
       const ta = document.createElement("textarea");
       ta.value = snippet;

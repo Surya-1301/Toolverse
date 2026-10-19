@@ -26,6 +26,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { fetchApi } from "@/lib/apiBase";
+import { copyTextNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -519,7 +520,7 @@ export default function DomainLookupPage() {
   async function copyDns() {
     const text = records.map((r) => `${r.type} ${r.ttl} ${r.data}`).join("\n");
     if (!text) return;
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -536,7 +537,7 @@ export default function DomainLookupPage() {
       "",
       ...(whoisResult.status.length ? [`Status:`, ...whoisResult.status.map((s) => `  ${s}`)] : []),
     ];
-    await navigator.clipboard.writeText(lines.join("\n"));
+    if (!(await copyTextNative(lines.join("\n")))) return;
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);
   }
@@ -571,7 +572,7 @@ export default function DomainLookupPage() {
       `Expires: ${sslFormatDate(cert.not_after)}`,
       `Serial: ${cert.serial_number}`,
     ].join("\n");
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setSslCopied(serial);
     setTimeout(() => setSslCopied(""), 1500);
   }

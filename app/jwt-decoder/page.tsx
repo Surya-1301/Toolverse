@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 type JwtDecoded = {
   header: Record<string, unknown>;
@@ -161,7 +162,7 @@ export default function JwtDecoderPage() {
   }
 
   async function copyValue(label: string, value: string) {
-    await navigator.clipboard.writeText(value);
+    if (!(await copyTextNative(value))) return;
     setCopied(label);
 
     setTimeout(() => {

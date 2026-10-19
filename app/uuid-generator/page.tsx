@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 function createUuidV4() {
   if (typeof crypto !== "undefined" && crypto.randomUUID) {
@@ -92,7 +93,7 @@ export default function UuidGeneratorPage() {
   }
 
   async function copyOne(value: string) {
-    await navigator.clipboard.writeText(value);
+    if (!(await copyTextNative(value))) return;
     setCopiedValue(value);
 
     setTimeout(() => {
@@ -103,7 +104,7 @@ export default function UuidGeneratorPage() {
   async function copyAll() {
     if (!output) return;
 
-    await navigator.clipboard.writeText(output);
+    if (!(await copyTextNative(output))) return;
     setCopiedAll(true);
 
     setTimeout(() => {

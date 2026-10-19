@@ -17,7 +17,7 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
-import { getFrontendOrigin } from "@/lib/capacitor";
+import { copyTextNative, getFrontendOrigin } from "@/lib/capacitor";
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -177,7 +177,7 @@ export default function ImageHostPage() {
 
     if (!value) return;
 
-    await navigator.clipboard.writeText(value);
+    if (!(await copyTextNative(value))) return;
     setCopied(type);
 
     setTimeout(() => {

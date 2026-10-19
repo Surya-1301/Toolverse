@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { isNative, saveBlobNative } from "@/lib/capacitor";
+import { copyTextNative, isNative, saveBlobNative } from "@/lib/capacitor";
 
 type JsonValue =
   | string
@@ -198,7 +198,7 @@ export default function YamlJsonConverterPage() {
   async function copyOutput() {
     if (!output) return;
 
-    await navigator.clipboard.writeText(output);
+    if (!(await copyTextNative(output))) return;
     setCopied(true);
 
     setTimeout(() => {

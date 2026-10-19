@@ -21,6 +21,7 @@ import {
 
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    TYPES
@@ -670,7 +671,7 @@ export default function EmailPhoneIbanValidatorPage() {
         : activeValue;
 
     try {
-      await navigator.clipboard.writeText(text);
+      if (!(await copyTextNative(text))) return;
 
       setCopied(true);
 

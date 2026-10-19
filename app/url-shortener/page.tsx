@@ -19,7 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
-import { getFrontendOrigin } from "@/lib/capacitor";
+import { copyTextNative, getFrontendOrigin } from "@/lib/capacitor";
 import { type ClickLog } from "@/lib/localDb";
 
 function BackToToolsLink() {
@@ -224,7 +224,7 @@ function UrlShortenerContent() {
   async function copyShortUrl() {
     if (!shortUrl) return;
 
-    await navigator.clipboard.writeText(shortUrl);
+    if (!(await copyTextNative(shortUrl))) return;
     setCopied(true);
 
     setTimeout(() => {

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 function textToBase64(value: string) {
   return btoa(unescape(encodeURIComponent(value)));
@@ -192,7 +193,7 @@ export default function Base64EncoderDecoderPage() {
   async function copyOutput() {
     if (!output) return;
 
-    await navigator.clipboard.writeText(output);
+    if (!(await copyTextNative(output))) return;
     setCopied(true);
 
     setTimeout(() => {

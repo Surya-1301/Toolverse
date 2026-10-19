@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 function removeJsComments(value: string) {
   return value.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|\s)\/\/.*$/gm, "");
@@ -115,7 +116,7 @@ export default function JavascriptFormatterPage() {
   async function copyOutput() {
     if (!output) return;
 
-    await navigator.clipboard.writeText(output);
+    if (!(await copyTextNative(output))) return;
     setCopied(true);
 
     setTimeout(() => {

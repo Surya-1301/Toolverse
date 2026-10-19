@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 /* ==========================================================================
    CREDIT CARD GENERATOR — valid test cards (number, expiry, name, CVV)
@@ -328,7 +329,7 @@ export default function CreditCardGeneratorPage() {
   }
 
   async function copyField(key: string, value: string) {
-    await navigator.clipboard.writeText(value);
+    if (!(await copyTextNative(value))) return;
     setCopiedField(key);
     setTimeout(() => setCopiedField(null), 1400);
   }
@@ -361,14 +362,14 @@ export default function CreditCardGeneratorPage() {
 
   async function copyAll() {
     if (!card) return;
-    await navigator.clipboard.writeText(cardBlock(card));
+    if (!(await copyTextNative(cardBlock(card)))) return;
     setCopiedAll(true);
     setTimeout(() => setCopiedAll(false), 1500);
   }
 
   async function copyCardJson() {
     if (!card) return;
-    await navigator.clipboard.writeText(cardJson(card));
+    if (!(await copyTextNative(cardJson(card)))) return;
     setCopiedJson(true);
     setTimeout(() => setCopiedJson(false), 1500);
   }
@@ -381,7 +382,7 @@ export default function CreditCardGeneratorPage() {
 
   async function copyValidated() {
     if (!validateInput) return;
-    await navigator.clipboard.writeText(groupDigits(validateDigits));
+    if (!(await copyTextNative(groupDigits(validateDigits)))) return;
     setValidCopied(true);
     setTimeout(() => setValidCopied(false), 1400);
   }

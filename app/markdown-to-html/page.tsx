@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { copyTextNative } from "@/lib/capacitor";
 
 function escapeHtml(value: string) {
   return value
@@ -138,7 +139,7 @@ export default function MarkdownToHtmlPage() {
   const output = useMemo(() => markdownToHtml(input), [input]);
 
   async function copyOutput() {
-    await navigator.clipboard.writeText(output);
+    if (!(await copyTextNative(output))) return;
     setCopied(true);
 
     setTimeout(() => {

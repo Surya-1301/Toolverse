@@ -19,7 +19,7 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi } from "@/lib/apiBase";
-import { getFrontendOrigin } from "@/lib/capacitor";
+import { copyTextNative, getFrontendOrigin } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -184,7 +184,7 @@ function QrGeneratorContent() {
   async function copyText() {
     if (!text.trim()) return;
 
-    await navigator.clipboard.writeText(text);
+    if (!(await copyTextNative(text))) return;
     setCopied(true);
 
     setTimeout(() => {

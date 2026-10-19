@@ -22,6 +22,7 @@ import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 import { encryptFileWithRandomKey } from "@/lib/clientEncryption";
 import { getUploadKind, validateUploadForSharing } from "@/lib/uploadValidators";
+import { copyTextNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -304,7 +305,7 @@ export default function FileSharePage() {
   async function copyUserUrl() {
     if (!userUrl) return;
 
-    await navigator.clipboard.writeText(userUrl);
+    if (!(await copyTextNative(userUrl))) return;
     setCopied(true);
 
     setTimeout(() => {
