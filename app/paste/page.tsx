@@ -19,7 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
-import { openInBrowser } from "@/lib/capacitor";
+import { openInBrowser, getFrontendOrigin } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -278,7 +278,7 @@ export default function PastePage() {
         return;
       }
 
-      const frontendOrigin = "https://toolversee.pages.dev";
+      const frontendOrigin = getFrontendOrigin();
       const fullPasteUrl = `${frontendOrigin}/paste-view?id=${data.id}`;
       const fullRawUrl = apiUrl(`/raw/${data.id}`);
 

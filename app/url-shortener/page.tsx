@@ -19,6 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
+import { getFrontendOrigin } from "@/lib/capacitor";
 import { type ClickLog } from "@/lib/localDb";
 
 function BackToToolsLink() {
@@ -203,7 +204,7 @@ function UrlShortenerContent() {
         return;
       }
 
-      const fullUrl = `${window.location.origin}/go?slug=${data.slug}`;
+      const fullUrl = `${getFrontendOrigin()}/go?slug=${data.slug}`;
       setShortUrl(fullUrl);
       setResult(data);
       setClicks(data.clicks);
@@ -668,7 +669,7 @@ function UrlShortenerContent() {
                       <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end gap-1">
                           <a
-                            href={`${window.location.origin}/go?slug=${shortened.slug}`}
+                            href={`${getFrontendOrigin()}/go?slug=${shortened.slug}`}
                             target="_blank"
                             rel="noreferrer"
                             className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"

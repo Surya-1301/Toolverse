@@ -19,6 +19,7 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi } from "@/lib/apiBase";
+import { getFrontendOrigin } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -163,7 +164,7 @@ function QrGeneratorContent() {
         return;
       }
 
-      const frontendOrigin = window.location.origin;
+      const frontendOrigin = getFrontendOrigin();
       const fullUrl = `${frontendOrigin}/share-file?id=${data.id}`;
 
       setText(fullUrl);

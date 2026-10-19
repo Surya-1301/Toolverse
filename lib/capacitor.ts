@@ -6,6 +6,10 @@ export function isNative() {
   return Capacitor.isNativePlatform();
 }
 
+export function getFrontendOrigin() {
+  return isNative() ? "https://toolversee.pages.dev" : window.location.origin;
+}
+
 export async function openInBrowser(url: string) {
   if (isNative()) {
     window.open(url, "_blank", "system=yes");
