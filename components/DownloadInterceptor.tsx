@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
-import { Directory, Filesystem, Encoding } from "@capacitor/filesystem";
+import { Directory, Encoding, Filesystem } from "@capacitor/filesystem";
 import { LocalNotifications } from "@capacitor/local-notifications";
 
 function blobToBase64(blob: Blob): Promise<string> {
@@ -27,11 +27,12 @@ async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> 
   const base64 = await blobToBase64(blob);
   const safeName = sanitizeFilename(filename);
 
+  // Use base64 encoding so the native side decodes to real binary bytes
   await Filesystem.writeFile({
     path: safeName,
     data: base64,
     directory: Directory.Documents,
-    encoding: Encoding.UTF8,
+    encoding: "base64" as Encoding,
   });
 
   try {
@@ -65,10 +66,9 @@ export function DownloadInterceptor() {
       event.preventDefault();
       event.stopPropagation();
 
-      // Prompt with editable filename before downloading
-      const defaultName = anchor.download || "download";
-      const editedName = window.prompt("Enter filename:", defaultName);
-      if (editedName === null) return; // user cancelled
+      // Confirm before downloading (native dialog)
+      const fileName = anchor.download || "download";
+      if (!window.confirm(`Download "${fileName}"?`)) return;
 
       try {
         let blob: Blob;
@@ -82,7 +82,7 @@ export function DownloadInterceptor() {
           blob = await response.blob();
         }
 
-        await saveFileToDownloads(blob, editedName);
+        await saveFileToDownloads(blob, anchor.download || "download");
       } catch (error) {
         console.error("Native file download failed:", error);
       }
