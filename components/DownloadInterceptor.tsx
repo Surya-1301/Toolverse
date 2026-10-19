@@ -2,8 +2,8 @@
 
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
-import { Directory, Filesystem } from "@capacitor/filesystem";
-import { Share } from "@capacitor/share";
+import { Directory, Filesystem, Encoding } from "@capacitor/filesystem";
+import { LocalNotifications } from "@capacitor/local-notifications";
 
 function blobToBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -23,19 +23,27 @@ function sanitizeFilename(name: string): string {
   return clean || "download";
 }
 
-async function nativeShareFile(blob: Blob, filename: string): Promise<void> {
+async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> {
   const base64 = await blobToBase64(blob);
   const safeName = sanitizeFilename(filename);
-  const saved = await Filesystem.writeFile({
-    path: safeName,
+  const path = `Download/${safeName}`;
+
+  await Filesystem.writeFile({
+    path,
     data: base64,
-    directory: Directory.Cache,
+    directory: Directory.Documents,
+    encoding: Encoding.UTF8,
   });
-  await Share.share({
-    title: safeName,
-    text: safeName,
-    files: [saved.uri],
-    dialogTitle: "Save or share file",
+
+  await LocalNotifications.schedule({
+    notifications: [
+      {
+        id: Date.now(),
+        title: "Download complete",
+        body: safeName,
+        smallIcon: "ic_launcher",
+      },
+    ],
   });
 }
 
@@ -44,7 +52,7 @@ export function DownloadInterceptor() {
     if (!Capacitor.isNativePlatform()) return;
 
     // Keep blobs reachable by URL: tools revoke the object URL right
-    // after click(), but the native share reads it asynchronously.
+    // after click(), but the native file save reads it asynchronously.
     const blobRegistry = new Map<string, Blob>();
     const originalCreate = URL.createObjectURL.bind(URL);
     const originalRevoke = URL.revokeObjectURL.bind(URL);
@@ -83,7 +91,7 @@ export function DownloadInterceptor() {
           const response = await fetch(href);
           blob = await response.blob();
         }
-        await nativeShareFile(blob, anchor.download || "download");
+        await saveFileToDownloads(blob, anchor.download || "download");
       } catch (error) {
         console.error("Native file download failed:", error);
       }
