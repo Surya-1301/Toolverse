@@ -27,11 +27,10 @@ async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> 
   const base64 = await blobToBase64(blob);
   const safeName = sanitizeFilename(filename);
 
-  // Use base64 encoding so the native side decodes to real binary bytes
   await Filesystem.writeFile({
     path: safeName,
     data: base64,
-    directory: Directory.Documents,
+    directory: Directory.Data,
     encoding: "base64" as Encoding,
   });
 
@@ -66,7 +65,6 @@ export function DownloadInterceptor() {
       event.preventDefault();
       event.stopPropagation();
 
-      // Confirm before downloading (native dialog)
       const fileName = anchor.download || "download";
       if (!window.confirm(`Download "${fileName}"?`)) return;
 
@@ -75,6 +73,11 @@ export function DownloadInterceptor() {
 
         if (href.startsWith("blob:") || href.startsWith("data:")) {
           const response = await fetch(href);
+          if (!response.ok) {
+            // Blob URL already revoked — fall back to native browser download.
+            window.location.href = href;
+            return;
+          }
           blob = await response.blob();
         } else {
           const response = await fetch(href);
@@ -82,9 +85,10 @@ export function DownloadInterceptor() {
           blob = await response.blob();
         }
 
-        await saveFileToDownloads(blob, anchor.download || "download");
+        await saveFileToDownloads(blob, fileName);
       } catch (error) {
         console.error("Native file download failed:", error);
+        window.location.href = href;
       }
     }
 
