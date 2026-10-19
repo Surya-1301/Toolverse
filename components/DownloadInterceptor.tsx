@@ -27,7 +27,6 @@ async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> 
   const base64 = await blobToBase64(blob);
   const safeName = sanitizeFilename(filename);
 
-  // Write to Documents root (avoids subdirectory creation issues)
   await Filesystem.writeFile({
     path: safeName,
     data: base64,
@@ -35,7 +34,6 @@ async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> 
     encoding: Encoding.UTF8,
   });
 
-  // Notification is non-fatal — file is saved even if it fails
   try {
     await LocalNotifications.schedule({
       notifications: [
@@ -56,27 +54,6 @@ export function DownloadInterceptor() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    const blobRegistry = new Map<string, Blob>();
-    const originalCreate = URL.createObjectURL.bind(URL);
-    const originalRevoke = URL.revokeObjectURL.bind(URL);
-
-    URL.createObjectURL = ((obj: Blob | MediaSource) => {
-      const url = originalCreate(obj as Blob);
-      if (obj instanceof Blob) blobRegistry.set(url, obj);
-      return url;
-    }) as typeof URL.createObjectURL;
-
-    URL.revokeObjectURL = (url: string) => {
-      setTimeout(() => {
-        blobRegistry.delete(url);
-        try {
-          originalRevoke(url);
-        } catch {
-          /* already revoked */
-        }
-      }, 10000);
-    };
-
     async function onClick(event: MouseEvent) {
       const target = event.target as HTMLElement | null;
       const anchor = target?.closest?.("a[download]") as HTMLAnchorElement | null;
@@ -96,13 +73,9 @@ export function DownloadInterceptor() {
         let blob: Blob;
 
         if (href.startsWith("blob:") || href.startsWith("data:")) {
-          blob = blobRegistry.get(href) as Blob;
-          if (!blob) {
-            const response = await fetch(href);
-            blob = await response.blob();
-          }
+          const response = await fetch(href);
+          blob = await response.blob();
         } else {
-          // http(s) URL — fetch and save
           const response = await fetch(href);
           if (!response.ok) throw new Error(`HTTP ${response.status}`);
           blob = await response.blob();
@@ -118,8 +91,6 @@ export function DownloadInterceptor() {
 
     return () => {
       document.removeEventListener("click", onClick, true);
-      URL.createObjectURL = originalCreate;
-      URL.revokeObjectURL = originalRevoke;
     };
   }, []);
 
