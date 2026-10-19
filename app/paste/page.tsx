@@ -19,6 +19,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
+import { openInBrowser } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -184,7 +185,7 @@ export default function PastePage() {
       });
 
       if (response.ok) {
-        window.open(`/paste-view?id=${alias}`, "_blank", "noopener,noreferrer");
+        openInBrowser(`/paste-view?id=${alias}`);
         return;
       }
 
@@ -277,7 +278,8 @@ export default function PastePage() {
         return;
       }
 
-      const fullPasteUrl = `${window.location.origin}/paste-view?id=${data.id}`;
+      const frontendOrigin = "https://toolversee.pages.dev";
+      const fullPasteUrl = `${frontendOrigin}/paste-view?id=${data.id}`;
       const fullRawUrl = apiUrl(`/raw/${data.id}`);
 
       setResult(data);
@@ -458,15 +460,14 @@ export default function PastePage() {
             </div>
 
             <div className="mt-0 grid gap-3 sm:grid-cols-2">
-              <a
-                href={pasteUrl}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => openInBrowser(pasteUrl)}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 Open
                 <ExternalLink className="h-4 w-4" />
-              </a>
+              </button>
               <button
                 type="button"
                 onClick={() => copyValue("page")}
@@ -539,22 +540,26 @@ export default function PastePage() {
                       </td>
                       <td className="px-3 py-2 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <a
-                            href={`${window.location.origin}/paste-view?id=${paste.id}`}
-                            target="_blank"
-                            rel="noreferrer"
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openInBrowser(
+                                `https://toolversee.pages.dev/paste-view?id=${paste.id}`,
+                              )
+                            }
                             className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
                           >
                             Open
-                          </a>
-                          <a
-                            href={apiUrl(`/raw/${paste.id}`)}
-                            target="_blank"
-                            rel="noreferrer"
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              openInBrowser(apiUrl(`/raw/${paste.id}`))
+                            }
                             className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
                           >
                             Raw
-                          </a>
+                          </button>
                           <button
                             type="button"
                             onClick={() =>
