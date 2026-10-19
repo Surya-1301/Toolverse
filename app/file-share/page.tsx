@@ -267,7 +267,7 @@ export default function FileSharePage() {
         return;
       }
 
-      const frontendOrigin = window.location.origin;
+      const frontendOrigin = "https://toolversee.pages.dev";
       const backendOrigin = getApiBaseUrl();
       const keyHash = `#key=${encodeURIComponent(encrypted.key)}`;
 
