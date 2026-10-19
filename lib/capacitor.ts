@@ -113,13 +113,38 @@ export async function saveBlobNative(blob: Blob, filename: string) {
     return { path: safeName, downloaded: true };
   }
   const base64 = await blobToBase64(blob);
-  const result = await ToolverseDownload.saveBase64({
-    data: base64,
-    filename: safeName,
-    mimeType: type,
-  });
-  await showDownloadNotification("Download complete", safeName);
-  return { path: result.path, downloaded: true };
+  try {
+    const result = await ToolverseDownload.saveBase64({
+      data: base64,
+      filename: safeName,
+      mimeType: type,
+    });
+    await showDownloadNotification("Download complete", safeName);
+    return { path: result.path, downloaded: true };
+  } catch (pluginErr) {
+    // Installed APK predates the native plugin (or WebView bridge
+    // hiccup) — fall back to Filesystem cache + Share sheet so the
+    // user can still save / send the file somewhere.
+    console.warn("ToolverseDownload plugin missing, fallback:", pluginErr);
+    const saved = await Filesystem.writeFile({
+      path: safeName,
+      data: base64,
+      directory: Directory.Cache,
+    });
+    await showDownloadNotification("Download complete", safeName);
+    try {
+      const { Share } = await import("@capacitor/share");
+      await Share.share({
+        title: safeName,
+        text: `Save ${safeName} to your device`,
+        url: saved.uri,
+        dialogTitle: `Save ${safeName}`,
+      });
+    } catch {
+      // Share sheet dismissed or unavailable — file is still in cache.
+    }
+    return { path: saved.uri ?? safeName, downloaded: true };
+  }
 }
 
 export async function downloadFile(
