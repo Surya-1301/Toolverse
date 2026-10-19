@@ -16,5 +16,6 @@
       "name": "JavaSE-17",
       "path": "/opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk/Contents/Home"
     }
-  ]
+  ],
+  "java.configuration.updateBuildConfiguration": "interactive"
 }
