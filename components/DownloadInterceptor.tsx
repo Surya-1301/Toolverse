@@ -65,9 +65,10 @@ export function DownloadInterceptor() {
       event.preventDefault();
       event.stopPropagation();
 
-      // Confirm before downloading (native dialog)
-      const fileName = anchor.download || "download";
-      if (!window.confirm(`Download "${fileName}"?`)) return;
+      // Prompt with editable filename before downloading
+      const defaultName = anchor.download || "download";
+      const editedName = window.prompt("Enter filename:", defaultName);
+      if (editedName === null) return; // user cancelled
 
       try {
         let blob: Blob;
@@ -81,7 +82,7 @@ export function DownloadInterceptor() {
           blob = await response.blob();
         }
 
-        await saveFileToDownloads(blob, anchor.download || "download");
+        await saveFileToDownloads(blob, editedName);
       } catch (error) {
         console.error("Native file download failed:", error);
       }
