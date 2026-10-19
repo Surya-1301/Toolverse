@@ -26,33 +26,36 @@ function sanitizeFilename(name: string): string {
 async function saveFileToDownloads(blob: Blob, filename: string): Promise<void> {
   const base64 = await blobToBase64(blob);
   const safeName = sanitizeFilename(filename);
-  const path = `Download/${safeName}`;
 
+  // Write to Documents root (avoids subdirectory creation issues)
   await Filesystem.writeFile({
-    path,
+    path: safeName,
     data: base64,
     directory: Directory.Documents,
     encoding: Encoding.UTF8,
   });
 
-  await LocalNotifications.schedule({
-    notifications: [
-      {
-        id: Date.now(),
-        title: "Download complete",
-        body: safeName,
-        smallIcon: "ic_launcher",
-      },
-    ],
-  });
+  // Notification is non-fatal — file is saved even if it fails
+  try {
+    await LocalNotifications.schedule({
+      notifications: [
+        {
+          id: Date.now(),
+          title: "Download complete",
+          body: safeName,
+          smallIcon: "ic_launcher",
+        },
+      ],
+    });
+  } catch {
+    // Notification permission may not be granted — ignore.
+  }
 }
 
 export function DownloadInterceptor() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    // Keep blobs reachable by URL: tools revoke the object URL right
-    // after click(), but the native file save reads it asynchronously.
     const blobRegistry = new Map<string, Blob>();
     const originalCreate = URL.createObjectURL.bind(URL);
     const originalRevoke = URL.revokeObjectURL.bind(URL);
@@ -80,17 +83,27 @@ export function DownloadInterceptor() {
       if (!anchor) return;
 
       const href = anchor.getAttribute("href") || "";
-      if (!href.startsWith("blob:") && !href.startsWith("data:")) return;
+      if (!href) return;
 
       event.preventDefault();
       event.stopPropagation();
 
       try {
-        let blob = blobRegistry.get(href);
-        if (!blob) {
+        let blob: Blob;
+
+        if (href.startsWith("blob:") || href.startsWith("data:")) {
+          blob = blobRegistry.get(href) as Blob;
+          if (!blob) {
+            const response = await fetch(href);
+            blob = await response.blob();
+          }
+        } else {
+          // http(s) URL — fetch and save
           const response = await fetch(href);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
           blob = await response.blob();
         }
+
         await saveFileToDownloads(blob, anchor.download || "download");
       } catch (error) {
         console.error("Native file download failed:", error);

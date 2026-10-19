@@ -185,7 +185,8 @@ export default function PastePage() {
       });
 
       if (response.ok) {
-        openInBrowser(`/paste-view?id=${alias}`);
+        // Open internal app routes in the same WebView, not the system browser
+        window.location.href = `/paste-view?id=${alias}`;
         return;
       }
 
@@ -542,11 +543,9 @@ export default function PastePage() {
                         <div className="flex items-center justify-end gap-1">
                           <button
                             type="button"
-                            onClick={() =>
-                              openInBrowser(
-                                `https://toolversee.pages.dev/paste-view?id=${paste.id}`,
-                              )
-                            }
+                            onClick={() => {
+                              window.location.href = `/paste-view?id=${paste.id}`;
+                            }}
                             className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
                           >
                             Open
