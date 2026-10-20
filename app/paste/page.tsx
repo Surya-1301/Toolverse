@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -19,7 +20,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { apiUrl, fetchApi } from "@/lib/apiBase";
-import { copyTextNative, getFrontendOrigin, openInBrowser } from "@/lib/capacitor";
+import { copyTextNative, getFrontendOrigin, isNative, openInBrowser } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -63,6 +64,7 @@ type PasteResult = {
 type CopyType = "page" | "raw" | "";
 
 export default function PastePage() {
+  const router = useRouter();
   const [content, setContent] = useState("");
   const [language, setLanguage] = useState("plain_text");
   const [expiry, setExpiry] = useState("never");
@@ -185,8 +187,12 @@ export default function PastePage() {
       });
 
       if (response.ok) {
-        // Open internal app routes in the same WebView, not the system browser
-        window.location.href = `/paste-view?id=${alias}`;
+        // Use the Next.js router (not window.location) so the route is
+        // resolved by the app router. In the Capacitor APK the local
+        // server serves the root index.html for every extension-less
+        // path, so a hard navigation to /paste-view would land on the
+        // home page instead of the paste.
+        router.push(`/paste-view?id=${alias}`);
         return;
       }
 
@@ -463,7 +469,13 @@ export default function PastePage() {
             <div className="mt-0 grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={() => openInBrowser(pasteUrl)}
+                onClick={() => {
+                  if (isNative()) {
+                    router.push(`/paste-view?id=${result?.id}`);
+                    return;
+                  }
+                  openInBrowser(pasteUrl);
+                }}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
               >
                 Open
@@ -544,7 +556,7 @@ export default function PastePage() {
                           <button
                             type="button"
                             onClick={() => {
-                              window.location.href = `/paste-view?id=${paste.id}`;
+                              router.push(`/paste-view?id=${paste.id}`);
                             }}
                             className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
                           >
