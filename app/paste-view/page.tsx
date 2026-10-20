@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { fetchApi } from "@/lib/apiBase";
 
@@ -208,19 +209,27 @@ function PasteEditor() {
         ) : paste ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="truncate text-sm text-slate-500 light:text-slate-500">
-                Paste ID: {paste.id}
-              </p>
+              <Link
+                href="/paste"
+                className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Link>
 
-              <div className="flex shrink-0 items-center gap-2">
+              <div className="flex min-w-0 shrink items-center gap-2">
+                <span className="min-w-0 truncate rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400 light:bg-slate-100 light:text-slate-600">
+                  Paste ID: {paste.id}
+                </span>
+
                 {typeof paste.views === "number" && paste.views > 0 ? (
-                  <span className="rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400 light:text-slate-600">
+                  <span className="shrink-0 rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400 light:text-slate-600">
                     {paste.views} view{paste.views === 1 ? "" : "s"}
                   </span>
                 ) : null}
 
                 <div
-                  className={`rounded-full px-3 py-1 text-xs ${
+                  className={`shrink-0 rounded-full px-3 py-1 text-xs ${
                     saveStatus === "error"
                       ? "bg-red-500/10 text-red-300"
                       : saveStatus === "saving"
