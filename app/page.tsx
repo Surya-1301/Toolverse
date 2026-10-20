@@ -52,63 +52,22 @@ export default function Home() {
       ==================================================================== */}
 
       <div
-        className="
-          pointer-events-none
-          absolute
-          left-1/2
-          top-0
-          -z-0
-          h-80
-          w-80
-          -translate-x-1/2
-          rounded-full
-          bg-violet-600/30
-          blur-3xl
-        "
+        className="pointer-events-none absolute left-1/2 top-0 -z-0 h-80 w-80 -translate-x-1/2 rounded-full bg-violet-600/30 blur-3xl"
       />
 
       <div
-        className="
-          pointer-events-none
-          absolute
-          right-0
-          top-32
-          -z-0
-          h-72
-          w-72
-          rounded-full
-          bg-fuchsia-600/10
-          blur-3xl
-        "
+        className="pointer-events-none absolute right-0 top-32 -z-0 h-72 w-72 rounded-full bg-fuchsia-600/10 blur-3xl"
       />
 
       <Container
-        className="
-          relative
-          py-16
-          text-center
-          sm:py-20
-          lg:py-24
-        "
+        className="relative py-16 text-center sm:py-20 lg:py-24"
       >
         {/* ==================================================================
             BADGE
         ================================================================== */}
 
         <p
-          className="
-            mx-auto
-            inline-flex
-            rounded-full
-            border
-            border-violet-300/40
-            bg-violet-500/15
-            px-4
-            py-1.5
-            text-sm
-            font-medium
-            text-violet-100
-          "
+          className="mx-auto inline-flex rounded-full border border-violet-300/40 bg-violet-500/15 px-4 py-1.5 text-sm font-medium text-violet-100"
         >
           Fast, free, privacy-friendly online tools
         </p>
@@ -118,7 +77,7 @@ export default function Home() {
         ================================================================== */}
 
         <h1
-          className=" mx-auto mt-6 max-w-5xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:mt-7 sm:text-6xl lg:text-7xl light:text-slate-900"
+          className="mx-auto mt-6 max-w-5xl text-4xl font-bold leading-[1.05] tracking-tight text-white sm:mt-7 sm:text-6xl lg:text-7xl light:text-slate-900"
         >
           Your everyday utility toolkit for the web.
         </h1>
@@ -128,7 +87,7 @@ export default function Home() {
         ================================================================== */}
 
         <p
-          className=" mx-auto mt-6 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8 light:text-slate-700"
+          className="mx-auto mt-6 max-w-3xl text-base leading-7 text-slate-300 sm:text-lg sm:leading-8 light:text-slate-700"
         >
           Toolverse gives developers, creators, and everyday users clean tools
           for formatting, generating, compressing, hosting, sharing, and
@@ -152,31 +111,7 @@ export default function Home() {
         <div className="mt-6 flex justify-center">
           <Link
             href="/tools"
-            className="
-              inline-flex
-              min-h-11
-              items-center
-              justify-center
-              rounded-xl
-              bg-violet-600
-              px-6
-              py-3
-              text-sm
-              font-semibold
-              text-white
-              shadow-md
-              shadow-violet-600/15
-              transition-all
-              duration-200
-              hover:bg-violet-500
-              hover:shadow-lg
-              hover:shadow-violet-500/20
-              focus:outline-none
-              focus-visible:ring-2
-              focus-visible:ring-violet-400/70
-              focus-visible:ring-offset-2
-              focus-visible:ring-offset-slate-950
-            "
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-violet-600/15 transition-all duration-200 hover:bg-violet-500 hover:shadow-lg hover:shadow-violet-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
           >
             Explore all tools
           </Link>
@@ -187,14 +122,7 @@ export default function Home() {
         ================================================================== */}
 
         <div
-          className="
-            mx-auto
-            mt-14
-            grid
-            max-w-5xl
-            gap-5
-            md:grid-cols-3
-          "
+          className="mx-auto mt-14 grid max-w-5xl gap-5 md:grid-cols-3"
         >
           {features.map((feature) => {
             const Icon = feature.icon;
@@ -202,26 +130,14 @@ export default function Home() {
             return (
               <div
                 key={feature.title}
-                className=" group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 text-left shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:border-violet-400/40 max-sm:p-5 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10"
+                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 text-left shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:border-violet-400/40 max-sm:p-5 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10"
               >
                 {/* ==========================================================
                     CARD BACKGROUND GLOW
                 ========================================================== */}
 
                 <div
-                  className="
-                    pointer-events-none
-                    absolute
-                    -right-10
-                    -top-10
-                    h-28
-                    w-28
-                    rounded-full
-                    bg-violet-500/10
-                    blur-2xl
-                    transition
-                    group-hover:bg-violet-500/20
-                  "
+                  className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-violet-500/10 blur-2xl transition group-hover:bg-violet-500/20"
                 />
 
                 {/* ==========================================================
@@ -230,23 +146,7 @@ export default function Home() {
 
                 <div className="relative hidden sm:block">
                   <div
-                    className="
-                      mb-5
-                      flex
-                      h-12
-                      w-12
-                      items-center
-                      justify-center
-                      rounded-2xl
-                      bg-violet-600/15
-                      text-violet-300
-                      ring-1
-                      ring-violet-400/20
-                      transition
-                      group-hover:scale-105
-                      group-hover:bg-violet-600/25
-                      group-hover:text-violet-200
-                    "
+                    className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20 transition group-hover:scale-105 group-hover:bg-violet-600/25 group-hover:text-violet-200"
                   >
                     <Icon
                       aria-hidden="true"
@@ -268,32 +168,10 @@ export default function Home() {
                 ========================================================== */}
 
                 <div
-                  className="
-                    relative
-                    flex
-                    items-start
-                    gap-4
-                    sm:hidden
-                  "
+                  className="relative flex items-start gap-4 sm:hidden"
                 >
                   <div
-                    className="
-                      flex
-                      h-[76px]
-                      w-[76px]
-                      shrink-0
-                      items-center
-                      justify-center
-                      rounded-2xl
-                      bg-violet-600/20
-                      text-violet-300
-                      ring-1
-                      ring-violet-400/20
-                      transition
-                      group-hover:scale-105
-                      group-hover:bg-violet-600/25
-                      group-hover:text-violet-200
-                    "
+                    className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300 ring-1 ring-violet-400/20 transition group-hover:scale-105 group-hover:bg-violet-600/25 group-hover:text-violet-200"
                   >
                     <Icon
                       aria-hidden="true"
@@ -302,20 +180,16 @@ export default function Home() {
                   </div>
 
                   <div
-                    className="
-                      min-w-0
-                      flex-1
-                      pt-1
-                    "
+                    className="min-w-0 flex-1 pt-1"
                   >
                     <h2
-                      className=" text-[20px] font-bold leading-[1.3] tracking-tight text-white light:text-slate-900"
+                      className="text-[20px] font-bold leading-[1.3] tracking-tight text-white light:text-slate-900"
                     >
                       {feature.title}
                     </h2>
 
                     <p
-                      className=" mt-3 text-[16px] leading-7 text-slate-400 light:text-slate-600"
+                      className="mt-3 text-[16px] leading-7 text-slate-400 light:text-slate-600"
                     >
                       {feature.description}
                     </p>

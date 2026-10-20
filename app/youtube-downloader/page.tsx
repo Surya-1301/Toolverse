@@ -329,7 +329,7 @@ export default function YoutubeDownloaderPage() {
                     href={details.videos[details.videos.length - 1].url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-500"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                   >
                     <Download className="h-4 w-4" />
                     Best video ({details.videos[details.videos.length - 1].label})
@@ -379,7 +379,7 @@ export default function YoutubeDownloaderPage() {
                         href={v.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                       >
                         <Download className="h-4 w-4" />
                         Download
@@ -415,7 +415,7 @@ export default function YoutubeDownloaderPage() {
                         href={a.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                       >
                         <Download className="h-4 w-4" />
                         Download
@@ -453,7 +453,7 @@ export default function YoutubeDownloaderPage() {
                       </div>
                       <a
                         href={serverDownloadHref(r)}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                       >
                         <Download className="h-4 w-4" />
                         Download

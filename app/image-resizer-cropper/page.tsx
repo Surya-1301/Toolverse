@@ -692,7 +692,7 @@ export default function ImageResizerCropperPage() {
           {outputPreview ? (
             <button
               onClick={download}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
             >
               <Download className="h-4 w-4" />
               Download {outputName} image

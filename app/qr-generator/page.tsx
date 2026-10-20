@@ -342,7 +342,7 @@ function QrGeneratorContent() {
             <button
               onClick={downloadPng}
               disabled={!qrPng}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
             >
               <Download className="h-4 w-4" />
               PNG
@@ -351,7 +351,7 @@ function QrGeneratorContent() {
             <button
               onClick={downloadSvg}
               disabled={!qrSvg}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
             >
               <Download className="h-4 w-4" />
               SVG

@@ -537,24 +537,7 @@ export default function ImageConverterPage() {
                 openPicker();
               }
             }}
-            className="
-              flex
-              min-h-[230px]
-              cursor-pointer
-              flex-col
-              items-center
-              justify-center
-              rounded-2xl
-              border
-              border-dashed
-              border-white/15
-              bg-slate-950
-              p-6
-              text-center
-              transition
-              hover:border-violet-500/60
-              hover:bg-white/[0.03]
-            light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
+            className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
           >
             <Upload className="mb-3 h-9 w-9 text-violet-300" />
 
@@ -631,19 +614,7 @@ export default function ImageConverterPage() {
                     event.target.value as OutputFormat,
                   )
                 }
-                className="
-                  w-full
-                  rounded-xl
-                  border
-                  border-white/10
-                  bg-slate-950
-                  px-4
-                  py-3
-                  text-white
-                  outline-none
-                  transition
-                  focus:border-violet-500
-                light:border-slate-900/10 light:bg-white light:text-slate-900"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 <option value="image/png">
                   PNG
@@ -695,29 +666,7 @@ export default function ImageConverterPage() {
               type="button"
               onClick={convertImage}
               disabled={isProcessing || !file}
-              className="
-                inline-flex
-                min-h-11
-                flex-1
-                items-center
-                justify-center
-                gap-2
-                whitespace-nowrap
-                rounded-xl
-                bg-violet-600
-                px-4
-                py-2.5
-                text-xs
-                font-semibold
-                text-white
-                transition
-                hover:bg-violet-500
-                disabled:cursor-not-allowed
-                disabled:bg-slate-700
-                disabled:text-slate-400
-                sm:px-4
-                sm:text-sm
-              light:disabled:bg-slate-200"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
             >
               <Wand2 className="h-4 w-4" />
 
@@ -729,25 +678,7 @@ export default function ImageConverterPage() {
             <button
               type="button"
               onClick={clearAll}
-              className="
-                inline-flex
-                min-h-11
-                flex-1
-                items-center
-                justify-center
-                gap-2
-                rounded-xl
-                border
-                border-red-500/30
-                px-4
-                py-2.5
-                text-sm
-                font-semibold
-                text-red-300
-                transition
-                hover:bg-red-500/10
-
-              "
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -775,30 +706,13 @@ export default function ImageConverterPage() {
           {/* Preview */}
 
           <div
-            className="
-              flex
-              min-h-[420px]
-              items-center
-              justify-center
-              rounded-2xl
-              border
-              border-dashed
-              border-white/15
-              bg-slate-950
-              p-6
-              text-center
-            light:border-slate-900/15 light:bg-white"
+            className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center light:border-slate-900/15 light:bg-white"
           >
             {outputPreview ? (
               <img
                 src={outputPreview}
                 alt="Converted output preview"
-                className="
-                  max-h-[380px]
-                  max-w-full
-                  rounded-xl
-                  object-contain
-                "
+                className="max-h-[380px] max-w-full rounded-xl object-contain"
               />
             ) : (
               <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
@@ -845,26 +759,7 @@ export default function ImageConverterPage() {
             type="button"
             onClick={downloadConvertedImage}
             disabled={!convertedBlob}
-            className="
-              mt-5
-              inline-flex
-              w-full
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-violet-600
-              px-4
-              py-2.5
-              text-sm
-              font-semibold
-              text-white
-              transition
-              hover:bg-violet-500
-              disabled:cursor-not-allowed
-              disabled:bg-slate-700
-              disabled:text-slate-400
-            light:disabled:bg-slate-200"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
           >
             <Download className="h-4 w-4" />
             Download converted image

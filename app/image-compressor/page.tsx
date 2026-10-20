@@ -947,7 +947,7 @@ export default function ImageCompressorPage() {
                 <button
                   type="button"
                   onClick={downloadCompressedFile}
-                  className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl bg-emerald-600 px-7 py-3 text-base font-semibold text-white transition hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-auto light:focus-visible:ring-offset-slate-100"
+                  className="inline-flex min-h-12 w-full shrink-0 items-center justify-center gap-2 rounded-2xl px-7 py-3 text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 sm:w-auto light:focus-visible:ring-offset-slate-100 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                 >
                   <Download className="h-5 w-5" />
                   Download

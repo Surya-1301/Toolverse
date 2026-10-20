@@ -382,8 +382,7 @@ export default function MarkdownToPdfPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-          Write Markdown, preview it live, and download a real PDF file —
-          on web or in the app.
+          Write Markdown, preview it live, and download a real PDF file.
         </p>
       </div>
 
@@ -444,7 +443,7 @@ export default function MarkdownToPdfPage() {
         <button
           onClick={downloadPdf}
           disabled={!input.trim() || isGenerating}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
         >
           <Download className="h-4 w-4" />
           {isGenerating ? "Generating…" : "Download PDF"}

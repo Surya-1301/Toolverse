@@ -113,7 +113,7 @@ function BackToToolsLink() {
       href="/tools/formatter-tools"
       className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
-      <ArrowLeft className="h-4 w-4" />
+      <ArrowLeft className="h-4 w-4 shrink-0" />
       Back to tools
     </Link>
   );
@@ -231,9 +231,9 @@ export default function HtmlFormatterPage() {
               className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
             >
               {copied ? (
-                <Check className="h-4 w-4" />
+                <Check className="h-4 w-4 shrink-0" />
               ) : (
-                <Copy className="h-4 w-4" />
+                <Copy className="h-4 w-4 shrink-0" />
               )}
               {copied ? "Copied" : "Copy"}
             </button>
@@ -257,33 +257,33 @@ export default function HtmlFormatterPage() {
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={formatHtml}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
-          <Wand2 className="h-4 w-4" />
+          <Wand2 className="h-4 w-4 shrink-0" />
           Format HTML
         </button>
 
         <button
           onClick={minifyHtml}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
-          <Minimize2 className="h-4 w-4" />
+          <Minimize2 className="h-4 w-4 shrink-0" />
           Minify HTML
         </button>
 
         <button
           onClick={validateHtml}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
         >
-          <Check className="h-4 w-4" />
+          <Check className="h-4 w-4 shrink-0" />
           Validate tags
         </button>
 
         <button
           onClick={clearAll}
-          className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
         >
-          <Eraser className="h-4 w-4" />
+          <Eraser className="h-4 w-4 shrink-0" />
           Clear
         </button>
       </div>

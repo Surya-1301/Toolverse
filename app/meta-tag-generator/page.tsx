@@ -534,7 +534,7 @@ export default function MetaTagGeneratorPage() {
                 type="button"
                 onClick={downloadSnippet}
                 disabled={!snippet}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/15 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/15 light:text-slate-900 light:hover:bg-slate-900/5"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
               >
                 <Download className="h-4 w-4" />
                 .html

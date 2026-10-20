@@ -276,7 +276,7 @@ export default function ImageUpscalerPage() {
               <button
                 onClick={download}
                 disabled={!resultUrl}
-                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:disabled:bg-slate-200 light:disabled:text-slate-400 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -326,7 +326,7 @@ export default function ImageUpscalerPage() {
             {resultUrl ? (
               <button
                 onClick={download}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 sm:hidden"
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:hidden border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
               >
                 <Download className="h-4 w-4" />
                 Download PNG

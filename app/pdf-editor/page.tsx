@@ -4079,7 +4079,7 @@ function PdfEditorPageContent() {
                           type="button"
                           onClick={downloadOutput}
                           disabled={!output}
-                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700 light:disabled:bg-slate-200"
+                          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 disabled:hover:bg-slate-700 light:disabled:bg-slate-200 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                         >
                           <Download className="h-4 w-4" />
                           Download

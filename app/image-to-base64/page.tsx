@@ -216,25 +216,7 @@ export default function ImageToBase64Page() {
           </label>
 
           <label
-            className="
-              flex
-              min-h-[200px]
-              cursor-pointer
-              flex-col
-              items-center
-              justify-center
-              gap-3
-              rounded-2xl
-              border
-              border-dashed
-              border-white/15
-              bg-slate-950/50
-              p-6
-              text-center
-              transition
-              hover:border-violet-400/40
-              hover:bg-white/[0.03]
-            light:border-slate-900/15 light:bg-slate-100 light:hover:bg-slate-50"
+            className="flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 bg-slate-950/50 p-6 text-center transition hover:border-violet-400/40 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-slate-100 light:hover:bg-slate-50"
           >
             <FileImage className="h-10 w-10 text-slate-500 light:text-slate-500" />
 
@@ -331,7 +313,7 @@ export default function ImageToBase64Page() {
 
         <button
           onClick={downloadImage}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
         >
           <Download className="h-4 w-4" />
           <span className="sm:hidden">Image</span>

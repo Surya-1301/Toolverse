@@ -434,7 +434,7 @@ export default function FaviconGeneratorPage() {
                     <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                       <button
                         onClick={downloadManifest}
-                        className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-white/10 px-4 py-3 text-xs font-semibold text-white transition hover:bg-white/10 sm:px-4 sm:text-sm light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                        className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-3 text-xs font-semibold transition sm:px-4 sm:text-sm border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                       >
                         <Download className="h-4 w-4" />
                         Download manifest

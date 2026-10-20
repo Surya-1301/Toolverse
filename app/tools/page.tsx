@@ -165,24 +165,7 @@ function CategoryToolCard({
   return (
     <Link
       href={href}
-      className="
-        group
-        relative
-        block
-        overflow-hidden
-        rounded-2xl
-        border
-        border-white/10
-        bg-white/[0.03]
-        transition
-        duration-200
-
-        hover:-translate-y-1
-        hover:border-violet-400/40
-        hover:bg-white/[0.05]
-
-        max-sm:rounded-[28px]
-      light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+      className="group relative block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition duration-200 hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] max-sm:rounded-[28px] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
     >
       {/* ================================================================
           DESKTOP VERSION
@@ -272,19 +255,7 @@ function CategoryToolCard({
           ============================================================ */}
 
           <div
-            className="
-              flex
-              h-[76px]
-              w-[76px]
-              shrink-0
-              items-center
-              justify-center
-              rounded-[23px]
-              bg-violet-600/25
-              text-violet-200
-              ring-1
-              ring-violet-400/25
-            "
+            className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-[23px] bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25"
           >
             {icon}
           </div>
@@ -294,22 +265,12 @@ function CategoryToolCard({
           ============================================================ */}
 
           <div
-            className="
-              min-w-0
-              flex-1
-              pr-12
-            "
+            className="min-w-0 flex-1 pr-12"
           >
             {/* Title */}
 
             <h2
-              className="
-                text-[21px]
-                font-bold
-                leading-[1.25]
-                tracking-tight
-                text-white
-              light:text-slate-900"
+              className="text-[21px] font-bold leading-[1.25] tracking-tight text-white light:text-slate-900"
             >
               {title}
             </h2>
@@ -317,12 +278,7 @@ function CategoryToolCard({
             {/* Description */}
 
             <p
-              className="
-                mt-3
-                text-[16px]
-                leading-7
-                text-slate-400
-              light:text-slate-600"
+              className="mt-3 text-[16px] leading-7 text-slate-400 light:text-slate-600"
             >
               {description}
             </p>

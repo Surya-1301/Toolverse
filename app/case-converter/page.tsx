@@ -191,17 +191,7 @@ function BackToToolsLink() {
   return (
     <Link
       href="/tools/text-developer-tools"
-      className="
-        mb-8
-        inline-flex
-        items-center
-        gap-2
-        text-sm
-        font-semibold
-        text-slate-400
-        transition
-        hover:text-white
-      light:text-slate-600 light:hover:text-slate-900"
+      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
     >
       <ArrowLeft className="h-4 w-4" />
       Back to tools
@@ -272,25 +262,13 @@ export default function CaseConverterPage() {
 
       <div className="mx-auto max-w-3xl text-center">
         <h1
-          className="
-            text-3xl
-            font-bold
-            tracking-tight
-            text-white
-            sm:text-5xl
-          light:text-slate-900"
+          className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900"
         >
           Case Converter
         </h1>
 
         <p
-          className="
-            mt-4
-            text-base
-            leading-7
-            text-slate-400
-            sm:text-lg
-          light:text-slate-600"
+          className="mt-4 text-base leading-7 text-slate-400 sm:text-lg light:text-slate-600"
         >
           Quickly convert text between uppercase, lowercase,
           title, sentence, camel, snake, kebab.
@@ -302,34 +280,14 @@ export default function CaseConverterPage() {
       ==================================================================== */}
 
       <div
-        className="
-          mx-auto
-          mt-8
-          max-w-5xl
-          rounded-3xl
-          border
-          border-white/10
-          bg-white/[0.03]
-          p-3.5
-
-          sm:mt-10
-          sm:p-6
-        light:border-slate-900/10 light:bg-white"
+        className="mx-auto mt-8 max-w-5xl rounded-3xl border border-white/10 bg-white/[0.03] p-3.5 sm:mt-10 sm:p-6 light:border-slate-900/10 light:bg-white"
       >
         {/* ================================================================
             CASE SELECTOR
         ================================================================ */}
 
         <div
-          className="
-            grid
-            grid-cols-3
-            gap-2
-
-            sm:flex
-            sm:flex-wrap
-            sm:gap-2
-          "
+          className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:gap-2"
         >
           {conversions.map(([name]) => (
             <button
@@ -392,13 +350,7 @@ export default function CaseConverterPage() {
 
           <div>
             <label
-              className="
-                mb-3
-                block
-                text-sm
-                font-semibold
-                text-slate-300
-              light:text-slate-700"
+              className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700"
             >
               Input text
             </label>
@@ -409,25 +361,7 @@ export default function CaseConverterPage() {
                 setInput(event.target.value)
               }
               placeholder="Type or paste text here..."
-              className="
-                min-h-[320px]
-                w-full
-                resize-y
-                rounded-2xl
-                border
-                border-white/10
-                bg-slate-950
-                p-4
-                text-base
-                leading-7
-                text-slate-100
-                outline-none
-                transition
-                placeholder:text-slate-600
-                focus:border-violet-500
-
-                sm:min-h-[360px]
-              light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="min-h-[320px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 text-base leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 sm:min-h-[360px] light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -435,13 +369,7 @@ export default function CaseConverterPage() {
 
           <div>
             <label
-              className="
-                mb-3
-                block
-                text-sm
-                font-semibold
-                text-slate-300
-              light:text-slate-700"
+              className="mb-3 block text-sm font-semibold text-slate-300 light:text-slate-700"
             >
               Output · {mode}
             </label>
@@ -450,23 +378,7 @@ export default function CaseConverterPage() {
               value={output}
               readOnly
               placeholder="Converted text will appear here..."
-              className="
-                min-h-[320px]
-                w-full
-                resize-y
-                rounded-2xl
-                border
-                border-white/10
-                bg-slate-950
-                p-4
-                text-base
-                leading-7
-                text-slate-100
-                outline-none
-                placeholder:text-slate-600
-
-                sm:min-h-[360px]
-              light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="min-h-[320px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 text-base leading-7 text-slate-100 outline-none placeholder:text-slate-600 sm:min-h-[360px] light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -476,13 +388,7 @@ export default function CaseConverterPage() {
         ================================================================ */}
 
         <div
-          className="
-            mt-5
-            grid
-            grid-cols-2
-            gap-3
-            sm:grid-cols-3
-          "
+          className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3"
         >
           {/* Convert */}
 
@@ -490,25 +396,7 @@ export default function CaseConverterPage() {
             type="button"
             onClick={convert}
             disabled={!input}
-            className="
-              inline-flex
-              min-h-[44px]
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              bg-violet-600
-              px-4
-              py-2.5
-              text-sm
-              font-semibold
-              text-white
-              transition
-              hover:bg-violet-500
-              disabled:cursor-not-allowed
-              disabled:bg-slate-700
-              disabled:text-slate-400
-            light:disabled:bg-slate-200"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200"
           >
             <Sparkles className="h-4 w-4" />
             Convert text
@@ -520,25 +408,7 @@ export default function CaseConverterPage() {
             type="button"
             onClick={copyOutput}
             disabled={!output}
-            className="
-              inline-flex
-              min-h-[44px]
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              border
-              border-white/10
-              px-4
-              py-2.5
-              text-sm
-              font-semibold
-              text-slate-200
-              transition
-              hover:bg-white/10
-              disabled:cursor-not-allowed
-              disabled:text-slate-600
-            light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:text-slate-600 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -554,25 +424,7 @@ export default function CaseConverterPage() {
           <button
             type="button"
             onClick={clear}
-            className="
-              col-span-2
-              inline-flex
-              min-h-[44px]
-              items-center
-              justify-center
-              gap-2
-              rounded-xl
-              border
-              border-red-500/30
-              px-4
-              py-2.5
-              text-sm
-              font-semibold
-              text-red-300
-              transition
-              hover:bg-red-500/10
-              sm:col-span-1
-            "
+            className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
           >
             <Eraser className="h-4 w-4" />
             Clear

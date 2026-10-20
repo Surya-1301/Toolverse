@@ -590,7 +590,7 @@ export default function AudioConverterPage() {
                   </div>
                   <button
                     onClick={download}
-                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-emerald-500"
+                    className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
                   >
                     <Download className="h-4 w-4" /> Download
                   </button>
