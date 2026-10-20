@@ -9,7 +9,9 @@
     "preview:cloudflare": "opennextjs-cloudflare preview",
     "deploy:cloudflare": "opennextjs-cloudflare deploy",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "build:android": "next build && node scripts/build-android.js && npx cap sync android",
+    "apk": "npm run build:android && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
     "@breezystack/lamejs": "^1.2.7",
