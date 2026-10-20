@@ -17,7 +17,61 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
-import { fetchPdfApi } from "@/lib/apiBase";
+import { Capacitor } from "@capacitor/core";
+
+function getImageApiBaseUrl() {
+  const envUrl = process.env.NEXT_PUBLIC_IMAGE_API_BASE_URL;
+
+  if (envUrl && envUrl.trim()) {
+    return envUrl.replace(/\/$/, "");
+  }
+
+  // Local web dev only. Inside the native app the origin is also
+  // https://localhost, but http://localhost:10000 doesn't exist on the
+  // phone (and would be blocked as mixed content) — so never use it there.
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "localhost" &&
+    !Capacitor.isNativePlatform()
+  ) {
+    return "http://localhost:10000";
+  }
+
+  return "";
+}
+
+function formatApiDetail(detail: unknown): string {
+  if (typeof detail === "string") return detail;
+
+  if (Array.isArray(detail)) {
+    const messages = detail
+      .map((entry) => {
+        if (typeof entry === "string") return entry;
+        if (entry && typeof entry === "object" && "msg" in entry) {
+          const msg = (entry as { msg?: unknown }).msg;
+          return typeof msg === "string" ? msg : "";
+        }
+        return "";
+      })
+      .filter(Boolean);
+
+    if (messages.length) return messages.join(" ");
+  }
+
+  return "";
+}
+
+function getImageApiErrorMessage(
+  data: { error?: string; detail?: unknown } | null,
+  responseText: string,
+) {
+  if (data?.error) return data.error;
+
+  const detailMessage = formatApiDetail(data?.detail);
+  if (detailMessage) return detailMessage;
+
+  return responseText.trim();
+}
 
 function BackToToolsLink() {
   return (
@@ -425,7 +479,7 @@ export default function ImageCompressorPage() {
 
     if (!bestBlob) {
       throw new Error(
-        "Could not compress PDF. Please check the PDF compression backend.",
+        "Could not compress PDF. Please check the image compression backend.",
       );
     }
 
@@ -437,24 +491,32 @@ export default function ImageCompressorPage() {
     formData.append("file", file);
     formData.append("quality", String(pdfQuality));
 
+    const imageApiBaseUrl = getImageApiBaseUrl();
+
+    if (!imageApiBaseUrl) {
+      throw new Error(
+        "Image API URL is missing. Add NEXT_PUBLIC_IMAGE_API_BASE_URL and redeploy.",
+      );
+    }
+
     let response: Response;
 
     try {
-      response = await fetchPdfApi("/api/pdf/compress", {
+      response = await fetch(`${imageApiBaseUrl}/api/pdf/compress`, {
         method: "POST",
         body: formData,
       });
     } catch (caughtError) {
       throw new Error(
         caughtError instanceof Error
-          ? `Could not reach PDF backend: ${caughtError.message}`
-          : "Could not reach PDF backend.",
+          ? `Could not reach image backend: ${caughtError.message}`
+          : "Could not reach image backend.",
       );
     }
 
     if (!response.ok) {
       const responseText = await response.text();
-      let data: { error?: string } | null = null;
+      let data: { error?: string; detail?: unknown } | null = null;
 
       try {
         data = responseText ? JSON.parse(responseText) : null;
@@ -463,9 +525,8 @@ export default function ImageCompressorPage() {
       }
 
       throw new Error(
-        data?.error ||
-          responseText ||
-          "Could not compress PDF. Please check the PDF compression backend.",
+        getImageApiErrorMessage(data, responseText) ||
+          "Could not compress PDF. Please check the image compression backend.",
       );
     }
 

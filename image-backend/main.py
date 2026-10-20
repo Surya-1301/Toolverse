@@ -1,8 +1,11 @@
 import os
+import shutil
+import subprocess
+import tempfile
 import uuid
 
 import requests
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import Response
 
@@ -33,6 +36,7 @@ app.add_middleware(
 )
 
 MAX_FILE_SIZE = 25 * 1024 * 1024
+MAX_PDF_SIZE = 50 * 1024 * 1024
 
 ALLOWED_CONTENT_TYPES = {
     "image/png",
@@ -157,6 +161,177 @@ async def remove_background(file: UploadFile = File(...)):
         media_type="image/png",
         headers={
             "Content-Disposition": f'attachment; filename="{output_name}"',
+            "Cache-Control": "no-store",
+        },
+    )
+
+
+def _pdf_settings(quality: float) -> str:
+    if quality >= 0.85:
+        return "/printer"
+    if quality >= 0.6:
+        return "/ebook"
+    return "/screen"
+
+
+def _pdf_resolution(quality: float) -> tuple[str, str, str]:
+    if quality >= 0.85:
+        return ("220", "220", "300")
+    if quality >= 0.6:
+        return ("150", "150", "200")
+    if quality >= 0.35:
+        return ("100", "100", "150")
+    if quality >= 0.05:
+        return ("72", "72", "100")
+    # Ultra tier — smallest possible output for tiny targets.
+    return ("50", "50", "72")
+
+
+def _pdf_jpeg_quality(quality: float) -> str | None:
+    if quality >= 0.35:
+        return None
+    if quality >= 0.05:
+        return "50"
+    return "25"
+
+
+@app.post("/api/pdf/compress")
+async def compress_pdf(
+    file: UploadFile = File(...),
+    quality: str = Form("0.6"),
+):
+    try:
+        quality_value = float(quality)
+    except (TypeError, ValueError):
+        quality_value = 0.6
+
+    if not file:
+        raise HTTPException(status_code=400, detail="PDF file is required.")
+
+    file_bytes = await file.read()
+
+    if not file_bytes:
+        raise HTTPException(status_code=400, detail="Uploaded PDF is empty.")
+
+    if len(file_bytes) > MAX_PDF_SIZE:
+        raise HTTPException(
+            status_code=413,
+            detail="PDF is too large. Maximum allowed size is 50 MB.",
+        )
+
+    original_name = file.filename or "document.pdf"
+    lower_name = original_name.lower()
+    content_type = (file.content_type or "").lower()
+
+    if content_type != "application/pdf" and not lower_name.endswith(".pdf"):
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported file type. Please upload a PDF file.",
+        )
+
+    if not file_bytes.startswith(b"%PDF"):
+        raise HTTPException(
+            status_code=400,
+            detail="That file is not a valid PDF.",
+        )
+
+    if not shutil.which("gs"):
+        raise HTTPException(
+            status_code=500,
+            detail="Ghostscript is not installed on the image backend.",
+        )
+
+    pdf_settings = _pdf_settings(quality_value)
+    color_res, gray_res, mono_res = _pdf_resolution(quality_value)
+    jpeg_quality = _pdf_jpeg_quality(quality_value)
+
+    args = [
+        "gs",
+        "-sDEVICE=pdfwrite",
+        "-dCompatibilityLevel=1.4",
+        f"-dPDFSETTINGS={pdf_settings}",
+        "-dNOPAUSE",
+        "-dQUIET",
+        "-dBATCH",
+        "-dDetectDuplicateImages=true",
+        "-dCompressFonts=true",
+        "-dSubsetFonts=true",
+        "-dEmbedAllFonts=true",
+        "-dAutoRotatePages=/None",
+        "-dColorImageDownsampleType=/Bicubic",
+        f"-dColorImageResolution={color_res}",
+        "-dGrayImageDownsampleType=/Bicubic",
+        f"-dGrayImageResolution={gray_res}",
+        "-dMonoImageDownsampleType=/Subsample",
+        f"-dMonoImageResolution={mono_res}",
+        "-dColorImageDownsampleThreshold=1.0",
+        "-dGrayImageDownsampleThreshold=1.0",
+        "-dMonoImageDownsampleThreshold=1.0",
+    ]
+
+    if jpeg_quality is not None:
+        args += [
+            "-dAutoFilterColorImages=false",
+            "-dColorImageFilter=/DCTEncode",
+            "-dAutoFilterGrayImages=false",
+            "-dGrayImageFilter=/DCTEncode",
+            f"-dJPEGQ={jpeg_quality}",
+        ]
+
+    with tempfile.TemporaryDirectory(prefix="toolverse-pdf-") as tmpdir:
+        input_path = os.path.join(tmpdir, f"input-{uuid.uuid4().hex}.pdf")
+        output_path = os.path.join(tmpdir, f"output-{uuid.uuid4().hex}.pdf")
+
+        with open(input_path, "wb") as handle:
+            handle.write(file_bytes)
+
+        args += [f"-sOutputFile={output_path}", input_path]
+
+        try:
+            completed = subprocess.run(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=120,
+            )
+        except subprocess.TimeoutExpired:
+            raise HTTPException(
+                status_code=500,
+                detail="Ghostscript PDF compression timed out.",
+            )
+
+        if completed.returncode != 0 or not os.path.exists(output_path):
+            detail = (completed.stderr or completed.stdout or b"").decode(
+                "utf-8", errors="ignore"
+            )
+            raise HTTPException(
+                status_code=500,
+                detail=detail or "Ghostscript PDF compression failed.",
+            )
+
+        with open(output_path, "rb") as handle:
+            compressed_bytes = handle.read()
+
+    base = os.path.splitext(os.path.basename(original_name))[0] or "document"
+    output_name = f"{base}-compressed.pdf"
+
+    # Match pdf-backend behaviour: never return a larger file.
+    payload = (
+        compressed_bytes
+        if compressed_bytes and len(compressed_bytes) < len(file_bytes)
+        else file_bytes
+    )
+
+    return Response(
+        content=payload,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": f'attachment; filename="{output_name}"',
+            "X-Original-Size": str(len(file_bytes)),
+            "X-Compressed-Size": str(len(payload)),
+            "X-Compression-Used": (
+                "compressed" if len(payload) < len(file_bytes) else "original"
+            ),
             "Cache-Control": "no-store",
         },
     )

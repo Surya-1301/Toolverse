@@ -7,7 +7,7 @@
 
 ![Toolverse Home](public/home.png)
 
-**Free online utilities — formatters, converters, generators, image tools, PDF tools, and sharing tools, right in your browser.**
+**Free online utilities — formatters, converters, generators, image tools, and sharing tools, right in your browser.**
 
 No sign-up. Most tools run entirely on your device, so your input never leaves your computer.
 
@@ -24,7 +24,7 @@ No sign-up. Most tools run entirely on your device, so your input never leaves y
 ## Android app
 ![Toolverse Download](public/app.png)
 
-Toolverse is also available as a native Android app — all 65 tools, wrapped with Capacitor.
+Toolverse is also available as a native Android app — all 59 tools, wrapped with Capacitor.
 
 📥 **Download:** https://downloadtoolverse.dpdns.org/
 
@@ -38,7 +38,7 @@ Toolverse is also available as a native Android app — all 65 tools, wrapped wi
 
 ## Features
 
-65 tools across 6 categories. Every tool has its own page with step-by-step guidance and FAQs.
+59 tools across 4 categories. Every tool has its own page with step-by-step guidance and FAQs.
 
 ### Sharing & Hosting
 
@@ -131,16 +131,13 @@ HTML Formatter · CSS Formatter · JavaScript Formatter · TypeScript Formatter 
 
 ### PDF Tools
 
-The PDF workspace includes a browser-based PDF editor and dedicated routes for:
+The standalone PDF editor now lives on [PDFVerse](https://pdfverse.pages.dev/) — a dedicated
+site with merging, splitting, extraction, conversion, compression, forms, OCR, and security
+tools. On Toolverse, `/pdf-editor` and `/pdf-to-markdown` simply redirect there.
 
-- Merging, splitting, removing, extracting, and reordering pages
-- Adding pages, text, page numbers, and watermarks
-- Cropping, repairing, compressing, and editing metadata
-- Filling and signing PDF forms
-- Converting Office files, HTML, images, and PDFs
-- Extracting PDF text and images
-- Unlocking, protecting, redacting, and comparing PDFs
-- Converting PDFs to Markdown
+PDF compression itself remains available on Toolverse via the
+[Image & PDF Compressor](/image-compressor), and Markdown to PDF stays in the
+Conversion Tools category.
 
 ---
 
@@ -154,13 +151,13 @@ The PDF workspace includes a browser-based PDF editor and dedicated routes for:
 
 ## How it works
 
-**Browser-first architecture.** The vast majority of tools run 100% client-side — formatters, converters, generators, image tools, and the PDF editor never upload your input.
+**Browser-first architecture.** The vast majority of tools run 100% client-side — formatters, converters, generators, and image tools never upload your input.
 
 **Cloudflare Worker API.** Sharing tools (paste, URL shortener, image/file hosting) run on the Toolverse API — Cloudflare Workers with D1 metadata and R2 file storage.
 
-**Image backend.** Background removal runs on the Toolverse image API (FastAPI + remove.bg).
+**Image backend.** Background removal and PDF compression run on the Toolverse image API (FastAPI + remove.bg + Ghostscript).
 
-**PDF backend.** Heavier PDF operations run on the Toolverse PDF API (Node.js + Express).
+**PDF editor.** The standalone PDF editor lives on [PDFVerse](https://pdfverse.pages.dev/); the Toolverse `/pdf-editor` and `/pdf-to-markdown` routes redirect there.
 
 ---
 
@@ -170,9 +167,9 @@ The PDF workspace includes a browser-based PDF editor and dedicated routes for:
 
 - **Next.js 16** (App Router) + **React 19**
 - **TypeScript** · **Tailwind CSS 4**
-- `pdf-lib` / `pdfjs-dist` — PDF editing & rendering
+- `pdf-lib` — client-side PDF generation
 - `browser-image-compression`, `heic2any` — image workflows
-- `qrcode`, `xlsx`, `lamejs`, `@dnd-kit`, `bcryptjs`, `lucide-react`
+- `qrcode`, `xlsx`, `lamejs`, `bcryptjs`, `lucide-react`
 
 ### Cloudflare API Worker (`backend/`)
 
@@ -188,12 +185,7 @@ Deployed separately on Render (Docker).
 
 - **Python + FastAPI + Uvicorn** — API
 - **Pillow**, `python-multipart`, `requests` — image handling & remove.bg
-
-### PDF Backend (`pdf-backend/`)
-
-Deployed separately on Render (Docker).
-
-- **Node.js + Express + Multer** — API & file intake
+- **Ghostscript** — PDF compression
 
 ---
 
@@ -203,8 +195,7 @@ Deployed separately on Render (Docker).
 Toolverse/
 ├─ app/                          # Next.js App Router pages & tool routes
 │  ├─ tools/                     # Tool index & category pages
-│  ├─ pdf/                       # PDF utility routes
-│  ├─ pdf-editor/                # Browser-based PDF editor
+│  ├─ pdf-editor/                # Redirect to PDFVerse
 │  ├─ paste/, paste-view/        # Paste creation & viewing
 │  ├─ file/, file-share/         # File management & sharing
 │  ├─ image-*/                   # Image tools
@@ -214,7 +205,6 @@ Toolverse/
 ├─ backend/                      # Cloudflare Worker API + D1 migrations
 ├─ backend-routes/               # Next.js proxy routes for backend APIs
 ├─ image-backend/                # Python image-processing service
-├─ pdf-backend/                  # Express PDF service
 ├─ public/                       # Static assets, icons, sitemap, robots
 ├─ resources/android-icons/       # Android launcher icons (Capacitor)
 ├─ capacitor.config.ts           # Capacitor app config
@@ -250,10 +240,9 @@ Create a `.env.local` file in the project root:
 
 ```env
 NEXT_PUBLIC_API_BASE_URL=....
-NEXT_PUBLIC_PDF_API_BASE_URL=....
 NEXT_PUBLIC_IMAGE_API_BASE_URL=....
 
-> For local backend development, point these at your local servers (Worker `http://localhost:8787`, PDF `http://localhost:4000`, image `http://localhost:8000`).
+> For local backend development, point these at your local servers (Worker `http://localhost:8787`, image `http://localhost:8000`).
 
 ### 4. Run the dev server
 
@@ -272,8 +261,7 @@ Open http://localhost:3000
 | Variable | Required | Description |
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | Yes | Base URL of the Cloudflare Worker API (sharing tools) |
-| `NEXT_PUBLIC_PDF_API_BASE_URL` | Yes | Base URL of the PDF backend (heavy PDF operations) |
-| `NEXT_PUBLIC_IMAGE_API_BASE_URL` | Yes | Base URL of the image backend (background remover) |
+| `NEXT_PUBLIC_IMAGE_API_BASE_URL` | Yes | Base URL of the image backend (background remover, PDF compression) |
 
 </div>
 
@@ -305,7 +293,7 @@ Open http://localhost:3000
 
 - **Build command:** `npm run build:cloudflare`
 - **Config:** `wrangler.jsonc`, `open-next.config.ts`
-- **Environment variables:** `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_PDF_API_BASE_URL`, `NEXT_PUBLIC_IMAGE_API_BASE_URL`
+- **Environment variables:** `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_IMAGE_API_BASE_URL`
 
 Or deploy via CLI: `npm run deploy:cloudflare` (requires `wrangler` login).
 
@@ -332,13 +320,6 @@ npm run db:migrate
 - **Root directory:** `image-backend`
 - **Dockerfile path:** `./Dockerfile`
 - **Environment variable:** `REMOVEBG_API_KEY`
-
-### PDF Backend — Render
-
-- **Service type:** Web Service
-- **Environment:** Docker
-- **Root directory:** `pdf-backend`
-- **Dockerfile path:** `./Dockerfile`
 
 ### Android App — GitHub Actions
 
@@ -375,12 +356,6 @@ Base URL: `NEXT_PUBLIC_API_BASE_URL`
 
 </div>
 
-### PDF Backend
-
-Base URL: `NEXT_PUBLIC_PDF_API_BASE_URL`
-
-`GET /health` — health check. PDF conversion, editing, security, and comparison routes under `/api/pdf/*`.
-
 ### Image Backend
 
 Base URL: `NEXT_PUBLIC_IMAGE_API_BASE_URL`
@@ -391,6 +366,7 @@ Base URL: `NEXT_PUBLIC_IMAGE_API_BASE_URL`
 |---|---|---|
 | `GET` | `/health` | Health check |
 | `POST` | `/api/image/remove-background` | Remove image background |
+| `POST` | `/api/pdf/compress` | Compress a PDF (Ghostscript, quality tiers `0.01`–`0.85`) |
 
 </div>
 
@@ -400,7 +376,7 @@ Base URL: `NEXT_PUBLIC_IMAGE_API_BASE_URL`
 
 - **Browser tools:** files never leave the user's device. No upload, no tracking of file contents.
 - **Sharing tools:** pastes, images, and files are uploaded to the Cloudflare API (D1 + R2) so they can be shared via link.
-- **Server processing:** background removal and heavy PDF operations are processed over HTTPS; temporary copies are deleted afterward.
+- **Server processing:** background removal and PDF compression are processed over HTTPS; temporary copies are deleted afterward.
 - Full details: https://toolversee.pages.dev/privacy
 - Report abuse: https://toolversee.pages.dev/report-abuse
 

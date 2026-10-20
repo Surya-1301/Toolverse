@@ -1182,62 +1182,6 @@ export const toolSeo: Record<string, ToolSeo> = {
       },
     ],
   },
-  "pdf-editor": {
-    slug: "pdf-editor",
-    title: "PDF Editor - Edit PDFs Online Free",
-    description:
-      "Edit PDF files online for free — annotate, highlight, fill forms, and more. Free online PDF editor by Toolverse.",
-    faq: [
-      {
-        q: "What editing features are available?",
-        a: "Text annotations, highlights, shapes, and form filling are supported directly in the browser.",
-      },
-      {
-        q: "Can I add pages or images to a PDF?",
-        a: "Yes, you can insert pages and overlay images onto existing PDFs.",
-      },
-      {
-        q: "Is PDF editing free?",
-        a: "Yes, the core PDF editor is completely free to use.",
-      },
-      {
-        q: "Are my PDFs uploaded to a server?",
-        a: "No, all editing happens locally in your browser so your documents stay private.",
-      },
-      {
-        q: "Do I need to sign up to edit PDFs?",
-        a: "No account is needed — open the editor and start working on your PDF instantly.",
-      },
-    ],
-  },
-  "pdf-to-markdown": {
-    slug: "pdf-to-markdown",
-    title: "PDF to Markdown Converter - Convert PDF Online",
-    description:
-      "Convert PDF files to Markdown online for free. Extract clean markdown from PDFs with Toolverse.",
-    faq: [
-      {
-        q: "How does PDF to Markdown conversion work?",
-        a: "The PDF is parsed and converted into structured Markdown with headings, lists, and code blocks preserved.",
-      },
-      {
-        q: "Are PDF images and tables converted?",
-        a: "Images are extracted and referenced, and tables are converted to Markdown table syntax where possible.",
-      },
-      {
-        q: "Is the converter free?",
-        a: "Yes, PDF to Markdown conversion is completely free.",
-      },
-      {
-        q: "Are my PDFs uploaded to a server?",
-        a: "Files are processed securely over HTTPS and temporary copies are deleted afterward.",
-      },
-      {
-        q: "How long does conversion take?",
-        a: "Most documents convert in seconds, with larger files taking a little longer.",
-      },
-    ],
-  },
   "qr-generator": {
     slug: "qr-generator",
     title: "QR Code Generator - Create Custom QR Codes Online",

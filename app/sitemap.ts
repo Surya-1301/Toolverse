@@ -23,15 +23,6 @@ const staticPaths = [
   "tools/formatter-tools",
   "tools/image-tools",
   "tools/text-developer-tools",
-  "pdf/add-pages",
-  "pdf/compress",
-  "pdf/extract-images",
-  "pdf/header-footer",
-  "pdf/merge",
-  "pdf/metadata-editor",
-  "pdf/pdf-to-text",
-  "pdf/repair",
-  "pdf/sign",
 ];
 
 const legalPaths = ["contact", "privacy", "terms", "report-abuse"];

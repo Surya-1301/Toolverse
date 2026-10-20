@@ -56,10 +56,6 @@ const TOOL_CATEGORY: Record<string, { parent: string; parentUrl: string }> = {
   "http-request-tester": { parent: "Text & Developer Tools", parentUrl: "/tools/text-developer-tools" },
   "text-compare": { parent: "Text & Developer Tools", parentUrl: "/tools/text-developer-tools" },
   "email-phone-iban-validator": { parent: "Text & Developer Tools", parentUrl: "/tools/text-developer-tools" },
-
-  // -- PDF tools
-  "pdf-editor": { parent: "PDF Tools", parentUrl: "/pdf-editor" },
-  "pdf-to-markdown": { parent: "PDF Tools", parentUrl: "/pdf-editor" },
 };
 
 type SeoFaqProps = {

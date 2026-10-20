@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    ghostscript \
     libglib2.0-0 \
     libgl1 \
     libgomp1 \

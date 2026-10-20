@@ -30,7 +30,6 @@ function unique(values: string[]) {
 }
 
 let workingApiBaseUrl = "";
-let workingPdfApiBaseUrl = "";
 
 export function getApiBaseCandidates() {
   return unique([
@@ -70,40 +69,4 @@ export async function fetchApi(path: string, init?: RequestInit) {
   }
 
   throw new Error(errors.join(" | ") || "Could not reach the backend API.");
-}
-
-export function getPdfApiBaseCandidates() {
-  return unique([
-    normalizeConfiguredUrl(process.env.NEXT_PUBLIC_PDF_API_BASE_URL),
-
-    // Main PDF backend.
-    "https://toolverse-pdf-api-i6av.onrender.com",
-  ]);
-}
-
-export function getPdfApiBaseUrl() {
-  return workingPdfApiBaseUrl || getPdfApiBaseCandidates()[0] || "";
-}
-
-export async function fetchPdfApi(path: string, init?: RequestInit) {
-  const candidates = getPdfApiBaseCandidates();
-  const errors: string[] = [];
-  const cleanPath = path.startsWith("/") ? path : `/${path}`;
-
-  for (const baseUrl of candidates) {
-    try {
-      const response = await fetch(`${baseUrl}${cleanPath}`, {
-        ...init,
-        mode: "cors",
-      });
-
-      workingPdfApiBaseUrl = baseUrl;
-      return response;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      errors.push(`${baseUrl}: ${message}`);
-    }
-  }
-
-  throw new Error(errors.join(" | ") || "Could not reach the PDF backend.");
 }
