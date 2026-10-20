@@ -327,12 +327,7 @@ export default function ImageCompressorPage() {
     try {
       const fromLibrary = await compressWithLibrary(file, targetBytes);
       if (fromLibrary.size <= targetBytes) return fromLibrary;
-      // The library got close but not under target — the force path
-      // below keeps shrinking until it fits.
     } catch (error) {
-      // If the library cannot decode the file inside the WebView, fall
-      // back to the force path (data URL decode). If that fails too,
-      // surface the original library error.
       libraryError = error;
     }
 
@@ -385,12 +380,6 @@ export default function ImageCompressorPage() {
     });
   }
 
-  /*
-   * FORCE PATH — guarantees the output gets UNDER the target: sweep
-   * shrinking dimensions, binary-searching JPEG quality at each step for
-   * the highest quality that fits. Returns the first (largest, sharpest)
-   * hit, or the smallest result found if the target is unreachable.
-   */
   async function forceImageToTarget(
     file: File,
     targetBytes: number,
@@ -455,41 +444,171 @@ export default function ImageCompressorPage() {
   }
 
   async function compressPdf(file: File, targetBytes: number) {
-    let bestBlob: Blob | null = null;
+    // 1. Try the server-side Ghostscript compression first.
+    let serverBlob: Blob | null = null;
 
-    // Sweep from gentle to ultra — the backend maps < 0.05 to a 50 dpi
-    // ultra tier, so tiny targets are reachable.
-    const qualities = [0.6, 0.35, 0.1, 0.04, 0.01];
-
-    for (const attemptQuality of qualities) {
-      try {
-        const { blob } = await requestPdfCompression(file, attemptQuality);
-
-        if (!bestBlob || blob.size < bestBlob.size) {
-          bestBlob = blob;
-        }
-
-        if (blob.size <= targetBytes) {
-          break;
-        }
-      } catch (error) {
-        console.error(error);
-      }
+    try {
+      const result = await requestPdfCompression(file, 0.6, targetBytes);
+      serverBlob = result.blob;
+    } catch {
+      // Backend unavailable — go straight to client-side rasterisation.
     }
 
-    if (!bestBlob) {
-      throw new Error(
-        "Could not compress PDF. Please check the image compression backend.",
-      );
+    if (serverBlob && serverBlob.size <= targetBytes) {
+      return buildCompressedPdfFile(file, serverBlob);
     }
+
+    const rasterised = await rasterisePdfToTarget(file, targetBytes);
+
+    if (rasterised.size <= targetBytes) {
+      return buildCompressedPdfFile(file, rasterised);
+    }
+
+    // 3. Pick whichever is smallest between backend and rasterised result.
+    const bestBlob =
+      serverBlob && serverBlob.size < rasterised.size
+        ? serverBlob
+        : rasterised;
 
     return buildCompressedPdfFile(file, bestBlob);
   }
 
-  async function requestPdfCompression(file: File, pdfQuality: number) {
+  async function rasterisePdfToTarget(
+    file: File,
+    targetBytes: number,
+  ): Promise<Blob> {
+    type PdfJsLib = typeof import("pdfjs-dist");
+    const pdfjsLib: PdfJsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://unpkg.com/pdfjs-dist@" +
+      pdfjsLib.version +
+      "/build/pdf.worker.min.mjs";
+
+    const { PDFDocument } = await import("pdf-lib");
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pageCount = pdfDoc.numPages;
+
+    // Budget per page (rough estimate) — each page gets an equal share
+    // minus ~800 bytes overhead for the PDF structure per page.
+    const perPageBudget = Math.max(
+      1024,
+      Math.floor((targetBytes - 1024) / pageCount),
+    );
+
+    // Sweep scale × quality combos from high to low.
+    const scales = [2, 1.5, 1, 0.75, 0.5, 0.35, 0.25, 0.18, 0.12];
+    const qualities = [0.7, 0.5, 0.3, 0.2, 0.1, 0.05];
+
+    let smallest: Blob | null = null;
+
+    for (const scale of scales) {
+      for (const quality of qualities) {
+        // Quick budget check: render page 1 and see if per-page bytes
+        // are in the ballpark before rendering every page.
+        const testJpeg = await renderPageToJpeg(
+          pdfDoc,
+          1,
+          scale,
+          quality,
+        );
+
+        if (testJpeg.bytes.length > perPageBudget && smallest) {
+          // This combo is too large and we already have a candidate — skip.
+          continue;
+        }
+
+        // Render all pages.
+        const pages: Array<{
+          bytes: Uint8Array;
+          width: number;
+          height: number;
+        }> = [testJpeg];
+
+        for (let p = 2; p <= pageCount; p++) {
+          pages.push(await renderPageToJpeg(pdfDoc, p, scale, quality));
+        }
+
+        // Rebuild the PDF with pdf-lib.
+        const newPdf = await PDFDocument.create();
+
+        for (const pg of pages) {
+          const img = await newPdf.embedJpg(pg.bytes);
+          const page = newPdf.addPage([pg.width, pg.height]);
+          page.drawImage(img, {
+            x: 0,
+            y: 0,
+            width: pg.width,
+            height: pg.height,
+          });
+        }
+
+        const pdfBytes = await newPdf.save();
+        const blob = new Blob([Uint8Array.from(pdfBytes)], { type: "application/pdf" });
+
+        if (!smallest || blob.size < smallest.size) {
+          smallest = blob;
+        }
+
+        if (blob.size <= targetBytes) {
+          return blob;
+        }
+      }
+    }
+
+    return smallest ?? new Blob([arrayBuffer], { type: "application/pdf" });
+  }
+
+  async function renderPageToJpeg(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    pdfDoc: any,
+    pageNum: number,
+    scale: number,
+    quality: number,
+  ): Promise<{ bytes: Uint8Array; width: number; height: number }> {
+    const page = await pdfDoc.getPage(pageNum);
+    const viewport = page.getViewport({ scale });
+
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.max(1, Math.round(viewport.width));
+    canvas.height = Math.max(1, Math.round(viewport.height));
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not get canvas context.");
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("Canvas toBlob failed"))),
+        "image/jpeg",
+        quality,
+      );
+    });
+
+    const bytes = new Uint8Array(await blob.arrayBuffer());
+
+    // Use the original page dimensions (in points) so the rebuilt PDF
+    // keeps the same page size regardless of the render scale.
+    const originalViewport = page.getViewport({ scale: 1 });
+
+    return {
+      bytes,
+      width: originalViewport.width,
+      height: originalViewport.height,
+    };
+  }
+
+  async function requestPdfCompression(
+    file: File,
+    pdfQuality: number,
+    targetBytes: number,
+  ) {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("quality", String(pdfQuality));
+    formData.append("target_size", String(targetBytes));
 
     const imageApiBaseUrl = getImageApiBaseUrl();
 

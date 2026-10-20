@@ -195,15 +195,105 @@ def _pdf_jpeg_quality(quality: float) -> str | None:
     return "25"
 
 
+def _run_gs_compress(
+    file_bytes: bytes,
+    quality_value: float,
+    color_res: str | None = None,
+    gray_res: str | None = None,
+    mono_res: str | None = None,
+    jpeg_q: str | None = None,
+) -> bytes | None:
+    """Run a single Ghostscript compression pass and return the output bytes,
+    or *None* if the pass fails or produces a larger file."""
+
+    pdf_settings = _pdf_settings(quality_value)
+
+    if color_res is None:
+        _cr, _gr, _mr = _pdf_resolution(quality_value)
+        color_res, gray_res, mono_res = _cr, _gr, _mr
+
+    if jpeg_q is None:
+        jpeg_q = _pdf_jpeg_quality(quality_value)
+
+    args = [
+        "gs",
+        "-sDEVICE=pdfwrite",
+        "-dCompatibilityLevel=1.4",
+        f"-dPDFSETTINGS={pdf_settings}",
+        "-dNOPAUSE",
+        "-dQUIET",
+        "-dBATCH",
+        "-dDetectDuplicateImages=true",
+        "-dCompressFonts=true",
+        "-dSubsetFonts=true",
+        "-dEmbedAllFonts=true",
+        "-dAutoRotatePages=/None",
+        "-dColorImageDownsampleType=/Bicubic",
+        f"-dColorImageResolution={color_res}",
+        "-dGrayImageDownsampleType=/Bicubic",
+        f"-dGrayImageResolution={gray_res}",
+        "-dMonoImageDownsampleType=/Subsample",
+        f"-dMonoImageResolution={mono_res}",
+        "-dColorImageDownsampleThreshold=1.0",
+        "-dGrayImageDownsampleThreshold=1.0",
+        "-dMonoImageDownsampleThreshold=1.0",
+    ]
+
+    if jpeg_q is not None:
+        args += [
+            "-dAutoFilterColorImages=false",
+            "-dColorImageFilter=/DCTEncode",
+            "-dAutoFilterGrayImages=false",
+            "-dGrayImageFilter=/DCTEncode",
+            f"-dJPEGQ={jpeg_q}",
+        ]
+
+    with tempfile.TemporaryDirectory(prefix="toolverse-pdf-") as tmpdir:
+        input_path = os.path.join(tmpdir, f"input-{uuid.uuid4().hex}.pdf")
+        output_path = os.path.join(tmpdir, f"output-{uuid.uuid4().hex}.pdf")
+
+        with open(input_path, "wb") as handle:
+            handle.write(file_bytes)
+
+        args += [f"-sOutputFile={output_path}", input_path]
+
+        try:
+            completed = subprocess.run(
+                args,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=120,
+            )
+        except subprocess.TimeoutExpired:
+            return None
+
+        if completed.returncode != 0 or not os.path.exists(output_path):
+            return None
+
+        with open(output_path, "rb") as handle:
+            out = handle.read()
+
+    if not out or len(out) >= len(file_bytes):
+        return None
+
+    return out
+
+
 @app.post("/api/pdf/compress")
 async def compress_pdf(
     file: UploadFile = File(...),
     quality: str = Form("0.6"),
+    target_size: str = Form("0"),
 ):
     try:
         quality_value = float(quality)
     except (TypeError, ValueError):
         quality_value = 0.6
+
+    try:
+        target_bytes = int(float(target_size))
+    except (TypeError, ValueError):
+        target_bytes = 0
 
     if not file:
         raise HTTPException(status_code=400, detail="PDF file is required.")
@@ -241,81 +331,50 @@ async def compress_pdf(
             detail="Ghostscript is not installed on the image backend.",
         )
 
-    pdf_settings = _pdf_settings(quality_value)
-    color_res, gray_res, mono_res = _pdf_resolution(quality_value)
-    jpeg_quality = _pdf_jpeg_quality(quality_value)
-
-    args = [
-        "gs",
-        "-sDEVICE=pdfwrite",
-        "-dCompatibilityLevel=1.4",
-        f"-dPDFSETTINGS={pdf_settings}",
-        "-dNOPAUSE",
-        "-dQUIET",
-        "-dBATCH",
-        "-dDetectDuplicateImages=true",
-        "-dCompressFonts=true",
-        "-dSubsetFonts=true",
-        "-dEmbedAllFonts=true",
-        "-dAutoRotatePages=/None",
-        "-dColorImageDownsampleType=/Bicubic",
-        f"-dColorImageResolution={color_res}",
-        "-dGrayImageDownsampleType=/Bicubic",
-        f"-dGrayImageResolution={gray_res}",
-        "-dMonoImageDownsampleType=/Subsample",
-        f"-dMonoImageResolution={mono_res}",
-        "-dColorImageDownsampleThreshold=1.0",
-        "-dGrayImageDownsampleThreshold=1.0",
-        "-dMonoImageDownsampleThreshold=1.0",
-    ]
-
-    if jpeg_quality is not None:
-        args += [
-            "-dAutoFilterColorImages=false",
-            "-dColorImageFilter=/DCTEncode",
-            "-dAutoFilterGrayImages=false",
-            "-dGrayImageFilter=/DCTEncode",
-            f"-dJPEGQ={jpeg_quality}",
+    # ------------------------------------------------------------------
+    # When a target_size is provided, iteratively try increasingly
+    # aggressive Ghostscript settings until the output fits or we run
+    # out of options.  Each tier lowers resolution and JPEG quality.
+    # ------------------------------------------------------------------
+    if target_bytes > 0:
+        tiers = [
+            # (quality, color_res, gray_res, mono_res, jpeg_q_override)
+            (0.85, "220", "220", "300", None),
+            (0.6,  "150", "150", "200", None),
+            (0.35, "100", "100", "150", None),
+            (0.1,  "72",  "72",  "100", "50"),
+            (0.04, "50",  "50",  "72",  "25"),
+            (0.01, "36",  "36",  "50",  "15"),
+            (0.01, "24",  "24",  "36",  "10"),
+            (0.01, "18",  "18",  "24",  "5"),
         ]
 
-    with tempfile.TemporaryDirectory(prefix="toolverse-pdf-") as tmpdir:
-        input_path = os.path.join(tmpdir, f"input-{uuid.uuid4().hex}.pdf")
-        output_path = os.path.join(tmpdir, f"output-{uuid.uuid4().hex}.pdf")
+        best: bytes | None = None
 
-        with open(input_path, "wb") as handle:
-            handle.write(file_bytes)
-
-        args += [f"-sOutputFile={output_path}", input_path]
-
-        try:
-            completed = subprocess.run(
-                args,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                timeout=120,
+        for q, cr, gr, mr, jq in tiers:
+            result = _run_gs_compress(
+                file_bytes,
+                quality_value=q,
+                color_res=cr,
+                gray_res=gr,
+                mono_res=mr,
+                jpeg_q=jq,
             )
-        except subprocess.TimeoutExpired:
-            raise HTTPException(
-                status_code=500,
-                detail="Ghostscript PDF compression timed out.",
-            )
+            if result is not None:
+                if best is None or len(result) < len(best):
+                    best = result
+                if len(result) <= target_bytes:
+                    break
 
-        if completed.returncode != 0 or not os.path.exists(output_path):
-            detail = (completed.stderr or completed.stdout or b"").decode(
-                "utf-8", errors="ignore"
-            )
-            raise HTTPException(
-                status_code=500,
-                detail=detail or "Ghostscript PDF compression failed.",
-            )
-
-        with open(output_path, "rb") as handle:
-            compressed_bytes = handle.read()
+        compressed_bytes = best
+    else:
+        # Legacy single-pass path (no target size requested).
+        compressed_bytes = _run_gs_compress(file_bytes, quality_value)
 
     base = os.path.splitext(os.path.basename(original_name))[0] or "document"
     output_name = f"{base}-compressed.pdf"
 
-    # Match pdf-backend behaviour: never return a larger file.
+    # Never return a larger file.
     payload = (
         compressed_bytes
         if compressed_bytes and len(compressed_bytes) < len(file_bytes)
