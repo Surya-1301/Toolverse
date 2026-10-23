@@ -1,0 +1,73 @@
+name: iOS IPA
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-ipa:
+    runs-on: macos-14
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web app
+        run: npm run build
+        env:
+          NEXT_PUBLIC_API_BASE_URL: ${{ vars.NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_IMAGE_API_BASE_URL: ${{ vars.NEXT_PUBLIC_IMAGE_API_BASE_URL }}
+
+      - name: Sync Capacitor iOS
+        run: |
+          node scripts/build-ios.js
+          npx cap sync ios
+
+      - name: Build iOS Archive (Unsigned / Sideloadable)
+        run: |
+          xcodebuild \
+            -project ios/App/App.xcodeproj \
+            -scheme App \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/App.xcarchive \
+            CODE_SIGN_STYLE="Manual" \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=NO \
+            archive
+
+      - name: Package .ipa
+        run: |
+          mkdir -p Payload
+          cp -r build/App.xcarchive/Products/Applications/App.app Payload/
+          ZIP_NAME="toolverse-${{ github.ref_name || 'latest' }}.ipa"
+          zip -qr "$ZIP_NAME" Payload
+          rm -rf Payload
+          echo "PACKAGED_IPA=$ZIP_NAME" >> $GITHUB_ENV
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: toolverse-ipa
+          path: toolverse-*.ipa
+
+      - name: Attach IPA to Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: toolverse-*.ipa
