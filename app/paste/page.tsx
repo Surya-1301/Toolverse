@@ -681,16 +681,6 @@ export default function PastePage() {
                 description: "Generate a shareable paste link.",
                 icon: <Send className="h-5 w-5" />,
               },
-              {
-                title: "Copy link",
-                description: "Copy the paste page or raw text URL.",
-                icon: <Copy className="h-5 w-5" />,
-              },
-              {
-                title: "Open alias",
-                description: "Use an alias to reopen existing notes.",
-                icon: <Link2 className="h-5 w-5" />,
-              },
             ].map((step) => (
               <div
                 key={step.title}

@@ -1229,19 +1229,9 @@ export default function ImageCompressorPage() {
                 icon: <ImageIcon className="h-5 w-5" />,
               },
               {
-                title: "Compress",
+                title: "Compress & download",
                 description:
-                  "Images compress in-browser. PDFs compress through the Ghostscript backend.",
-                icon: <Loader2 className="h-5 w-5" />,
-              },
-              {
-                title: "Compare size",
-                description: "Review original and compressed file sizes.",
-                icon: <FileText className="h-5 w-5" />,
-              },
-              {
-                title: "Download",
-                description: "Save the optimized file to your device.",
+                  "Compress your file instantly and save the optimized result to your device.",
                 icon: <Download className="h-5 w-5" />,
               },
             ].map((step) => (

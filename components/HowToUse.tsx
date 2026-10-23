@@ -67,9 +67,9 @@ export function HowToUse({
         ))}
       </div>
 
-      {/* Mobile: stacked horizontal cards with desktop-matching styles */}
+      {/* Mobile: stacked horizontal cards with desktop-matching styles (only 4 most helpful steps on mobile & APK) */}
       <div className="mt-8 grid gap-4 sm:hidden">
-        {steps.map((step) => (
+        {steps.slice(0, 4).map((step) => (
           <div
             key={step.title}
             className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"

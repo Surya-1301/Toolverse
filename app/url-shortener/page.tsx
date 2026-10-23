@@ -787,16 +787,6 @@ How to use URL Shortener
                 description: "Create the short URL instantly.",
                 icon: <Send className="h-5 w-5" />,
               },
-              {
-                title: "Copy link",
-                description: "Copy and share the generated short URL.",
-                icon: <Copy className="h-5 w-5" />,
-              },
-              {
-                title: "Track clicks",
-                description: "Refresh to see the latest click count.",
-                icon: <BarChart3 className="h-5 w-5" />,
-              },
             ].map((step) => (
               <div
                 key={step.title}

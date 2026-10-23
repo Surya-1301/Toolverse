@@ -431,18 +431,8 @@ function QrGeneratorContent() {
                 icon: <QrCode className="h-5 w-5" />,
               },
               {
-                title: "Copy text",
-                description: "Copy the encoded text or share link.",
-                icon: <Copy className="h-5 w-5" />,
-              },
-              {
                 title: "Download PNG",
                 description: "Save the QR code as a PNG image.",
-                icon: <Download className="h-5 w-5" />,
-              },
-              {
-                title: "Download SVG",
-                description: "Save the QR code as a scalable SVG.",
                 icon: <Download className="h-5 w-5" />,
               },
             ].map((step) => (
