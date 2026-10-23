@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { UniversalPreview } from "@/components/UniversalPreview";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { Capacitor } from "@capacitor/core";
 
@@ -1027,29 +1028,15 @@ export default function ImageCompressorPage() {
               </div>
 
               <div className="flex min-h-[240px] items-center justify-center overflow-hidden rounded-xl bg-white/[0.03] light:bg-white">
-                {mode === "image" && originalPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={originalPreview}
-                    alt="Original preview"
-                    className="max-h-[240px] w-full object-contain"
+                {originalFile || originalPreview ? (
+                  <UniversalPreview
+                    file={originalFile}
+                    url={originalPreview}
+                    name={originalFile?.name || "Original file"}
+                    type={originalFile?.type || (mode === "pdf" ? "application/pdf" : "image/jpeg")}
+                    height={240}
+                    showControls={mode === "pdf"}
                   />
-                ) : mode === "pdf" && originalPreview ? (
-                  <iframe
-                    src={originalPreview}
-                    title="Original PDF preview"
-                    className="h-[240px] w-full bg-white"
-                  />
-                ) : originalFile ? (
-                  <div className="break-all px-4 text-center text-sm text-slate-500 light:text-slate-500">
-                    {mode === "pdf" ? (
-                      <FileText className="mx-auto mb-2 h-8 w-8" />
-                    ) : (
-                      <ImageIcon className="mx-auto mb-2 h-8 w-8" />
-                    )}
-
-                    {originalFile.name}
-                  </div>
                 ) : (
                   <div className="text-center text-sm text-slate-500 light:text-slate-500">
                     <ImageIcon className="mx-auto mb-2 h-8 w-8" />
@@ -1071,28 +1058,15 @@ export default function ImageCompressorPage() {
               </div>
 
               <div className="flex min-h-[240px] items-center justify-center overflow-hidden rounded-xl bg-white/[0.03] light:bg-white">
-                {mode === "image" && compressedPreview ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={compressedPreview}
-                    alt="Compressed preview"
-                    className="max-h-[240px] w-full object-contain"
+                {compressedFile || compressedPreview ? (
+                  <UniversalPreview
+                    file={compressedFile}
+                    url={compressedPreview}
+                    name={compressedFile?.name || "Compressed file"}
+                    type={compressedFile?.type || (mode === "pdf" ? "application/pdf" : "image/jpeg")}
+                    height={240}
+                    showControls={mode === "pdf"}
                   />
-                ) : mode === "pdf" && compressedPreview ? (
-                  <iframe
-                    src={compressedPreview}
-                    title="Compressed PDF preview"
-                    className="h-[240px] w-full bg-white"
-                  />
-                ) : compressedFile ? (
-                  <div className="text-center text-sm text-slate-500 light:text-slate-500">
-                    {mode === "pdf" ? (
-                      <FileText className="mx-auto mb-2 h-8 w-8" />
-                    ) : (
-                      <ImageIcon className="mx-auto mb-2 h-8 w-8" />
-                    )}
-                    Ready to download
-                  </div>
                 ) : (
                   <div className="text-center text-sm text-slate-500 light:text-slate-500">
                     <ImageIcon className="mx-auto mb-2 h-8 w-8" />

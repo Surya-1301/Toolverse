@@ -208,6 +208,7 @@ export async function saveBlobNative(blob: Blob, filename: string) {
   const downloader = win?.ToolverseBlobDownloader || win?.PDFVerseBlobDownloader;
   if (downloader && typeof downloader.processBlobData === "function") {
     try {
+      downloader?.markDownloadIntent?.();
       const base64 = await blobToBase64(blob);
       downloader.processBlobData(base64, safeName, type);
       return { path: safeName, downloaded: true };

@@ -58,6 +58,9 @@ function patchUrlApi() {
 
 async function saveHref(href: string, fileName: string): Promise<boolean> {
   const name = fileName || "download";
+  const win = typeof window !== "undefined" ? (window as any) : null;
+  win?.ToolverseBlobDownloader?.markDownloadIntent?.();
+  win?.PDFVerseBlobDownloader?.markDownloadIntent?.();
   try {
     if (href.startsWith("blob:")) {
       const entry = pending.get(href);
@@ -168,26 +171,34 @@ export function DownloadInterceptor() {
       event.preventDefault();
       event.stopPropagation();
 
+      const win = typeof window !== "undefined" ? (window as any) : null;
+      win?.ToolverseBlobDownloader?.markDownloadIntent?.();
+      win?.PDFVerseBlobDownloader?.markDownloadIntent?.();
+
       const fileName =
         anchor.download || href.split("/").pop() || "download";
       await saveHref(href, fileName);
     }
 
-    // 2) Programmatic downloads: every tool page does
-    //    const a = document.createElement("a"); a.click();
-    //    which fires NO click event. Patch click() on anchor
-    //    elements so those are caught too.
+    // 2) Programmatic downloads: only intercept when the anchor explicitly
+    //    has a download attribute (e.g. link.download = "filename.png").
     const origClick = HTMLAnchorElement.prototype.click;
     HTMLAnchorElement.prototype.click = function (
       this: HTMLAnchorElement,
     ) {
       const href = this.getAttribute("href") || this.href || "";
-      const dl = this.download;
+      const dl = this.getAttribute("download") ?? this.download;
+      const isDownload = this.hasAttribute("download") || Boolean(dl);
+
       if (
         Capacitor.isNativePlatform() &&
         href &&
-        (dl || href.startsWith("blob:") || href.startsWith("data:"))
+        isDownload
       ) {
+        const win = typeof window !== "undefined" ? (window as any) : null;
+        win?.ToolverseBlobDownloader?.markDownloadIntent?.();
+        win?.PDFVerseBlobDownloader?.markDownloadIntent?.();
+
         void saveHref(href, dl || href.split("/").pop() || "download");
         return;
       }

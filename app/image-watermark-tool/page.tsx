@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
+import { UniversalPreview } from "@/components/UniversalPreview";
 // PDF support requires: npm install pdf-lib
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 import JSZip from "jszip";
@@ -736,21 +737,15 @@ export default function ImageWatermarkToolPage() {
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-3 text-center light:border-slate-900/15 light:bg-white">
+          <div className="flex min-h-[420px] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/15 bg-slate-950 p-2 text-center light:border-slate-900/15 light:bg-white">
             {previewUrl ? (
-              firstFile && isPdfFile(firstFile) ? (
-                <iframe
-                  src={previewUrl}
-                  title="Watermarked PDF preview"
-                  className="h-[390px] w-full rounded-xl border border-white/10 bg-white light:border-slate-900/10"
-                />
-              ) : (
-                <img
-                  src={previewUrl}
-                  alt="Watermark preview"
-                  className="max-h-[380px] max-w-full rounded-xl object-contain"
-                />
-              )
+              <UniversalPreview
+                url={previewUrl}
+                name={firstFile?.name || "Watermarked file"}
+                type={firstFile && isPdfFile(firstFile) ? "application/pdf" : "image/png"}
+                height={400}
+                showControls={firstFile && isPdfFile(firstFile)}
+              />
             ) : (
               <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Your watermarked image or PDF preview appears here after upload.

@@ -38,6 +38,11 @@ import java.util.List;
 public class MainActivity extends BridgeActivity {
 
     public static final String CHANNEL_ID = "toolverse_downloads_channel";
+    private static long lastDownloadIntentTimestamp = 0;
+
+    public static void markDownloadIntent() {
+        lastDownloadIntentTimestamp = System.currentTimeMillis();
+    }
 
     public static void createNotificationChannel(Context context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -169,12 +174,18 @@ public class MainActivity extends BridgeActivity {
         @JavascriptInterface
         public void processBlobData(String base64Data, String filename, String mimeType) {
             try {
+                markDownloadIntent();
                 byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
                 saveBytesToDownloads(getApplicationContext(), bytes, filename, mimeType);
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Downloaded " + filename + " to Downloads", Toast.LENGTH_SHORT).show());
             } catch (Exception e) {
                 runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Failed to save file: " + e.getMessage(), Toast.LENGTH_LONG).show());
             }
+        }
+
+        @JavascriptInterface
+        public void markDownloadIntent() {
+            MainActivity.markDownloadIntent();
         }
 
         @JavascriptInterface
@@ -265,6 +276,17 @@ public class MainActivity extends BridgeActivity {
             webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
                 try {
                     if (url == null || url.isEmpty()) return;
+
+                    // Ensure downloads only occur on explicit user download actions,
+                    // not on background iframe or preview loads.
+                    boolean isUserInitiated = (System.currentTimeMillis() - lastDownloadIntentTimestamp < 8000)
+                        || (contentDisposition != null && contentDisposition.toLowerCase().contains("attachment"));
+
+                    if (url.startsWith("blob:") || url.startsWith("data:")) {
+                        if (!isUserInitiated) {
+                            return;
+                        }
+                    }
 
                     // Handle blob: URIs by fetching in WebView and streaming base64 to Java
                     if (url.startsWith("blob:")) {
