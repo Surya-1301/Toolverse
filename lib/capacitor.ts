@@ -73,7 +73,7 @@ function sanitizeFilename(name: string): string {
   return clean || "download";
 }
 
-function guessMime(filename: string): string {
+export function guessMime(filename: string): string {
   const ext = filename.split(".").pop()?.toLowerCase() || "";
   const map: Record<string, string> = {
     apk: "application/vnd.android.package-archive",
@@ -81,6 +81,26 @@ function guessMime(filename: string): string {
     png: "image/png",
     jpg: "image/jpeg",
     jpeg: "image/jpeg",
+    webp: "image/webp",
+    gif: "image/gif",
+    svg: "image/svg+xml",
+    ico: "image/x-icon",
+    mp3: "audio/mpeg",
+    wav: "audio/wav",
+    ogg: "audio/ogg",
+    m4a: "audio/mp4",
+    mp4: "video/mp4",
+    webm: "video/webm",
+    mkv: "video/x-matroska",
+    json: "application/json",
+    csv: "text/csv",
+    tsv: "text/tab-separated-values",
+    txt: "text/plain",
+    html: "text/html",
+    xml: "application/xml",
+    zip: "application/zip",
+    xls: "application/vnd.ms-excel",
+    xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
   };
   return map[ext] || "application/octet-stream";
 }
@@ -234,9 +254,16 @@ export async function downloadFile(
     document.body.removeChild(link);
     return { path: safeName, downloaded: true };
   }
-  if (url.startsWith("blob:") || url.startsWith("data:")) {
+
+  // Ensure relative URLs are resolved against the deployed frontend in APK
+  const fullUrl =
+    url.startsWith("/") && typeof window !== "undefined"
+      ? `${getFrontendOrigin()}${url}`
+      : url;
+
+  if (fullUrl.startsWith("blob:") || fullUrl.startsWith("data:")) {
     onProgress?.(10);
-    const res = await fetch(url);
+    const res = await fetch(fullUrl);
     if (!res.ok) throw new Error(`Download failed: HTTP ${res.status}`);
     const blob = await res.blob();
     onProgress?.(60);
@@ -246,7 +273,7 @@ export async function downloadFile(
   }
   try {
     const result = await ToolverseDownload.downloadUrl({
-      url,
+      url: fullUrl,
       filename: safeName,
       mimeType: guessMime(safeName),
     });
@@ -255,7 +282,7 @@ export async function downloadFile(
     return { path: safeName, id: result.id, downloaded: true };
   } catch (err) {
     console.warn("DownloadManager unavailable, fallback:", err);
-    const response = await fetch(url);
+    const response = await fetch(fullUrl);
     if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`);
     const blob = await response.blob();
     onProgress?.(80);

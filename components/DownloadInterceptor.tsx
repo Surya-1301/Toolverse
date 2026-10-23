@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
-import { saveBlobNative } from "@/lib/capacitor";
+import { downloadFile, getFrontendOrigin, saveBlobNative } from "@/lib/capacitor";
 
 type PendingBlob = {
   blob: Blob;
@@ -66,20 +66,37 @@ async function saveHref(href: string, fileName: string): Promise<boolean> {
         toastSaved(name);
         return true;
       }
-      // Fall through to fetch — still works if the URL is alive.
+      // If pending entry not found, fetch the live blob URL directly
+      const response = await fetch(href);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      await saveBlobNative(blob, name);
+      toastSaved(name);
+      return true;
     }
-    const response = await fetch(href);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const blob = await response.blob();
-    // fetch() on a data: URL returns text/plain in some WebViews —
-    // restore the real mime type from the URL header.
-    const fixed =
-      href.startsWith("data:") && blob.type.startsWith("text/plain")
-        ? new Blob([await blob.arrayBuffer()], {
-            type: dataUrlMime(href) || "application/octet-stream",
-          })
-        : blob;
-    await saveBlobNative(fixed, name);
+
+    if (href.startsWith("data:")) {
+      const response = await fetch(href);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const blob = await response.blob();
+      const fixed =
+        blob.type.startsWith("text/plain")
+          ? new Blob([await blob.arrayBuffer()], {
+              type: dataUrlMime(href) || "application/octet-stream",
+            })
+          : blob;
+      await saveBlobNative(fixed, name);
+      toastSaved(name);
+      return true;
+    }
+
+    // Remote HTTP / HTTPS URL or relative /api/... path
+    const fullUrl = href.startsWith("/")
+      ? `${getFrontendOrigin()}${href}`
+      : href;
+
+    // Use native DownloadManager bridge to avoid CORS issues and stream large files directly
+    await downloadFile(fullUrl, name);
     toastSaved(name);
     return true;
   } catch (error) {

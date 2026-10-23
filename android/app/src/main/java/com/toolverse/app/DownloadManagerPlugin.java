@@ -53,7 +53,16 @@ public class DownloadManagerPlugin extends Plugin {
         (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
 
       String guessed = URLUtil.guessFileName(url, null, mimeType);
-      if (filename == null || filename.isEmpty()) filename = guessed;
+      if (filename == null || filename.trim().isEmpty()) {
+        filename = guessed;
+      }
+      filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+      if (filename.isEmpty()) filename = "download";
+
+      File destDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+      if (!destDir.exists()) {
+        destDir.mkdirs();
+      }
 
       DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
       request.setTitle(filename);
@@ -88,6 +97,12 @@ public class DownloadManagerPlugin extends Plugin {
       call.reject("Missing data");
       return;
     }
+
+    if (filename == null || filename.trim().isEmpty()) {
+      filename = "download";
+    }
+    filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+    if (filename.isEmpty()) filename = "download";
 
     // Strip data: URL prefix if present.
     int comma = data.indexOf(",");
@@ -138,6 +153,8 @@ public class DownloadManagerPlugin extends Plugin {
           out.write(bytes);
         }
         savedPath = file.getAbsolutePath();
+        android.media.MediaScannerConnection.scanFile(
+          ctx, new String[] { file.getAbsolutePath() }, new String[] { mimeType }, null);
       }
 
       JSObject ret = new JSObject();

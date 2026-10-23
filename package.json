@@ -4,13 +4,13 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build --webpack",
     "build:cloudflare": "opennextjs-cloudflare build",
     "preview:cloudflare": "opennextjs-cloudflare preview",
     "deploy:cloudflare": "opennextjs-cloudflare deploy",
     "start": "next start",
     "lint": "eslint",
-    "build:android": "next build && node scripts/build-android.js && npx cap sync android",
+    "build:android": "next build --webpack && node scripts/build-android.js && npx cap sync android",
     "apk": "npm run build:android && cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
