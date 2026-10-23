@@ -9,6 +9,12 @@ const config: CapacitorConfig = {
     backgroundColor: '#0f172a',
     allowMixedContent: true,
   },
+  ios: {
+    backgroundColor: '#0f172a',
+    contentInset: 'automatic',
+    preferredContentMode: 'mobile',
+    scheme: 'Toolverse',
+  },
   plugins: {
     StatusBar: {
       backgroundColor: '#7c3aed',

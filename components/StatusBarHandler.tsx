@@ -3,22 +3,29 @@
 import { useEffect } from "react";
 import { Capacitor } from "@capacitor/core";
 import { App as CapacitorApp } from "@capacitor/app";
-import { StatusBar } from "@capacitor/status-bar";
+import { StatusBar, Style } from "@capacitor/status-bar";
 
 export function StatusBarHandler() {
   useEffect(() => {
     if (!Capacitor.isNativePlatform()) return;
 
-    const hide = () => {
-      StatusBar.hide().catch(() => {
+    const configureStatusBar = async () => {
+      try {
+        if (Capacitor.getPlatform() === "ios") {
+          await StatusBar.setStyle({ style: Style.Dark });
+          await StatusBar.show();
+        } else {
+          await StatusBar.hide();
+        }
+      } catch {
         // Plugin unavailable — status bar stays visible.
-      });
+      }
     };
 
-    hide();
+    configureStatusBar();
 
     let handle: { remove: () => Promise<void> } | undefined;
-    CapacitorApp.addListener("resume", hide).then((h) => {
+    CapacitorApp.addListener("resume", configureStatusBar).then((h) => {
       handle = h;
     });
 

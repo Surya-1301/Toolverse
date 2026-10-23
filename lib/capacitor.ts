@@ -26,8 +26,10 @@ export function isNative() {
     if (win?.Capacitor?.isNativePlatform?.()) return true;
     if (win?.Capacitor?.getPlatform?.() && win.Capacitor.getPlatform() !== "web") return true;
     if (win?.ToolverseBlobDownloader != null || win?.PDFVerseBlobDownloader != null) return true;
-    if (typeof navigator !== "undefined" && navigator.userAgent && /Android.*wv/i.test(navigator.userAgent)) {
-      return true;
+    if (typeof navigator !== "undefined" && navigator.userAgent) {
+      if (/Android.*wv/i.test(navigator.userAgent) || (/iPhone|iPad|iPod/i.test(navigator.userAgent) && win?.Capacitor)) {
+        return true;
+      }
     }
   } catch {}
   return false;
@@ -230,6 +232,32 @@ export async function saveBlobNative(blob: Blob, filename: string) {
   }
 
   const base64 = await blobToBase64(blob);
+
+  // On iOS, save to Documents (accessible in Files app) and trigger native Share Sheet
+  if (Capacitor.getPlatform() === "ios") {
+    try {
+      const saved = await Filesystem.writeFile({
+        path: safeName,
+        data: base64,
+        directory: Directory.Documents,
+      });
+      await showDownloadNotification("Download complete", safeName);
+      try {
+        const { Share } = await import("@capacitor/share");
+        await Share.share({
+          title: safeName,
+          url: saved.uri,
+          dialogTitle: `Save ${safeName}`,
+        });
+      } catch {
+        // Share sheet dismissed or unavailable
+      }
+      return { path: saved.uri ?? safeName, downloaded: true };
+    } catch (iosErr) {
+      console.warn("iOS Documents save failed, trying fallback:", iosErr);
+    }
+  }
+
   try {
     const result = await ToolverseDownload.saveBase64({
       data: base64,
@@ -296,6 +324,19 @@ export async function downloadFile(
     onProgress?.(100);
     return out;
   }
+
+  // On iOS, fetch directly and save to Documents + Share sheet
+  if (Capacitor.getPlatform() === "ios") {
+    onProgress?.(20);
+    const response = await fetch(fullUrl);
+    if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`);
+    const blob = await response.blob();
+    onProgress?.(70);
+    const out = await saveBlobNative(blob, safeName);
+    onProgress?.(100);
+    return out;
+  }
+
   try {
     const result = await ToolverseDownload.downloadUrl({
       url: fullUrl,
