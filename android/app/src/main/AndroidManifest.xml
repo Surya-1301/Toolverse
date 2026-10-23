@@ -52,6 +52,14 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths"></meta-data>
         </provider>
+
+        <receiver
+            android:name=".DownloadActionReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.toolverse.app.ACTION_DELETE_DOWNLOAD" />
+            </intent-filter>
+        </receiver>
     </application>
 
     <!-- Permissions -->

@@ -88,6 +88,7 @@ public class MainActivity extends BridgeActivity {
         }
 
         Uri fileUri = null;
+        String absoluteFilePath = null;
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             ContentValues values = new ContentValues();
@@ -119,6 +120,7 @@ public class MainActivity extends BridgeActivity {
                 fos.write(bytes);
                 fos.flush();
             }
+            absoluteFilePath = file.getAbsolutePath();
             context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
             try {
                 fileUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", file);
@@ -127,7 +129,7 @@ public class MainActivity extends BridgeActivity {
             }
         }
 
-        // 2. Intent to open the downloaded file when user clicks the notification
+        // 2. Intent to open the downloaded file when user clicks the notification or "Open" action
         Intent viewIntent = new Intent(Intent.ACTION_VIEW);
         if (mimeType != null && !mimeType.isEmpty()) {
             viewIntent.setDataAndType(fileUri, mimeType);
@@ -143,17 +145,22 @@ public class MainActivity extends BridgeActivity {
             PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        // 3. Intent to open Downloads folder on the device
-        Intent openFolderIntent = new Intent(DownloadManager.ACTION_VIEW_DOWNLOADS);
-        openFolderIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        PendingIntent folderPendingIntent = PendingIntent.getActivity(
+        // 3. Intent to delete the downloaded file and move to recycle bin
+        Intent deleteIntent = new Intent(context, DownloadActionReceiver.class);
+        deleteIntent.setAction(DownloadActionReceiver.ACTION_DELETE);
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_NOTIFICATION_ID, notificationId);
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILE_URI, fileUri != null ? fileUri.toString() : "");
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILE_PATH, absoluteFilePath != null ? absoluteFilePath : "");
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILENAME, filename);
+
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
             context,
             notificationId + 1,
-            openFolderIntent,
+            deleteIntent,
             PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
         );
 
-        // 4. Update notification with Click-to-Open and Open Folder
+        // 4. Update notification with Left action: Open, Right action: Delete
         try {
             NotificationCompat.Builder completeBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(android.R.drawable.stat_sys_download_done)
@@ -163,7 +170,8 @@ public class MainActivity extends BridgeActivity {
                 .setAutoCancel(true)
                 .setOngoing(false)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .addAction(android.R.drawable.ic_menu_agenda, "Open Folder", folderPendingIntent);
+                .addAction(0, "Open", viewPendingIntent)
+                .addAction(android.R.drawable.ic_menu_delete, "Delete", deletePendingIntent);
 
             notificationManager.notify(notificationId, completeBuilder.build());
         } catch (SecurityException ignored) {
