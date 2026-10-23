@@ -305,11 +305,15 @@ button:disabled {
 textarea,
 input {
   color-scheme: dark;
+  caret-color: #7c3aed;
+  -webkit-tap-highlight-color: transparent;
 }
 
 [data-theme="light"] textarea,
 [data-theme="light"] input {
   color-scheme: light;
+  caret-color: #7c3aed;
+  -webkit-tap-highlight-color: transparent;
 }
 
 img,
