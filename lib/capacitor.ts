@@ -19,7 +19,18 @@ const ToolverseDownload =
   registerPlugin<ToolverseDownloadPlugin>("ToolverseDownload");
 
 export function isNative() {
-  return Capacitor.isNativePlatform();
+  if (typeof window === "undefined") return false;
+  try {
+    if (Capacitor.isNativePlatform()) return true;
+    const win = window as any;
+    if (win?.Capacitor?.isNativePlatform?.()) return true;
+    if (win?.Capacitor?.getPlatform?.() && win.Capacitor.getPlatform() !== "web") return true;
+    if (win?.ToolverseBlobDownloader != null || win?.PDFVerseBlobDownloader != null) return true;
+    if (typeof navigator !== "undefined" && navigator.userAgent && /Android.*wv/i.test(navigator.userAgent)) {
+      return true;
+    }
+  } catch {}
+  return false;
 }
 
 export function getFrontendOrigin() {
@@ -192,6 +203,19 @@ export async function saveDataUrlNative(dataUrl: string, filename: string) {
 export async function saveBlobNative(blob: Blob, filename: string) {
   const safeName = sanitizeFilename(filename);
   const type = blob.type || guessMime(safeName);
+
+  const win = typeof window !== "undefined" ? (window as any) : null;
+  const downloader = win?.ToolverseBlobDownloader || win?.PDFVerseBlobDownloader;
+  if (downloader && typeof downloader.processBlobData === "function") {
+    try {
+      const base64 = await blobToBase64(blob);
+      downloader.processBlobData(base64, safeName, type);
+      return { path: safeName, downloaded: true };
+    } catch (bridgeErr) {
+      console.warn("Native BlobDownloader failed, trying plugin fallback:", bridgeErr);
+    }
+  }
+
   if (!isNative()) {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -203,6 +227,7 @@ export async function saveBlobNative(blob: Blob, filename: string) {
     setTimeout(() => URL.revokeObjectURL(url), 4000);
     return { path: safeName, downloaded: true };
   }
+
   const base64 = await blobToBase64(blob);
   try {
     const result = await ToolverseDownload.saveBase64({
@@ -210,7 +235,6 @@ export async function saveBlobNative(blob: Blob, filename: string) {
       filename: safeName,
       mimeType: type,
     });
-    await showDownloadNotification("Download complete", safeName);
     return { path: result.path, downloaded: true };
   } catch (pluginErr) {
     // Installed APK predates the native plugin (or WebView bridge

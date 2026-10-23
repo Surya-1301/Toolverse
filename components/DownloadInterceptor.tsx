@@ -114,6 +114,9 @@ function dataUrlMime(href: string): string {
 
 /** Tiny non-blocking toast so the user knows the save happened. */
 function toastSaved(name: string) {
+  const win = typeof window !== "undefined" ? (window as any) : null;
+  // If native Android bridge is handling download, Android OS shows its own Toast & Notification
+  if (win?.ToolverseBlobDownloader || win?.PDFVerseBlobDownloader) return;
   try {
     const el = document.createElement("div");
     el.textContent = `Saved ${name} to Downloads`;
