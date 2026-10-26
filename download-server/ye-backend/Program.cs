@@ -42,6 +42,7 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using YoutubeExplode;
 using YoutubeExplode.Common;
 using YoutubeExplode.Converter;
@@ -154,15 +155,15 @@ static List<Cookie> ParseVisitorCookies(string? input)
             continue;
         try
         {
-            var rawDomain = parts[0].Trim();
+            var rawDomain = parts[0].Trim().TrimStart('.');
             var name = parts[5].Trim();
             var val = parts[6].Trim();
             var path = string.IsNullOrWhiteSpace(parts[2]) ? "/" : parts[2].Trim();
             var isSecure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase);
 
-            var domain = rawDomain.StartsWith('.') ? rawDomain : "." + rawDomain;
-            if (!domain.Contains("youtube.com"))
-                domain = ".youtube.com";
+            var domain = string.IsNullOrEmpty(rawDomain) || !rawDomain.Contains("youtube.com")
+                ? "youtube.com"
+                : rawDomain;
 
             cookies[name] = new Cookie(name, val, path, domain) { Secure = isSecure };
         }
@@ -227,46 +228,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
 
     var clients = new List<(string Name, string UA, Dictionary<string, object?> Context, bool UseWebAuth, bool SendCookies)>();
 
-    // 1. ANDROID with cookies (verified to return status: OK with direct stream itag 18)
-    if (cookies.Count > 0)
-    {
-        var androidAuthCtx = new Dictionary<string, object?>
-        {
-            ["clientName"] = "ANDROID",
-            ["clientVersion"] = "21.26.364",
-            ["androidSdkVersion"] = 30,
-            ["osName"] = "Android",
-            ["osVersion"] = "11",
-            ["hl"] = "en",
-        };
-        clients.Add((
-            "ANDROID_AUTH",
-            "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
-            androidAuthCtx,
-            false,
-            true
-        ));
-    }
-
-    // 2. ANDROID clean (unauthenticated mobile client)
-    var androidCtx = new Dictionary<string, object?>
-    {
-        ["clientName"] = "ANDROID",
-        ["clientVersion"] = "21.26.364",
-        ["androidSdkVersion"] = 30,
-        ["osName"] = "Android",
-        ["osVersion"] = "11",
-        ["hl"] = "en",
-    };
-    clients.Add((
-        "ANDROID",
-        "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
-        androidCtx,
-        false,
-        false
-    ));
-
-    // 3. WEB (if cookies present, try WEB client with proper visitor authorization)
+    // 1. WEB with visitor auth cookies (when cookies present)
     if (cookies.Count > 0)
     {
         var webCtx = new Dictionary<string, object?>
@@ -275,7 +237,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["clientVersion"] = "2.20241021.01.00",
             ["hl"] = "en",
         };
-
         clients.Add((
             "WEB",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
@@ -283,13 +244,61 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             true,
             true
         ));
+
+        var webEmbCtx = new Dictionary<string, object?>
+        {
+            ["clientName"] = "WEB_EMBEDDED_PLAYER",
+            ["clientVersion"] = "1.20241021.01.00",
+            ["hl"] = "en",
+        };
+        clients.Add((
+            "WEB_EMBEDDED",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+            webEmbCtx,
+            true,
+            true
+        ));
     }
 
-    // 4. IOS (yt-dlp modern iOS client context)
+    // 2. ANDROID clean (unauthenticated mobile client, valid modern version)
+    var androidCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "ANDROID",
+        ["clientVersion"] = "20.10.38",
+        ["androidSdkVersion"] = 30,
+        ["osName"] = "Android",
+        ["osVersion"] = "11",
+        ["hl"] = "en",
+    };
+    clients.Add((
+        "ANDROID",
+        "com.google.android.youtube/20.10.38 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
+        androidCtx,
+        false,
+        false
+    ));
+
+    // 3. TVHTML5_SIMPLY_EMBEDDED_PLAYER
+    var tvEmbCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+        ["clientVersion"] = "2.0",
+        ["clientScreen"] = "WATCH",
+        ["hl"] = "en",
+    };
+    clients.Add((
+        "TV_EMBEDDED",
+        "Mozilla/5.0 (ChromiumStylePlatform; Linux x86_64; PlayStations) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        tvEmbCtx,
+        false,
+        false
+    ));
+
+    // 4. IOS (yt-dlp iOS client context, valid modern version)
     var iosCtx = new Dictionary<string, object?>
     {
         ["clientName"] = "IOS",
-        ["clientVersion"] = "21.26.4",
+        ["clientVersion"] = "19.45.4",
         ["deviceMake"] = "Apple",
         ["deviceModel"] = "iPhone16,2",
         ["osName"] = "iOS",
@@ -298,7 +307,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     };
     clients.Add((
         "IOS",
-        "com.google.ios.youtube/21.26.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)",
+        "com.google.ios.youtube/19.45.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)",
         iosCtx,
         false,
         false
@@ -409,18 +418,43 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             static int PropInt(JsonElement f, string name, int fallback) =>
                 f.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.Number ? p.GetInt32() : fallback;
 
+            static string? ExtractStreamUrl(JsonElement f)
+            {
+                if (f.TryGetProperty("url", out var u) && !string.IsNullOrEmpty(u.GetString()))
+                    return u.GetString();
+                if (f.TryGetProperty("signatureCipher", out var sc) || f.TryGetProperty("cipher", out sc))
+                {
+                    var cipherStr = sc.GetString();
+                    if (!string.IsNullOrEmpty(cipherStr))
+                    {
+                        var q = System.Web.HttpUtility.ParseQueryString(cipherStr);
+                        var rawUrl = q["url"];
+                        var sig = q["sig"] ?? q["s"];
+                        var sp = q["sp"] ?? "sig";
+                        if (!string.IsNullOrEmpty(rawUrl))
+                        {
+                            if (!string.IsNullOrEmpty(sig))
+                                return rawUrl.Contains('?') ? $"{rawUrl}&{sp}={sig}" : $"{rawUrl}?{sp}={sig}";
+                            return rawUrl;
+                        }
+                    }
+                }
+                return null;
+            }
+
             if (sd.TryGetProperty("formats", out var fmts))
             {
                 foreach (var f in fmts.EnumerateArray())
                 {
-                    if (!f.TryGetProperty("url", out var u)) continue;
+                    var streamUrl = ExtractStreamUrl(f);
+                    if (string.IsNullOrEmpty(streamUrl)) continue;
                     var (mime, _, codecs) = ParseMime(f);
                     if (mime != "video/mp4") continue; // only mp4 muxed is usable as-is
                     var h = PropInt(f, "height", 0);
                     var w = PropInt(f, "width", 0);
                     if (h <= 0) continue;
                     videoInfos.Add(new MuxedStreamInfo(
-                        u.GetString()!, new Container("mp4"), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
+                        streamUrl, new Container("mp4"), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
                         codecs.Length > 1 ? codecs[1] : "", null, null,
                         codecs.Length > 0 ? codecs[0] : "",
                         new VideoQuality(h, PropInt(f, "fps", 30)), new Resolution(w, h)));
@@ -430,7 +464,8 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             {
                 foreach (var f in afmts.EnumerateArray())
                 {
-                    if (!f.TryGetProperty("url", out var u)) continue;
+                    var streamUrl = ExtractStreamUrl(f);
+                    if (string.IsNullOrEmpty(streamUrl)) continue;
                     var (mime, sub, codecs) = ParseMime(f);
                     var h = PropInt(f, "height", 0);
                     var w = PropInt(f, "width", 0);
@@ -439,14 +474,14 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
                     {
                         if (h <= 0) continue;
                         videoInfos.Add(new VideoOnlyStreamInfo(
-                            u.GetString()!, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
+                            streamUrl, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
                             codecs.Length > 0 ? codecs[0] : "",
                             new VideoQuality(h, fps), new Resolution(w, h), false));
                     }
                     else if (mime.StartsWith("audio/"))
                     {
                         audioInfos.Add(new AudioOnlyStreamInfo(
-                            u.GetString()!, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
+                            streamUrl, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
                             codecs.Length > 0 ? codecs[0] : "", null, null));
                     }
                 }
@@ -907,6 +942,170 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             error = "Download failed.",
             detail = ex.Message[..Math.Min(200, ex.Message.Length)],
         }, statusCode: 502);
+    }
+});
+
+// ---- Instagram Helpers ----
+static string? ExtractInstagramShortcode(string url)
+{
+    if (string.IsNullOrWhiteSpace(url)) return null;
+    var m = Regex.Match(url, @"(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)", RegexOptions.IgnoreCase);
+    return m.Success ? m.Groups[1].Value : null;
+}
+
+static string UnescapeUnicode(string str)
+{
+    if (string.IsNullOrEmpty(str)) return "";
+    str = str.Replace(@"\/", "/").Replace(@"\u0026", "&");
+    try
+    {
+        return Regex.Unescape(str);
+    }
+    catch
+    {
+        return str;
+    }
+}
+
+// ---- Instagram Reel Info Endpoint ----
+app.MapPost("/api/instagram", async (HttpContext ctx, JsonElement body, CancellationToken ct) =>
+{
+    if (!RateOk(ctx, 30))
+        return Results.Json(new { error = "Rate limited." }, statusCode: 429);
+
+    var url = body.TryGetProperty("url", out var u) ? u.GetString() : null;
+    var shortcode = ExtractInstagramShortcode(url ?? "");
+    if (string.IsNullOrEmpty(shortcode))
+        return Results.Json(new { error = "A valid Instagram Reel or Post link is required." }, statusCode: 400);
+
+    try
+    {
+        // 1. Try public captioned embed endpoint
+        var embedUrl = $"https://www.instagram.com/p/{shortcode}/embed/captioned/";
+        using var req = new HttpRequestMessage(HttpMethod.Get, embedUrl);
+        req.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36");
+        req.Headers.TryAddWithoutValidation("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
+        req.Headers.TryAddWithoutValidation("Accept-Language", "en-US,en;q=0.9");
+
+        using var res = await rawHttp.SendAsync(req, ct);
+        var html = await res.Content.ReadAsStringAsync(ct);
+
+        string? videoUrl = null;
+        var vm = Regex.Match(html, @"""video_url""\s*:\s*""([^""]+)""");
+        if (vm.Success)
+        {
+            videoUrl = UnescapeUnicode(vm.Groups[1].Value);
+        }
+
+        string? thumbnail = null;
+        var tm = Regex.Match(html, @"""display_url""\s*:\s*""([^""]+)""");
+        if (tm.Success)
+        {
+            thumbnail = UnescapeUnicode(tm.Groups[1].Value);
+        }
+        else
+        {
+            var im = Regex.Match(html, @"<img[^>]+class=""EmbeddedMediaImage""[^>]+src=""([^""]+)""");
+            if (im.Success) thumbnail = System.Net.WebUtility.HtmlDecode(im.Groups[1].Value);
+        }
+
+        string title = "Instagram Reel";
+        var cm = Regex.Match(html, @"<div[^>]+class=""EmbeddedMediaCaption""[^>]*>(.*?)<\/div>", RegexOptions.Singleline);
+        if (cm.Success)
+        {
+            var cleanText = Regex.Replace(cm.Groups[1].Value, @"<[^>]+>", " ").Trim();
+            if (!string.IsNullOrEmpty(cleanText))
+            {
+                title = System.Net.WebUtility.HtmlDecode(cleanText);
+                if (title.Length > 80) title = title[..80].Trim() + "...";
+            }
+        }
+
+        string? uploader = null;
+        var um = Regex.Match(html, @"class=""EmbeddedMediaUser-username""[^>]*>([^<]+)<");
+        if (um.Success)
+        {
+            uploader = um.Groups[1].Value.Trim();
+        }
+
+        // 2. Fallback to Instagram public oEmbed if title or thumbnail needed
+        if (string.IsNullOrEmpty(videoUrl) || string.IsNullOrEmpty(thumbnail))
+        {
+            try
+            {
+                var oembedUrl = $"https://api.instagram.com/oembed/?url=https://www.instagram.com/p/{shortcode}/";
+                using var oembedReq = new HttpRequestMessage(HttpMethod.Get, oembedUrl);
+                oembedReq.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
+                using var oembedRes = await rawHttp.SendAsync(oembedReq, ct);
+                if (oembedRes.IsSuccessStatusCode)
+                {
+                    using var doc = JsonDocument.Parse(await oembedRes.Content.ReadAsStringAsync(ct));
+                    if (doc.RootElement.TryGetProperty("title", out var ot) && !string.IsNullOrEmpty(ot.GetString())) title = ot.GetString()!;
+                    if (doc.RootElement.TryGetProperty("author_name", out var oa) && !string.IsNullOrEmpty(oa.GetString())) uploader = oa.GetString();
+                    if (string.IsNullOrEmpty(thumbnail) && doc.RootElement.TryGetProperty("thumbnail_url", out var oth)) thumbnail = oth.GetString();
+                }
+            }
+            catch { }
+        }
+
+        if (string.IsNullOrEmpty(videoUrl))
+        {
+            return Results.Json(new
+            {
+                error = "Could not extract video from this Instagram Reel. The reel may be private, restricted, or deleted."
+            }, statusCode: 404);
+        }
+
+        var filename = SanitizeFilename(!string.IsNullOrEmpty(uploader) ? $"{uploader}_{shortcode}" : $"instagram_{shortcode}");
+
+        return Results.Json(new
+        {
+            success = true,
+            shortcode,
+            title,
+            uploader = !string.IsNullOrEmpty(uploader) ? $"@{uploader}" : null,
+            thumbnail,
+            videoUrl,
+            filename,
+            streamUrl = $"/api/instagram/stream?url={Uri.EscapeDataString(videoUrl)}&filename={Uri.EscapeDataString(filename)}"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Json(new { error = $"Failed to fetch Instagram Reel: {ex.Message}" }, statusCode: 500);
+    }
+});
+
+// ---- Instagram Reel Stream Proxy (forces direct file download on device) ----
+app.MapGet("/api/instagram/stream", async (HttpContext ctx, CancellationToken ct) =>
+{
+    var videoUrl = ctx.Request.Query["url"].FirstOrDefault();
+    var filename = ctx.Request.Query["filename"].FirstOrDefault() ?? "instagram_reel";
+    if (string.IsNullOrEmpty(videoUrl) || !IsValidUrl(videoUrl))
+        return Results.BadRequest("Valid video URL is required.");
+
+    try
+    {
+        using var clientReq = new HttpRequestMessage(HttpMethod.Get, videoUrl);
+        clientReq.Headers.TryAddWithoutValidation("User-Agent", "Mozilla/5.0");
+        using var clientRes = await rawHttp.SendAsync(clientReq, HttpCompletionOption.ResponseHeadersRead, ct);
+
+        if (!clientRes.IsSuccessStatusCode)
+            return Results.StatusCode((int)clientRes.StatusCode);
+
+        ctx.Response.ContentType = "video/mp4";
+        ctx.Response.Headers["Content-Disposition"] = $"attachment; filename=\"{SanitizeFilename(filename)}.mp4\"";
+        if (clientRes.Content.Headers.ContentLength.HasValue)
+        {
+            ctx.Response.ContentLength = clientRes.Content.Headers.ContentLength.Value;
+        }
+
+        await clientRes.Content.CopyToAsync(ctx.Response.Body, ct);
+        return Results.Empty;
+    }
+    catch (Exception ex) when (ex is OperationCanceledException)
+    {
+        return Results.Empty;
     }
 });
 
