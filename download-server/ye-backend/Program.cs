@@ -110,9 +110,22 @@ bool RateOk(HttpContext ctx, int maxPerMin)
     return q.Count <= maxPerMin;
 }
 
-// ---- YoutubeExplode client (server holds no cookies of its own) ----
-var youtube = new YoutubeClient();
-var hasCookies = false;
+// ---- YoutubeExplode client (supports server-level cookies via COOKIES_B64 or cookies.txt, plus per-request visitor cookies) ----
+var serverCookies = new List<Cookie>();
+if (Environment.GetEnvironmentVariable("COOKIES_B64") is { Length: > 0 } b64)
+{
+    serverCookies = ParseVisitorCookies(b64);
+}
+else
+{
+    var cookieFile = Path.Combine(AppContext.BaseDirectory, "cookies.txt");
+    if (File.Exists(cookieFile))
+    {
+        try { serverCookies = ParseVisitorCookies(File.ReadAllText(cookieFile)); } catch { }
+    }
+}
+var hasCookies = serverCookies.Count > 0;
+var youtube = hasCookies ? new YoutubeClient(serverCookies) : new YoutubeClient();
 
 // ---- Visitor cookies: parsed per request, never stored or logged ----
 // Accepts raw Netscape cookies.txt text or its base64 form (base64 is what
@@ -141,11 +154,12 @@ static List<Cookie> ParseVisitorCookies(string? input)
             continue;
         try
         {
-            cookies.Add(new Cookie(parts[5], parts[6])
+            var domain = parts[0].TrimStart('.');
+            cookies.Add(new Cookie(parts[5].Trim(), parts[6].Trim())
             {
-                Domain = parts[0],
-                Path = parts[2],
-                Secure = string.Equals(parts[3], "TRUE", StringComparison.OrdinalIgnoreCase),
+                Domain = domain,
+                Path = parts[2].Trim(),
+                Secure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase),
             });
         }
         catch { /* skip malformed cookie lines */ }
@@ -166,6 +180,8 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
     var bytes = System.Text.Encoding.UTF8.GetBytes($"{ts} {sapisid} https://www.youtube.com");
     var hash = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(bytes)).ToLowerInvariant();
     req.Headers.Add("Authorization", $"SAPISIDHASH {ts}_{hash}");
+    if (!req.Headers.Contains("Origin"))
+        req.Headers.Add("Origin", "https://www.youtube.com");
 }
 
 // ---- Metadata + manifest, player-API only ----
@@ -231,6 +247,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+        req.Headers.Add("User-Agent", "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip");
         AddVisitorAuth(req, cookies);
         using var res = await rawHttp.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode)
@@ -365,6 +382,7 @@ var cache = new ConcurrentDictionary<string, (DateTimeOffset Expires, VideoData 
 async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadOnlyList<Cookie>? visitorCookies = null)
 {
     var vc = visitorCookies ?? Array.Empty<Cookie>();
+    var effectiveCookies = vc.Count > 0 ? vc : (IReadOnlyList<Cookie>)serverCookies;
     // Visitor-cookie requests are never served from, or written to, the
     // shared cache: a manifest fetched as one visitor must never leak to
     // another. Only anonymous requests use the cache.
@@ -372,11 +390,28 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
         return hit.Data;
     if (vc.Count > 0)
         Console.WriteLine($"[info] visitor cookies supplied ({vc.Count} cookies)");
-    // NOTE: new VideoId(url) does NOT normalize — it stores the raw string.
-    // Only VideoId.Parse/TryParse extract the 11-char id from a watch URL.
+    else if (serverCookies.Count > 0)
+        Console.WriteLine($"[info] server cookies active ({serverCookies.Count} cookies)");
+
+    // Normalize URL / extract 11-char video ID
     var videoId = VideoId.TryParse(url)
         ?? throw new ArgumentException($"Invalid YouTube video ID or URL '{url}'.");
-    var raw = await FetchPlayerResponseAsync(videoId.Value, ct, vc);
+
+    var client = effectiveCookies.Count > 0 ? new YoutubeClient(effectiveCookies) : youtube;
+
+    // Try raw player response
+    (PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)? raw = null;
+    string? rawErr = null;
+    try
+    {
+        raw = await FetchPlayerResponseAsync(videoId.Value, ct, effectiveCookies);
+    }
+    catch (Exception ex)
+    {
+        rawErr = ex.Message;
+        Console.WriteLine($"[player] raw player failed ({ex.GetType().Name}: {ex.Message[..Math.Min(120, ex.Message.Length)]})");
+    }
+
     StreamManifest? manifest = null;
     if (Environment.GetEnvironmentVariable("FORCE_RAW_FALLBACK") == "1")
     {
@@ -384,21 +419,45 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     }
     else
     {
-        // The library client must carry the visitor's cookies too, or its
-        // player calls would go out anonymous while the raw calls do not.
-        var client = vc.Count > 0 ? new YoutubeClient(vc) : youtube;
         try
         {
             manifest = await client.Videos.Streams.GetManifestAsync(videoId, ct);
         }
-        catch (Exception ex) when (ex is HttpRequestException or IOException)
+        catch (Exception ex)
         {
-            Console.WriteLine($"[fallback] YE manifest failed ({ex.GetType().Name}: {ex.Message[..Math.Min(120, ex.Message.Length)]}); using raw {raw.ClientUsed} player streams");
+            Console.WriteLine($"[fallback] YE manifest failed ({ex.GetType().Name}: {ex.Message[..Math.Min(120, ex.Message.Length)]})");
         }
     }
-    var data = manifest is not null
-        ? new VideoData(raw.Meta, manifest.GetVideoStreams().ToList(), manifest.GetAudioStreams().ToList(), "youtubeExplode", raw.ClientUsed)
-        : new VideoData(raw.Meta, raw.Video, raw.Audio, "rawPlayer", raw.ClientUsed);
+
+    if (manifest is null && raw is null)
+    {
+        throw new YoutubeExplodeException($"Could not fetch video streams. {rawErr ?? "YouTube requires authentication or a non-datacenter IP."}");
+    }
+
+    PlayerMetadata meta;
+    if (raw is not null)
+    {
+        meta = raw.Value.Meta;
+    }
+    else
+    {
+        try
+        {
+            var vid = await client.Videos.GetAsync(videoId, ct);
+            meta = new PlayerMetadata(vid.Title, vid.Author.ChannelTitle, vid.Duration?.TotalSeconds, vid.Thumbnails.TryGetWithHighestResolution()?.Url);
+        }
+        catch
+        {
+            meta = new PlayerMetadata("YouTube Video", "", null, null);
+        }
+    }
+
+    var vStreams = manifest is not null ? manifest.GetVideoStreams().ToList() : raw!.Value.Video;
+    var aStreams = manifest is not null ? manifest.GetAudioStreams().ToList() : raw!.Value.Audio;
+    var sourceUsed = manifest is not null ? "youtubeExplode" : "rawPlayer";
+    var clientUsed = raw?.ClientUsed ?? "youtubeExplode";
+
+    var data = new VideoData(meta, vStreams, aStreams, sourceUsed, clientUsed);
     if (vc.Count == 0)
         cache[url] = (DateTimeOffset.UtcNow.AddMinutes(cacheMinutes), data);
     return data;
@@ -512,7 +571,7 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
             resources,
             qualities = heights.ToArray(),
             hasAudio,
-            cookies = visitorCookies.Count > 0,
+            cookies = visitorCookies.Count > 0 || hasCookies,
             source = data.Source,
         });
     }
@@ -522,12 +581,8 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
         {
             error = "Could not fetch video info.",
             detail = ex.Message[..Math.Min(200, ex.Message.Length)],
-            hint = "YouTube blocks anonymous server IPs; this service needs an unflagged IP.",
-            // Diagnostic only (boolean, never values): true means the
-            // backend received and parsed visitor cookies for this
-            // request. false on a fetch where cookies were pasted means
-            // the deployed backend is the old build that ignores them.
-            cookiesUsed = visitorCookies.Count > 0,
+            hint = "YouTube blocks anonymous server IPs; this service needs an unflagged IP or cookies.",
+            cookiesUsed = visitorCookies.Count > 0 || hasCookies,
         }, statusCode: 502);
     }
 });

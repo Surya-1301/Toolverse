@@ -249,6 +249,9 @@ export default function MusicDownloaderPage() {
             </div>
             <a
               href={downloadHref()}
+              download={`${(details?.title || "music").replace(/[/\\?%*:|"<>#]/g, "-").slice(0, 80)}.${format}`}
+              target="_blank"
+              rel="noopener noreferrer"
               className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-6 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
             >
               <Download className="h-5 w-5" />

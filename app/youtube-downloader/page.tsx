@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -16,6 +16,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
+import { downloadFile, isNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
   return (
@@ -32,38 +33,11 @@ function BackToToolsLink() {
 const inputClass =
   "min-h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
 
-/** Free RapidAPI service that returns all formats — no cookies, no server. */
-const RAPID_HOST = "youtube-media-downloader.p.rapidapi.com";
-
-type ApiVideo = {
-  label: string;
-  quality: number;
-  url: string;
-  size: number;
-  sizeLabel: string | null;
-  hasAudio: boolean;
-  mimeType: string;
-  container: string;
-  codec: string | null;
-};
-
-type ApiAudio = {
-  label: string;
-  url: string;
-  size: number;
-  sizeLabel: string | null;
-  mimeType: string;
-  container: string;
-  codec: string | null;
-};
-
 type VideoDetails = {
   title: string;
   thumbnail: string | null;
   duration: string | null;
   uploader: string | null;
-  videos: ApiVideo[];
-  audios: ApiAudio[];
 };
 
 type ServerResource = {
@@ -91,19 +65,6 @@ function getVideoId(url: string): string | null {
   return /^[A-Za-z0-9_-]{11}$/.test(s) ? s : null;
 }
 
-function fmtBytes(n: unknown): string | null {
-  const v = Number(n);
-  if (!v || v <= 0) return null;
-  const u = ["B", "KB", "MB", "GB"];
-  let i = 0;
-  let x = v;
-  while (x >= 1024 && i < u.length - 1) {
-    x /= 1024;
-    i++;
-  }
-  return `${x.toFixed(x >= 100 ? 0 : 1)} ${u[i]}`;
-}
-
 function fmtDuration(sec: unknown): string | null {
   const s = Number(sec);
   if (!s || s <= 0) return null;
@@ -112,27 +73,12 @@ function fmtDuration(sec: unknown): string | null {
   return `${m}:${String(r).padStart(2, "0")}`;
 }
 
-function parseMime(mime: string): { container: string; codec: string | null } {
-  const m = String(mime || "");
-  const container = /webm/i.test(m) ? "WebM" : /mp4/i.test(m) ? "MP4" : m.split("/")[1]?.split(";")[0]?.toUpperCase() || "?";
-  const cm = m.match(/codecs="([^"]+)"/);
-  const codec = cm ? cm[1].split(",")[0].trim().split(".")[0] : null;
-  return { container, codec };
-}
-
-function pickThumbnail(d: any): string | null {
-  const t = d?.thumbnails;
-  if (Array.isArray(t) && t.length) {
-    const sorted = [...t].sort(
-      (a, b) => (b?.width || 0) - (a?.width || 0),
-    );
-    return sorted[0]?.url || null;
-  }
-  return d?.thumbnail || d?.thumbnailUrl || null;
-}
-
-function qualityNum(label: string): number {
-  return parseInt(String(label || "0").replace(/\D/g, ""), 10) || 0;
+function sanitizeForFilename(title: string): string {
+  return (title || "video")
+    .replace(/[/\\?%*:|"<>#]/g, "-")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
 }
 
 /** localStorage key for the visitor's own cookies — their device only. */
@@ -144,28 +90,44 @@ export default function YoutubeDownloaderPage() {
   const serverUrl = PRIVATE_YT_BACKEND;
   const ytKey = PRIVATE_YT_KEY;
   const [loading, setLoading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<VideoDetails | null>(null);
   const [serverResources, setServerResources] = useState<ServerResource[] | null>(
     null,
   );
   // Visitor's own YouTube cookies (optional): pasted by the visitor, sent
-  // with their requests only, never stored anywhere. Needed on server IPs
-  // that YouTube gates with a sign-in check.
+  // with their requests only, never stored on backend.
   const [cookiesText, setCookiesText] = useState("");
   const [showCookies, setShowCookies] = useState(false);
-  // Remember the visitor's cookies on their own device only, so they
-  // paste once instead of every visit. Nothing is sent to the server
-  // except with their own Fetch/Download requests.
+
   useEffect(() => {
     try {
       const saved = localStorage.getItem(YT_COOKIES_KEY);
       if (saved) setCookiesText(saved);
     } catch {
-      /* storage unavailable (private mode etc.) — paste each time */
+      /* storage unavailable (private mode etc.) */
     }
   }, []);
+
   const abortRef = useRef<AbortController | null>(null);
+
+  const videoResources = useMemo(() => {
+    return (serverResources || []).filter((r) => !r.audioOnly);
+  }, [serverResources]);
+
+  const audioResources = useMemo(() => {
+    return (serverResources || []).filter((r) => r.audioOnly);
+  }, [serverResources]);
+
+  const bestVideo = useMemo(() => {
+    if (!videoResources.length) return null;
+    return [...videoResources].sort((a, b) => b.quality - a.quality)[0];
+  }, [videoResources]);
+
+  const bestAudio = useMemo(() => {
+    return audioResources.length ? audioResources[0] : null;
+  }, [audioResources]);
 
   async function fetchViaServer(videoUrl: string, base: string) {
     const headers: Record<string, string> = {
@@ -177,7 +139,7 @@ export default function YoutubeDownloaderPage() {
       try {
         localStorage.setItem(YT_COOKIES_KEY, cookies);
       } catch {
-        /* storage unavailable — still works for this request */
+        /* storage unavailable */
       }
     }
     const res = await fetch(`${base}/api/info`, {
@@ -193,10 +155,13 @@ export default function YoutubeDownloaderPage() {
     if (!res.ok) {
       const detail =
         data?.detail || data?.error || `Server error ${res.status}`;
+      if (/bot|sign in|login_required/i.test(detail)) {
+        setShowCookies(true);
+      }
       throw new Error(
         cookies
-          ? `${detail} (your cookies were sent but YouTube did not accept them — try freshly exported cookies, or check the backend is the latest build)`
-          : detail,
+          ? `${detail} (your cookies were sent but YouTube rejected them — try freshly exported cookies)`
+          : `${detail}${/bot|sign in/i.test(detail) ? ". Use the 'Blocked? Use your own YouTube cookies' option below." : ""}`,
       );
     }
     setDetails({
@@ -204,18 +169,18 @@ export default function YoutubeDownloaderPage() {
       thumbnail: data?.thumbnail || null,
       duration: fmtDuration(data?.duration),
       uploader: data?.uploader || null,
-      videos: [],
-      audios: [],
     });
     setServerResources(data?.resources || []);
   }
 
   async function fetchInfo() {
     const clean = url.trim();
-    if (!getVideoId(clean)) {
-      setError("Paste a valid YouTube link first.");
+    const vid = getVideoId(clean);
+    if (!vid) {
+      setError("Paste a valid YouTube link or video ID first.");
       return;
     }
+    const normalizedUrl = `https://www.youtube.com/watch?v=${vid}`;
     const base = serverUrl.trim().replace(/\/+$/, "");
     abortRef.current?.abort();
     const controller = new AbortController();
@@ -226,7 +191,7 @@ export default function YoutubeDownloaderPage() {
     setServerResources(null);
 
     try {
-      await fetchViaServer(clean, base);
+      await fetchViaServer(normalizedUrl, base);
     } catch (e) {
       if ((e as Error).name !== "AbortError") {
         setError((e as Error).message || "Lookup failed.");
@@ -236,9 +201,17 @@ export default function YoutubeDownloaderPage() {
     }
   }
 
+  function getResourceFilename(r: ServerResource): string {
+    const safeTitle = sanitizeForFilename(details?.title || "video");
+    const ext = r.ext || (r.audioOnly ? "mp3" : "mp4");
+    return r.audioOnly ? `${safeTitle}.${ext}` : `${safeTitle}-${r.quality}p.${ext}`;
+  }
+
   function serverDownloadHref(r: ServerResource): string {
+    const vid = getVideoId(url.trim());
+    const targetUrl = vid ? `https://www.youtube.com/watch?v=${vid}` : url.trim();
     const params = new URLSearchParams({
-      url: url.trim(),
+      url: targetUrl,
       format_id: r.id,
       audio: r.audioOnly ? "1" : "0",
     });
@@ -249,6 +222,33 @@ export default function YoutubeDownloaderPage() {
       params.set("cookies", btoa(unescape(encodeURIComponent(cookies))));
     }
     return `${serverUrl.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
+  }
+
+  async function handleDownload(r: ServerResource) {
+    const href = serverDownloadHref(r);
+    const filename = getResourceFilename(r);
+    setDownloadingId(r.id);
+
+    try {
+      if (isNative()) {
+        await downloadFile(href, filename);
+      } else {
+        const link = document.createElement("a");
+        link.href = href;
+        link.download = filename;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Download request failed.",
+      );
+    } finally {
+      setTimeout(() => setDownloadingId(null), 4000);
+    }
   }
 
   async function pasteFromClipboard() {
@@ -267,6 +267,7 @@ export default function YoutubeDownloaderPage() {
     setDetails(null);
     setServerResources(null);
     setLoading(false);
+    setDownloadingId(null);
   }
 
   return (
@@ -278,7 +279,7 @@ export default function YoutubeDownloaderPage() {
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Paste a YouTube link and get every available video quality plus
-          audio-only options. Free, no signup.
+          audio-only options. Free, fast and private.
         </p>
       </div>
 
@@ -293,7 +294,7 @@ export default function YoutubeDownloaderPage() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && fetchInfo()}
-              placeholder="https://www.youtube.com/watch?v=..."
+              placeholder="https://www.youtube.com/watch?v=... or youtu.be/..."
               className={inputClass}
               inputMode="url"
             />
@@ -352,9 +353,7 @@ export default function YoutubeDownloaderPage() {
                 the cookies.txt file below. They are sent with your
                 requests only, never stored on the server, and never
                 shared with anyone. Paste once — they are remembered in
-                this browser so you don&apos;t paste again. Without them
-                the tool tries anonymously. To revoke, delete your
-                YouTube sessions or change your Google password.
+                this browser so you don&apos;t paste again.
               </p>
               <textarea
                 value={cookiesText}
@@ -432,83 +431,101 @@ export default function YoutubeDownloaderPage() {
               </div>
             </div>
 
-            {details.videos.length || details.audios.length ? (
+            {/* Quick Action Buttons: Best Video & Best Audio */}
+            {bestVideo || bestAudio ? (
               <div className="mt-4 flex flex-wrap gap-2">
-                {details.videos.length ? (
-                  <a
-                    href={details.videos[details.videos.length - 1].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-500"
+                {bestVideo ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(bestVideo)}
+                    disabled={downloadingId === bestVideo.id}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
                   >
-                    <Download className="h-4 w-4" />
-                    Best video ({details.videos[details.videos.length - 1].label})
-                  </a>
+                    {downloadingId === bestVideo.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Download className="h-4 w-4" />
+                    )}
+                    {downloadingId === bestVideo.id
+                      ? "Starting download…"
+                      : `Best video (${bestVideo.quality}p)`}
+                  </button>
                 ) : null}
-                {details.audios.length ? (
-                  <a
-                    href={details.audios[0].url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15 light:bg-slate-900/5 light:text-slate-900 light:hover:bg-slate-900/10"
+                {bestAudio ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDownload(bestAudio)}
+                    disabled={downloadingId === bestAudio.id}
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15 light:bg-slate-900/5 light:text-slate-900 light:hover:bg-slate-900/10 disabled:opacity-60"
                   >
-                    <Music className="h-4 w-4" />
-                    Best audio
-                  </a>
+                    {downloadingId === bestAudio.id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Music className="h-4 w-4" />
+                    )}
+                    {downloadingId === bestAudio.id
+                      ? "Starting download…"
+                      : "Best audio (MP3)"}
+                  </button>
                 ) : null}
               </div>
             ) : null}
 
-            {details.videos.length ? (
+            {/* Video Qualities List */}
+            {videoResources.length ? (
               <>
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Video qualities
                 </p>
                 <div className="mt-2 overflow-hidden rounded-xl border border-white/10 light:border-slate-900/10">
-                  {details.videos.map((v, i) => (
+                  {videoResources.map((v) => (
                     <div
-                      key={`${v.label}-${i}`}
+                      key={v.id}
                       className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3 last:border-0 light:border-slate-900/5"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-white light:bg-slate-900/5 light:text-slate-900">
-                          {v.label}
+                          {v.quality}p
                         </span>
                         <p className="text-xs text-slate-500">
                           {[
                             v.sizeLabel,
-                            v.hasAudio ? "with audio" : "video only",
-                            v.container,
-                            v.codec,
+                            v.hasAudio ? "with audio" : null,
+                            v.fps ? `${v.fps}fps` : null,
                           ]
                             .filter(Boolean)
-                            .join(" • ")}
+                            .join(" • ") || "—"}
                         </p>
                       </div>
-                      <a
-                        href={v.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(v)}
+                        disabled={downloadingId === v.id}
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                       >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </a>
+                        {downloadingId === v.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                        {downloadingId === v.id ? "Preparing…" : "Download"}
+                      </button>
                     </div>
                   ))}
                 </div>
               </>
             ) : null}
 
-            {details.audios.length ? (
+            {/* Audio Only List */}
+            {audioResources.length ? (
               <>
                 <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
                   Audio only
                 </p>
                 <div className="mt-2 overflow-hidden rounded-xl border border-white/10 light:border-slate-900/10">
-                  {details.audios.map((a, i) => (
+                  {audioResources.map((a) => (
                     <div
-                      key={`${a.label}-${i}`}
+                      key={a.id}
                       className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3 last:border-0 light:border-slate-900/5"
                     >
                       <div className="flex min-w-0 items-center gap-3">
@@ -516,58 +533,24 @@ export default function YoutubeDownloaderPage() {
                           <Music className="h-4 w-4" />
                         </span>
                         <p className="text-xs text-slate-500">
-                          {[a.label, a.sizeLabel, a.container, a.codec]
+                          {[a.sizeLabel, "MP3 audio"]
                             .filter(Boolean)
                             .join(" • ")}
                         </p>
                       </div>
-                      <a
-                        href={a.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(a)}
+                        disabled={downloadingId === a.id}
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                       >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </a>
-                    </div>
-                  ))}
-                </div>
-              </>
-            ) : null}
-
-            {serverResources && serverResources.length ? (
-              <>
-                <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
-                  Choose quality
-                </p>
-                <div className="mt-2 overflow-hidden rounded-xl border border-white/10 light:border-slate-900/10">
-                  {serverResources.map((r) => (
-                    <div
-                      key={r.id}
-                      className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3 last:border-0 light:border-slate-900/5"
-                    >
-                      <div className="flex min-w-0 items-center gap-3">
-                        <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-white light:bg-slate-900/5 light:text-slate-900">
-                          {r.audioOnly ? "MP3" : `${r.quality}p`}
-                        </span>
-                        <p className="text-xs text-slate-500">
-                          {[
-                            r.sizeLabel,
-                            r.hasAudio && !r.audioOnly ? "with audio" : null,
-                            r.fps ? `${r.fps}fps` : null,
-                          ]
-                            .filter(Boolean)
-                            .join(" • ") || "—"}
-                        </p>
-                      </div>
-                      <a
-                        href={serverDownloadHref(r)}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
-                      >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </a>
+                        {downloadingId === a.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                        {downloadingId === a.id ? "Preparing…" : "Download"}
+                      </button>
                     </div>
                   ))}
                 </div>
