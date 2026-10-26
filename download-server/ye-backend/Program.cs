@@ -430,9 +430,13 @@ static bool IsValidUrl(string? u) =>
 app.MapGet("/", () => new
 {
     ok = true,
-    service = "toolverse-ye-backend",
+    service = "toolverse-yt-backend",
     engine = "YoutubeExplode",
     cookies = hasCookies,
+    // Build marker: true only on the visitor-cookies build. Open the
+    // backend URL in a browser to confirm the deployed build supports
+    // per-request visitor cookies at all.
+    visitorCookies = true,
     maxMinutes,
 });
 
@@ -519,6 +523,11 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
             error = "Could not fetch video info.",
             detail = ex.Message[..Math.Min(200, ex.Message.Length)],
             hint = "YouTube blocks anonymous server IPs; this service needs an unflagged IP.",
+            // Diagnostic only (boolean, never values): true means the
+            // backend received and parsed visitor cookies for this
+            // request. false on a fetch where cookies were pasted means
+            // the deployed backend is the old build that ignores them.
+            cookiesUsed = visitorCookies.Count > 0,
         }, statusCode: 502);
     }
 });

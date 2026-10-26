@@ -191,7 +191,13 @@ export default function YoutubeDownloaderPage() {
     });
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data?.detail || data?.error || `Server error ${res.status}`);
+      const detail =
+        data?.detail || data?.error || `Server error ${res.status}`;
+      throw new Error(
+        cookies
+          ? `${detail} (your cookies were sent but YouTube did not accept them — try freshly exported cookies, or check the backend is the latest build)`
+          : detail,
+      );
     }
     setDetails({
       title: data?.title || "video",
