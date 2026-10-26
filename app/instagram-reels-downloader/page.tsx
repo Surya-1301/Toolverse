@@ -210,7 +210,7 @@ export default function InstagramReelsDownloaderPage() {
           Instagram Reels Downloader
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-          Download Instagram reels, videos, and posts in high definition using yt-dlp.
+          Download Instagram reels, videos, and posts in high definition.
           Fast, free, and watermark-free.
         </p>
       </div>

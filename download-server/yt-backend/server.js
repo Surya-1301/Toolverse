@@ -99,10 +99,11 @@ setInterval(() => {
 }, 60000).unref();
 
 // ---- helpers ----
-function runYtDlp(args, timeoutMs) {
+function runYtDlp(args, timeoutMs, customCookiesPath) {
   return new Promise((resolve, reject) => {
+    const cookiesToUse = customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null);
     const fullArgs = [
-      ...(HAS_COOKIES ? ["--cookies", COOKIES_PATH] : []),
+      ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       ...args,
     ];
@@ -127,23 +128,29 @@ function runYtDlp(args, timeoutMs) {
   });
 }
 
-async function runYtDlpWithFallback(args, timeoutMs) {
+async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath) {
   try {
-    return await runYtDlp(args, timeoutMs);
+    return await runYtDlp(args, timeoutMs, customCookiesPath);
   } catch (e1) {
-    const msg = String((e1 && e1.message) || e1);
-    if (
-      !/not a bot|format is not available|page needs to be reloaded|unable to extract/i.test(
-        msg,
-      )
-    ) {
-      throw e1;
+    try {
+      const r = await runYtDlp(
+        ["--extractor-args", "youtube:player-client=android,ios", ...args],
+        timeoutMs,
+        customCookiesPath,
+      );
+      return { ...r, fallbackClient: "android,ios" };
+    } catch {
+      try {
+        const r2 = await runYtDlp(
+          ["--extractor-args", "youtube:player-client=ios", ...args],
+          timeoutMs,
+          customCookiesPath,
+        );
+        return { ...r2, fallbackClient: "ios" };
+      } catch {
+        throw e1;
+      }
     }
-    const r = await runYtDlp(
-      ["--extractor-args", "youtube:player_client=android", ...args],
-      timeoutMs,
-    );
-    return { ...r, fallbackClient: "android" };
   }
 }
 
@@ -312,21 +319,37 @@ app.get("/", (req, res) => {
 
 // Video metadata + full resource table.
 app.post("/api/info", rateLimit(30), async (req, res) => {
-  const { url } = req.body || {};
+  const { url, cookies } = req.body || {};
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
   }
   const key = String(url).trim();
 
-  const cached = parseCache.get(key);
-  if (cached && cached.expires > Date.now()) {
-    return res.json({ ...cached.data, cached: true });
+  let tempCookiePath = null;
+  if (cookies && typeof cookies === "string" && cookies.trim()) {
+    try {
+      let rawText = cookies.trim();
+      if (!rawText.includes(".youtube.com") && !rawText.includes("\t")) {
+        rawText = Buffer.from(rawText, "base64").toString("utf8");
+      }
+      tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
+      await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
+    } catch {}
+  }
+
+  // Visitor-cookie requests are never served from/written to the shared cache
+  if (!tempCookiePath) {
+    const cached = parseCache.get(key);
+    if (cached && cached.expires > Date.now()) {
+      return res.json({ ...cached.data, cached: true });
+    }
   }
 
   try {
     const { stdout } = await runYtDlpWithFallback(
       ["--dump-json", "--no-playlist", "--no-warnings", key],
       90000,
+      tempCookiePath,
     );
     const info = JSON.parse(stdout);
     const resources = buildResources(info);
@@ -340,33 +363,51 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       resources,
       qualities: resources.filter((r) => !r.audioOnly).map((r) => r.quality),
       hasAudio: resources.some((r) => r.audioOnly || r.hasAudio),
-      cookies: HAS_COOKIES,
+      cookies: HAS_COOKIES || !!tempCookiePath,
     };
-    parseCache.set(key, { data, expires: Date.now() + CACHE_MS });
+    if (!tempCookiePath) {
+      parseCache.set(key, { data, expires: Date.now() + CACHE_MS });
+    }
     res.json(data);
   } catch (e) {
     if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
       const ig = await fetchInstagramDirect(key);
       if (ig) {
-        parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
+        if (!tempCookiePath) parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
         return res.json(ig);
       }
     }
     res.status(502).json({
       error: "Could not fetch video info.",
       detail: String((e && e.message) || e).slice(0, 200),
-      hint: HAS_COOKIES
+      hint: HAS_COOKIES || tempCookiePath
         ? undefined
-        : "Try adding cookies.txt (see README) — YouTube blocks anonymous server IPs.",
+        : "Try adding your cookies in 'Blocked? Use your own YouTube cookies' below.",
     });
+  } finally {
+    if (tempCookiePath) {
+      fsp.unlink(tempCookiePath).catch(() => {});
+    }
   }
 });
 
 // Download a specific resource (or auto-pick by quality / audio flag).
 app.get("/api/download", rateLimit(20), async (req, res) => {
-  const { url, format_id, quality, audio, audio_format } = req.query;
+  const { url, format_id, quality, audio, audio_format, cookies } = req.query;
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
+  }
+
+  let tempCookiePath = null;
+  if (cookies && typeof cookies === "string" && cookies.trim()) {
+    try {
+      let rawText = cookies.trim();
+      if (!rawText.includes(".youtube.com") && !rawText.includes("\t")) {
+        rawText = Buffer.from(rawText, "base64").toString("utf8");
+      }
+      tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
+      await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
+    } catch {}
   }
 
   // Handle direct Instagram stream if fetched via direct fallback
@@ -382,6 +423,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
           res.setHeader("Content-Type", "video/mp4");
           const { Readable } = require("stream");
           Readable.fromWeb(streamRes.body).pipe(res);
+          if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
           return;
         }
       } catch (streamErr) {
@@ -418,6 +460,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   }
 
   const cleanupFiles = async () => {
+    if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
     try {
       const files = await fsp.readdir(TMPDIR);
       await Promise.all(
@@ -445,6 +488,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
         String(url),
       ],
       MAX_MS,
+      tempCookiePath,
     );
 
     const files = (await fsp.readdir(TMPDIR)).filter((f) =>
@@ -458,6 +502,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       const r = await runYtDlp(
         ["--print", "%(title)s", "--no-playlist", "--no-warnings", String(url)],
         60000,
+        tempCookiePath,
       );
       const t = r.stdout.trim().split("\n")[0];
       if (t) title = t;
@@ -467,7 +512,10 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
 
     const ext = audioOnly ? "mp3" : "mp4";
     const filename = `${sanitizeFilename(title)}.${ext}`;
-    const cleanup = () => fsp.unlink(filePath).catch(() => {});
+    const cleanup = () => {
+      if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
+      fsp.unlink(filePath).catch(() => {});
+    };
     res.on("finish", cleanup);
     res.on("close", cleanup);
     res.download(filePath, filename);
