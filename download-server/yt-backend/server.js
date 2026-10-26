@@ -660,7 +660,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.2.5",
+    version: "2.2.6",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -671,12 +671,20 @@ app.get(["/", "/health"], (req, res) => {
 app.get("/api/debug-curl", (req, res) => {
   const { execSync } = require("child_process");
   try {
+    const vid = req.query.id || "enY83Li8_ps";
+    const client = req.query.client || "android";
     const ip = execSync("curl -s -m 5 https://api.ipify.org", { encoding: "utf8" }).trim();
-    const sw = execSync('curl -s -i -m 8 -H "User-Agent: com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip" https://www.youtube.com/sw.js_data', { encoding: "utf8" });
-    const ytdlp = execSync('yt-dlp --version', { encoding: "utf8" }).trim();
-    res.json({ ok: true, ip, ytdlp, swHead: sw.slice(0, 200) });
+    let ytdlpOut = "";
+    try {
+      const out = execSync(`yt-dlp --dump-json --no-playlist --no-warnings --extractor-args "youtube:player-client=${client}" "https://www.youtube.com/watch?v=${vid}"`, { encoding: "utf8", timeout: 20000 });
+      const j = JSON.parse(out);
+      ytdlpOut = `SUCCESS: ${j.title} (${j.formats?.length} formats)`;
+    } catch (e) {
+      ytdlpOut = `ERROR: ${e.message}\nstderr: ${e.stderr || ""}\nstdout: ${e.stdout || ""}`;
+    }
+    res.json({ ok: true, ip, client, ytdlpOut });
   } catch (err) {
-    res.json({ ok: false, error: err.message, stdout: err.stdout, stderr: err.stderr });
+    res.json({ ok: false, error: err.message });
   }
 });
 
