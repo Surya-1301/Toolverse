@@ -1,20 +1,3 @@
-# Render.com web-service image for the YouTube backend (YoutubeExplode, no yt-dlp).
-#
-# In the Render dashboard: New → Web Service → Docker
-#   Dockerfile Path: ./download-server/Dockerfile.ye-backend
-# (build context stays at the repo root; COPY paths below assume that)
-#
-# Env vars (Render dashboard):
-#   API_KEY     required for /api/* — use the SAME value baked into
-#               lib/downloadServers.ts, or the frontend gets 401s.
-#   CORS_ORIGIN https://toolversee.pages.dev (comma-separated if more)
-#   COOKIES_B64 optional Netscape-format cookies, base64 — only if this
-#               IP ever gets flagged (never commit cookie files to git).
-#   MAX_MINUTES 10, CACHE_MIN 10 (defaults fine)
-# Render injects PORT and the service reads it.
-# Free tier sleeps when idle; first request after a nap takes ~30-60s to wake.
-# First build takes a few minutes (the .NET SDK image is large).
-
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY download-server/ye-backend/*.csproj ./
