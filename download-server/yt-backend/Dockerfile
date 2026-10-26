@@ -1,6 +1,8 @@
 # Toolverse YouTube backend: Node + yt-dlp + ffmpeg.
 FROM node:22-slim
 
+ARG CACHE_DATE=2026-10-27-03
+
 # yt-dlp (standalone binary, needs python3) + ffmpeg (merging video+audio, MP3 extraction)
 RUN apt-get update \
   && apt-get install -y --no-install-recommends curl ffmpeg ca-certificates python3 \

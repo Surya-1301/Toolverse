@@ -40,6 +40,20 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "*")
   .map((s) => s.trim().replace(/\/+$/, ""))
   .filter(Boolean);
 
+let ytDlpVersion = "unknown";
+try {
+  const { execSync } = require("child_process");
+  try {
+    execSync("yt-dlp -U", { encoding: "utf8", timeout: 30000 });
+  } catch (updErr) {
+    console.log("[startup] yt-dlp -U notice:", updErr.message);
+  }
+  ytDlpVersion = execSync("yt-dlp --version", { encoding: "utf8" }).trim();
+  console.log("[startup] yt-dlp version:", ytDlpVersion);
+} catch (vErr) {
+  ytDlpVersion = String(vErr.message);
+}
+
 // ---- CORS (the Toolverse site calls this from the browser) ----
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -105,6 +119,8 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
     const fullArgs = [
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
+      "--geo-bypass",
+      "--no-check-certificates",
       "--socket-timeout",
       "20",
       ...args,
@@ -167,41 +183,38 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
-      // With cookies, run standard extraction with generous 65s timeout so Render's shared CPU can finish
-      try {
-        return await runYtDlp(args, 65000, customCookiesPath);
-      } catch (e1) {
-        // Retry once specifying web client explicitly
+      // With cookies: try web clients first, then auto, then embedded TV
+      const attempts = [
+        ["--extractor-args", "youtube:player-client=web,web_safari"],
+        [],
+        ["--extractor-args", "youtube:player-client=tv_simply,web_embedded"],
+      ];
+      let lastErr = null;
+      for (const extra of attempts) {
         try {
-          return await runYtDlp(
-            ["--extractor-args", "youtube:player_client=web", ...args],
-            60000,
-            customCookiesPath,
-          );
-        } catch {
-          throw e1;
+          return await runYtDlp([...extra, ...args], 65000, customCookiesPath);
+        } catch (e) {
+          lastErr = e;
         }
       }
+      throw lastErr;
     } else {
       // Anonymous request from datacenter IP:
-      // Try android client first (bypasses datacenter bot-checks)
-      try {
-        return await runYtDlp(
-          ["--extractor-args", "youtube:player_client=android", ...args],
-          45000,
-          customCookiesPath,
-        );
-      } catch (e1) {
+      // Try TV simply / embedded / mobile clients that bypass datacenter bot-checks
+      const attempts = [
+        ["--extractor-args", "youtube:player-client=tv_simply,web_embedded,ios"],
+        ["--extractor-args", "youtube:player-client=android,ios"],
+        [],
+      ];
+      let lastErr = null;
+      for (const extra of attempts) {
         try {
-          return await runYtDlp(
-            ["--extractor-args", "youtube:player_client=ios", ...args],
-            45000,
-            customCookiesPath,
-          );
-        } catch {
-          throw e1;
+          return await runYtDlp([...extra, ...args], 45000, customCookiesPath);
+        } catch (e) {
+          lastErr = e;
         }
       }
+      throw lastErr;
     }
   }
 
@@ -367,7 +380,8 @@ app.get("/", (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.1.1",
+    version: "2.1.2",
+    ytDlpVersion,
     cookies: HAS_COOKIES,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
