@@ -1,0 +1,1 @@
+{"dependencies":{"express":"^4.21.2"},"description":"Toolverse YouTube download backend (yt-dlp + optional cookies)","engines":{"node":">=18"},"main":"server.js","name":"toolverse-yt-backend","private":true,"scripts":{"start":"node server.js"},"version":"1.0.0"}

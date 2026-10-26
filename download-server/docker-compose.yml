@@ -1,0 +1,70 @@
+# Toolverse download server — self-hosted cobalt instance.
+#
+# Recommended: any VPS / always-on machine with Docker.
+#   1. Copy .env.example to .env and set API_URL to this server's public URL.
+#   2. docker compose up -d
+#   3. Test: curl http://localhost:9000/
+#
+# See README.md for Render.com instructions and hardening.
+
+services:
+  cobalt:
+    image: ghcr.io/imputnet/cobalt:latest
+    container_name: toolverse-cobalt
+    restart: unless-stopped
+    ports:
+      - "${HOST_PORT:-9000}:9000"
+    environment:
+      # REQUIRED: the public URL this API is reachable at (tunnels break without it)
+      API_URL: ${API_URL:?Set API_URL in your .env file}
+      # YouTube support: session generator on the same host/IP (see yt-session below)
+      YOUTUBE_SESSION_SERVER: http://yt-session:8080/
+      # --- Optional hardening (see README "Lock it down") ---
+      # API_AUTH_REQUIRED: 1
+      # API_KEY_URL: file://keys.json
+      # --- Optional: cookies for services that need login for public content ---
+      # COOKIE_PATH: /cookies.json
+    volumes:
+      # Uncomment if you use API keys or cookies:
+      # - ./keys.json:/keys.json:ro
+      # - ./cookies.json:/cookies.json:ro
+      - cobalt-tmp:/tmp
+    depends_on:
+      - yt-session
+
+  # Generates YouTube proof-of-origin tokens on THIS server's IP.
+  # Must run on the same public IP as cobalt (same host = guaranteed).
+  yt-session:
+    image: ghcr.io/imputnet/yt-session-generator:webserver
+    container_name: toolverse-yt-session
+    restart: unless-stopped
+    # No public ports — only cobalt talks to it.
+
+  # Dedicated YouTube backend (yt-dlp + your browser cookies).
+  # YouTube hard-blocks anonymous datacenter IPs; authenticated requests
+  # with cookies.txt work far better. See yt-backend/cookies.README.txt.
+  yt-backend:
+    build: ./yt-backend
+    container_name: toolverse-yt-backend
+    restart: unless-stopped
+    ports:
+      - "${YT_HOST_PORT:-3001}:3000"
+    environment:
+      MAX_MINUTES: 10
+    volumes:
+      # Optional: your exported YouTube cookies (see yt-backend/cookies.README.txt)
+      # - ./yt-backend/cookies.txt:/app/cookies.txt:ro
+      - yt-tmp:/tmp
+
+  # Keeps the cobalt image auto-updated.
+  watchtower:
+    image: ghcr.io/nicholas-fedor/watchtower:latest
+    container_name: toolverse-watchtower
+    restart: unless-stopped
+    command: --cleanup --interval 86400
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  cobalt-tmp:
+  yt-tmp:

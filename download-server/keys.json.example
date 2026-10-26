@@ -1,0 +1,1 @@
+{"_comment":"API keys for your private cobalt instance. Copy to keys.json, mount it, and set API_KEY_URL=file://keys.json + API_AUTH_REQUIRED=1. The Toolverse downloader tools already have an API-key field in Advanced settings.","keys":["REPLACE_WITH_A_LONG_RANDOM_STRING"]}

@@ -8,15 +8,44 @@ import {
   ClipboardPaste,
   Download,
   Eraser,
-  ExternalLink,
   Film,
   Link2,
   Loader2,
+  Music,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
-import { downloadFile, isNative } from "@/lib/capacitor";
+import { TurnstileChallenge } from "@/components/TurnstileChallenge";
+import {
+  cobaltErrorMessage,
+  looksLikeUrl,
+  type CobaltPickerItem,
+  type CobaltResponse,
+} from "@/lib/cobalt";
+import { useCobaltDownloader } from "@/lib/useCobalt";
+import {
+  PRIVATE_COBALT_API,
+  PRIVATE_COBALT_KEY,
+  PRIVATE_YT_BACKEND,
+  PRIVATE_YT_KEY,
+} from "@/lib/downloadServers";
+
+type ServerResource = {
+  id: string;
+  quality: number;
+  ext: string;
+  size: number;
+  sizeLabel: string | null;
+  hasAudio: boolean;
+  fps: number | null;
+  audioOnly?: boolean;
+};
+
+type MediaMeta = {
+  title: string;
+  thumbnail: string | null;
+  uploader: string | null;
+};
 
 function BackToToolsLink() {
   return (
@@ -33,73 +62,97 @@ function BackToToolsLink() {
 const inputClass =
   "min-h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-pink-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
 
-type InstagramResult = {
-  shortcode: string;
-  title: string;
-  uploader: string | null;
-  thumbnail: string | null;
-  videoUrl: string;
-  filename: string;
-  streamUrl: string;
-};
-
 export default function InstagramReelsDownloaderPage() {
   const [url, setUrl] = useState("");
+  // Private server, baked in and hidden from the UI.
+  const apiBase = PRIVATE_COBALT_API;
+  const apiKey = PRIVATE_COBALT_KEY;
   const [loading, setLoading] = useState(false);
-  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<InstagramResult | null>(null);
+  const [items, setItems] = useState<(CobaltPickerItem & { filename?: string })[]>([]);
+  const [meta, setMeta] = useState<MediaMeta | null>(null);
+  const [serverResources, setServerResources] = useState<ServerResource[] | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  function looksLikeInstagramUrl(input: string): boolean {
-    const s = input.trim();
-    return (
-      (s.includes("instagram.com/") || s.includes("instagr.am/")) &&
-      /(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i.test(s)
-    );
+  const cobalt = useCobaltDownloader(apiBase, apiKey);
+
+  function handleResult(res: CobaltResponse) {
+    if (res.status === "error") {
+      setError(cobaltErrorMessage(res.error.code));
+    } else if (res.status === "picker") {
+      const found = res.picker.filter((p) => p.url);
+      if (found.length) setItems(found);
+      else setError("No downloadable media found at that link.");
+    } else if (res.status === "local-processing") {
+      setError(
+        "This file needs local processing, which isn't supported here. Try another API instance below.",
+      );
+    } else {
+      setItems([{ url: res.url, filename: res.filename }]);
+    }
+  }
+
+  async function fetchMeta(clean: string) {
+    try {
+      const base = PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (PRIVATE_YT_KEY) headers["x-api-key"] = PRIVATE_YT_KEY;
+      const res = await fetch(`${base}/api/info`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ url: clean }),
+        signal: abortRef.current?.signal,
+      });
+      const data = await res.json();
+      if (!res.ok) return;
+      setMeta({
+        title: data?.title || "Instagram media",
+        thumbnail: data?.thumbnail || null,
+        uploader: data?.uploader || null,
+      });
+      setServerResources(data?.resources || []);
+    } catch {
+      /* meta is a bonus — cobalt result still shows below */
+    }
+  }
+
+  function serverDownloadHref(r: ServerResource): string {
+    const params = new URLSearchParams({
+      url: url.trim(),
+      format_id: r.id,
+      audio: r.audioOnly ? "1" : "0",
+    });
+    if (PRIVATE_YT_KEY) params.set("api_key", PRIVATE_YT_KEY);
+    return `${PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
   }
 
   async function fetchDownload() {
     const clean = url.trim();
-    if (!clean) {
-      setError("Please paste an Instagram Reel or Post link.");
+    if (!looksLikeUrl(clean)) {
+      setError("Paste a valid Instagram link first.");
       return;
     }
-    if (!looksLikeInstagramUrl(clean)) {
-      setError("Please provide a valid Instagram link (e.g. instagram.com/reel/...).");
-      return;
-    }
-
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
     setLoading(true);
     setError(null);
-    setResult(null);
+    setItems([]);
+    setMeta(null);
+    setServerResources(null);
+    fetchMeta(clean);
 
     try {
-      const base = PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
-      if (PRIVATE_YT_KEY) headers["x-api-key"] = PRIVATE_YT_KEY;
-
-      const res = await fetch(`${base}/api/instagram`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ url: clean }),
-        signal: controller.signal,
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || `Download failed with HTTP ${res.status}`);
-      }
-
-      setResult(data);
-    } catch (e: unknown) {
+      const res = await cobalt.download(
+        { url: clean, videoQuality: "max", filenameStyle: "pretty" },
+        controller.signal,
+      );
+      if (res === "challenge") return; // widget shown below; on solve we retry
+      handleResult(res);
+    } catch (e) {
       if ((e as Error).name !== "AbortError") {
         setError(
-          (e as Error).message ||
-            "Could not fetch reel. The video may be private or restricted.",
+          "Couldn't reach the download service. Check your connection or try another API instance below.",
         );
       }
     } finally {
@@ -107,29 +160,20 @@ export default function InstagramReelsDownloaderPage() {
     }
   }
 
-  async function handleDownloadClick() {
-    if (!result) return;
-    const base = PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
-    const downloadUrl = `${base}${result.streamUrl}`;
-    const filename = `${result.filename || "instagram_reel"}.mp4`;
-
-    if (isNative()) {
-      setDownloading(true);
-      try {
-        await downloadFile(downloadUrl, filename);
-      } catch (err: unknown) {
-        setError((err as Error).message || "Native file download failed.");
-      } finally {
-        setDownloading(false);
-      }
-    } else {
-      // Browser environment: trigger file download via anchor
-      const a = document.createElement("a");
-      a.href = downloadUrl;
-      a.download = filename;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
+  async function handleChallengeSolved(turnstileResponse: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await cobalt.solveChallenge(
+        turnstileResponse,
+        abortRef.current?.signal,
+      );
+      if (res === "challenge") return;
+      handleResult(res);
+    } catch {
+      setError("Something went wrong — please try again.");
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -144,11 +188,13 @@ export default function InstagramReelsDownloaderPage() {
 
   function reset() {
     abortRef.current?.abort();
+    cobalt.resetChallenge();
     setUrl("");
     setError(null);
-    setResult(null);
+    setItems([]);
+    setMeta(null);
+    setServerResources(null);
     setLoading(false);
-    setDownloading(false);
   }
 
   return (
@@ -159,8 +205,8 @@ export default function InstagramReelsDownloaderPage() {
           Instagram Reels Downloader
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-          Paste an Instagram reel, video, or post link to download in HD MP4.
-          Fast, free, and no watermark.
+          Paste an Instagram reel, post or story link and download the video
+          in HD. Works with reels, posts and carousels. Free, no signup.
         </p>
       </div>
 
@@ -203,7 +249,7 @@ export default function InstagramReelsDownloaderPage() {
             ) : (
               <Download className="h-5 w-5" />
             )}
-            {loading ? "Fetching Reel…" : "Get download link"}
+            {loading ? "Fetching…" : "Get download link"}
           </button>
           <button
             type="button"
@@ -221,59 +267,171 @@ export default function InstagramReelsDownloaderPage() {
           </div>
         ) : null}
 
-        {result ? (
-          <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              {result.thumbnail ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={result.thumbnail}
-                  alt={result.title}
-                  className="h-28 w-28 shrink-0 rounded-xl object-cover border border-white/10"
-                />
-              ) : (
-                <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-xl bg-pink-600/20 text-pink-300">
-                  <Film className="h-10 w-10" />
-                </div>
-              )}
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-400" />
-                  <span className="truncate">{result.title}</span>
-                </p>
-                {result.uploader ? (
-                  <p className="mt-1 text-xs font-medium text-slate-300">
-                    {result.uploader}
-                  </p>
-                ) : null}
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={handleDownloadClick}
-                    disabled={downloading}
-                    className="inline-flex min-h-10 items-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
-                  >
-                    {downloading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
+        {cobalt.authState === "challenge" && cobalt.challengeSitekey ? (
+          <div className="mt-4">
+            <TurnstileChallenge
+              sitekey={cobalt.challengeSitekey}
+              onSolved={handleChallengeSolved}
+            />
+          </div>
+        ) : null}
+
+        {cobalt.authState === "key-error" ? (
+          <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-200 light:text-red-700">
+            The download server rejected the request. Please try again in a
+            moment.
+          </div>
+        ) : null}
+
+        {items.length > 0 ? (
+          <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+            <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
+              <Check className="h-4 w-4 shrink-0" />
+              <span>Ready to download</span>
+            </p>
+            <div className="mt-3 flex flex-col gap-2">
+              {items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/5 light:bg-slate-50"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    {item.thumb ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={item.thumb}
+                        alt=""
+                        className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                      />
                     ) : (
-                      <Download className="h-4 w-4" />
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-pink-600/20 text-pink-300">
+                        <Film className="h-5 w-5" />
+                      </div>
                     )}
-                    {downloading ? "Downloading…" : "Download Reel (HD MP4)"}
-                  </button>
+                    <span className="truncate text-sm font-medium text-white light:text-slate-900">
+                      {item.filename || `Instagram Media ${items.length > 1 ? `#${idx + 1}` : ""}`}
+                    </span>
+                  </div>
                   <a
-                    href={result.videoUrl}
+                    href={item.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-white/10 px-3 text-xs font-medium text-slate-300 transition hover:bg-white/10 hover:text-white"
+                    download={item.filename || "instagram_reel.mp4"}
+                    className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
                   >
-                    <ExternalLink className="h-3.5 w-3.5" />
-                    Open direct video
+                    <Download className="h-4 w-4" />
+                    Download
                   </a>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         ) : null}
+
+        {meta || (serverResources && serverResources.length) ? (
+          <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+            {meta ? (
+              <div className="flex gap-3">
+                {meta.thumbnail ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={meta.thumbnail}
+                    alt=""
+                    className="h-20 w-20 shrink-0 rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-pink-600/20 text-pink-300">
+                    <Film className="h-8 w-8" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
+                    <Check className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{meta.title}</span>
+                  </p>
+                  {meta.uploader ? (
+                    <p className="mt-1 text-xs text-slate-400">{meta.uploader}</p>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
+
+            {serverResources && serverResources.filter((r) => !r.audioOnly).length ? (
+              <>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Video qualities
+                </p>
+                <div className="mt-2 overflow-hidden rounded-xl border border-white/10 light:border-slate-900/10">
+                  {serverResources
+                    .filter((r) => !r.audioOnly)
+                    .map((r) => (
+                      <div
+                        key={r.id}
+                        className="flex items-center justify-between gap-3 border-b border-white/5 bg-slate-950 px-4 py-3 last:border-0 light:border-slate-900/5 light:bg-slate-50"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-white light:bg-slate-900/5 light:text-slate-900">
+                            {r.quality}p
+                          </span>
+                          <p className="text-xs text-slate-500">
+                            {[
+                              r.sizeLabel,
+                              r.hasAudio ? "with audio" : "video only",
+                              r.fps ? `${r.fps}fps` : null,
+                            ]
+                              .filter(Boolean)
+                              .join(" • ") || "\u2014"}
+                          </p>
+                        </div>
+                        <a
+                          href={serverDownloadHref(r)}
+                          className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download
+                        </a>
+                      </div>
+                    ))}
+                </div>
+              </>
+            ) : null}
+
+            {serverResources && serverResources.filter((r) => r.audioOnly).length ? (
+              <>
+                <p className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-400">
+                  Audio only
+                </p>
+                <div className="mt-2 overflow-hidden rounded-xl border border-white/10 light:border-slate-900/10">
+                  {serverResources
+                    .filter((r) => r.audioOnly)
+                    .map((r) => (
+                      <div
+                        key={r.id}
+                        className="flex items-center justify-between gap-3 border-b border-white/5 bg-slate-950 px-4 py-3 last:border-0 light:border-slate-900/5 light:bg-slate-50"
+                      >
+                        <div className="flex min-w-0 items-center gap-3">
+                          <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-white light:bg-slate-900/5 light:text-slate-900">
+                            <Music className="h-4 w-4" />
+                          </span>
+                          <p className="text-xs text-slate-500">
+                            {[r.sizeLabel, "MP3"].filter(Boolean).join(" • ") || "\u2014"}
+                          </p>
+                        </div>
+                        <a
+                          href={serverDownloadHref(r)}
+                          className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                        >
+                          <Download className="h-4 w-4" />
+                          Download
+                        </a>
+                      </div>
+                    ))}
+                </div>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+
       </div>
 
       <div className="mt-10">
@@ -300,10 +458,16 @@ export default function InstagramReelsDownloaderPage() {
               icon: <ClipboardPaste className="h-5 w-5" />,
             },
             {
-              title: "Download your video",
+              title: "Fetch the media",
               description:
-                "Click Get download link, preview the reel, and click Download Reel (HD MP4) to save it directly to your device.",
+                "Click Get download link and wait a few seconds while the title, preview thumbnail and available qualities load.",
               icon: <Download className="h-5 w-5" />,
+            },
+            {
+              title: "Choose quality and save",
+              description:
+                "Pick a video quality from the list — or grab the audio-only MP3 — then tap Download to save the file directly to your device.",
+              icon: <Check className="h-5 w-5" />,
             },
             {
               title: "Watch offline anytime",
