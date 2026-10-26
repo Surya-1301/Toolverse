@@ -1,5 +1,0 @@
-# Render.com single-service image for the cobalt API.
-# In the Render dashboard: New → Web Service → Docker → point at the repo
-# folder containing this file. Set environment variables per README.
-FROM ghcr.io/imputnet/cobalt:latest
-
