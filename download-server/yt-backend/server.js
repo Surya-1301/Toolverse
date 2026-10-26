@@ -660,12 +660,24 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.2.4",
+    version: "2.2.5",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
+});
+
+app.get("/api/debug-curl", (req, res) => {
+  const { execSync } = require("child_process");
+  try {
+    const ip = execSync("curl -s -m 5 https://api.ipify.org", { encoding: "utf8" }).trim();
+    const sw = execSync('curl -s -i -m 8 -H "User-Agent: com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip" https://www.youtube.com/sw.js_data', { encoding: "utf8" });
+    const ytdlp = execSync('yt-dlp --version', { encoding: "utf8" }).trim();
+    res.json({ ok: true, ip, ytdlp, swHead: sw.slice(0, 200) });
+  } catch (err) {
+    res.json({ ok: false, error: err.message, stdout: err.stdout, stderr: err.stderr });
+  }
 });
 
 app.all(["/api/debug-innertube"], async (req, res) => {
