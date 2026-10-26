@@ -8,8 +8,70 @@ const path = require("path");
 const crypto = require("crypto");
 const os = require("os");
 const dns = require("dns");
+const https = require("https");
 if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
+}
+
+function httpsGet(urlStr, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const req = https.get(
+      urlStr,
+      {
+        family: 4,
+        headers: {
+          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+          "Accept": "application/json",
+          ...headers,
+        },
+        timeout: 6000,
+      },
+      (res) => {
+        let text = "";
+        res.on("data", (chunk) => (text += chunk));
+        res.on("end", () => resolve({ status: res.statusCode, text }));
+      },
+    );
+    req.on("error", reject);
+    req.on("timeout", () => req.destroy(new Error("httpsGet timeout (family 4)")));
+  });
+}
+
+function innertubePost(payload, headers = {}) {
+  return new Promise((resolve, reject) => {
+    const data = JSON.stringify(payload);
+    const req = https.request(
+      "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
+      {
+        method: "POST",
+        family: 4,
+        headers: {
+          "Content-Type": "application/json",
+          "Content-Length": Buffer.byteLength(data),
+          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+          "Origin": "https://www.youtube.com",
+          "Referer": "https://www.youtube.com/",
+          ...headers,
+        },
+        timeout: 7000,
+      },
+      (res) => {
+        let text = "";
+        res.on("data", (chunk) => (text += chunk));
+        res.on("end", () => {
+          try {
+            resolve({ status: res.statusCode, data: JSON.parse(text) });
+          } catch (err) {
+            resolve({ status: res.statusCode, text, error: err.message });
+          }
+        });
+      },
+    );
+    req.on("error", reject);
+    req.on("timeout", () => req.destroy(new Error("Innertube POST timeout (family 4)")));
+    req.write(data);
+    req.end();
+  });
 }
 
 const app = express();
@@ -356,16 +418,12 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
   try {
     let visitorData = null;
     try {
-      const swRes = await fetch("https://www.youtube.com/sw.js_data", {
-        headers: {
-          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
-          "Accept": "application/json",
-          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-        },
-        signal: AbortSignal.timeout(5000),
-      });
-      if (swRes.ok) {
-        let swText = await swRes.text();
+      const swRes = await httpsGet(
+        "https://www.youtube.com/sw.js_data",
+        cookieHeader ? { Cookie: cookieHeader } : {},
+      );
+      if (swRes.status === 200) {
+        let swText = swRes.text;
         if (swText.startsWith(")]}'")) swText = swText.slice(4);
         const swData = JSON.parse(swText);
         visitorData = swData?.[0]?.[2]?.[0]?.[0]?.[13];
@@ -406,33 +464,23 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 
     for (const client of clients) {
       const sapisidHash = getSapisidHash(cookieHeader);
-      const headers = {
-        "Content-Type": "application/json",
-        "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
-        "Origin": "https://www.youtube.com",
-        "Referer": "https://www.youtube.com/",
-        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
-        ...(sapisidHash ? { Authorization: sapisidHash } : {}),
-      };
-
       let pJson = null;
       try {
-        const playerRes = await fetch(
-          "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
+        const extraHeaders = {
+          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+          ...(sapisidHash ? { Authorization: sapisidHash } : {}),
+        };
+        const res = await innertubePost(
           {
-            method: "POST",
-            headers,
-            body: JSON.stringify({
-              videoId,
-              contentCheckOk: true,
-              racyCheckOk: true,
-              context: { client },
-            }),
-            signal: AbortSignal.timeout(6000),
+            videoId,
+            contentCheckOk: true,
+            racyCheckOk: true,
+            context: { client },
           },
+          extraHeaders,
         );
-        if (!playerRes.ok) continue;
-        pJson = await playerRes.json();
+        if (res.status !== 200 || !res.data) continue;
+        pJson = res.data;
       } catch {
         continue;
       }
@@ -602,7 +650,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.2.2",
+    version: "2.2.3",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -625,15 +673,9 @@ app.get("/api/debug-innertube", async (req, res) => {
 
     let visitorData = null;
     try {
-      const swRes = await fetch("https://www.youtube.com/sw.js_data", {
-        headers: {
-          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
-          "Accept": "application/json",
-        },
-        signal: AbortSignal.timeout(5000),
-      });
+      const swRes = await httpsGet("https://www.youtube.com/sw.js_data");
       debug.steps.push({ step: "sw.js_data", status: swRes.status });
-      let swText = await swRes.text();
+      let swText = swRes.text;
       if (swText.startsWith(")]}'")) swText = swText.slice(4);
       const swData = JSON.parse(swText);
       visitorData = swData?.[0]?.[2]?.[0]?.[0]?.[13];
@@ -688,30 +730,17 @@ app.get("/api/debug-innertube", async (req, res) => {
 
     for (const c of testClients) {
       try {
-        const pRes = await fetch(
-          "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
-              "Origin": "https://www.youtube.com",
-              "Referer": "https://www.youtube.com/",
-            },
-            body: JSON.stringify({
-              videoId,
-              contentCheckOk: true,
-              racyCheckOk: true,
-              context: { client: c.client },
-            }),
-            signal: AbortSignal.timeout(6000),
-          },
-        );
-        const pJson = await pRes.json();
+        const res = await innertubePost({
+          videoId,
+          contentCheckOk: true,
+          racyCheckOk: true,
+          context: { client: c.client },
+        });
+        const pJson = res.data || {};
         const fmts = [...(pJson.streamingData?.formats || []), ...(pJson.streamingData?.adaptiveFormats || [])];
         debug.steps.push({
           client: c.name,
-          httpStatus: pRes.status,
+          httpStatus: res.status,
           playability: pJson.playabilityStatus?.status,
           reason: pJson.playabilityStatus?.reason,
           subreason: pJson.playabilityStatus?.errorScreen?.playerErrorMessageRenderer?.subreason?.simpleText,
