@@ -133,20 +133,20 @@ var youtube = hasCookies ? new YoutubeClient(serverCookies) : new YoutubeClient(
 // tabs/newlines does not belong). Only the count is ever logged.
 static List<Cookie> ParseVisitorCookies(string? input)
 {
-    var cookies = new List<Cookie>();
+    var cookies = new Dictionary<string, Cookie>(StringComparer.OrdinalIgnoreCase);
     if (string.IsNullOrWhiteSpace(input))
-        return cookies;
+        return cookies.Values.ToList();
     var text = input.Trim();
     if (!text.Contains(".youtube.com", StringComparison.OrdinalIgnoreCase)
         && !text.Contains('\t'))
     {
         try { text = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(text)); }
-        catch { return cookies; }
+        catch { return cookies.Values.ToList(); }
     }
-    foreach (var line in text.Split('\n'))
+    foreach (var line in text.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries))
     {
         var l = line.Trim();
-        if (l.Length == 0 || l.StartsWith('#') && !l.StartsWith("#HttpOnly_"))
+        if (l.Length == 0 || (l.StartsWith('#') && !l.StartsWith("#HttpOnly_")))
             continue;
         l = l.Replace("#HttpOnly_", "", StringComparison.Ordinal);
         var parts = l.Split('\t');
@@ -157,24 +157,18 @@ static List<Cookie> ParseVisitorCookies(string? input)
             var rawDomain = parts[0].Trim();
             var name = parts[5].Trim();
             var val = parts[6].Trim();
-            var path = parts[2].Trim();
+            var path = string.IsNullOrWhiteSpace(parts[2]) ? "/" : parts[2].Trim();
             var isSecure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase);
 
-            try
-            {
-                cookies.Add(new Cookie(name, val, path, ".youtube.com") { Secure = isSecure });
-            }
-            catch { }
+            var domain = rawDomain.StartsWith('.') ? rawDomain : "." + rawDomain;
+            if (!domain.Contains("youtube.com"))
+                domain = ".youtube.com";
 
-            try
-            {
-                cookies.Add(new Cookie(name, val, path, "www.youtube.com") { Secure = isSecure });
-            }
-            catch { }
+            cookies[name] = new Cookie(name, val, path, domain) { Secure = isSecure };
         }
         catch { /* skip malformed cookie lines */ }
     }
-    return cookies;
+    return cookies.Values.ToList();
 }
 
 static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies)
@@ -182,8 +176,8 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
     if (cookies.Count == 0)
         return;
     req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
-    var sapisid = cookies.FirstOrDefault(c => c.Name == "__Secure-3PAPISID")?.Value
-        ?? cookies.FirstOrDefault(c => c.Name == "SAPISID")?.Value;
+    var sapisid = cookies.FirstOrDefault(c => c.Name == "SAPISID")?.Value
+        ?? cookies.FirstOrDefault(c => c.Name == "__Secure-3PAPISID")?.Value;
     if (string.IsNullOrEmpty(sapisid))
         return;
     var ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -229,11 +223,10 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     // YouTube's public innertube web-client key (the same one YoutubeExplode
     // appends to youtubei requests; it is embedded in YouTube's own pages).
     const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-    var visitorData = await ResolveVisitorDataAsync(ct);
 
-    var clients = new List<(string Name, string UA, Dictionary<string, object?> Context, bool UseWebAuth)>();
+    var clients = new List<(string Name, string UA, Dictionary<string, object?> Context, bool UseWebAuth, bool SendCookies)>();
 
-    // 1. If cookies are present, try WEB client first (native home of browser cookies + SAPISIDHASH)
+    // 1. If cookies are present, try WEB client first with proper visitor authorization
     if (cookies.Count > 0)
     {
         var webCtx = new Dictionary<string, object?>
@@ -243,49 +236,77 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["hl"] = "en",
             ["gl"] = "US",
         };
-        if (!string.IsNullOrEmpty(visitorData)) webCtx["visitorData"] = visitorData;
 
         clients.Add((
             "WEB",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
             webCtx,
+            true,
             true
         ));
     }
 
-    // 2. VISIONOS
-    var visionCtx = new Dictionary<string, object?>
-    {
-        ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
-        ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
-        ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
-        ["hl"] = "en",
-    };
-    if (!string.IsNullOrEmpty(visitorData)) visionCtx["visitorData"] = visitorData;
-    clients.Add((
-        "VISIONOS",
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-        visionCtx,
-        false
-    ));
-
-    // 3. ANDROID
+    // 2. ANDROID (Clean mobile client - works without web botguard and returns itag 18 direct stream)
     var androidCtx = new Dictionary<string, object?>
     {
-        ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
-        ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+        ["clientName"] = "ANDROID",
+        ["clientVersion"] = "21.26.364",
+        ["androidSdkVersion"] = 30,
+        ["osName"] = "Android",
+        ["osVersion"] = "11",
         ["hl"] = "en",
+        ["gl"] = "US",
     };
-    if (!string.IsNullOrEmpty(visitorData)) androidCtx["visitorData"] = visitorData;
     clients.Add((
         "ANDROID",
         "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
         androidCtx,
+        false,
+        false
+    ));
+
+    // 3. IOS (yt-dlp modern iOS client context)
+    var iosCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "IOS",
+        ["clientVersion"] = "21.26.4",
+        ["deviceMake"] = "Apple",
+        ["deviceModel"] = "iPhone16,2",
+        ["osName"] = "iOS",
+        ["osVersion"] = "18.3.2.22D82",
+        ["hl"] = "en",
+        ["gl"] = "US",
+    };
+    clients.Add((
+        "IOS",
+        "com.google.ios.youtube/21.26.4 (iPhone16,2; U; CPU iOS 18_3_2 like Mac OS X;)",
+        iosCtx,
+        false,
+        false
+    ));
+
+    // 4. VISIONOS (fallback)
+    var visionCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "VISIONOS",
+        ["clientVersion"] = "1.02",
+        ["deviceMake"] = "Apple",
+        ["deviceModel"] = "RealityDevice17,1",
+        ["osName"] = "visionOS",
+        ["osVersion"] = "26.5.23O471",
+        ["hl"] = "en",
+        ["gl"] = "US",
+    };
+    clients.Add((
+        "VISIONOS",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+        visionCtx,
+        false,
         false
     ));
 
     string lastError = "unknown player error";
-    foreach (var (clientName, userAgent, clientContext, useWebAuth) in clients)
+    foreach (var (clientName, userAgent, clientContext, useWebAuth, sendCookies) in clients)
     {
         var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
         {
@@ -299,14 +320,14 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
         req.Headers.Add("User-Agent", userAgent);
 
-        if (useWebAuth)
+        if (useWebAuth && cookies.Count > 0)
         {
             req.Headers.Add("Referer", $"https://www.youtube.com/watch?v={videoId}");
             req.Headers.Add("X-YouTube-Client-Name", "1");
             req.Headers.Add("X-YouTube-Client-Version", "2.20241021.01.00");
             AddVisitorAuth(req, cookies);
         }
-        else if (cookies.Count > 0)
+        else if (sendCookies && cookies.Count > 0)
         {
             req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
         }
@@ -413,6 +434,23 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
                 }
             }
         }
+
+        // If formats returned a muxed stream (e.g. 360p itag 18) but no adaptive audio streams
+        // had a direct URL, synthesize an audio stream from the muxed stream so audio extraction (mp3) works.
+        if (audioInfos.Count == 0 && videoInfos.Any(v => v is MuxedStreamInfo))
+        {
+            var muxed = (MuxedStreamInfo)videoInfos.First(v => v is MuxedStreamInfo);
+            audioInfos.Add(new AudioOnlyStreamInfo(
+                muxed.Url,
+                new Container("mp4"),
+                muxed.Size,
+                muxed.Bitrate,
+                !string.IsNullOrEmpty(muxed.AudioCodec) ? muxed.AudioCodec : "mp4a.40.2",
+                null,
+                null
+            ));
+        }
+
         if (videoInfos.Count == 0 && audioInfos.Count == 0)
         {
             lastError = "player OK but no direct-URL streams";
@@ -516,6 +554,21 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
 
     var vStreams = manifest is not null ? manifest.GetVideoStreams().ToList() : raw!.Value.Video;
     var aStreams = manifest is not null ? manifest.GetAudioStreams().ToList() : raw!.Value.Audio;
+
+    if (aStreams.Count == 0 && vStreams.Any(v => v is MuxedStreamInfo))
+    {
+        var muxed = (MuxedStreamInfo)vStreams.First(v => v is MuxedStreamInfo);
+        aStreams.Add(new AudioOnlyStreamInfo(
+            muxed.Url,
+            new Container("mp4"),
+            muxed.Size,
+            muxed.Bitrate,
+            !string.IsNullOrEmpty(muxed.AudioCodec) ? muxed.AudioCodec : "mp4a.40.2",
+            null,
+            null
+        ));
+    }
+
     var sourceUsed = manifest is not null ? "youtubeExplode" : "rawPlayer";
     var clientUsed = raw?.ClientUsed ?? "youtubeExplode";
 
@@ -552,6 +605,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-yt-backend",
+    version = "2026.10.26.5",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     // Build marker: true only on the visitor-cookies build. Open the
@@ -559,6 +613,26 @@ app.MapGet("/", () => new
     // per-request visitor cookies at all.
     visitorCookies = true,
     maxMinutes,
+});
+
+// ---- Fast Diagnostic Endpoint ----
+app.MapGet("/api/diag", async (HttpContext ctx, CancellationToken ct) =>
+{
+    var url = ctx.Request.Query["url"].FirstOrDefault() ?? "https://www.youtube.com/watch?v=enY83Li8_ps";
+    var videoId = VideoId.TryParse(url);
+    if (videoId is null) return Results.Json(new { error = "Invalid URL" }, statusCode: 400);
+
+    var results = new List<object>();
+    try
+    {
+        var p = await FetchPlayerResponseAsync(videoId.Value.Value, ct, Array.Empty<Cookie>());
+        results.Add(new { client = p.ClientUsed, ok = true, title = p.Meta.Title, videos = p.Video.Count, audios = p.Audio.Count });
+    }
+    catch (Exception ex)
+    {
+        results.Add(new { client = "rawPlayer", ok = false, error = ex.Message });
+    }
+    return Results.Json(new { url, results });
 });
 
 // ---- Video info + resource table ----
