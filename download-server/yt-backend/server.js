@@ -367,6 +367,7 @@ app.get("/", (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
+    version: "2.1.1",
     cookies: HAS_COOKIES,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
@@ -384,12 +385,21 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   if (cookies && typeof cookies === "string" && cookies.trim()) {
     try {
       let rawText = cookies.trim();
-      if (!rawText.includes(".youtube.com") && !rawText.includes("\t")) {
-        rawText = Buffer.from(rawText, "base64").toString("utf8");
+      if (!rawText.startsWith("#") && !rawText.includes("\t")) {
+        try {
+          const decoded = Buffer.from(rawText, "base64").toString("utf8");
+          if (decoded.includes("\t") || decoded.includes("youtube.com")) {
+            rawText = decoded;
+          }
+        } catch {}
       }
+      rawText = rawText.replace(/\r\n/g, "\n").trim() + "\n";
       tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
       await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
-    } catch {}
+      console.log(`[cookies] wrote ${rawText.length} bytes to ${tempCookiePath}`);
+    } catch (cookieErr) {
+      console.error("[cookies] failed to write temp cookies:", cookieErr);
+    }
   }
 
   // Visitor-cookie requests are never served from/written to the shared cache
@@ -459,9 +469,15 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   if (cookies && typeof cookies === "string" && cookies.trim()) {
     try {
       let rawText = cookies.trim();
-      if (!rawText.includes(".youtube.com") && !rawText.includes("\t")) {
-        rawText = Buffer.from(rawText, "base64").toString("utf8");
+      if (!rawText.startsWith("#") && !rawText.includes("\t")) {
+        try {
+          const decoded = Buffer.from(rawText, "base64").toString("utf8");
+          if (decoded.includes("\t") || decoded.includes("youtube.com")) {
+            rawText = decoded;
+          }
+        } catch {}
       }
+      rawText = rawText.replace(/\r\n/g, "\n").trim() + "\n";
       tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
       await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
     } catch {}
