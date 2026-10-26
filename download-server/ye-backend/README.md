@@ -16,16 +16,46 @@ inside Tyrrrz/YoutubeDownloader) plus YoutubeExplode.Converter (ffmpeg muxing).
    player JS).
 3. Stream URLs come from the player response's `streamingData`. No stream
    URLs exist until the player call succeeds.
-4. Auth (optional): SOCS consent cookie is generated automatically;
-   user-supplied cookies are accepted and a `SAPISIDHASH` header is built
-   from SAPISID cookies when present.
+4. Cookies: the server holds none of its own (owner cookies are
+   deliberately not used). A *visitor* may supply their own exported
+   YouTube cookies with a request — `POST /api/info` body field
+   `cookies` (raw Netscape text), or `GET /api/download` query param
+   `cookies` (base64 of the same text). They are used for that
+   request's player calls only (Cookie header + SAPISIDHASH from the
+   visitor's SAPISID cookie), then dropped: never stored, never cached
+   under, never logged (logs record only the count). A LOGIN_REQUIRED
+   response on an anonymous request means that IP needs visitor
+   cookies to work at all — and a hard-403 region (Frankfurt) cannot
+   be passed by anyone's cookies, so the frontend must point at a
+   LOGIN_REQUIRED region (e.g. `toolverse-yt`), not Frankfurt.
 
 One deliberate deviation: metadata does **not** go through YoutubeExplode's
 `Videos.GetAsync()`, because that starts from the HTML watch page, which
 datacenter IPs get bot-checked on. Metadata comes from a raw player POST
-(the same VISIONOS → ANDROID flow); streams and downloads still go through
-YoutubeExplode itself. Verified locally 2026-10-26: full info ladder
-(144p–2160p + audio) and real 144p MP4 (h264 + AAC) and MP3 downloads.
+(the same VISIONOS → ANDROID flow). Verified locally 2026-10-26: full info
+ladder (144p–2160p + audio) and real 144p MP4 (h264 + AAC) and MP3 downloads.
+
+## Raw-player fallback (v3)
+
+YoutubeExplode's own VISIONOS → ANDROID fallback only triggers on
+"unplayable" player responses, **not** on HTTP errors. On a flagged
+datacenter IP the VISIONOS player POST itself returns HTTP 403, so the
+library's manifest call fails outright (observed on Render 2026-10-26).
+When that happens, this service falls back to the raw player response:
+it parses `streamingData` itself (VISIONOS first, ANDROID second) and
+builds **real YoutubeExplode stream infos** from it, so info and
+downloads then run through the library's own machinery — including its
+segmented Range downloads, which beat YouTube's rate throttling. (A
+naive single GET of a raw stream URL gets throttled to a crawl and
+never finishes; that was the first fallback attempt's failure mode.)
+`/api/info` reports which path served the request in the `source`
+field: `"youtubeExplode"` or `"rawPlayer"`. The fallback is logged,
+e.g. `[fallback] YE manifest failed (HttpRequestException: ...);
+using raw ANDROID player streams` — that log line is how you tell, from
+Render's logs, which player client works from that IP.
+
+Fallback limitations: ciphered streams (no direct URL, only
+`signatureCipher`) are skipped.
 
 ## API (identical to yt-backend)
 
@@ -49,7 +79,8 @@ YoutubeExplode itself. Verified locally 2026-10-26: full info ladder
 3. Environment:
    - `API_KEY` — **same value** as in `lib/downloadServers.ts`.
    - `CORS_ORIGIN` — `https://toolversee.pages.dev`
-   - `COOKIES_B64` — only if this IP ever gets flagged (never commit cookies).
+   - No cookie variables. Owner cookies are deliberately not used;
+     visitor cookies arrive per request (see method note 4).
 4. Deploy, then point the frontend at it: in `lib/downloadServers.ts`,
    change `PRIVATE_YT_BACKEND` to the new Render URL. Nothing else changes.
 
@@ -87,7 +118,7 @@ dotnet run --project ye-backend
 | `MAX_MINUTES` | 10 | Per-download timeout |
 | `CACHE_MIN` | 10 | Info/manifest cache TTL |
 | `FFMPEG_PATH` | `ffmpeg` | ffmpeg binary for muxing/MP3 |
-| `COOKIES_B64` | (unset) | Base64 Netscape cookies; or `cookies.txt` next to the binary |
+| `FORCE_RAW_FALLBACK` | (unset) | Set to `1` to skip the YoutubeExplode manifest and always use the raw player path (testing only) |
 
 ## Known limitations
 

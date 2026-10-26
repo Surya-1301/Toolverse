@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -135,6 +135,9 @@ function qualityNum(label: string): number {
   return parseInt(String(label || "0").replace(/\D/g, ""), 10) || 0;
 }
 
+/** localStorage key for the visitor's own cookies — their device only. */
+const YT_COOKIES_KEY = "yt-visitor-cookies";
+
 export default function YoutubeDownloaderPage() {
   const [url, setUrl] = useState("");
   // Private server, baked in and hidden from the UI.
@@ -146,6 +149,22 @@ export default function YoutubeDownloaderPage() {
   const [serverResources, setServerResources] = useState<ServerResource[] | null>(
     null,
   );
+  // Visitor's own YouTube cookies (optional): pasted by the visitor, sent
+  // with their requests only, never stored anywhere. Needed on server IPs
+  // that YouTube gates with a sign-in check.
+  const [cookiesText, setCookiesText] = useState("");
+  const [showCookies, setShowCookies] = useState(false);
+  // Remember the visitor's cookies on their own device only, so they
+  // paste once instead of every visit. Nothing is sent to the server
+  // except with their own Fetch/Download requests.
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(YT_COOKIES_KEY);
+      if (saved) setCookiesText(saved);
+    } catch {
+      /* storage unavailable (private mode etc.) — paste each time */
+    }
+  }, []);
   const abortRef = useRef<AbortController | null>(null);
 
   async function fetchViaServer(videoUrl: string, base: string) {
@@ -153,10 +172,21 @@ export default function YoutubeDownloaderPage() {
       "Content-Type": "application/json",
     };
     if (ytKey) headers["x-api-key"] = ytKey;
+    const cookies = cookiesText.trim();
+    if (cookies) {
+      try {
+        localStorage.setItem(YT_COOKIES_KEY, cookies);
+      } catch {
+        /* storage unavailable — still works for this request */
+      }
+    }
     const res = await fetch(`${base}/api/info`, {
       method: "POST",
       headers,
-      body: JSON.stringify({ url: videoUrl }),
+      body: JSON.stringify({
+        url: videoUrl,
+        ...(cookies ? { cookies } : {}),
+      }),
       signal: abortRef.current?.signal,
     });
     const data = await res.json();
@@ -207,6 +237,11 @@ export default function YoutubeDownloaderPage() {
       audio: r.audioOnly ? "1" : "0",
     });
     if (ytKey) params.set("api_key", ytKey);
+    const cookies = cookiesText.trim();
+    if (cookies) {
+      // Base64: raw cookies.txt (tabs/newlines) does not belong in a URL.
+      params.set("cookies", btoa(unescape(encodeURIComponent(cookies))));
+    }
     return `${serverUrl.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
   }
 
@@ -292,6 +327,75 @@ export default function YoutubeDownloaderPage() {
           </button>
         </div>
 
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setShowCookies((v) => !v)}
+            className="text-xs font-medium text-slate-400 underline-offset-4 hover:underline light:text-slate-600"
+          >
+            {showCookies
+              ? "Hide your-cookies option"
+              : "Blocked? Use your own YouTube cookies (optional)"}
+          </button>
+          {showCookies ? (
+            <div className="mt-3 rounded-2xl border border-white/10 p-4 light:border-slate-900/10">
+              <p className="text-xs leading-5 text-slate-400 light:text-slate-600">
+                If fetching fails with a sign-in error, paste your own
+                exported YouTube cookies here (browser extension “Get
+                cookies.txt LOCALLY”, while logged into YouTube) or drop
+                the cookies.txt file below. They are sent with your
+                requests only, never stored on the server, and never
+                shared with anyone. Paste once — they are remembered in
+                this browser so you don&apos;t paste again. Without them
+                the tool tries anonymously. To revoke, delete your
+                YouTube sessions or change your Google password.
+              </p>
+              <textarea
+                value={cookiesText}
+                onChange={(e) => setCookiesText(e.target.value)}
+                placeholder="Paste your cookies.txt content here…"
+                rows={4}
+                spellCheck={false}
+                className="mt-3 min-h-24 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-red-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              />
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-white/15 px-4 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900">
+                  Drop cookies.txt file
+                  <input
+                    type="file"
+                    accept=".txt,text/plain"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      f.text()
+                        .then((t) => setCookiesText(t))
+                        .catch(() => {});
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+                {cookiesText.trim() ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setCookiesText("");
+                      try {
+                        localStorage.removeItem(YT_COOKIES_KEY);
+                      } catch {
+                        /* ignore */
+                      }
+                    }}
+                    className="text-xs font-medium text-slate-400 underline-offset-4 hover:underline light:text-slate-600"
+                  >
+                    Forget saved cookies
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
         {error ? (
           <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-200 light:text-red-700">
             {error}
@@ -329,7 +433,7 @@ export default function YoutubeDownloaderPage() {
                     href={details.videos[details.videos.length - 1].url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-500"
                   >
                     <Download className="h-4 w-4" />
                     Best video ({details.videos[details.videos.length - 1].label})
@@ -379,7 +483,7 @@ export default function YoutubeDownloaderPage() {
                         href={v.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
                       >
                         <Download className="h-4 w-4" />
                         Download
@@ -415,7 +519,7 @@ export default function YoutubeDownloaderPage() {
                         href={a.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
                       >
                         <Download className="h-4 w-4" />
                         Download
@@ -453,7 +557,7 @@ export default function YoutubeDownloaderPage() {
                       </div>
                       <a
                         href={serverDownloadHref(r)}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-4 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500"
                       >
                         <Download className="h-4 w-4" />
                         Download
@@ -470,7 +574,7 @@ export default function YoutubeDownloaderPage() {
       <div className="mt-10">
         <HowToUse
           title="How to use the YouTube Downloader"
-          subtitle=""
+          subtitle="Download any YouTube video or Short in six quick steps."
           steps={[
             {
               title: "Find your video",
