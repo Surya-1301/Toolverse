@@ -1,0 +1,4 @@
+# Render.com private-service image for the YouTube session generator.
+# In the Render dashboard: New → Private Service → Docker → point at the repo
+# folder containing this file. Listens on port 8080 (set this as the service port).
+FROM ghcr.io/imputnet/yt-session-generator:webserver
