@@ -35,11 +35,24 @@ if (process.env.COOKIES_B64 && !fs.existsSync(COOKIES_PATH)) {
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
 
 const API_KEY = process.env.API_KEY || "";
-const CORS_ORIGIN = process.env.CORS_ORIGIN || "*";
+const allowedOrigins = (process.env.CORS_ORIGIN || "*")
+  .split(",")
+  .map((s) => s.trim().replace(/\/+$/, ""))
+  .filter(Boolean);
 
 // ---- CORS (the Toolverse site calls this from the browser) ----
 app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", CORS_ORIGIN);
+  const origin = req.headers.origin;
+  if (!origin || allowedOrigins.includes("*")) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  } else {
+    const cleanOrigin = origin.replace(/\/+$/, "");
+    if (allowedOrigins.some((o) => o === cleanOrigin || o === origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+    } else {
+      res.setHeader("Access-Control-Allow-Origin", allowedOrigins[0] || "*");
+    }
+  }
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Api-Key");
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   if (req.method === "OPTIONS") return res.sendStatus(204);
@@ -221,6 +234,72 @@ function buildResources(info) {
   return video;
 }
 
+// ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
+async function fetchInstagramDirect(url) {
+  const m = String(url).match(/(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i);
+  if (!m) return null;
+  const shortcode = m[1];
+  try {
+    const res = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+      },
+    });
+    if (!res.ok) return null;
+    const html = await res.text();
+    const vm = html.match(/"video_url"\s*:\s*"([^"]+)"/);
+    if (!vm) return null;
+    let videoUrl = vm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
+    try {
+      videoUrl = JSON.parse(`"${vm[1]}"`);
+    } catch {}
+
+    let thumbnail = null;
+    const tm = html.match(/"display_url"\s*:\s*"([^"]+)"/);
+    if (tm) {
+      thumbnail = tm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
+    }
+
+    let title = "Instagram Reel";
+    const cm = html.match(/<div[^>]+class="EmbeddedMediaCaption"[^>]*>(.*?)<\/div>/s);
+    if (cm) {
+      const clean = cm[1].replace(/<[^>]+>/g, " ").trim();
+      if (clean) title = clean.slice(0, 80);
+    }
+
+    let uploader = null;
+    const um = html.match(/class="EmbeddedMediaUser-username"[^>]*>([^<]+)</);
+    if (um) uploader = um[1].trim();
+
+    return {
+      title,
+      thumbnail,
+      duration: null,
+      uploader,
+      isLive: false,
+      resources: [
+        {
+          id: `ig_${shortcode}`,
+          quality: 720,
+          ext: "mp4",
+          size: 0,
+          sizeLabel: "HD",
+          hasAudio: true,
+          fps: 30,
+        },
+      ],
+      qualities: [720],
+      hasAudio: true,
+      cookies: false,
+      directUrl: videoUrl,
+    };
+  } catch {
+    return null;
+  }
+}
+
 // ---- routes ----
 app.get("/", (req, res) => {
   res.json({
@@ -266,6 +345,13 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     parseCache.set(key, { data, expires: Date.now() + CACHE_MS });
     res.json(data);
   } catch (e) {
+    if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
+      const ig = await fetchInstagramDirect(key);
+      if (ig) {
+        parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
+        return res.json(ig);
+      }
+    }
     res.status(502).json({
       error: "Could not fetch video info.",
       detail: String((e && e.message) || e).slice(0, 200),
@@ -281,6 +367,27 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   const { url, format_id, quality, audio, audio_format } = req.query;
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
+  }
+
+  // Handle direct Instagram stream if fetched via direct fallback
+  if (format_id && String(format_id).startsWith("ig_")) {
+    const cached = parseCache.get(String(url).trim());
+    const directUrl = cached?.data?.directUrl;
+    if (directUrl) {
+      try {
+        const streamRes = await fetch(directUrl);
+        if (streamRes.ok) {
+          const filename = `${sanitizeFilename(cached.data.title || "instagram_reel")}.mp4`;
+          res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+          res.setHeader("Content-Type", "video/mp4");
+          const { Readable } = require("stream");
+          Readable.fromWeb(streamRes.body).pipe(res);
+          return;
+        }
+      } catch (streamErr) {
+        console.error("Direct stream failed:", streamErr);
+      }
+    }
   }
   const audioOnly = audio === "1";
   const id = crypto.randomBytes(8).toString("hex");
