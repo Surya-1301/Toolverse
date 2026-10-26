@@ -202,23 +202,26 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
 // while streams/downloads still go through YoutubeExplode itself.
 var rawHttp = new HttpClient();
 
-async Task<string> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<Cookie> cookies)
+async Task<string> ResolveVisitorDataAsync(CancellationToken ct)
 {
-    using var req = new HttpRequestMessage(HttpMethod.Get, "https://www.youtube.com/sw.js_data");
-    req.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-    req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
-    if (cookies.Count > 0)
-        req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
-    using var res = await rawHttp.SendAsync(req, ct);
-    res.EnsureSuccessStatusCode();
-    var json = await res.Content.ReadAsStringAsync(ct);
-    if (json.StartsWith(")]}'"))
-        json = json[4..];
-    using var doc = JsonDocument.Parse(json);
-    var value = doc.RootElement[0][2][0][0][13].GetString();
-    if (string.IsNullOrWhiteSpace(value))
-        throw new YoutubeExplodeException("Failed to resolve visitor data.");
-    return value;
+    try
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "https://www.youtube.com/sw.js_data");
+        req.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
+        using var res = await rawHttp.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode)
+            return "";
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (json.StartsWith(")]}'"))
+            json = json[4..];
+        using var doc = JsonDocument.Parse(json);
+        return doc.RootElement[0][2][0][0][13].GetString() ?? "";
+    }
+    catch
+    {
+        return "";
+    }
 }
 
 async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)> FetchPlayerResponseAsync(string videoId, CancellationToken ct, IReadOnlyList<Cookie> cookies)
@@ -226,52 +229,58 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     // YouTube's public innertube web-client key (the same one YoutubeExplode
     // appends to youtubei requests; it is embedded in YouTube's own pages).
     const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-    var visitorData = await ResolveVisitorDataAsync(ct, cookies);
+    var visitorData = await ResolveVisitorDataAsync(ct);
 
     var clients = new List<(string Name, string UA, Dictionary<string, object?> Context, bool UseWebAuth)>();
 
     // 1. If cookies are present, try WEB client first (native home of browser cookies + SAPISIDHASH)
     if (cookies.Count > 0)
     {
+        var webCtx = new Dictionary<string, object?>
+        {
+            ["clientName"] = "WEB",
+            ["clientVersion"] = "2.20241021.01.00",
+            ["hl"] = "en",
+            ["gl"] = "US",
+        };
+        if (!string.IsNullOrEmpty(visitorData)) webCtx["visitorData"] = visitorData;
+
         clients.Add((
             "WEB",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-            new Dictionary<string, object?>
-            {
-                ["clientName"] = "WEB",
-                ["clientVersion"] = "2.20241021.01.00",
-                ["hl"] = "en",
-                ["gl"] = "US",
-                ["visitorData"] = visitorData,
-            },
+            webCtx,
             true
         ));
     }
 
     // 2. VISIONOS
+    var visionCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
+        ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
+        ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
+        ["hl"] = "en",
+    };
+    if (!string.IsNullOrEmpty(visitorData)) visionCtx["visitorData"] = visitorData;
     clients.Add((
         "VISIONOS",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
-            ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
-            ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
+        visionCtx,
         false
     ));
 
     // 3. ANDROID
+    var androidCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
+        ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+        ["hl"] = "en",
+    };
+    if (!string.IsNullOrEmpty(visitorData)) androidCtx["visitorData"] = visitorData;
     clients.Add((
         "ANDROID",
         "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
-            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
+        androidCtx,
         false
     ));
 
