@@ -173,7 +173,7 @@ async Task<string> ResolveVisitorDataAsync(CancellationToken ct)
     return value;
 }
 
-async Task<PlayerMetadata> FetchPlayerMetadataAsync(string videoId, CancellationToken ct)
+async Task<(PlayerMetadata Meta, List<RawVideoStream> Video, List<RawAudioStream> Audio, string ClientUsed)> FetchPlayerResponseAsync(string videoId, CancellationToken ct)
 {
     // YouTube's public innertube web-client key (the same one YoutubeExplode
     // appends to youtubei requests; it is embedded in YouTube's own pages).
@@ -239,27 +239,103 @@ async Task<PlayerMetadata> FetchPlayerMetadataAsync(string videoId, Cancellation
                 .First();
             thumb = best.TryGetProperty("url", out var u) ? u.GetString() : null;
         }
-        return new PlayerMetadata(title, author, duration, thumb);
+        // Streams: formats[] are muxed (video+audio); adaptiveFormats[] are
+        // video-only or audio-only. Only direct-URL entries are usable —
+        // ciphered entries (signatureCipher, no url) are skipped.
+        var videoStreams = new List<RawVideoStream>();
+        var audioStreams = new List<RawAudioStream>();
+        if (root.TryGetProperty("streamingData", out var sd))
+        {
+            if (sd.TryGetProperty("formats", out var fmts))
+            {
+                foreach (var f in fmts.EnumerateArray())
+                {
+                    if (!f.TryGetProperty("url", out var u)) continue;
+                    var mime = (f.TryGetProperty("mimeType", out var m) ? m.GetString() ?? "" : "").Split(';')[0].Trim();
+                    if (mime != "video/mp4") continue; // only mp4 muxed is usable as-is
+                    var h = f.TryGetProperty("height", out var hh) ? hh.GetInt32() : 0;
+                    if (h <= 0) continue;
+                    videoStreams.Add(new RawVideoStream(h, ParseLen(f), ParseBitrate(f), true, u.GetString()!, "mp4"));
+                }
+            }
+            if (sd.TryGetProperty("adaptiveFormats", out var afmts))
+            {
+                foreach (var f in afmts.EnumerateArray())
+                {
+                    if (!f.TryGetProperty("url", out var u)) continue;
+                    var mime = (f.TryGetProperty("mimeType", out var m) ? m.GetString() ?? "" : "").Split(';')[0].Trim();
+                    var sub = mime.Contains('/') ? mime[(mime.IndexOf('/') + 1)..] : "mp4";
+                    if (mime.StartsWith("video/"))
+                    {
+                        var h = f.TryGetProperty("height", out var hh) ? hh.GetInt32() : 0;
+                        if (h <= 0) continue;
+                        videoStreams.Add(new RawVideoStream(h, ParseLen(f), ParseBitrate(f), false, u.GetString()!, sub));
+                    }
+                    else if (mime.StartsWith("audio/"))
+                    {
+                        audioStreams.Add(new RawAudioStream(ParseLen(f), ParseBitrate(f), u.GetString()!, sub));
+                    }
+                }
+            }
+        }
+        if (videoStreams.Count == 0 && audioStreams.Count == 0)
+        {
+            lastError = "player OK but no direct-URL streams";
+            continue;
+        }
+        var clientUsed = client["clientName"]?.ToString() ?? "?";
+        return (new PlayerMetadata(title, author, duration, thumb), videoStreams, audioStreams, clientUsed);
     }
     throw new YoutubeExplodeException($"Video is not playable via the player API: {lastError}");
 }
 
-// ---- Info/manifest cache (10 min, keyed by URL) ----
-var cache = new ConcurrentDictionary<string, (DateTimeOffset Expires, PlayerMetadata Meta, StreamManifest Manifest)>();
+static long ParseLen(JsonElement f) =>
+    f.TryGetProperty("contentLength", out var cl) && long.TryParse(cl.GetString(), out var n) ? n : 0;
 
-async Task<(PlayerMetadata Meta, StreamManifest Manifest)> GetVideoAndManifestAsync(
-    string url, CancellationToken ct)
+static long ParseBitrate(JsonElement f) =>
+    f.TryGetProperty("bitrate", out var b) && b.ValueKind == JsonValueKind.Number ? b.GetInt64() : 0;
+
+// ---- Unified video data: YoutubeExplode manifest first, raw player fallback ----
+// The raw player response is fetched FIRST (it also supplies metadata), then
+// the YoutubeExplode manifest is attempted. If that fails with an HTTP error
+// (e.g. HTTP 403 from a flagged datacenter IP — YoutubeExplode's own
+// VISIONOS->ANDROID fallback does NOT trigger on HTTP errors, only on
+// "unplayable" player responses), the raw streams are used instead and the
+// fallback is logged, so the Render logs themselves show which player client
+// worked from that IP. FORCE_RAW_FALLBACK=1 skips the YE manifest entirely
+// (local testing of the raw path).
+var cache = new ConcurrentDictionary<string, (DateTimeOffset Expires, VideoData Data)>();
+
+async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct)
 {
     if (cache.TryGetValue(url, out var hit) && hit.Expires > DateTimeOffset.UtcNow)
-        return (hit.Meta, hit.Manifest);
+        return hit.Data;
     // NOTE: new VideoId(url) does NOT normalize — it stores the raw string.
     // Only VideoId.Parse/TryParse extract the 11-char id from a watch URL.
     var videoId = VideoId.TryParse(url)
         ?? throw new ArgumentException($"Invalid YouTube video ID or URL '{url}'.");
-    var manifest = await youtube.Videos.Streams.GetManifestAsync(videoId, ct);
-    var meta = await FetchPlayerMetadataAsync(videoId.Value, ct);
-    cache[url] = (DateTimeOffset.UtcNow.AddMinutes(cacheMinutes), meta, manifest);
-    return (meta, manifest);
+    var raw = await FetchPlayerResponseAsync(videoId.Value, ct);
+    StreamManifest? manifest = null;
+    if (Environment.GetEnvironmentVariable("FORCE_RAW_FALLBACK") == "1")
+    {
+        Console.WriteLine("[fallback] FORCE_RAW_FALLBACK=1; using raw player streams");
+    }
+    else
+    {
+        try
+        {
+            manifest = await youtube.Videos.Streams.GetManifestAsync(videoId, ct);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or IOException)
+        {
+            Console.WriteLine($"[fallback] YE manifest failed ({ex.GetType().Name}: {ex.Message[..Math.Min(120, ex.Message.Length)]}); using raw {raw.ClientUsed} player streams");
+        }
+    }
+    var data = manifest is not null
+        ? new VideoData(raw.Meta, manifest, raw.Video, raw.Audio, "youtubeExplode", raw.ClientUsed)
+        : new VideoData(raw.Meta, null, raw.Video, raw.Audio, "rawPlayer", raw.ClientUsed);
+    cache[url] = (DateTimeOffset.UtcNow.AddMinutes(cacheMinutes), data);
+    return data;
 }
 
 static string SizeLabel(long bytes) => bytes switch
@@ -284,6 +360,124 @@ static bool IsValidUrl(string? u) =>
     Uri.TryCreate(u, UriKind.Absolute, out var uri)
     && (uri.Scheme == "http" || uri.Scheme == "https");
 
+// ---- Raw-player downloads (fallback path): direct stream GET + ffmpeg ----
+async Task DownloadUrlToFileAsync(string url, string path, CancellationToken ct)
+{
+    using var req = new HttpRequestMessage(HttpMethod.Get, url);
+    req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36");
+    using var res = await rawHttp.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+    res.EnsureSuccessStatusCode();
+    await using var file = File.Create(path);
+    await res.Content.CopyToAsync(file, ct);
+}
+
+async Task RunFfmpegAsync(string[] args, CancellationToken ct)
+{
+    var psi = new System.Diagnostics.ProcessStartInfo(ffmpegPath)
+    {
+        RedirectStandardError = true,
+        RedirectStandardOutput = true,
+        UseShellExecute = false,
+    };
+    foreach (var a in args) psi.ArgumentList.Add(a);
+    using var proc = System.Diagnostics.Process.Start(psi)
+        ?? throw new YoutubeExplodeException("Failed to start ffmpeg.");
+    var stderrTask = proc.StandardError.ReadToEndAsync(ct);
+    while (!proc.HasExited)
+    {
+        if (ct.IsCancellationRequested)
+        {
+            try { proc.Kill(entireProcessTree: true); } catch { }
+            ct.ThrowIfCancellationRequested();
+        }
+        await Task.Delay(500, CancellationToken.None);
+    }
+    var stderr = await stderrTask;
+    if (proc.ExitCode != 0)
+        throw new YoutubeExplodeException($"ffmpeg failed (exit {proc.ExitCode}): {stderr[^Math.Min(200, stderr.Length)..]}");
+}
+
+async Task<IResult> DownloadRawAsync(VideoData data, string title, string id,
+    string? formatId, string? qualityRaw, bool audioOnly, CancellationToken token)
+{
+    if (audioOnly)
+    {
+        var audio = data.RawAudio.OrderByDescending(s => s.Bitrate).FirstOrDefault()
+            ?? throw new YoutubeExplodeException("No audio stream available.");
+        var tmpIn = Path.Combine(tmpDir, $"tvdl-{id}.in.{audio.Container}");
+        var outPath = Path.Combine(tmpDir, $"tvdl-{id}.mp3");
+        try
+        {
+            await DownloadUrlToFileAsync(audio.Url, tmpIn, token);
+            await RunFfmpegAsync(new[] { "-y", "-i", tmpIn, "-vn", "-c:a", "libmp3lame", "-q:a", "2", outPath }, token);
+            var stream = new FileStream(outPath, FileMode.Open, FileAccess.Read, FileShare.None,
+                65536, FileOptions.DeleteOnClose);
+            return Results.File(stream, "application/octet-stream", $"{title}.mp3");
+        }
+        finally
+        {
+            try { File.Delete(tmpIn); } catch { }
+        }
+    }
+
+    RawVideoStream? video = null;
+    if (formatId is { Length: > 1 } && formatId[0] == 'v'
+        && int.TryParse(formatId[1..], out var exactH))
+        video = data.RawVideo.Where(s => s.Height == exactH)
+            .OrderByDescending(s => s.HasAudio).ThenByDescending(s => s.Size).FirstOrDefault();
+    if (video is null)
+    {
+        var wanted = Math.Clamp(int.TryParse(qualityRaw, out var qq) ? qq : 720, 144, 2160);
+        video = data.RawVideo.Where(s => s.Height <= wanted)
+                .OrderByDescending(s => s.Height).ThenByDescending(s => s.HasAudio).ThenByDescending(s => s.Size).FirstOrDefault()
+            ?? data.RawVideo.OrderBy(s => s.Height).FirstOrDefault();
+    }
+    if (video is null)
+        throw new YoutubeExplodeException("No video stream available.");
+
+    var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
+    if (video.HasAudio)
+    {
+        // Muxed mp4 stream: direct download, no re-encode.
+        await DownloadUrlToFileAsync(video.Url, outVideo, token);
+    }
+    else
+    {
+        // Prefer an mp4/m4a (AAC) audio track so the mux is a plain copy.
+        var audio = data.RawAudio
+            .OrderByDescending(s => s.Container == "mp4" ? 1 : 0)
+            .ThenByDescending(s => s.Bitrate)
+            .FirstOrDefault();
+        var tmpV = Path.Combine(tmpDir, $"tvdl-{id}.v.{video.Container}");
+        string? tmpA = null;
+        try
+        {
+            await DownloadUrlToFileAsync(video.Url, tmpV, token);
+            if (audio is null)
+            {
+                File.Move(tmpV, outVideo);
+            }
+            else
+            {
+                tmpA = Path.Combine(tmpDir, $"tvdl-{id}.a.{audio.Container}");
+                await DownloadUrlToFileAsync(audio.Url, tmpA, token);
+                var args = audio.Container == "mp4"
+                    ? new[] { "-y", "-i", tmpV, "-i", tmpA, "-c", "copy", outVideo }
+                    : new[] { "-y", "-i", tmpV, "-i", tmpA, "-c:v", "copy", "-c:a", "aac", "-b:a", "192k", outVideo };
+                await RunFfmpegAsync(args, token);
+            }
+        }
+        finally
+        {
+            try { File.Delete(tmpV); } catch { }
+            if (tmpA is not null) try { File.Delete(tmpA); } catch { }
+        }
+    }
+    var vStream = new FileStream(outVideo, FileMode.Open, FileAccess.Read, FileShare.None,
+        65536, FileOptions.DeleteOnClose);
+    return Results.File(vStream, "application/octet-stream", $"{title}.mp4");
+}
+
 // ---- Health ----
 app.MapGet("/", () => new
 {
@@ -304,50 +498,101 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
         return Results.Json(new { error = "A valid video URL is required." }, statusCode: 400);
     try
     {
-        var (meta, manifest) = await GetVideoAndManifestAsync(url!, ct);
+        var data = await GetVideoDataAsync(url!, ct);
+        var meta = data.Meta;
 
         // One resource per height: prefer a muxed (has-audio) stream, then bigger file.
-        var byHeight = new Dictionary<int, (IStreamInfo Stream, bool HasAudio)>();
-        foreach (var s in manifest.GetVideoStreams())
-        {
-            var h = s.VideoResolution.Height;
-            var hasAudio = s is MuxedStreamInfo;
-            var score = (hasAudio ? 1L << 50 : 0) + s.Size.Bytes;
-            if (!byHeight.TryGetValue(h, out var cur)
-                || score > ((cur.HasAudio ? 1L << 50 : 0) + cur.Stream.Size.Bytes))
-                byHeight[h] = (s, hasAudio);
-        }
         var resources = new List<object>();
-        foreach (var h in byHeight.Keys.OrderBy(x => x))
+        List<int> heights;
+        bool hasAudio;
+        if (data.Source == "youtubeExplode" && data.YeManifest is not null)
         {
-            var (s, hasAudio) = byHeight[h];
-            resources.Add(new
+            var manifest = data.YeManifest;
+            var byHeight = new Dictionary<int, (IStreamInfo Stream, bool HasAudio)>();
+            foreach (var s in manifest.GetVideoStreams())
             {
-                id = $"v{h}",
-                quality = h,
-                ext = "mp4",
-                size = s.Size.Bytes,
-                sizeLabel = SizeLabel(s.Size.Bytes),
-                hasAudio,
-                fps = (int?)null,
-            });
+                var h = s.VideoResolution.Height;
+                var hasAud = s is MuxedStreamInfo;
+                var score = (hasAud ? 1L << 50 : 0) + s.Size.Bytes;
+                if (!byHeight.TryGetValue(h, out var cur)
+                    || score > ((cur.HasAudio ? 1L << 50 : 0) + cur.Stream.Size.Bytes))
+                    byHeight[h] = (s, hasAud);
+            }
+            foreach (var h in byHeight.Keys.OrderBy(x => x))
+            {
+                var (s, hasAud) = byHeight[h];
+                resources.Add(new
+                {
+                    id = $"v{h}",
+                    quality = h,
+                    ext = "mp4",
+                    size = s.Size.Bytes,
+                    sizeLabel = SizeLabel(s.Size.Bytes),
+                    hasAudio = hasAud,
+                    fps = (int?)null,
+                });
+            }
+            var bestAudio = manifest.GetAudioStreams()
+                .OrderByDescending(s => s.Bitrate.BitsPerSecond)
+                .FirstOrDefault();
+            if (bestAudio is not null)
+            {
+                resources.Add(new
+                {
+                    id = "audio",
+                    quality = 0,
+                    ext = "mp3",
+                    size = bestAudio.Size.Bytes,
+                    sizeLabel = SizeLabel(bestAudio.Size.Bytes),
+                    hasAudio = true,
+                    fps = (int?)null,
+                    audioOnly = true,
+                });
+            }
+            heights = byHeight.Keys.OrderBy(x => x).ToList();
+            hasAudio = bestAudio is not null || byHeight.Values.Any(v => v.HasAudio);
         }
-        var bestAudio = manifest.GetAudioStreams()
-            .OrderByDescending(s => s.Bitrate.BitsPerSecond)
-            .FirstOrDefault();
-        if (bestAudio is not null)
+        else
         {
-            resources.Add(new
+            var byHeight = new Dictionary<int, RawVideoStream>();
+            foreach (var s in data.RawVideo)
             {
-                id = "audio",
-                quality = 0,
-                ext = "mp3",
-                size = bestAudio.Size.Bytes,
-                sizeLabel = SizeLabel(bestAudio.Size.Bytes),
-                hasAudio = true,
-                fps = (int?)null,
-                audioOnly = true,
-            });
+                var score = (s.HasAudio ? 1L << 50 : 0) + s.Size;
+                if (!byHeight.TryGetValue(s.Height, out var cur)
+                    || score > ((cur.HasAudio ? 1L << 50 : 0) + cur.Size))
+                    byHeight[s.Height] = s;
+            }
+            foreach (var h in byHeight.Keys.OrderBy(x => x))
+            {
+                var s = byHeight[h];
+                resources.Add(new
+                {
+                    id = $"v{h}",
+                    quality = h,
+                    ext = "mp4",
+                    size = s.Size,
+                    sizeLabel = SizeLabel(s.Size),
+                    hasAudio = s.HasAudio,
+                    fps = (int?)null,
+                });
+            }
+            var bestAudio = data.RawAudio.OrderByDescending(s => s.Bitrate).FirstOrDefault();
+            if (bestAudio is not null)
+            {
+                resources.Add(new
+                {
+                    id = "audio",
+                    quality = 0,
+                    ext = "mp3",
+                    size = bestAudio.Size,
+                    sizeLabel = SizeLabel(bestAudio.Size),
+                    hasAudio = true,
+                    fps = (int?)null,
+                    audioOnly = true,
+                });
+            }
+            heights = byHeight.Keys.OrderBy(x => x).ToList();
+            hasAudio = bestAudio is not null || byHeight.Values.Any(v => v.HasAudio);
         }
 
         return Results.Json(new
@@ -358,9 +603,10 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
             uploader = meta.Author,
             isLive = false,
             resources,
-            qualities = byHeight.Keys.OrderBy(x => x).ToArray(),
-            hasAudio = bestAudio is not null || byHeight.Values.Any(v => v.HasAudio),
+            qualities = heights.ToArray(),
+            hasAudio,
             cookies = hasCookies,
+            source = data.Source,
         });
     }
     catch (Exception ex) when (ex is YoutubeExplodeException or OperationCanceledException or ArgumentException or FormatException or HttpRequestException or IOException)
@@ -396,9 +642,13 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
 
     try
     {
-        var (meta, manifest) = await GetVideoAndManifestAsync(url!, token);
+        var data = await GetVideoDataAsync(url!, token);
+        var meta = data.Meta;
         var title = SanitizeFilename(meta.Title);
         var id = Guid.NewGuid().ToString("N")[..12];
+        if (data.Source == "rawPlayer")
+            return await DownloadRawAsync(data, title, id, formatId, qualityRaw, audioOnly, token);
+        var manifest = data.YeManifest!;
 
         if (audioOnly)
         {
@@ -490,3 +740,6 @@ await app.RunAsync();
 
 // Type declarations must follow all top-level statements.
 record PlayerMetadata(string Title, string Author, double? DurationSeconds, string? ThumbnailUrl);
+record RawVideoStream(int Height, long Size, long Bitrate, bool HasAudio, string Url, string Container);
+record RawAudioStream(long Size, long Bitrate, string Url, string Container);
+record VideoData(PlayerMetadata Meta, StreamManifest? YeManifest, List<RawVideoStream> RawVideo, List<RawAudioStream> RawAudio, string Source, string RawClient);
