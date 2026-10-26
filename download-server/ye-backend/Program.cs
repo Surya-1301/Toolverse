@@ -735,9 +735,6 @@ app.MapGet("/api/diag", async (HttpContext ctx, CancellationToken ct) =>
     return Results.Json(new { url, results });
 });
 
-    return Results.Json(new { url, results });
-});
-
 // ---- Video info + resource table ----
 app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationToken ct) =>
 {
