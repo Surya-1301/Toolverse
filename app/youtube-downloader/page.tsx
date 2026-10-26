@@ -16,7 +16,11 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
+import {
+  PRIVATE_YT_BACKEND,
+  PRIVATE_YE_BACKEND,
+  PRIVATE_YT_KEY,
+} from "@/lib/downloadServers";
 import { downloadFile, isNative } from "@/lib/capacitor";
 
 function BackToToolsLink() {
@@ -90,6 +94,7 @@ export default function YoutubeDownloaderPage() {
   // Private server, baked in and hidden from the UI.
   const serverUrl = PRIVATE_YT_BACKEND;
   const ytKey = PRIVATE_YT_KEY;
+  const [activeServer, setActiveServer] = useState(serverUrl);
   const [loading, setLoading] = useState(false);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -203,6 +208,7 @@ export default function YoutubeDownloaderPage() {
     }
     const normalizedUrl = `https://www.youtube.com/watch?v=${vid}`;
     const base = serverUrl.trim().replace(/\/+$/, "");
+    const yeBase = PRIVATE_YE_BACKEND.trim().replace(/\/+$/, "");
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -212,10 +218,20 @@ export default function YoutubeDownloaderPage() {
     setServerResources(null);
 
     try {
+      setActiveServer(base);
       await fetchViaServer(normalizedUrl, base);
-    } catch (e) {
-      if ((e as Error).name !== "AbortError") {
-        setError((e as Error).message || "Lookup failed.");
+    } catch (e1) {
+      if (yeBase && yeBase !== base && (e1 as Error).name !== "AbortError") {
+        try {
+          setActiveServer(yeBase);
+          await fetchViaServer(normalizedUrl, yeBase);
+          return;
+        } catch {
+          /* fallback also errored, surface primary error */
+        }
+      }
+      if ((e1 as Error).name !== "AbortError") {
+        setError((e1 as Error).message || "Lookup failed.");
       }
     } finally {
       setLoading(false);
@@ -242,7 +258,7 @@ export default function YoutubeDownloaderPage() {
       // Base64: raw cookies.txt (tabs/newlines) does not belong in a URL.
       params.set("cookies", btoa(unescape(encodeURIComponent(cookies))));
     }
-    return `${serverUrl.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
+    return `${activeServer.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
   }
 
   async function handleDownload(r: ServerResource) {
