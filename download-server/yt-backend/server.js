@@ -128,29 +128,76 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
   });
 }
 
-async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath) {
+function normalizeUrl(rawUrl) {
   try {
-    return await runYtDlp(args, timeoutMs, customCookiesPath);
-  } catch (e1) {
-    try {
-      const r = await runYtDlp(
-        ["--extractor-args", "youtube:player-client=android,ios", ...args],
-        timeoutMs,
-        customCookiesPath,
-      );
-      return { ...r, fallbackClient: "android,ios" };
-    } catch {
-      try {
-        const r2 = await runYtDlp(
-          ["--extractor-args", "youtube:player-client=ios", ...args],
-          timeoutMs,
-          customCookiesPath,
-        );
-        return { ...r2, fallbackClient: "ios" };
-      } catch {
-        throw e1;
+    const u = new URL(String(rawUrl).trim());
+    if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+      const vid =
+        u.searchParams.get("v") ||
+        (u.hostname.includes("youtu.be")
+          ? u.pathname.replace(/^\/+/, "").split("/")[0]
+          : null);
+      if (vid) {
+        return `https://www.youtube.com/watch?v=${vid}`;
       }
     }
+    if (u.hostname.includes("instagram.com") || u.hostname.includes("instagr.am")) {
+      const m = u.pathname.match(/(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i);
+      if (m) {
+        return `https://www.instagram.com/reel/${m[1]}/`;
+      }
+    }
+  } catch {}
+  return String(rawUrl || "").trim();
+}
+
+async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint = "") {
+  const isYt = /youtube\.com|youtu\.be/i.test(urlHint || args.join(" "));
+  const perAttemptTimeout = Math.min(timeoutMs, isYt ? 25000 : 30000);
+
+  if (isYt) {
+    if (customCookiesPath || HAS_COOKIES) {
+      // With cookies, prioritize browser clients (Android client ignores cookies)
+      const attempts = [
+        ["--extractor-args", "youtube:player_client=web,web_safari,mweb"],
+        ["--extractor-args", "youtube:player_client=mweb,web"],
+        [],
+      ];
+      let lastErr = null;
+      for (const extra of attempts) {
+        try {
+          return await runYtDlp([...extra, ...args], perAttemptTimeout, customCookiesPath);
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr;
+    } else {
+      // Anonymous request from datacenter IP:
+      // Try android, ios, and mweb clients which bypass datacenter bot-checks
+      const attempts = [
+        ["--extractor-args", "youtube:player_client=android,web"],
+        ["--extractor-args", "youtube:player_client=ios,web"],
+        ["--extractor-args", "youtube:player_client=mweb,tv"],
+        [],
+      ];
+      let lastErr = null;
+      for (const extra of attempts) {
+        try {
+          return await runYtDlp([...extra, ...args], perAttemptTimeout, customCookiesPath);
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr;
+    }
+  }
+
+  // Non-YouTube (e.g. Instagram)
+  try {
+    return await runYtDlp(args, perAttemptTimeout, customCookiesPath);
+  } catch (e1) {
+    throw e1;
   }
 }
 
@@ -323,7 +370,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
   }
-  const key = String(url).trim();
+  const key = normalizeUrl(url);
 
   let tempCookiePath = null;
   if (cookies && typeof cookies === "string" && cookies.trim()) {
@@ -348,8 +395,9 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   try {
     const { stdout } = await runYtDlpWithFallback(
       ["--dump-json", "--no-playlist", "--no-warnings", key],
-      90000,
+      60000,
       tempCookiePath,
+      key,
     );
     const info = JSON.parse(stdout);
     const resources = buildResources(info);
@@ -397,6 +445,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
   }
+  const key = normalizeUrl(url);
 
   let tempCookiePath = null;
   if (cookies && typeof cookies === "string" && cookies.trim()) {
@@ -412,13 +461,20 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
 
   // Handle direct Instagram stream if fetched via direct fallback
   if (format_id && String(format_id).startsWith("ig_")) {
-    const cached = parseCache.get(String(url).trim());
-    const directUrl = cached?.data?.directUrl;
+    let directUrl = parseCache.get(key)?.data?.directUrl;
+    let title = parseCache.get(key)?.data?.title || "instagram_reel";
+    if (!directUrl) {
+      const ig = await fetchInstagramDirect(key);
+      if (ig?.directUrl) {
+        directUrl = ig.directUrl;
+        title = ig.title || title;
+      }
+    }
     if (directUrl) {
       try {
         const streamRes = await fetch(directUrl);
         if (streamRes.ok) {
-          const filename = `${sanitizeFilename(cached.data.title || "instagram_reel")}.mp4`;
+          const filename = `${sanitizeFilename(title)}.mp4`;
           res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
           res.setHeader("Content-Type", "video/mp4");
           const { Readable } = require("stream");
@@ -485,10 +541,11 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
         "4",
         "-o",
         outTmpl,
-        String(url),
+        key,
       ],
       MAX_MS,
       tempCookiePath,
+      key,
     );
 
     const files = (await fsp.readdir(TMPDIR)).filter((f) =>
@@ -499,10 +556,11 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
 
     let title = "download";
     try {
-      const r = await runYtDlp(
-        ["--print", "%(title)s", "--no-playlist", "--no-warnings", String(url)],
-        60000,
+      const r = await runYtDlpWithFallback(
+        ["--print", "%(title)s", "--no-playlist", "--no-warnings", key],
+        30000,
         tempCookiePath,
+        key,
       );
       const t = r.stdout.trim().split("\n")[0];
       if (t) title = t;

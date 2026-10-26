@@ -114,10 +114,17 @@ export default function InstagramReelsDownloaderPage() {
       };
       if (ytKey) headers["x-api-key"] = ytKey;
 
+      const m = clean.match(
+        /(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i,
+      );
+      const normalizedUrl = m
+        ? `https://www.instagram.com/reel/${m[1]}/`
+        : clean;
+
       const res = await fetch(`${base}/api/info`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ url: clean }),
+        body: JSON.stringify({ url: normalizedUrl }),
         signal: controller.signal,
       });
 
@@ -134,10 +141,17 @@ export default function InstagramReelsDownloaderPage() {
       setServerResources(data?.resources || []);
     } catch (e: unknown) {
       if ((e as Error).name !== "AbortError") {
-        setError(
-          (e as Error).message ||
-            "Could not fetch reel info. The post may be private, restricted, or unavailable.",
-        );
+        const msg = (e as Error).message || "";
+        if (/failed to fetch/i.test(msg)) {
+          setError(
+            "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again.",
+          );
+        } else {
+          setError(
+            msg ||
+              "Could not fetch reel info. The post may be private, restricted, or unavailable.",
+          );
+        }
       }
     } finally {
       setLoading(false);

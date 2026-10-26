@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
+  AlertCircle,
   ArrowLeft,
   Check,
   Clapperboard,
@@ -128,6 +129,26 @@ export default function YoutubeDownloaderPage() {
   const bestAudio = useMemo(() => {
     return audioResources.length ? audioResources[0] : null;
   }, [audioResources]);
+
+  const cookieStatus = useMemo(() => {
+    const text = cookiesText.trim();
+    if (!text) return null;
+    const hasAuth =
+      /(__Secure-3PSID|__Secure-1PSID|\bSID\b|\bLOGIN_INFO\b|\bSAPISID\b)/i.test(
+        text,
+      );
+    if (hasAuth) {
+      return {
+        valid: true,
+        message: "Authenticated YouTube login cookies detected.",
+      };
+    }
+    return {
+      valid: false,
+      message:
+        "These cookies appear to be from a logged-out guest session (only GPS/visitor cookies detected). YouTube blocks datacenter servers unless cookies are exported while logged into YouTube (with SID, LOGIN_INFO, or __Secure-3PSID). Please sign into youtube.com in your browser, then re-export.",
+    };
+  }, [cookiesText]);
 
   async function fetchViaServer(videoUrl: string, base: string) {
     const headers: Record<string, string> = {
@@ -363,6 +384,22 @@ export default function YoutubeDownloaderPage() {
                 spellCheck={false}
                 className="mt-3 min-h-24 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-red-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
+              {cookieStatus ? (
+                <div
+                  className={`mt-2 flex items-start gap-2 rounded-xl p-3 text-xs leading-5 ${
+                    cookieStatus.valid
+                      ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 light:text-emerald-800"
+                      : "border border-amber-500/30 bg-amber-500/10 text-amber-200 light:text-amber-800"
+                  }`}
+                >
+                  {cookieStatus.valid ? (
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
+                  )}
+                  <span>{cookieStatus.message}</span>
+                </div>
+              ) : null}
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-white/15 px-4 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900">
                   Drop cookies.txt file
