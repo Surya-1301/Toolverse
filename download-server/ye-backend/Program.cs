@@ -175,7 +175,7 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
 {
     if (cookies.Count == 0)
         return;
-    req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+    req.Headers.TryAddWithoutValidation("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
     var sapisid = cookies.FirstOrDefault(c => c.Name == "SAPISID")?.Value
         ?? cookies.FirstOrDefault(c => c.Name == "__Secure-3PAPISID")?.Value;
     if (string.IsNullOrEmpty(sapisid))
@@ -183,18 +183,19 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
     var ts = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
     var bytes = System.Text.Encoding.UTF8.GetBytes($"{ts} {sapisid} https://www.youtube.com");
     var hash = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(bytes)).ToLowerInvariant();
-    req.Headers.Add("Authorization", $"SAPISIDHASH {ts}_{hash}");
+    req.Headers.TryAddWithoutValidation("Authorization", $"SAPISIDHASH {ts}_{hash}");
     if (!req.Headers.Contains("Origin"))
-        req.Headers.Add("Origin", "https://www.youtube.com");
+        req.Headers.TryAddWithoutValidation("Origin", "https://www.youtube.com");
 }
 
 // ---- Metadata + manifest, player-API only ----
-// YoutubeExplode's Videos.GetAsync() starts from the HTML watch page, which
-// datacenter IPs get bot-checked on. The player API (innertube) is gated far
-// less strictly, so metadata comes from a raw player POST — the same
-// VISIONOS -> ANDROID client flow YoutubeExplode's VideoController uses —
-// while streams/downloads still go through YoutubeExplode itself.
-var rawHttp = new HttpClient();
+// UseSocketsHttpHandler with UseCookies = false so manual Cookie headers
+// are preserved on the wire instead of being stripped by .NET's default handler.
+var rawHttp = new HttpClient(new SocketsHttpHandler
+{
+    UseCookies = false,
+    PooledConnectionLifetime = TimeSpan.FromMinutes(10),
+});
 
 async Task<string> ResolveVisitorDataAsync(CancellationToken ct)
 {
@@ -335,18 +336,18 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        req.Headers.Add("User-Agent", userAgent);
+        req.Headers.TryAddWithoutValidation("User-Agent", userAgent);
 
         if (useWebAuth && cookies.Count > 0)
         {
-            req.Headers.Add("Referer", $"https://www.youtube.com/watch?v={videoId}");
-            req.Headers.Add("X-YouTube-Client-Name", "1");
-            req.Headers.Add("X-YouTube-Client-Version", "2.20241021.01.00");
+            req.Headers.TryAddWithoutValidation("Referer", $"https://www.youtube.com/watch?v={videoId}");
+            req.Headers.TryAddWithoutValidation("X-YouTube-Client-Name", "1");
+            req.Headers.TryAddWithoutValidation("X-YouTube-Client-Version", "2.20241021.01.00");
             AddVisitorAuth(req, cookies);
         }
         else if (sendCookies && cookies.Count > 0)
         {
-            req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+            req.Headers.TryAddWithoutValidation("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
         }
 
         using var res = await rawHttp.SendAsync(req, ct);
@@ -622,7 +623,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-yt-backend",
-    version = "2026.10.26.7",
+    version = "2026.10.26.8",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     // Build marker: true only on the visitor-cookies build. Open the
