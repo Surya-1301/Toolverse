@@ -309,6 +309,197 @@ function buildResources(info) {
   return video;
 }
 
+function getYouTubeVideoId(input) {
+  const s = String(input || "").trim();
+  const patterns = [
+    /[?&]v=([A-Za-z0-9_-]{11})/,
+    /youtu\.be\/([A-Za-z0-9_-]{11})/,
+    /\/(shorts|embed|live)\/([A-Za-z0-9_-]{11})/,
+  ];
+  for (const re of patterns) {
+    const m = s.match(re);
+    if (m) return m[1];
+  }
+  return /^[A-Za-z0-9_-]{11}$/.test(s) ? s : null;
+}
+
+function netscapeToCookieHeader(text) {
+  if (!text || typeof text !== "string") return null;
+  const lines = text.split("\n");
+  const pairs = [];
+  for (const line of lines) {
+    const l = line.trim();
+    if (!l || l.startsWith("#")) continue;
+    const parts = l.split("\t");
+    if (parts.length >= 7) {
+      const name = parts[5].trim();
+      const val = parts[6].trim();
+      if (name) pairs.push(`${name}=${val}`);
+    } else if (l.includes("=")) {
+      pairs.push(l);
+    }
+  }
+  return pairs.length ? pairs.join("; ") : null;
+}
+
+// ---- YouTube Direct / Innertube Fallback (bypasses datacenter HTML bot wall) ----
+async function fetchYouTubeDirect(videoId, cookieHeader = null) {
+  try {
+    let visitorData = null;
+    try {
+      const swRes = await fetch("https://www.youtube.com/sw.js_data", {
+        headers: {
+          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+          "Accept": "application/json",
+          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        },
+      });
+      if (swRes.ok) {
+        let swText = await swRes.text();
+        if (swText.startsWith(")]}'")) swText = swText.slice(4);
+        const swData = JSON.parse(swText);
+        visitorData = swData?.[0]?.[2]?.[0]?.[0]?.[13];
+      }
+    } catch {}
+
+    const clients = [
+      {
+        clientName: "VISIONOS",
+        clientVersion: "1.02",
+        deviceMake: "Apple",
+        deviceModel: "RealityDevice17,1",
+        osName: "visionOS",
+        osVersion: "26.5.23O471",
+        ...(visitorData ? { visitorData } : {}),
+        hl: "en",
+      },
+      {
+        clientName: "ANDROID",
+        clientVersion: "21.26.364",
+        androidSdkVersion: 30,
+        osName: "Android",
+        osVersion: "11",
+        ...(visitorData ? { visitorData } : {}),
+        hl: "en",
+      },
+    ];
+
+    for (const client of clients) {
+      const headers = {
+        "Content-Type": "application/json",
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+      };
+
+      const playerRes = await fetch(
+        "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
+        {
+          method: "POST",
+          headers,
+          body: JSON.stringify({
+            videoId,
+            contentCheckOk: true,
+            racyCheckOk: true,
+            context: { client },
+          }),
+        },
+      );
+      if (!playerRes.ok) continue;
+      const pJson = await playerRes.json();
+      const status = pJson.playabilityStatus?.status;
+      if (status !== "OK") continue;
+
+      const details = pJson.videoDetails || {};
+      const sd = pJson.streamingData || {};
+      const title = details.title || "YouTube Video";
+      const uploader = details.author || null;
+      const duration = Number(details.lengthSeconds) || null;
+      const thumbs = details.thumbnail?.thumbnails || [];
+      const thumbnail = thumbs.length ? thumbs[thumbs.length - 1].url : null;
+
+      const formats = [...(sd.formats || []), ...(sd.adaptiveFormats || [])];
+      const byHeight = new Map();
+      let bestAudio = null;
+
+      for (const f of formats) {
+        if (!f.url) continue;
+        const isVideo = f.mimeType?.startsWith("video/");
+        const isAudio = f.mimeType?.startsWith("audio/");
+        const hasBoth =
+          f.mimeType?.includes("video/") && (f.audioChannels || f.audioQuality);
+        const height =
+          f.height || (f.qualityLabel ? parseInt(f.qualityLabel, 10) : 0);
+        const size = Number(f.contentLength) || 0;
+
+        if (isVideo && height > 0) {
+          const isMp4 = f.mimeType?.includes("video/mp4");
+          const cur = byHeight.get(height);
+          const score = (hasBoth ? 1e16 : 0) + (isMp4 ? 1e15 : 0) + size;
+          const curScore = cur
+            ? (cur.hasAudio ? 1e16 : 0) + (cur.isMp4 ? 1e15 : 0) + (cur.size || 0)
+            : -1;
+          if (score > curScore) {
+            byHeight.set(height, {
+              id: `ye_${f.itag}`,
+              quality: height,
+              ext: isMp4 ? "mp4" : "webm",
+              size,
+              sizeLabel: fmtBytes(size),
+              hasAudio: !!hasBoth,
+              fps: f.fps || null,
+              directUrl: f.url,
+              isMp4,
+              itag: f.itag,
+            });
+          }
+        } else if (isAudio) {
+          const bitrate = f.bitrate || 0;
+          const isM4a = f.mimeType?.includes("audio/mp4");
+          if (!bestAudio || (isM4a && !bestAudio.isM4a) || bitrate > (bestAudio.bitrate || 0)) {
+            bestAudio = {
+              id: `ye_${f.itag}`,
+              quality: 0,
+              ext: "mp3",
+              size,
+              sizeLabel: fmtBytes(size),
+              hasAudio: true,
+              fps: null,
+              audioOnly: true,
+              bitrate,
+              directUrl: f.url,
+              isM4a,
+              itag: f.itag,
+            };
+          }
+        }
+      }
+
+      const resources = [...byHeight.values()].sort(
+        (a, b) => b.quality - a.quality,
+      );
+      if (bestAudio) resources.push(bestAudio);
+
+      if (resources.length > 0) {
+        return {
+          title,
+          thumbnail,
+          duration,
+          uploader,
+          isLive: false,
+          resources,
+          qualities: resources.filter((r) => !r.audioOnly).map((r) => r.quality),
+          hasAudio: resources.some((r) => r.audioOnly || r.hasAudio),
+          cookies: false,
+          source: `Innertube-${client.clientName}`,
+          audioDirectUrl: bestAudio?.directUrl || null,
+        };
+      }
+    }
+  } catch (err) {
+    console.error("[fetchYouTubeDirect] error:", err.message);
+  }
+  return null;
+}
+
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
 async function fetchInstagramDirect(url) {
   const m = String(url).match(/(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i);
@@ -376,11 +567,12 @@ async function fetchInstagramDirect(url) {
 }
 
 // ---- routes ----
-app.get("/", (req, res) => {
+app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.1.2",
+    version: "2.2.0",
+    innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
@@ -396,6 +588,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   const key = normalizeUrl(url);
 
   let tempCookiePath = null;
+  let cookieHeader = null;
   if (cookies && typeof cookies === "string" && cookies.trim()) {
     try {
       let rawText = cookies.trim();
@@ -407,6 +600,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
           }
         } catch {}
       }
+      cookieHeader = netscapeToCookieHeader(rawText);
       rawText = rawText.replace(/\r\n/g, "\n").trim() + "\n";
       tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
       await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
@@ -421,6 +615,27 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     const cached = parseCache.get(key);
     if (cached && cached.expires > Date.now()) {
       return res.json({ ...cached.data, cached: true });
+    }
+  }
+
+  // Fast direct Innertube resolution for YouTube (bypasses datacenter IP HTML bot wall)
+  const vid = getYouTubeVideoId(key);
+  if (vid) {
+    const directYt = await fetchYouTubeDirect(vid, cookieHeader);
+    if (directYt) {
+      if (!tempCookiePath) {
+        parseCache.set(key, { data: directYt, expires: Date.now() + CACHE_MS });
+      }
+      return res.json(directYt);
+    }
+  }
+
+  // Fast direct fallback for Instagram
+  if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
+    const ig = await fetchInstagramDirect(key);
+    if (ig) {
+      if (!tempCookiePath) parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
+      return res.json(ig);
     }
   }
 
@@ -450,6 +665,13 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     }
     res.json(data);
   } catch (e) {
+    if (vid) {
+      const directYt = await fetchYouTubeDirect(vid, cookieHeader);
+      if (directYt) {
+        if (!tempCookiePath) parseCache.set(key, { data: directYt, expires: Date.now() + CACHE_MS });
+        return res.json(directYt);
+      }
+    }
     if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
       const ig = await fetchInstagramDirect(key);
       if (ig) {
@@ -477,9 +699,11 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   if (!isValidUrl(url)) {
     return res.status(400).json({ error: "A valid video URL is required." });
   }
+  const audioOnly = audio === "1";
   const key = normalizeUrl(url);
 
   let tempCookiePath = null;
+  let cookieHeader = null;
   if (cookies && typeof cookies === "string" && cookies.trim()) {
     try {
       let rawText = cookies.trim();
@@ -491,6 +715,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
           }
         } catch {}
       }
+      cookieHeader = netscapeToCookieHeader(rawText);
       rawText = rawText.replace(/\r\n/g, "\n").trim() + "\n";
       tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
       await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
@@ -525,7 +750,129 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       }
     }
   }
-  const audioOnly = audio === "1";
+
+  // Handle direct YouTube Innertube stream
+  const ytVid = getYouTubeVideoId(key);
+  if (ytVid && (String(format_id || "").startsWith("ye_") || audioOnly || !format_id)) {
+    let cached = parseCache.get(key)?.data;
+    if (!cached || !cached.resources) {
+      cached = await fetchYouTubeDirect(ytVid, cookieHeader);
+    }
+    const audioResource = cached?.resources?.find((r) => r.audioOnly);
+    let targetResource = cached?.resources?.find((r) => r.id === format_id);
+    if (!targetResource && quality) {
+      const q = parseInt(quality, 10);
+      const vids = (cached?.resources || []).filter((r) => !r.audioOnly);
+      targetResource = vids.find((r) => r.quality <= q) || vids[0];
+    }
+    const title = cached?.title || "youtube_video";
+
+    if (audioOnly || targetResource?.audioOnly) {
+      const audioUrl = (targetResource?.audioOnly ? targetResource.directUrl : null) || audioResource?.directUrl || cached?.audioDirectUrl;
+      if (audioUrl) {
+        const af = ["mp3", "ogg", "opus", "wav", "m4a"].includes(String(audio_format))
+          ? String(audio_format)
+          : "mp3";
+        const filename = `${sanitizeFilename(title)}.${af}`;
+        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        if (af === "m4a" && audioResource?.isM4a) {
+          res.setHeader("Content-Type", "audio/mp4");
+          const ff = spawn("ffmpeg", [
+            "-i",
+            audioUrl,
+            "-vn",
+            "-c:a",
+            "copy",
+            "-movflags",
+            "frag_keyframe+empty_moov+default_base_moof",
+            "-f",
+            "mp4",
+            "pipe:1",
+          ]);
+          ff.stdout.pipe(res);
+          ff.stderr.on("data", () => {});
+          req.on("close", () => ff.kill());
+          if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
+          return;
+        } else {
+          res.setHeader("Content-Type", "audio/mpeg");
+          const ff = spawn("ffmpeg", [
+            "-i",
+            audioUrl,
+            "-vn",
+            "-acodec",
+            "libmp3lame",
+            "-b:a",
+            "192k",
+            "-f",
+            "mp3",
+            "pipe:1",
+          ]);
+          ff.stdout.pipe(res);
+          ff.stderr.on("data", () => {});
+          req.on("close", () => ff.kill());
+          if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
+          return;
+        }
+      }
+    }
+
+    if (targetResource?.directUrl) {
+      const ext = targetResource.ext || "mp4";
+      const filename = `${sanitizeFilename(title)}.${ext}`;
+      if (targetResource.hasAudio) {
+        try {
+          const sRes = await fetch(targetResource.directUrl);
+          if (sRes.ok) {
+            res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+            res.setHeader("Content-Type", ext === "webm" ? "video/webm" : "video/mp4");
+            const { Readable } = require("stream");
+            Readable.fromWeb(sRes.body).pipe(res);
+            if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
+            return;
+          }
+        } catch {}
+      }
+
+      const audioUrl = audioResource?.directUrl || cached?.audioDirectUrl;
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.setHeader("Content-Type", "video/mp4");
+      const ffArgs = audioUrl
+        ? [
+            "-i",
+            targetResource.directUrl,
+            "-i",
+            audioUrl,
+            "-c:v",
+            "copy",
+            "-c:a",
+            "aac",
+            "-movflags",
+            "frag_keyframe+empty_moov+default_base_moof",
+            "-f",
+            "mp4",
+            "pipe:1",
+          ]
+        : [
+            "-i",
+            targetResource.directUrl,
+            "-c",
+            "copy",
+            "-movflags",
+            "frag_keyframe+empty_moov+default_base_moof",
+            "-f",
+            "mp4",
+            "pipe:1",
+          ];
+      const ff = spawn("ffmpeg", ffArgs);
+      ff.stdout.pipe(res);
+      ff.stderr.on("data", () => {});
+      req.on("close", () => ff.kill());
+      if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
+      return;
+    }
+  }
+
   const id = crypto.randomBytes(8).toString("hex");
   const outTmpl = path.join(TMPDIR, `tvdl-${id}.%(ext)s`);
 
@@ -537,9 +884,10 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     args = ["-x", "--audio-format", af, "--audio-quality", "0"];
   } else if (format_id && /^[A-Za-z0-9_-]+$/.test(String(format_id))) {
     // Exact resource from /api/info; merge with best audio when needed.
+    const cleanId = String(format_id).replace(/^ye_/, "");
     args = [
       "-f",
-      `${format_id}+bestaudio/best`,
+      `${cleanId}+bestaudio/best`,
       "--merge-output-format",
       "mp4",
     ];

@@ -1,7 +1,7 @@
 
 FROM node:22-slim
 
-ARG CACHE_DATE=2026-10-27-03
+ARG CACHE_DATE=2026-10-27-04
 
 RUN apt-get update \
   && apt-get install -y --no-install-recommends curl ffmpeg ca-certificates python3 \
