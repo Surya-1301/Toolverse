@@ -623,7 +623,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-yt-backend",
-    version = "2026.10.26.8",
+    version = "2026.10.26.9",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     // Build marker: true only on the visitor-cookies build. Open the
@@ -643,10 +643,10 @@ app.MapGet("/api/diag", async (HttpContext ctx, CancellationToken ct) =>
     const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
     var results = new List<object>();
 
-    // Test ANDROID clean
+    // Test ANDROID_AUTH with serverCookies
     try
     {
-        var androidCtx = new Dictionary<string, object?>
+        var androidAuthCtx = new Dictionary<string, object?>
         {
             ["clientName"] = "ANDROID",
             ["clientVersion"] = "21.26.364",
@@ -660,12 +660,16 @@ app.MapGet("/api/diag", async (HttpContext ctx, CancellationToken ct) =>
             ["videoId"] = videoId.Value.Value,
             ["contentCheckOk"] = true,
             ["racyCheckOk"] = true,
-            ["context"] = new Dictionary<string, object?> { ["client"] = androidCtx },
+            ["context"] = new Dictionary<string, object?> { ["client"] = androidAuthCtx },
         });
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        req.Headers.Add("User-Agent", "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip");
+        req.Headers.TryAddWithoutValidation("User-Agent", "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip");
+        if (serverCookies.Count > 0)
+        {
+            req.Headers.TryAddWithoutValidation("Cookie", string.Join("; ", serverCookies.Select(c => $"{c.Name}={c.Value}")));
+        }
 
         using var res = await rawHttp.SendAsync(req, ct);
         var bodyStr = await res.Content.ReadAsStringAsync(ct);
@@ -677,56 +681,24 @@ app.MapGet("/api/diag", async (HttpContext ctx, CancellationToken ct) =>
         var hasSd = root.TryGetProperty("streamingData", out var sd);
         var fmtCount = hasSd && sd.TryGetProperty("formats", out var f) ? f.GetArrayLength() : 0;
         var afmtCount = hasSd && sd.TryGetProperty("adaptiveFormats", out var af) ? af.GetArrayLength() : 0;
-        results.Add(new { client = "ANDROID", http = (int)res.StatusCode, status = st, reason = r, formats = fmtCount, adaptive = afmtCount });
+        results.Add(new {
+            client = "ANDROID_AUTH",
+            serverCookieCount = serverCookies.Count,
+            cookieNames = serverCookies.Select(c => c.Name).ToList(),
+            http = (int)res.StatusCode,
+            status = st,
+            reason = r,
+            formats = fmtCount,
+            adaptive = afmtCount
+        });
     }
     catch (Exception ex)
     {
-        results.Add(new { client = "ANDROID", error = ex.Message });
+        results.Add(new { client = "ANDROID_AUTH", error = ex.Message });
     }
 
-    var cookiesRaw = ctx.Request.Query["cookies"].FirstOrDefault();
-    if (!string.IsNullOrEmpty(cookiesRaw))
-    {
-        var cookies = ParseVisitorCookies(cookiesRaw);
-        try
-        {
-            var webCtx = new Dictionary<string, object?>
-            {
-                ["clientName"] = "WEB",
-                ["clientVersion"] = "2.20241021.01.00",
-                ["hl"] = "en",
-                ["gl"] = "US",
-            };
-            var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
-            {
-                ["videoId"] = videoId.Value.Value,
-                ["contentCheckOk"] = true,
-                ["racyCheckOk"] = true,
-                ["context"] = new Dictionary<string, object?> { ["client"] = webCtx },
-            });
-            using var req = new HttpRequestMessage(HttpMethod.Post,
-                $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
-            req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-            req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36");
-            req.Headers.Add("Referer", $"https://www.youtube.com/watch?v={videoId.Value.Value}");
-            req.Headers.Add("X-YouTube-Client-Name", "1");
-            req.Headers.Add("X-YouTube-Client-Version", "2.20241021.01.00");
-            AddVisitorAuth(req, cookies);
-
-            using var res = await rawHttp.SendAsync(req, ct);
-            var bodyStr = await res.Content.ReadAsStringAsync(ct);
-            using var doc = JsonDocument.Parse(bodyStr);
-            var root = doc.RootElement;
-            var ps = root.TryGetProperty("playabilityStatus", out var p) ? p : default;
-            var st = ps.ValueKind != JsonValueKind.Undefined && ps.TryGetProperty("status", out var s) ? s.GetString() : "none";
-            var r = ps.ValueKind != JsonValueKind.Undefined && ps.TryGetProperty("reason", out var re) ? re.GetString() : null;
-            results.Add(new { client = "WEB_WITH_COOKIES", cookieCount = cookies.Count, http = (int)res.StatusCode, status = st, reason = r });
-        }
-        catch (Exception ex)
-        {
-            results.Add(new { client = "WEB_WITH_COOKIES", error = ex.Message });
-        }
-    }
+    return Results.Json(new { url, results });
+});
 
     return Results.Json(new { url, results });
 });
