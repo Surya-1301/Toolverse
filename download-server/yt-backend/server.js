@@ -105,6 +105,8 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
     const fullArgs = [
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
+      "--socket-timeout",
+      "20",
       ...args,
     ];
     const proc = spawn("yt-dlp", fullArgs, { timeout: timeoutMs });
@@ -117,12 +119,21 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
       stderr += d;
     });
     proc.on("error", reject);
-    proc.on("close", (code) => {
+    proc.on("close", (code, signal) => {
       if (code === 0) {
         resolve({ stdout, stderr });
       } else {
         const tail = stderr.trim().split("\n").slice(-3).join(" ").slice(0, 300);
-        reject(new Error(tail || `yt-dlp exited with code ${code}`));
+        if (signal === "SIGTERM" || code === null) {
+          reject(
+            new Error(
+              tail ||
+                `yt-dlp extraction timed out (${Math.round(timeoutMs / 1000)}s)`,
+            ),
+          );
+        } else {
+          reject(new Error(tail || `yt-dlp exited with code ${code}`));
+        }
       }
     });
   });
@@ -153,52 +164,49 @@ function normalizeUrl(rawUrl) {
 
 async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint = "") {
   const isYt = /youtube\.com|youtu\.be/i.test(urlHint || args.join(" "));
-  const perAttemptTimeout = Math.min(timeoutMs, isYt ? 25000 : 30000);
 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
-      // With cookies, prioritize browser clients (Android client ignores cookies)
-      const attempts = [
-        ["--extractor-args", "youtube:player_client=web,web_safari,mweb"],
-        ["--extractor-args", "youtube:player_client=mweb,web"],
-        [],
-      ];
-      let lastErr = null;
-      for (const extra of attempts) {
+      // With cookies, run standard extraction with generous 65s timeout so Render's shared CPU can finish
+      try {
+        return await runYtDlp(args, 65000, customCookiesPath);
+      } catch (e1) {
+        // Retry once specifying web client explicitly
         try {
-          return await runYtDlp([...extra, ...args], perAttemptTimeout, customCookiesPath);
-        } catch (e) {
-          lastErr = e;
+          return await runYtDlp(
+            ["--extractor-args", "youtube:player_client=web", ...args],
+            60000,
+            customCookiesPath,
+          );
+        } catch {
+          throw e1;
         }
       }
-      throw lastErr;
     } else {
       // Anonymous request from datacenter IP:
-      // Try android, ios, and mweb clients which bypass datacenter bot-checks
-      const attempts = [
-        ["--extractor-args", "youtube:player_client=android,web"],
-        ["--extractor-args", "youtube:player_client=ios,web"],
-        ["--extractor-args", "youtube:player_client=mweb,tv"],
-        [],
-      ];
-      let lastErr = null;
-      for (const extra of attempts) {
+      // Try android client first (bypasses datacenter bot-checks)
+      try {
+        return await runYtDlp(
+          ["--extractor-args", "youtube:player_client=android", ...args],
+          45000,
+          customCookiesPath,
+        );
+      } catch (e1) {
         try {
-          return await runYtDlp([...extra, ...args], perAttemptTimeout, customCookiesPath);
-        } catch (e) {
-          lastErr = e;
+          return await runYtDlp(
+            ["--extractor-args", "youtube:player_client=ios", ...args],
+            45000,
+            customCookiesPath,
+          );
+        } catch {
+          throw e1;
         }
       }
-      throw lastErr;
     }
   }
 
   // Non-YouTube (e.g. Instagram)
-  try {
-    return await runYtDlp(args, perAttemptTimeout, customCookiesPath);
-  } catch (e1) {
-    throw e1;
-  }
+  return await runYtDlp(args, Math.min(timeoutMs, 40000), customCookiesPath);
 }
 
 function isValidUrl(u) {
