@@ -1,3 +1,38 @@
+// Toolverse YouTube download backend — YoutubeExplode method (no yt-dlp).
+//
+// How it works (traced from Tyrrrz/YoutubeExplode):
+//   1. visitorData is fetched from youtube.com/sw.js_data (Android UA).
+//   2. Player response comes from youtubei/v1/player, client VISIONOS first,
+//      ANDROID as fallback, TVHTML5_SIMPLY_EMBEDDED_PLAYER when a signature
+//      timestamp is known (age-gated videos; stream URLs then need signature
+//      deciphering, which YoutubeExplode does internally).
+//   3. Stream URLs come from the player response's streamingData. If the
+//      player call itself fails (the datacenter-IP bot block), no streams
+//      exist at all — no downloader library can work around that from a
+//      blocked IP; only a different IP or a paid API changes the outcome.
+//
+// API (kept compatible with yt-backend so the frontend only changes URL):
+//   GET  /                            -> health check
+//   POST /api/info   {url}            -> { title, thumbnail, duration,
+//                                         uploader, isLive, resources[],
+//                                         qualities[], hasAudio, cookies }
+//        resources[]: { id, quality, ext, size, sizeLabel, hasAudio, fps,
+//                       audioOnly? }  — video ids are "v<height>" (e.g.
+//                       "v720"), the audio resource id is "audio".
+//   GET  /api/download?url=&format_id=&quality=&audio=0|1
+//          [&audio_format=mp3]        -> the file (attachment)
+//
+// Env:
+//   PORT        listen port (default 3000; Render injects its own)
+//   API_KEY     when set, /api/* requires x-api-key header or ?api_key=
+//   CORS_ORIGIN comma-separated allowed origins (default: *)
+//   TMPDIR      temp dir for in-progress downloads (default system temp)
+//   MAX_MINUTES max download time per request (default 10)
+//   CACHE_MIN   info/manifest cache TTL in minutes (default 10)
+//   FFMPEG_PATH path to ffmpeg (default "ffmpeg" from PATH)
+//   COOKIES_B64 optional Netscape-format cookies, base64 (same idea as
+//               yt-backend; never commit cookie files to a public repo)
+
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
@@ -328,7 +363,7 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
             cookies = hasCookies,
         });
     }
-    catch (Exception ex) when (ex is YoutubeExplodeException or OperationCanceledException or ArgumentException or FormatException)
+    catch (Exception ex) when (ex is YoutubeExplodeException or OperationCanceledException or ArgumentException or FormatException or HttpRequestException or IOException)
     {
         return Results.Json(new
         {
@@ -438,7 +473,7 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             65536, FileOptions.DeleteOnClose);
         return Results.File(vStream, "application/octet-stream", $"{title}.mp4");
     }
-    catch (Exception ex) when (ex is YoutubeExplodeException or OperationCanceledException or ArgumentException or FormatException)
+    catch (Exception ex) when (ex is YoutubeExplodeException or OperationCanceledException or ArgumentException or FormatException or HttpRequestException or IOException)
     {
         return Results.Json(new
         {
