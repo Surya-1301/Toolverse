@@ -154,13 +154,23 @@ static List<Cookie> ParseVisitorCookies(string? input)
             continue;
         try
         {
-            var domain = parts[0].TrimStart('.');
-            cookies.Add(new Cookie(parts[5].Trim(), parts[6].Trim())
+            var rawDomain = parts[0].Trim();
+            var name = parts[5].Trim();
+            var val = parts[6].Trim();
+            var path = parts[2].Trim();
+            var isSecure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase);
+
+            try
             {
-                Domain = domain,
-                Path = parts[2].Trim(),
-                Secure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase),
-            });
+                cookies.Add(new Cookie(name, val, path, ".youtube.com") { Secure = isSecure });
+            }
+            catch { }
+
+            try
+            {
+                cookies.Add(new Cookie(name, val, path, "www.youtube.com") { Secure = isSecure });
+            }
+            catch { }
         }
         catch { /* skip malformed cookie lines */ }
     }
@@ -197,7 +207,8 @@ async Task<string> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<C
     using var req = new HttpRequestMessage(HttpMethod.Get, "https://www.youtube.com/sw.js_data");
     req.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
     req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
-    AddVisitorAuth(req, cookies);
+    if (cookies.Count > 0)
+        req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
     using var res = await rawHttp.SendAsync(req, ct);
     res.EnsureSuccessStatusCode();
     var json = await res.Content.ReadAsStringAsync(ct);
@@ -216,9 +227,31 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     // appends to youtubei requests; it is embedded in YouTube's own pages).
     const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
-    var clients = new[]
+
+    var clients = new List<(string Name, string UA, Dictionary<string, object?> Context, bool UseWebAuth)>();
+
+    // 1. If cookies are present, try WEB client first (native home of browser cookies + SAPISIDHASH)
+    if (cookies.Count > 0)
     {
-        // VISIONOS (primary in YoutubeExplode)
+        clients.Add((
+            "WEB",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+            new Dictionary<string, object?>
+            {
+                ["clientName"] = "WEB",
+                ["clientVersion"] = "2.20241021.01.00",
+                ["hl"] = "en",
+                ["gl"] = "US",
+                ["visitorData"] = visitorData,
+            },
+            true
+        ));
+    }
+
+    // 2. VISIONOS
+    clients.Add((
+        "VISIONOS",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
         new Dictionary<string, object?>
         {
             ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
@@ -226,29 +259,49 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
-        // ANDROID (YoutubeExplode's fallback)
+        false
+    ));
+
+    // 3. ANDROID
+    clients.Add((
+        "ANDROID",
+        "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
         new Dictionary<string, object?>
         {
             ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
             ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
-    };
+        false
+    ));
+
     string lastError = "unknown player error";
-    foreach (var client in clients)
+    foreach (var (clientName, userAgent, clientContext, useWebAuth) in clients)
     {
         var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
         {
             ["videoId"] = videoId,
             ["contentCheckOk"] = true,
             ["racyCheckOk"] = true,
-            ["context"] = new Dictionary<string, object?> { ["client"] = client },
+            ["context"] = new Dictionary<string, object?> { ["client"] = clientContext },
         });
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        req.Headers.Add("User-Agent", "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip");
-        AddVisitorAuth(req, cookies);
+        req.Headers.Add("User-Agent", userAgent);
+
+        if (useWebAuth)
+        {
+            req.Headers.Add("Referer", $"https://www.youtube.com/watch?v={videoId}");
+            req.Headers.Add("X-YouTube-Client-Name", "1");
+            req.Headers.Add("X-YouTube-Client-Version", "2.20241021.01.00");
+            AddVisitorAuth(req, cookies);
+        }
+        else if (cookies.Count > 0)
+        {
+            req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+        }
+
         using var res = await rawHttp.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode)
         {
@@ -356,7 +409,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             lastError = "player OK but no direct-URL streams";
             continue;
         }
-        var clientUsed = client["clientName"]?.ToString() ?? "?";
+        var clientUsed = clientName;
         return (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, clientUsed);
     }
     throw new YoutubeExplodeException($"Video is not playable via the player API: {lastError}");
