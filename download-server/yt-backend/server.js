@@ -183,33 +183,28 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
-      // With cookies: try web clients first, then auto, then embedded TV
       const attempts = [
         ["--extractor-args", "youtube:player-client=web,web_safari"],
         [],
-        ["--extractor-args", "youtube:player-client=tv_simply,web_embedded"],
       ];
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], 65000, customCookiesPath);
+          return await runYtDlp([...extra, ...args], 20000, customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
       }
       throw lastErr;
     } else {
-      // Anonymous request from datacenter IP:
-      // Try TV simply / embedded / mobile clients that bypass datacenter bot-checks
       const attempts = [
         ["--extractor-args", "youtube:player-client=tv_simply,web_embedded,ios"],
-        ["--extractor-args", "youtube:player-client=android,ios"],
         [],
       ];
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], 45000, customCookiesPath);
+          return await runYtDlp([...extra, ...args], 15000, customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
@@ -353,6 +348,7 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
           "Accept": "application/json",
           ...(cookieHeader ? { Cookie: cookieHeader } : {}),
         },
+        signal: AbortSignal.timeout(5000),
       });
       if (swRes.ok) {
         let swText = await swRes.text();
@@ -382,6 +378,16 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
         ...(visitorData ? { visitorData } : {}),
         hl: "en",
       },
+      {
+        clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+        clientVersion: "2.0",
+        hl: "en",
+      },
+      {
+        clientName: "WEB_EMBEDDED_PLAYER",
+        clientVersion: "1.20240101.01.00",
+        hl: "en",
+      },
     ];
 
     for (const client of clients) {
@@ -390,22 +396,28 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
         ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       };
 
-      const playerRes = await fetch(
-        "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
-        {
-          method: "POST",
-          headers,
-          body: JSON.stringify({
-            videoId,
-            contentCheckOk: true,
-            racyCheckOk: true,
-            context: { client },
-          }),
-        },
-      );
-      if (!playerRes.ok) continue;
-      const pJson = await playerRes.json();
-      const status = pJson.playabilityStatus?.status;
+      let pJson = null;
+      try {
+        const playerRes = await fetch(
+          "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
+          {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              videoId,
+              contentCheckOk: true,
+              racyCheckOk: true,
+              context: { client },
+            }),
+            signal: AbortSignal.timeout(6000),
+          },
+        );
+        if (!playerRes.ok) continue;
+        pJson = await playerRes.json();
+      } catch {
+        continue;
+      }
+      const status = pJson?.playabilityStatus?.status;
       if (status !== "OK") continue;
 
       const details = pJson.videoDetails || {};
@@ -571,12 +583,116 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.2.0",
+    version: "2.2.1",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
+});
+
+app.get("/api/debug-innertube", async (req, res) => {
+  const videoId = req.query.id || "enY83Li8_ps";
+  const debug = { videoId, steps: [] };
+  try {
+    let visitorData = null;
+    try {
+      const swRes = await fetch("https://www.youtube.com/sw.js_data", {
+        headers: {
+          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+          "Accept": "application/json",
+        },
+        signal: AbortSignal.timeout(5000),
+      });
+      debug.steps.push({ step: "sw.js_data", status: swRes.status });
+      let swText = await swRes.text();
+      if (swText.startsWith(")]}'")) swText = swText.slice(4);
+      const swData = JSON.parse(swText);
+      visitorData = swData?.[0]?.[2]?.[0]?.[0]?.[13];
+    } catch (e) {
+      debug.steps.push({ step: "sw_err", msg: e.message });
+    }
+    debug.visitorData = visitorData ? visitorData.slice(0, 20) + "..." : null;
+
+    const testClients = [
+      {
+        name: "VISIONOS",
+        client: {
+          clientName: "VISIONOS",
+          clientVersion: "1.02",
+          deviceMake: "Apple",
+          deviceModel: "RealityDevice17,1",
+          osName: "visionOS",
+          osVersion: "26.5.23O471",
+          ...(visitorData ? { visitorData } : {}),
+          hl: "en",
+        },
+      },
+      {
+        name: "ANDROID",
+        client: {
+          clientName: "ANDROID",
+          clientVersion: "21.26.364",
+          androidSdkVersion: 30,
+          osName: "Android",
+          osVersion: "11",
+          ...(visitorData ? { visitorData } : {}),
+          hl: "en",
+        },
+      },
+      {
+        name: "TVHTML5",
+        client: {
+          clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+          clientVersion: "2.0",
+          hl: "en",
+        },
+      },
+      {
+        name: "WEB_EMBEDDED",
+        client: {
+          clientName: "WEB_EMBEDDED_PLAYER",
+          clientVersion: "1.20240101.01.00",
+          hl: "en",
+        },
+      },
+    ];
+
+    for (const c of testClients) {
+      try {
+        const pRes = await fetch(
+          "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              videoId,
+              contentCheckOk: true,
+              racyCheckOk: true,
+              context: { client: c.client },
+            }),
+            signal: AbortSignal.timeout(6000),
+          },
+        );
+        const pJson = await pRes.json();
+        const fmts = [...(pJson.streamingData?.formats || []), ...(pJson.streamingData?.adaptiveFormats || [])];
+        debug.steps.push({
+          client: c.name,
+          httpStatus: pRes.status,
+          playability: pJson.playabilityStatus?.status,
+          reason: pJson.playabilityStatus?.reason,
+          subreason: pJson.playabilityStatus?.errorScreen?.playerErrorMessageRenderer?.subreason?.simpleText,
+          totalFormats: fmts.length,
+          directUrls: fmts.filter((f) => f.url).length,
+        });
+      } catch (err) {
+        debug.steps.push({ client: c.name, error: err.message });
+      }
+    }
+  } catch (outer) {
+    debug.error = outer.message;
+  }
+  res.json(debug);
 });
 
 // Video metadata + full resource table.
