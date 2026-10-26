@@ -7,6 +7,10 @@ const fsp = fs.promises;
 const path = require("path");
 const crypto = require("crypto");
 const os = require("os");
+const dns = require("dns");
+if (dns.setDefaultResultOrder) {
+  dns.setDefaultResultOrder("ipv4first");
+}
 
 const app = express();
 app.disable("x-powered-by");
@@ -337,6 +341,16 @@ function netscapeToCookieHeader(text) {
   return pairs.length ? pairs.join("; ") : null;
 }
 
+function getSapisidHash(cookieHeader, origin = "https://www.youtube.com") {
+  if (!cookieHeader || typeof cookieHeader !== "string") return null;
+  const match = cookieHeader.match(/(?:^|;\s*)(?:__Secure-3PAPISID|SAPISID)=([^;]+)/);
+  if (!match) return null;
+  const sapisid = match[1].trim();
+  const ts = Math.floor(Date.now() / 1000);
+  const hash = crypto.createHash("sha1").update(`${ts} ${sapisid} ${origin}`).digest("hex");
+  return `SAPISIDHASH ${ts}_${hash}`;
+}
+
 // ---- YouTube Direct / Innertube Fallback (bypasses datacenter HTML bot wall) ----
 async function fetchYouTubeDirect(videoId, cookieHeader = null) {
   try {
@@ -391,9 +405,14 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
     ];
 
     for (const client of clients) {
+      const sapisidHash = getSapisidHash(cookieHeader);
       const headers = {
         "Content-Type": "application/json",
+        "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+        "Origin": "https://www.youtube.com",
+        "Referer": "https://www.youtube.com/",
         ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+        ...(sapisidHash ? { Authorization: sapisidHash } : {}),
       };
 
       let pJson = null;
@@ -583,7 +602,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.2.1",
+    version: "2.2.2",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -595,6 +614,15 @@ app.get("/api/debug-innertube", async (req, res) => {
   const videoId = req.query.id || "enY83Li8_ps";
   const debug = { videoId, steps: [] };
   try {
+    try {
+      const dnsAddresses = await new Promise((r) =>
+        dns.lookup("www.youtube.com", { all: true }, (err, addrs) => r(addrs || err?.message)),
+      );
+      debug.dns = dnsAddresses;
+    } catch (e) {
+      debug.dns_err = e.message;
+    }
+
     let visitorData = null;
     try {
       const swRes = await fetch("https://www.youtube.com/sw.js_data", {
@@ -664,7 +692,12 @@ app.get("/api/debug-innertube", async (req, res) => {
           "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+              "Origin": "https://www.youtube.com",
+              "Referer": "https://www.youtube.com/",
+            },
             body: JSON.stringify({
               videoId,
               contentCheckOk: true,
