@@ -48,9 +48,12 @@ function innertubePost(payload, headers = {}) {
         headers: {
           "Content-Type": "application/json",
           "Content-Length": Buffer.byteLength(data),
-          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
           "Origin": "https://www.youtube.com",
           "Referer": "https://www.youtube.com/",
+          "X-YouTube-Client-Name": "1",
+          "X-YouTube-Client-Version": "2.20241021.01.00",
           ...headers,
         },
         timeout: 7000,
@@ -432,14 +435,11 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 
     const clients = [
       {
-        clientName: "VISIONOS",
-        clientVersion: "1.02",
-        deviceMake: "Apple",
-        deviceModel: "RealityDevice17,1",
-        osName: "visionOS",
-        osVersion: "26.5.23O471",
-        ...(visitorData ? { visitorData } : {}),
+        clientName: "WEB",
+        clientVersion: "2.20241021.01.00",
         hl: "en",
+        gl: "US",
+        ...(visitorData ? { visitorData } : {}),
       },
       {
         clientName: "ANDROID",
@@ -453,6 +453,16 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
       {
         clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
         clientVersion: "2.0",
+        hl: "en",
+      },
+      {
+        clientName: "VISIONOS",
+        clientVersion: "1.02",
+        deviceMake: "Apple",
+        deviceModel: "RealityDevice17,1",
+        osName: "visionOS",
+        osVersion: "26.5.23O471",
+        ...(visitorData ? { visitorData } : {}),
         hl: "en",
       },
       {
@@ -650,7 +660,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.2.3",
+    version: "2.2.4",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -658,9 +668,12 @@ app.get(["/", "/health"], (req, res) => {
   });
 });
 
-app.get("/api/debug-innertube", async (req, res) => {
-  const videoId = req.query.id || "enY83Li8_ps";
-  const debug = { videoId, steps: [] };
+app.all(["/api/debug-innertube"], async (req, res) => {
+  const videoId = req.query.id || req.body?.videoId || "enY83Li8_ps";
+  const rawCookies = req.query.cookies || req.body?.cookies || null;
+  const cookieHeader = rawCookies ? netscapeToCookieHeader(rawCookies) : null;
+  const sapisidHash = getSapisidHash(cookieHeader);
+  const debug = { videoId, hasCookies: !!cookieHeader, hasSapisidHash: !!sapisidHash, steps: [] };
   try {
     try {
       const dnsAddresses = await new Promise((r) =>
@@ -673,7 +686,10 @@ app.get("/api/debug-innertube", async (req, res) => {
 
     let visitorData = null;
     try {
-      const swRes = await httpsGet("https://www.youtube.com/sw.js_data");
+      const swRes = await httpsGet(
+        "https://www.youtube.com/sw.js_data",
+        cookieHeader ? { Cookie: cookieHeader } : {},
+      );
       debug.steps.push({ step: "sw.js_data", status: swRes.status });
       let swText = swRes.text;
       if (swText.startsWith(")]}'")) swText = swText.slice(4);
@@ -686,16 +702,13 @@ app.get("/api/debug-innertube", async (req, res) => {
 
     const testClients = [
       {
-        name: "VISIONOS",
+        name: "WEB",
         client: {
-          clientName: "VISIONOS",
-          clientVersion: "1.02",
-          deviceMake: "Apple",
-          deviceModel: "RealityDevice17,1",
-          osName: "visionOS",
-          osVersion: "26.5.23O471",
-          ...(visitorData ? { visitorData } : {}),
+          clientName: "WEB",
+          clientVersion: "2.20241021.01.00",
           hl: "en",
+          gl: "US",
+          ...(visitorData ? { visitorData } : {}),
         },
       },
       {
@@ -719,10 +732,15 @@ app.get("/api/debug-innertube", async (req, res) => {
         },
       },
       {
-        name: "WEB_EMBEDDED",
+        name: "VISIONOS",
         client: {
-          clientName: "WEB_EMBEDDED_PLAYER",
-          clientVersion: "1.20240101.01.00",
+          clientName: "VISIONOS",
+          clientVersion: "1.02",
+          deviceMake: "Apple",
+          deviceModel: "RealityDevice17,1",
+          osName: "visionOS",
+          osVersion: "26.5.23O471",
+          ...(visitorData ? { visitorData } : {}),
           hl: "en",
         },
       },
@@ -730,12 +748,19 @@ app.get("/api/debug-innertube", async (req, res) => {
 
     for (const c of testClients) {
       try {
-        const res = await innertubePost({
-          videoId,
-          contentCheckOk: true,
-          racyCheckOk: true,
-          context: { client: c.client },
-        });
+        const extraHeaders = {
+          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+          ...(sapisidHash ? { Authorization: sapisidHash } : {}),
+        };
+        const res = await innertubePost(
+          {
+            videoId,
+            contentCheckOk: true,
+            racyCheckOk: true,
+            context: { client: c.client },
+          },
+          extraHeaders,
+        );
         const pJson = res.data || {};
         const fmts = [...(pJson.streamingData?.formats || []), ...(pJson.streamingData?.adaptiveFormats || [])];
         debug.steps.push({
