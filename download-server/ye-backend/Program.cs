@@ -226,7 +226,46 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
 
     var clients = new List<(string Name, string UA, Dictionary<string, object?> Context, bool UseWebAuth, bool SendCookies)>();
 
-    // 1. If cookies are present, try WEB client first with proper visitor authorization
+    // 1. ANDROID with cookies (verified to return status: OK with direct stream itag 18)
+    if (cookies.Count > 0)
+    {
+        var androidAuthCtx = new Dictionary<string, object?>
+        {
+            ["clientName"] = "ANDROID",
+            ["clientVersion"] = "21.26.364",
+            ["androidSdkVersion"] = 30,
+            ["osName"] = "Android",
+            ["osVersion"] = "11",
+            ["hl"] = "en",
+        };
+        clients.Add((
+            "ANDROID_AUTH",
+            "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
+            androidAuthCtx,
+            false,
+            true
+        ));
+    }
+
+    // 2. ANDROID clean (unauthenticated mobile client)
+    var androidCtx = new Dictionary<string, object?>
+    {
+        ["clientName"] = "ANDROID",
+        ["clientVersion"] = "21.26.364",
+        ["androidSdkVersion"] = 30,
+        ["osName"] = "Android",
+        ["osVersion"] = "11",
+        ["hl"] = "en",
+    };
+    clients.Add((
+        "ANDROID",
+        "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
+        androidCtx,
+        false,
+        false
+    ));
+
+    // 3. WEB (if cookies present, try WEB client with proper visitor authorization)
     if (cookies.Count > 0)
     {
         var webCtx = new Dictionary<string, object?>
@@ -234,7 +273,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["clientName"] = "WEB",
             ["clientVersion"] = "2.20241021.01.00",
             ["hl"] = "en",
-            ["gl"] = "US",
         };
 
         clients.Add((
@@ -246,26 +284,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         ));
     }
 
-    // 2. ANDROID (Clean mobile client - works without web botguard and returns itag 18 direct stream)
-    var androidCtx = new Dictionary<string, object?>
-    {
-        ["clientName"] = "ANDROID",
-        ["clientVersion"] = "21.26.364",
-        ["androidSdkVersion"] = 30,
-        ["osName"] = "Android",
-        ["osVersion"] = "11",
-        ["hl"] = "en",
-        ["gl"] = "US",
-    };
-    clients.Add((
-        "ANDROID",
-        "com.google.android.youtube/21.26.364 (Linux; U; Android 11; en_US; Pixel 7 Build/RQ3A.211001.001) gzip",
-        androidCtx,
-        false,
-        false
-    ));
-
-    // 3. IOS (yt-dlp modern iOS client context)
+    // 4. IOS (yt-dlp modern iOS client context)
     var iosCtx = new Dictionary<string, object?>
     {
         ["clientName"] = "IOS",
@@ -275,7 +294,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         ["osName"] = "iOS",
         ["osVersion"] = "18.3.2.22D82",
         ["hl"] = "en",
-        ["gl"] = "US",
     };
     clients.Add((
         "IOS",
@@ -285,7 +303,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         false
     ));
 
-    // 4. VISIONOS (fallback)
+    // 5. VISIONOS (fallback)
     var visionCtx = new Dictionary<string, object?>
     {
         ["clientName"] = "VISIONOS",
@@ -295,7 +313,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         ["osName"] = "visionOS",
         ["osVersion"] = "26.5.23O471",
         ["hl"] = "en",
-        ["gl"] = "US",
     };
     clients.Add((
         "VISIONOS",
@@ -605,7 +622,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-yt-backend",
-    version = "2026.10.26.6",
+    version = "2026.10.26.7",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     // Build marker: true only on the visitor-cookies build. Open the
