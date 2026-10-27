@@ -593,23 +593,18 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            try
-            {
-                var dl = activeCookies.Count > 0 ? new YoutubeClient(activeCookies) : new YoutubeClient();
-                await dl.Videos.Streams.DownloadAsync(videoStream, outVideo, null, token);
-            }
-            catch (Exception dlEx)
-            {
-                Console.WriteLine($"[download] dlClient failed ({dlEx.GetType().Name}: {dlEx.Message}); falling back to rawHttp");
-                using var dlReq = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
-                dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-                if (activeCookies.Count > 0)
-                    dlReq.Headers.Add("Cookie", string.Join("; ", activeCookies.Select(c => $"{c.Name}={c.Value}")));
-                using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, token);
-                dlRes.EnsureSuccessStatusCode();
-                await using var fs = new FileStream(outVideo, FileMode.Create, FileAccess.Write, FileShare.None);
-                await dlRes.Content.CopyToAsync(fs, token);
-            }
+            using var dlReq = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
+            dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+            dlReq.Headers.Add("Referer", "https://www.youtube.com/");
+            dlReq.Headers.Add("Origin", "https://www.youtube.com");
+            dlReq.Headers.Add("Range", "bytes=0-");
+            if (activeCookies.Count > 0)
+                dlReq.Headers.Add("Cookie", string.Join("; ", activeCookies.Select(c => $"{c.Name}={c.Value}")));
+
+            using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, token);
+            dlRes.EnsureSuccessStatusCode();
+            await using var fs = new FileStream(outVideo, FileMode.Create, FileAccess.Write, FileShare.None);
+            await dlRes.Content.CopyToAsync(fs, token);
         }
         else
         {
