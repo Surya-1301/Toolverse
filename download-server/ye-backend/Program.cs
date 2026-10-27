@@ -180,8 +180,8 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         // ANDROID (unciphered direct streaming URLs without N-challenge)
         new Dictionary<string, object?>
         {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
-            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+            ["clientName"] = "ANDROID", ["clientVersion"] = "20.10.38",
+            ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
         // IOS (Apple iPhone — provides unciphered adaptive formats)
@@ -192,7 +192,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "iOS", ["osVersion"] = "17.5.1.21F90",
             ["hl"] = "en",
         },
-        // VISIONOS (primary in YoutubeExplode — provides unciphered 1080p/720p/480p/audio)
+        // VISIONOS
         new Dictionary<string, object?>
         {
             ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
@@ -200,11 +200,11 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
             ["hl"] = "en",
         },
-        // TVHTML5
+        // WEB
         new Dictionary<string, object?>
         {
-            ["clientName"] = "TVHTML5_SIMPLY_EMBEDDED_PLAYER", ["clientVersion"] = "2.0",
-            ["hl"] = "en",
+            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
+            ["visitorData"] = visitorData, ["hl"] = "en",
         },
     };
     string lastError = "unknown player error";
@@ -221,8 +221,16 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        if (client.TryGetValue("clientName", out var cn) && (cn is "WEB" or "TVHTML5_SIMPLY_EMBEDDED_PLAYER"))
-            AddVisitorAuth(req, cookies);
+        if (client.TryGetValue("clientName", out var cn))
+        {
+            if (cn is "ANDROID")
+                req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
+            else
+                req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+
+            if (cn is "WEB" or "TVHTML5_SIMPLY_EMBEDDED_PLAYER")
+                AddVisitorAuth(req, cookies);
+        }
         using var res = await rawHttp.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode)
         {
@@ -327,8 +335,8 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         if (bestCandidate == null || (videoInfos.Count + audioInfos.Count) > (bestCandidate.Value.Video.Count + bestCandidate.Value.Audio.Count))
         {
             bestCandidate = candidate;
-            // If we found multiple video streams and audio streams, we have rich formats!
-            if (videoInfos.Count >= 3 && audioInfos.Count >= 1)
+            // Stop at first client that yields direct unthrottled streams (avoids falling through to N-ciphered WEB)!
+            if (videoInfos.Count > 0 || audioInfos.Count > 0)
                 break;
         }
     }
@@ -448,7 +456,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.2-android-direct",
+    version = "2.3-android-gzip",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
@@ -561,7 +569,10 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
 async Task DownloadMediaStreamAsync(string streamUrl, string destinationPath, IReadOnlyList<Cookie> cookies, CancellationToken ct)
 {
     using var dlReq = new HttpRequestMessage(HttpMethod.Get, streamUrl);
-    dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+    var ua = streamUrl.Contains("c=ANDROID", StringComparison.OrdinalIgnoreCase)
+        ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
+        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+    dlReq.Headers.Add("User-Agent", ua);
 
     using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, ct);
     dlRes.EnsureSuccessStatusCode();
