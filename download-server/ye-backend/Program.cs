@@ -642,17 +642,39 @@ app.MapGet("/api/debug-stream", async (HttpContext ctx, CancellationToken ct) =>
     var data = await GetVideoDataAsync(url, ct, null, bypassCache: true);
     var v = data.Video.FirstOrDefault();
     if (v == null) return Results.Json(new { error = "no video" });
-    using var req = new HttpRequestMessage(HttpMethod.Get, v.Url);
-    req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-    req.Headers.Add("Range", "bytes=0-100");
-    using var res = await rawHttp.SendAsync(req, ct);
-    var body = await res.Content.ReadAsStringAsync(ct);
+
+    using var req1 = new HttpRequestMessage(HttpMethod.Get, v.Url);
+    req1.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+    req1.Headers.Add("Referer", "https://www.youtube.com/");
+    req1.Headers.Add("Origin", "https://www.youtube.com");
+    req1.Headers.Add("Range", "bytes=0-100");
+    if (serverCookies.Count > 0)
+        req1.Headers.Add("Cookie", string.Join("; ", serverCookies.Select(c => $"{c.Name}={c.Value}")));
+    using var res1 = await rawHttp.SendAsync(req1, ct);
+    var body1 = await res1.Content.ReadAsStringAsync(ct);
+
+    int yeStatus = 0;
+    string yeErr = "";
+    try
+    {
+        var ye = new YoutubeClient();
+        using var stream = await ye.Videos.Streams.GetAsync(v, ct);
+        byte[] buf = new byte[100];
+        var read = await stream.ReadAsync(buf, ct);
+        yeStatus = read > 0 ? 200 : 204;
+    }
+    catch (Exception ex)
+    {
+        yeErr = $"{ex.GetType().Name}: {ex.Message}";
+    }
+
     return Results.Json(new
     {
         url = v.Url[..Math.Min(120, v.Url.Length)],
-        statusCode = (int)res.StatusCode,
-        headers = res.Headers.Select(h => $"{h.Key}: {string.Join(",", h.Value)}").ToArray(),
-        bodyPreview = body[..Math.Min(200, body.Length)]
+        rawHttpWithCookies = (int)res1.StatusCode,
+        rawHttpBody = body1[..Math.Min(200, body1.Length)],
+        yeStatus,
+        yeErr
     });
 });
 
