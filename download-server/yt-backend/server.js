@@ -691,7 +691,7 @@ app.get(["/", "/health"], (req, res) => {
 });
 
 app.get("/api/debug-player", async (req, res) => {
-  const videoId = String(req.query.v || "enY83Li8_ps").trim();
+  const videoId = String(req.query.v || "Ph9WRhlPacY").trim();
   const activeCookieHeader = SERVER_COOKIE_HEADER;
   const sapisidHash = getSapisidHash(activeCookieHeader);
 
@@ -714,47 +714,51 @@ app.get("/api/debug-player", async (req, res) => {
   }
 
   const clients = [
-    { clientName: "VISIONOS", clientVersion: "1.02", deviceMake: "Apple", deviceModel: "RealityDevice17,1", osName: "visionOS", osVersion: "26.5.23O471", ...(visitorData ? { visitorData } : {}), hl: "en" },
-    { clientName: "ANDROID", clientVersion: "21.26.364", androidSdkVersion: 30, osName: "Android", osVersion: "11", ...(visitorData ? { visitorData } : {}), hl: "en" },
-    { clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER", clientVersion: "2.0", hl: "en" },
     { clientName: "WEB", clientVersion: "2.20241021.01.00", hl: "en", gl: "US", ...(visitorData ? { visitorData } : {}) },
+    { clientName: "ANDROID", clientVersion: "21.26.364", androidSdkVersion: 30, osName: "Android", osVersion: "11", ...(visitorData ? { visitorData } : {}), hl: "en" },
+    { clientName: "VISIONOS", clientVersion: "1.02", deviceMake: "Apple", deviceModel: "RealityDevice17,1", osName: "visionOS", osVersion: "26.5.23O471", ...(visitorData ? { visitorData } : {}), hl: "en" },
+    { clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER", clientVersion: "2.0", hl: "en" },
   ];
 
   const results = [];
   for (const client of clients) {
-    const extraHeaders = {
-      ...(activeCookieHeader ? { Cookie: activeCookieHeader } : {}),
-      ...(sapisidHash ? { Authorization: sapisidHash } : {}),
-    };
-    if (client.clientName === "WEB") {
-      extraHeaders["Origin"] = "https://www.youtube.com";
-      extraHeaders["Referer"] = "https://www.youtube.com/";
-      extraHeaders["X-YouTube-Client-Name"] = "1";
-      extraHeaders["X-YouTube-Client-Version"] = "2.20241021.01.00";
-    }
+    for (const withAuth of [true, false]) {
+      const extraHeaders = {
+        ...(activeCookieHeader ? { Cookie: activeCookieHeader } : {}),
+        ...(withAuth && sapisidHash ? { Authorization: sapisidHash } : {}),
+        "Origin": "https://www.youtube.com",
+        "Referer": "https://www.youtube.com/",
+      };
+      if (client.clientName === "WEB") {
+        extraHeaders["X-YouTube-Client-Name"] = "1";
+        extraHeaders["X-YouTube-Client-Version"] = "2.20241021.01.00";
+      }
 
-    try {
-      const resp = await innertubePost(
-        { videoId, contentCheckOk: true, racyCheckOk: true, context: { client } },
-        extraHeaders,
-      );
-      const ps = resp.data?.playabilityStatus;
-      const sd = resp.data?.streamingData;
-      const allFormats = [...(sd?.formats || []), ...(sd?.adaptiveFormats || [])];
-      results.push({
-        client: client.clientName,
-        httpStatus: resp.status,
-        playability: ps?.status || null,
-        reason: ps?.reason || null,
-        formatsCount: allFormats.length,
-        directUrlsCount: allFormats.filter((f) => f.url).length,
-        cipherUrlsCount: allFormats.filter((f) => f.signatureCipher || f.cipher).length,
-      });
-    } catch (err) {
-      results.push({
-        client: client.clientName,
-        error: err.message,
-      });
+      try {
+        const resp = await innertubePost(
+          { videoId, contentCheckOk: true, racyCheckOk: true, context: { client } },
+          extraHeaders,
+        );
+        const ps = resp.data?.playabilityStatus;
+        const sd = resp.data?.streamingData;
+        const allFormats = [...(sd?.formats || []), ...(sd?.adaptiveFormats || [])];
+        results.push({
+          client: client.clientName,
+          withAuth,
+          httpStatus: resp.status,
+          playability: ps?.status || null,
+          reason: ps?.reason || null,
+          formatsCount: allFormats.length,
+          directUrlsCount: allFormats.filter((f) => f.url).length,
+          rawError: resp.status !== 200 ? (resp.data || resp.text) : null,
+        });
+      } catch (err) {
+        results.push({
+          client: client.clientName,
+          withAuth,
+          error: err.message,
+        });
+      }
     }
   }
 
@@ -768,6 +772,49 @@ app.get("/api/debug-player", async (req, res) => {
     hasVisitorData: !!visitorData,
     results,
   });
+});
+
+app.get("/api/debug-ytdlp", async (req, res) => {
+  const videoId = String(req.query.v || "Ph9WRhlPacY").trim();
+  const testUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  const startTime = Date.now();
+  try {
+    const fullArgs = [
+      "--verbose",
+      "--force-ipv4",
+      ...(HAS_COOKIES ? ["--cookies", COOKIES_PATH] : []),
+      "--geo-bypass",
+      "--no-check-certificates",
+      "--socket-timeout",
+      "8",
+      "--dump-json",
+      "--no-playlist",
+      testUrl,
+    ];
+    const proc = spawn("yt-dlp", fullArgs, { timeout: 12000 });
+    let stdout = "";
+    let stderr = "";
+    proc.stdout.on("data", (d) => { stdout += d; });
+    proc.stderr.on("data", (d) => { stderr += d; });
+    proc.on("close", (code, signal) => {
+      res.json({
+        durationMs: Date.now() - startTime,
+        exitCode: code,
+        signal,
+        stdoutLength: stdout.length,
+        stderr: stderr.split("\n").filter(Boolean),
+      });
+    });
+    proc.on("error", (err) => {
+      res.json({
+        durationMs: Date.now() - startTime,
+        error: err.message,
+        stderr: stderr.split("\n").filter(Boolean),
+      });
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Video metadata + full resource table.
