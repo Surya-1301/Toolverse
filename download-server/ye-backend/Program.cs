@@ -183,12 +183,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
-        // WEB
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
     };
     string lastError = "unknown player error";
     (PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)? bestCandidate = null;
@@ -285,7 +279,10 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
                             codecs.Length > 0 ? codecs[0] : "",
                             new VideoQuality(h, PropInt(f, "fps", 30)), new Resolution(w, h)));
                     }
-                    catch { /* skip malformed format */ }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[muxed-format-err] {ex.GetType().Name}: {ex.Message}");
+                    }
                 }
             }
             if (sd.TryGetProperty("adaptiveFormats", out var afmts))
@@ -314,23 +311,21 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
                                 codecs.Length > 0 ? codecs[0] : "", null, null));
                         }
                     }
-                    catch { /* skip malformed format */ }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[adaptive-format-err] {ex.GetType().Name}: {ex.Message}");
+                    }
                 }
             }
         }
+        Console.WriteLine($"[player] cn={cn}, videoCount={videoInfos.Count}, audioCount={audioInfos.Count}");
         if (videoInfos.Count == 0 && audioInfos.Count == 0)
         {
             lastError = "player OK but no direct-URL streams";
             continue;
         }
-        var candidate = (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, cn);
-        if (bestCandidate == null || (videoInfos.Count + audioInfos.Count) > (bestCandidate.Value.Video.Count + bestCandidate.Value.Audio.Count))
-        {
-            bestCandidate = candidate;
-            // Stop early if candidate yields rich multiple video qualities and audio
-            if (videoInfos.Count >= 2 && audioInfos.Count > 0)
-                break;
-        }
+        bestCandidate = (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, cn);
+        break; // ANDROID unciphered streams are direct and unthrottled
     }
     if (bestCandidate != null)
         return bestCandidate.Value;
@@ -481,7 +476,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.8-resilient",
+    version = "2.9-android-direct",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
