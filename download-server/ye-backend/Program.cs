@@ -85,9 +85,7 @@ static List<Cookie> ParseVisitorCookies(string? input)
     }
     var allowedCookies = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
-        "SID", "HSID", "SSID", "APISID", "SAPISID", "LOGIN_INFO",
-        "__Secure-1PSID", "__Secure-3PSID", "__Secure-1PAPISID", "__Secure-3PAPISID",
-        "PREF", "YSC", "VISITOR_INFO1_LIVE", "VISITOR_PRIVACY_METADATA"
+        "SID", "HSID", "SSID", "APISID", "SAPISID", "LOGIN_INFO"
     };
 
     foreach (var line in text.Split('\n'))
@@ -108,11 +106,12 @@ static List<Cookie> ParseVisitorCookies(string? input)
             var domain = parts[0].Trim();
             if (!domain.StartsWith('.'))
                 domain = "." + domain;
-            cookies.Add(new Cookie(name, val)
+            var cleanVal = val.Trim('"');
+            cookies.Add(new Cookie(name, cleanVal)
             {
                 Domain = domain,
-                Path = parts[2].Trim(),
-                Secure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase),
+                Path = "/",
+                Secure = true,
             });
         }
         catch { /* skip malformed cookie lines */ }
@@ -456,7 +455,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.3-android-gzip",
+    version = "2.4-clean-cookies",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
@@ -573,6 +572,9 @@ async Task DownloadMediaStreamAsync(string streamUrl, string destinationPath, IR
         ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
         : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
     dlReq.Headers.Add("User-Agent", ua);
+    dlReq.Headers.Add("Referer", "https://www.youtube.com/");
+    if (cookies.Count > 0)
+        dlReq.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
 
     using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, ct);
     dlRes.EnsureSuccessStatusCode();
@@ -610,6 +612,7 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var id = Guid.NewGuid().ToString("N")[..12];
         var videoStreams = data.Video;
         var audioStreams = data.Audio;
+        var dlClient = activeCookies.Count > 0 ? new YoutubeClient(activeCookies) : new YoutubeClient();
 
         if (audioOnly)
         {
@@ -623,7 +626,10 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
 
             try
             {
-                await DownloadMediaStreamAsync(audio.Url, inPath, activeCookies, token);
+                if (data.Source == "youtubeExplode")
+                    await dlClient.Videos.Streams.DownloadAsync(audio, inPath, null, token);
+                else
+                    await DownloadMediaStreamAsync(audio.Url, inPath, activeCookies, token);
 
                 using var proc = new System.Diagnostics.Process();
                 proc.StartInfo.FileName = ffmpegPath;
@@ -721,7 +727,10 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            await DownloadMediaStreamAsync(videoStream.Url, outVideo, activeCookies, token);
+            if (data.Source == "youtubeExplode")
+                await dlClient.Videos.Streams.DownloadAsync(videoStream, outVideo, null, token);
+            else
+                await DownloadMediaStreamAsync(videoStream.Url, outVideo, activeCookies, token);
         }
         else
         {
@@ -732,10 +741,21 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
                 .FirstOrDefault();
             try
             {
-                await DownloadMediaStreamAsync(videoStream.Url, inVideo, activeCookies, token);
+                if (data.Source == "youtubeExplode")
+                {
+                    await dlClient.Videos.Streams.DownloadAsync(videoStream, inVideo, null, token);
+                    if (audio is not null)
+                        await dlClient.Videos.Streams.DownloadAsync(audio, inAudio, null, token);
+                }
+                else
+                {
+                    await DownloadMediaStreamAsync(videoStream.Url, inVideo, activeCookies, token);
+                    if (audio is not null)
+                        await DownloadMediaStreamAsync(audio.Url, inAudio, activeCookies, token);
+                }
+
                 if (audio is not null)
                 {
-                    await DownloadMediaStreamAsync(audio.Url, inAudio, activeCookies, token);
                     using var proc = new System.Diagnostics.Process();
                     proc.StartInfo.FileName = ffmpegPath;
                     proc.StartInfo.ArgumentList.Add("-y");
