@@ -82,22 +82,60 @@ const PORT = Number(process.env.PORT || 3000);
 const TMPDIR = process.env.TMPDIR || os.tmpdir();
 const MAX_MS = Number(process.env.MAX_MINUTES || 10) * 60 * 1000;
 const CACHE_MS = Number(process.env.CACHE_MIN || 10) * 60 * 1000;
+function netscapeToCookieHeader(text) {
+  if (!text || typeof text !== "string") return null;
+  const lines = text.split("\n");
+  const pairs = [];
+  for (const line of lines) {
+    const l = line.trim();
+    if (!l || l.startsWith("#")) continue;
+    const parts = l.split("\t");
+    if (parts.length >= 7) {
+      const name = parts[5].trim();
+      const val = parts[6].trim();
+      if (name) pairs.push(`${name}=${val}`);
+    } else if (l.includes("=")) {
+      pairs.push(l);
+    }
+  }
+  return pairs.length ? pairs.join("; ") : null;
+}
+
+function getSapisidHash(cookieHeader, origin = "https://www.youtube.com") {
+  if (!cookieHeader || typeof cookieHeader !== "string") return null;
+  const match = cookieHeader.match(/(?:^|;\s*)(?:__Secure-3PAPISID|SAPISID)=([^;]+)/);
+  if (!match) return null;
+  const sapisid = match[1].trim();
+  const ts = Math.floor(Date.now() / 1000);
+  const hash = crypto.createHash("sha1").update(`${ts} ${sapisid} ${origin}`).digest("hex");
+  return `SAPISIDHASH ${ts}_${hash}`;
+}
+
 const COOKIES_PATH = path.join(__dirname, "cookies.txt");
 
 // Cookies can also arrive via env var (base64) — the safe way on Render,
 // so the file never has to live in a public git repo.
-if (process.env.COOKIES_B64 && !fs.existsSync(COOKIES_PATH)) {
+if (process.env.COOKIES_B64) {
   try {
-    fs.writeFileSync(
-      COOKIES_PATH,
-      Buffer.from(process.env.COOKIES_B64, "base64"),
-      { mode: 0o600 },
-    );
+    const cleanB64 = process.env.COOKIES_B64.trim().replace(/^["']|["']$/g, "");
+    const decoded = Buffer.from(cleanB64, "base64");
+    fs.writeFileSync(COOKIES_PATH, decoded, { mode: 0o600 });
+    console.log(`[cookies] wrote ${decoded.length} bytes to ${COOKIES_PATH}`);
   } catch (e) {
-    console.error("Could not write COOKIES_B64:", String(e).slice(0, 120));
+    console.error("[cookies] could not write COOKIES_B64:", String(e).slice(0, 120));
   }
 }
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
+let SERVER_COOKIE_HEADER = null;
+if (HAS_COOKIES) {
+  try {
+    const raw = fs.readFileSync(COOKIES_PATH, "utf8");
+    SERVER_COOKIE_HEADER = netscapeToCookieHeader(raw);
+    console.log(`[cookies] server cookieHeader initialized (${SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0} chars)`);
+  } catch (e) {
+    console.error("[cookies] failed to parse server cookies:", e.message);
+  }
+}
 
 const API_KEY = process.env.API_KEY || "";
 const allowedOrigins = (process.env.CORS_ORIGIN || "*")
@@ -385,35 +423,6 @@ function getYouTubeVideoId(input) {
   return /^[A-Za-z0-9_-]{11}$/.test(s) ? s : null;
 }
 
-function netscapeToCookieHeader(text) {
-  if (!text || typeof text !== "string") return null;
-  const lines = text.split("\n");
-  const pairs = [];
-  for (const line of lines) {
-    const l = line.trim();
-    if (!l || l.startsWith("#")) continue;
-    const parts = l.split("\t");
-    if (parts.length >= 7) {
-      const name = parts[5].trim();
-      const val = parts[6].trim();
-      if (name) pairs.push(`${name}=${val}`);
-    } else if (l.includes("=")) {
-      pairs.push(l);
-    }
-  }
-  return pairs.length ? pairs.join("; ") : null;
-}
-
-function getSapisidHash(cookieHeader, origin = "https://www.youtube.com") {
-  if (!cookieHeader || typeof cookieHeader !== "string") return null;
-  const match = cookieHeader.match(/(?:^|;\s*)(?:__Secure-3PAPISID|SAPISID)=([^;]+)/);
-  if (!match) return null;
-  const sapisid = match[1].trim();
-  const ts = Math.floor(Date.now() / 1000);
-  const hash = crypto.createHash("sha1").update(`${ts} ${sapisid} ${origin}`).digest("hex");
-  return `SAPISIDHASH ${ts}_${hash}`;
-}
-
 // ---- YouTube Direct / Innertube Fallback (bypasses datacenter HTML bot wall) ----
 async function fetchYouTubeDirect(videoId, cookieHeader = null) {
   try {
@@ -661,13 +670,22 @@ async function fetchInstagramDirect(url) {
 
 // ---- routes ----
 app.get(["/", "/health"], (req, res) => {
+  let cookiesFileBytes = 0;
+  try {
+    if (fs.existsSync(COOKIES_PATH)) {
+      cookiesFileBytes = fs.statSync(COOKIES_PATH).size;
+    }
+  } catch {}
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.3.0",
+    version: "2.4.0",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
+    cookiesFileBytes,
+    hasServerCookieHeader: !!SERVER_COOKIE_HEADER,
+    cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
 });
@@ -711,10 +729,12 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     }
   }
 
+  const activeCookieHeader = cookieHeader || SERVER_COOKIE_HEADER;
+
   // Fast direct Innertube resolution for YouTube (bypasses datacenter IP HTML bot wall)
   const vid = getYouTubeVideoId(key);
   if (vid) {
-    const directYt = await fetchYouTubeDirect(vid, cookieHeader);
+    const directYt = await fetchYouTubeDirect(vid, activeCookieHeader);
     if (directYt) {
       if (!tempCookiePath) {
         parseCache.set(key, { data: directYt, expires: Date.now() + CACHE_MS });
@@ -849,7 +869,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   if (ytVid && (String(format_id || "").startsWith("ye_") || audioOnly || !format_id)) {
     let cached = parseCache.get(key)?.data;
     if (!cached || !cached.resources) {
-      cached = await fetchYouTubeDirect(ytVid, cookieHeader);
+      cached = await fetchYouTubeDirect(ytVid, cookieHeader || SERVER_COOKIE_HEADER);
     }
     const audioResource = cached?.resources?.find((r) => r.audioOnly);
     let targetResource = cached?.resources?.find((r) => r.id === format_id);
