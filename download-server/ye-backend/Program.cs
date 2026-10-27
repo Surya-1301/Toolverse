@@ -1,44 +1,3 @@
-// Toolverse YouTube download backend — YoutubeExplode method (no yt-dlp).
-//
-// How it works (traced from Tyrrrz/YoutubeExplode):
-//   1. visitorData is fetched from youtube.com/sw.js_data (Android UA).
-//   2. Player response comes from youtubei/v1/player, client VISIONOS first,
-//      ANDROID as fallback, TVHTML5_SIMPLY_EMBEDDED_PLAYER when a signature
-//      timestamp is known (age-gated videos; stream URLs then need signature
-//      deciphering, which YoutubeExplode does internally).
-//   3. Stream URLs come from the player response's streamingData. If the
-//      player call itself fails (the datacenter-IP bot block), no streams
-//      exist at all — no downloader library can work around that from a
-//      blocked IP; only a different IP or a paid API changes the outcome.
-//
-// API (kept compatible with yt-backend so the frontend only changes URL):
-//   GET  /                            -> health check
-//   POST /api/info   {url}            -> { title, thumbnail, duration,
-//                                         uploader, isLive, resources[],
-//                                         qualities[], hasAudio, cookies }
-//        resources[]: { id, quality, ext, size, sizeLabel, hasAudio, fps,
-//                       audioOnly? }  — video ids are "v<height>" (e.g.
-//                       "v720"), the audio resource id is "audio".
-//   GET  /api/download?url=&format_id=&quality=&audio=0|1
-//          [&audio_format=mp3]        -> the file (attachment)
-//
-// Env:
-//   PORT        listen port (default 3000; Render injects its own)
-//   API_KEY     when set, /api/* requires x-api-key header or ?api_key=
-//   CORS_ORIGIN comma-separated allowed origins (default: *)
-//   TMPDIR      temp dir for in-progress downloads (default system temp)
-//   MAX_MINUTES max download time per request (default 10)
-//   CACHE_MIN   info/manifest cache TTL in minutes (default 10)
-//   FFMPEG_PATH path to ffmpeg (default "ffmpeg" from PATH)
-// Visitor cookies (per-request only): the server holds NO cookies of its
-// own. A visitor may supply their own exported YouTube cookies with a
-// request (info body "cookies", download query "cookies", raw Netscape
-// text or base64). They are used for that request's player calls only,
-// then dropped: never stored, never cached under, never logged. The
-// frontend must point at a LOGIN_REQUIRED region for this to help —
-// a hard-403 region (Frankfurt) refuses the player call itself, and no
-// cookies of anyone's can pass that.
-
 using System.Collections.Concurrent;
 using System.Net;
 using System.Text.Json;
@@ -178,13 +137,6 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
     var hash = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(bytes)).ToLowerInvariant();
     req.Headers.Add("Authorization", $"SAPISIDHASH {ts}_{hash}");
 }
-
-// ---- Metadata + manifest, player-API only ----
-// YoutubeExplode's Videos.GetAsync() starts from the HTML watch page, which
-// datacenter IPs get bot-checked on. The player API (innertube) is gated far
-// less strictly, so metadata comes from a raw player POST — the same
-// VISIONOS -> ANDROID client flow YoutubeExplode's VideoController uses —
-// while streams/downloads still go through YoutubeExplode itself.
 var rawHttp = new HttpClient();
 
 async Task<string> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<Cookie> cookies)
@@ -263,7 +215,8 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        AddVisitorAuth(req, cookies);
+        if (client.TryGetValue("clientName", out var cn) && (cn is "WEB" or "TVHTML5_SIMPLY_EMBEDDED_PLAYER"))
+            AddVisitorAuth(req, cookies);
         using var res = await rawHttp.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode)
         {
@@ -293,14 +246,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
                 .First();
             thumb = best.TryGetProperty("url", out var u) ? u.GetString() : null;
         }
-        // Streams: formats[] are muxed (video+audio); adaptiveFormats[] are
-        // video-only or audio-only. Only direct-URL entries are usable —
-        // ciphered entries (signatureCipher, no url) are skipped.
-        // Crucially, the entries are built as REAL YoutubeExplode stream
-        // infos, so downloads go through the library's own MediaStream,
-        // which beats YouTube's rate throttling with segmented Range
-        // requests (~9.9 MB segments). A naive single GET of these URLs
-        // gets throttled to a crawl and never finishes.
         var videoInfos = new List<IVideoStreamInfo>();
         var audioInfos = new List<IAudioStreamInfo>();
         if (root.TryGetProperty("streamingData", out var sd))
@@ -392,23 +337,12 @@ static long ParseLen(JsonElement f) =>
 static long ParseBitrate(JsonElement f) =>
     f.TryGetProperty("bitrate", out var b) && b.ValueKind == JsonValueKind.Number ? b.GetInt64() : 0;
 
-// ---- Unified video data: YoutubeExplode manifest first, raw player fallback ----
-// The raw player response is fetched FIRST (it also supplies metadata), then
-// the YoutubeExplode manifest is attempted. If that fails with an HTTP error
-// (e.g. HTTP 403 from a flagged datacenter IP — YoutubeExplode's own
-// VISIONOS->ANDROID fallback does NOT trigger on HTTP errors, only on
-// "unplayable" player responses), the raw streams are used instead and the
-// fallback is logged, so the Render logs themselves show which player client
-// worked from that IP. FORCE_RAW_FALLBACK=1 skips the YE manifest entirely
-// (local testing of the raw path).
 var cache = new ConcurrentDictionary<string, (DateTimeOffset Expires, VideoData Data)>(); // VideoData defined below
 
 async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadOnlyList<Cookie>? visitorCookies = null)
 {
     var vc = (visitorCookies != null && visitorCookies.Count > 0) ? visitorCookies : serverCookies;
-    // Visitor-cookie requests are never served from, or written to, the
-    // shared cache: a manifest fetched as one visitor must never leak to
-    // another. Only anonymous requests use the cache.
+
     if (visitorCookies == null || visitorCookies.Count == 0)
     {
         if (cache.TryGetValue(url, out var hit) && hit.Expires > DateTimeOffset.UtcNow)
@@ -416,8 +350,7 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     }
     if (visitorCookies != null && visitorCookies.Count > 0)
         Console.WriteLine($"[info] visitor cookies supplied ({visitorCookies.Count} cookies)");
-    // NOTE: new VideoId(url) does NOT normalize — it stores the raw string.
-    // Only VideoId.Parse/TryParse extract the 11-char id from a watch URL.
+
     var videoId = VideoId.TryParse(url)
         ?? throw new ArgumentException($"Invalid YouTube video ID or URL '{url}'.");
     var raw = await FetchPlayerResponseAsync(videoId.Value, ct, vc);
@@ -429,16 +362,25 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     }
     else
     {
-        // The library client must carry the cookies and custom HTTP headers
-        var client = vc.Count > 0 ? new YoutubeClient(customHttpClient, vc) : youtube;
+        // 1. Try clean YoutubeClient (standard mobile/web clients without conflicting browser cookies)
         try
         {
-            manifest = await client.Videos.Streams.GetManifestAsync(videoId, ct);
+            var cleanClient = new YoutubeClient();
+            manifest = await cleanClient.Videos.Streams.GetManifestAsync(videoId, ct);
         }
-        catch (Exception ex)
+        catch (Exception ex1)
         {
-            yeError = $"{ex.GetType().Name}: {ex.Message}";
-            Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw.ClientUsed} player streams");
+            // 2. Try with customHttpClient + cookies
+            try
+            {
+                var cookieClient = vc.Count > 0 ? new YoutubeClient(customHttpClient, vc) : new YoutubeClient(customHttpClient);
+                manifest = await cookieClient.Videos.Streams.GetManifestAsync(videoId, ct);
+            }
+            catch (Exception ex2)
+            {
+                yeError = $"clean: {ex1.GetType().Name} ({ex1.Message}) | cookie: {ex2.GetType().Name} ({ex2.Message})";
+                Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw.ClientUsed} player streams");
+            }
         }
     }
     var data = manifest is not null
@@ -497,9 +439,6 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
     {
         var data = await GetVideoDataAsync(url!, ct, visitorCookies);
         var meta = data.Meta;
-
-        // One resource per height: prefer a muxed (has-audio) stream, then bigger file.
-        // Both sources now speak IStreamInfo, so one code path serves both.
         var resources = new List<object>();
         var byHeight = new Dictionary<int, (IStreamInfo Stream, bool HasAudio)>();
         foreach (var s in data.Video)
@@ -568,10 +507,6 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
             error = "Could not fetch video info.",
             detail = ex.Message[..Math.Min(200, ex.Message.Length)],
             hint = "YouTube blocks anonymous server IPs; this service needs an unflagged IP.",
-            // Diagnostic only (boolean, never values): true means the
-            // backend received and parsed visitor cookies for this
-            // request. false on a fetch where cookies were pasted means
-            // the deployed backend is the old build that ignores them.
             cookiesUsed = visitorCookies.Count > 0,
         }, statusCode: 502);
     }
@@ -589,9 +524,6 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     var audioOnly = q["audio"].FirstOrDefault() == "1";
     var visitorCookies = ParseVisitorCookies(q["cookies"].FirstOrDefault());
     var activeCookies = visitorCookies.Count > 0 ? visitorCookies : serverCookies;
-    var dlClient = activeCookies.Count > 0 ? new YoutubeClient(customHttpClient, activeCookies) : youtube;
-    // Only mp3 output is supported (Converter has no m4a container target);
-    // any other requested audio format falls back to mp3, like yt-backend's default.
     var audioFormat = "mp3";
     if (!IsValidUrl(url))
         return Results.Json(new { error = "A valid video URL is required." }, statusCode: 400);
@@ -603,11 +535,12 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     try
     {
         var data = await GetVideoDataAsync(url!, token, visitorCookies);
+        var dlClient = (activeCookies.Count > 0 && data.Source != "youtubeExplode")
+            ? new YoutubeClient(customHttpClient, activeCookies)
+            : new YoutubeClient();
         var meta = data.Meta;
         var title = SanitizeFilename(meta.Title);
         var id = Guid.NewGuid().ToString("N")[..12];
-        // Both sources speak IStreamInfo, so downloads use the library path for
-        // both: MediaStream's segmented Range requests beat YouTube's throttling.
         var videoStreams = data.Video;
         var audioStreams = data.Audio;
 
