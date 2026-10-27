@@ -177,13 +177,12 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
     var clients = new[]
     {
-        // VISIONOS (primary in YoutubeExplode — provides unciphered 1080p/720p/480p/audio)
+        // ANDROID (unciphered direct streaming URLs without N-challenge)
         new Dictionary<string, object?>
         {
-            ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
-            ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
-            ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
-            ["hl"] = "en",
+            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
+            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+            ["visitorData"] = visitorData, ["hl"] = "en",
         },
         // IOS (Apple iPhone — provides unciphered adaptive formats)
         new Dictionary<string, object?>
@@ -193,24 +192,19 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "iOS", ["osVersion"] = "17.5.1.21F90",
             ["hl"] = "en",
         },
-        // ANDROID (YoutubeExplode's fallback)
+        // VISIONOS (primary in YoutubeExplode — provides unciphered 1080p/720p/480p/audio)
         new Dictionary<string, object?>
         {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
-            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
-            ["visitorData"] = visitorData, ["hl"] = "en",
+            ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
+            ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
+            ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
+            ["hl"] = "en",
         },
         // TVHTML5
         new Dictionary<string, object?>
         {
             ["clientName"] = "TVHTML5_SIMPLY_EMBEDDED_PLAYER", ["clientVersion"] = "2.0",
             ["hl"] = "en",
-        },
-        // WEB
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
-            ["visitorData"] = visitorData, ["hl"] = "en",
         },
     };
     string lastError = "unknown player error";
@@ -454,7 +448,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.1-stream-fix",
+    version = "2.2-android-direct",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
@@ -568,11 +562,6 @@ async Task DownloadMediaStreamAsync(string streamUrl, string destinationPath, IR
 {
     using var dlReq = new HttpRequestMessage(HttpMethod.Get, streamUrl);
     dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-    dlReq.Headers.Add("Referer", "https://www.youtube.com/");
-    dlReq.Headers.Add("Origin", "https://www.youtube.com");
-    dlReq.Headers.Add("Range", "bytes=0-");
-    if (cookies.Count > 0)
-        dlReq.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
 
     using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, ct);
     dlRes.EnsureSuccessStatusCode();
