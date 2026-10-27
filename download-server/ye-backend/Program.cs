@@ -83,22 +83,36 @@ static List<Cookie> ParseVisitorCookies(string? input)
         try { text = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(text)); }
         catch { return cookies; }
     }
+    var allowedCookies = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        "SID", "HSID", "SSID", "APISID", "SAPISID", "LOGIN_INFO",
+        "__Secure-1PSID", "__Secure-3PSID", "__Secure-1PAPISID", "__Secure-3PAPISID",
+        "PREF", "YSC", "VISITOR_INFO1_LIVE", "VISITOR_PRIVACY_METADATA"
+    };
+
     foreach (var line in text.Split('\n'))
     {
         var l = line.Trim();
-        if (l.Length == 0 || l.StartsWith('#') && !l.StartsWith("#HttpOnly_"))
+        if (l.Length == 0 || (l.StartsWith('#') && !l.StartsWith("#HttpOnly_")))
             continue;
         l = l.Replace("#HttpOnly_", "", StringComparison.Ordinal);
         var parts = l.Split('\t');
         if (parts.Length < 7)
             continue;
+        var name = parts[5].Trim();
+        var val = parts[6].Trim();
+        if (!allowedCookies.Contains(name))
+            continue;
         try
         {
-            cookies.Add(new Cookie(parts[5], parts[6])
+            var domain = parts[0].Trim();
+            if (!domain.StartsWith('.'))
+                domain = "." + domain;
+            cookies.Add(new Cookie(name, val)
             {
-                Domain = parts[0],
-                Path = parts[2],
-                Secure = string.Equals(parts[3], "TRUE", StringComparison.OrdinalIgnoreCase),
+                Domain = domain,
+                Path = parts[2].Trim(),
+                Secure = string.Equals(parts[3].Trim(), "TRUE", StringComparison.OrdinalIgnoreCase),
             });
         }
         catch { /* skip malformed cookie lines */ }
@@ -113,8 +127,6 @@ var customHttpClient = new HttpClient(new SocketsHttpHandler
     ConnectTimeout = TimeSpan.FromSeconds(15),
 });
 customHttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-customHttpClient.DefaultRequestHeaders.Add("Origin", "https://www.youtube.com");
-customHttpClient.DefaultRequestHeaders.Add("Referer", "https://www.youtube.com/");
 
 var serverCookies = ParseVisitorCookies(Environment.GetEnvironmentVariable("COOKIES_B64"));
 var hasCookies = serverCookies.Count > 0;
@@ -362,24 +374,48 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     }
     else
     {
-        // 1. Try clean YoutubeClient (standard mobile/web clients without conflicting browser cookies)
-        try
+        // 1. Try with cookies if available
+        if (vc.Count > 0)
         {
-            var cleanClient = new YoutubeClient();
-            manifest = await cleanClient.Videos.Streams.GetManifestAsync(videoId, ct);
-        }
-        catch (Exception ex1)
-        {
-            // 2. Try with customHttpClient + cookies
             try
             {
-                var cookieClient = vc.Count > 0 ? new YoutubeClient(customHttpClient, vc) : new YoutubeClient(customHttpClient);
+                var cookieClient = new YoutubeClient(customHttpClient, vc);
                 manifest = await cookieClient.Videos.Streams.GetManifestAsync(videoId, ct);
             }
-            catch (Exception ex2)
+            catch (Exception ex1)
             {
-                yeError = $"clean: {ex1.GetType().Name} ({ex1.Message}) | cookie: {ex2.GetType().Name} ({ex2.Message})";
-                Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw.ClientUsed} player streams");
+                try
+                {
+                    var cookieClientNoHttp = new YoutubeClient(vc);
+                    manifest = await cookieClientNoHttp.Videos.Streams.GetManifestAsync(videoId, ct);
+                }
+                catch (Exception ex2)
+                {
+                    yeError = $"cookie: {ex1.GetType().Name} ({ex1.Message}) | cookieNoHttp: {ex2.GetType().Name} ({ex2.Message})";
+                    Console.WriteLine($"[ye] cookie manifest failed ({yeError})");
+                }
+            }
+        }
+        // 2. Try clean client if manifest is still null
+        if (manifest == null)
+        {
+            try
+            {
+                var cleanClient = new YoutubeClient(customHttpClient);
+                manifest = await cleanClient.Videos.Streams.GetManifestAsync(videoId, ct);
+            }
+            catch (Exception ex3)
+            {
+                try
+                {
+                    var cleanClientNoHttp = new YoutubeClient();
+                    manifest = await cleanClientNoHttp.Videos.Streams.GetManifestAsync(videoId, ct);
+                }
+                catch (Exception ex4)
+                {
+                    yeError = (yeError != null ? yeError + " | " : "") + $"clean: {ex3.GetType().Name} ({ex3.Message}) | cleanNoHttp: {ex4.GetType().Name} ({ex4.Message})";
+                    Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw.ClientUsed} player streams");
+                }
             }
         }
     }
@@ -481,6 +517,21 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
                 audioOnly = true,
             });
         }
+        else if (byHeight.Values.Any(v => v.HasAudio))
+        {
+            var muxed = byHeight.Values.First(v => v.HasAudio).Stream;
+            resources.Add(new
+            {
+                id = "audio",
+                quality = 0,
+                ext = "mp3",
+                size = muxed.Size.Bytes,
+                sizeLabel = SizeLabel(muxed.Size.Bytes),
+                hasAudio = true,
+                fps = (int?)null,
+                audioOnly = true,
+            });
+        }
         var heights = byHeight.Keys.OrderBy(x => x).ToList();
         var hasAudio = bestAudio is not null || byHeight.Values.Any(v => v.HasAudio);
 
@@ -521,10 +572,12 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     var url = q["url"].FirstOrDefault();
     var formatId = q["format_id"].FirstOrDefault();
     var qualityRaw = q["quality"].FirstOrDefault();
-    var audioOnly = q["audio"].FirstOrDefault() == "1";
+    var audioOnly = q["audio"].FirstOrDefault() == "1" || formatId == "audio";
     var visitorCookies = ParseVisitorCookies(q["cookies"].FirstOrDefault());
     var activeCookies = visitorCookies.Count > 0 ? visitorCookies : serverCookies;
-    var audioFormat = "mp3";
+    var audioFormat = q["audio_format"].FirstOrDefault()?.ToLowerInvariant() ?? "mp3";
+    if (!new[] { "mp3", "m4a", "wav", "opus", "ogg" }.Contains(audioFormat))
+        audioFormat = "mp3";
     if (!IsValidUrl(url))
         return Results.Json(new { error = "A valid video URL is required." }, statusCode: 400);
 
@@ -535,7 +588,6 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     try
     {
         var data = await GetVideoDataAsync(url!, token, visitorCookies, bypassCache: true);
-        var dlClient = new YoutubeClient();
         var meta = data.Meta;
         var title = SanitizeFilename(meta.Title);
         var id = Guid.NewGuid().ToString("N")[..12];
@@ -547,15 +599,61 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             var audio = audioStreams
                 .OrderByDescending(s => s.Bitrate.BitsPerSecond)
                 .FirstOrDefault()
+                ?? videoStreams.FirstOrDefault(s => s is MuxedStreamInfo) as IStreamInfo
                 ?? throw new YoutubeExplodeException("No audio stream available.");
             var outPath = Path.Combine(tmpDir, $"tvdl-{id}.{audioFormat}");
-            var request = new ConversionRequestBuilder(outPath)
-                .SetFFmpegPath(ffmpegPath)
-                .SetContainer(Container.Mp3)
-                .SetPreset(ConversionPreset.Medium)
-                .Build();
-            await dlClient.Videos.DownloadAsync(
-                new[] { audio }, Array.Empty<ClosedCaptionTrackInfo>(), request, null, token);
+
+            var browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
+            using var proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = ffmpegPath;
+            proc.StartInfo.ArgumentList.Add("-y");
+            proc.StartInfo.ArgumentList.Add("-headers");
+            proc.StartInfo.ArgumentList.Add(browserHeaders);
+            proc.StartInfo.ArgumentList.Add("-i");
+            proc.StartInfo.ArgumentList.Add(audio.Url);
+            proc.StartInfo.ArgumentList.Add("-vn");
+            if (audioFormat == "m4a")
+            {
+                proc.StartInfo.ArgumentList.Add("-c:a");
+                proc.StartInfo.ArgumentList.Add("aac");
+                proc.StartInfo.ArgumentList.Add("-b:a");
+                proc.StartInfo.ArgumentList.Add("192k");
+            }
+            else if (audioFormat == "opus")
+            {
+                proc.StartInfo.ArgumentList.Add("-c:a");
+                proc.StartInfo.ArgumentList.Add("libopus");
+                proc.StartInfo.ArgumentList.Add("-b:a");
+                proc.StartInfo.ArgumentList.Add("128k");
+            }
+            else if (audioFormat == "ogg")
+            {
+                proc.StartInfo.ArgumentList.Add("-c:a");
+                proc.StartInfo.ArgumentList.Add("libvorbis");
+                proc.StartInfo.ArgumentList.Add("-b:a");
+                proc.StartInfo.ArgumentList.Add("192k");
+            }
+            else if (audioFormat == "wav")
+            {
+                proc.StartInfo.ArgumentList.Add("-c:a");
+                proc.StartInfo.ArgumentList.Add("pcm_s16le");
+            }
+            else
+            {
+                proc.StartInfo.ArgumentList.Add("-c:a");
+                proc.StartInfo.ArgumentList.Add("libmp3lame");
+                proc.StartInfo.ArgumentList.Add("-b:a");
+                proc.StartInfo.ArgumentList.Add("192k");
+            }
+            proc.StartInfo.ArgumentList.Add(outPath);
+            proc.StartInfo.RedirectStandardError = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
+            proc.Start();
+            await proc.WaitForExitAsync(token);
+            if (!File.Exists(outPath) || new FileInfo(outPath).Length == 0)
+                throw new YoutubeExplodeException("FFmpeg failed to extract audio from stream.");
+
             var stream = new FileStream(outPath, FileMode.Open, FileAccess.Read, FileShare.None,
                 65536, FileOptions.DeleteOnClose);
             return Results.File(stream, "application/octet-stream", $"{title}.{audioFormat}");
@@ -593,34 +691,66 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            using var dlReq = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
-            dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-            dlReq.Headers.Add("Referer", "https://www.youtube.com/");
-            dlReq.Headers.Add("Origin", "https://www.youtube.com");
-            dlReq.Headers.Add("Range", "bytes=0-");
-            if (activeCookies.Count > 0)
-                dlReq.Headers.Add("Cookie", string.Join("; ", activeCookies.Select(c => $"{c.Name}={c.Value}")));
-
-            using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, token);
-            dlRes.EnsureSuccessStatusCode();
-            await using var fs = new FileStream(outVideo, FileMode.Create, FileAccess.Write, FileShare.None);
-            await dlRes.Content.CopyToAsync(fs, token);
+            var browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
+            using var proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = ffmpegPath;
+            proc.StartInfo.ArgumentList.Add("-y");
+            proc.StartInfo.ArgumentList.Add("-headers");
+            proc.StartInfo.ArgumentList.Add(browserHeaders);
+            proc.StartInfo.ArgumentList.Add("-i");
+            proc.StartInfo.ArgumentList.Add(videoStream.Url);
+            proc.StartInfo.ArgumentList.Add("-c");
+            proc.StartInfo.ArgumentList.Add("copy");
+            proc.StartInfo.ArgumentList.Add("-movflags");
+            proc.StartInfo.ArgumentList.Add("+faststart");
+            proc.StartInfo.ArgumentList.Add(outVideo);
+            proc.StartInfo.RedirectStandardError = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
+            proc.Start();
+            await proc.WaitForExitAsync(token);
+            if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
+                throw new YoutubeExplodeException("FFmpeg failed to download video stream.");
         }
         else
         {
             var audio = audioStreams
                 .OrderByDescending(s => s.Bitrate.BitsPerSecond)
                 .FirstOrDefault();
-            var streams = audio is null
-                ? new[] { videoStream }
-                : new IStreamInfo[] { videoStream, audio };
-            var request = new ConversionRequestBuilder(outVideo)
-                .SetFFmpegPath(ffmpegPath)
-                .SetContainer(Container.Mp4)
-                .SetPreset(ConversionPreset.Medium)
-                .Build();
-            await dlClient.Videos.DownloadAsync(
-                streams, Array.Empty<ClosedCaptionTrackInfo>(), request, null, token);
+            var browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
+            using var proc = new System.Diagnostics.Process();
+            proc.StartInfo.FileName = ffmpegPath;
+            proc.StartInfo.ArgumentList.Add("-y");
+            proc.StartInfo.ArgumentList.Add("-headers");
+            proc.StartInfo.ArgumentList.Add(browserHeaders);
+            proc.StartInfo.ArgumentList.Add("-i");
+            proc.StartInfo.ArgumentList.Add(videoStream.Url);
+            if (audio is not null)
+            {
+                proc.StartInfo.ArgumentList.Add("-headers");
+                proc.StartInfo.ArgumentList.Add(browserHeaders);
+                proc.StartInfo.ArgumentList.Add("-i");
+                proc.StartInfo.ArgumentList.Add(audio.Url);
+                proc.StartInfo.ArgumentList.Add("-c:v");
+                proc.StartInfo.ArgumentList.Add("copy");
+                proc.StartInfo.ArgumentList.Add("-c:a");
+                proc.StartInfo.ArgumentList.Add("aac");
+            }
+            else
+            {
+                proc.StartInfo.ArgumentList.Add("-c");
+                proc.StartInfo.ArgumentList.Add("copy");
+            }
+            proc.StartInfo.ArgumentList.Add("-movflags");
+            proc.StartInfo.ArgumentList.Add("+faststart");
+            proc.StartInfo.ArgumentList.Add(outVideo);
+            proc.StartInfo.RedirectStandardError = true;
+            proc.StartInfo.UseShellExecute = false;
+            proc.StartInfo.CreateNoWindow = true;
+            proc.Start();
+            await proc.WaitForExitAsync(token);
+            if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
+                throw new YoutubeExplodeException("FFmpeg failed to download and mux video streams.");
         }
         var vStream = new FileStream(outVideo, FileMode.Open, FileAccess.Read, FileShare.None,
             65536, FileOptions.DeleteOnClose);

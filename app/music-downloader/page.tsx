@@ -15,7 +15,15 @@ import {
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
-import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
+import {
+  PRIVATE_YT_BACKEND,
+  PRIVATE_YE_BACKEND,
+  PRIVATE_YT_KEY,
+} from "@/lib/downloadServers";
+
+function isYouTube(u: string): boolean {
+  return /(?:youtube\.com|youtu\.be)/i.test(u);
+}
 
 function BackToToolsLink() {
   return (
@@ -53,13 +61,30 @@ function fmtDuration(sec: unknown): string | null {
 export default function MusicDownloaderPage() {
   const [url, setUrl] = useState("");
   const [format, setFormat] = useState("mp3");
-  // Private server, baked in and hidden from the UI.
-  const serverUrl = PRIVATE_YT_BACKEND;
   const ytKey = PRIVATE_YT_KEY;
+  const [activeServer, setActiveServer] = useState(PRIVATE_YT_BACKEND);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<MediaDetails | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  async function fetchViaServer(mediaUrl: string, base: string, signal: AbortSignal) {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (ytKey) headers["x-api-key"] = ytKey;
+    const res = await fetch(`${base}/api/info`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ url: mediaUrl }),
+      signal,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data?.detail || data?.error || `Server error ${res.status}`);
+    }
+    return data;
+  }
 
   async function fetchInfo() {
     const clean = url.trim();
@@ -67,7 +92,6 @@ export default function MusicDownloaderPage() {
       setError("Paste a valid link first (YouTube, SoundCloud, TikTok…).");
       return;
     }
-    const base = serverUrl.trim().replace(/\/+$/, "");
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -75,30 +99,37 @@ export default function MusicDownloaderPage() {
     setError(null);
     setDetails(null);
 
+    const isYt = isYouTube(clean);
+    const primaryBase = isYt ? PRIVATE_YE_BACKEND.trim().replace(/\/+$/, "") : PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
+    const fallbackBase = isYt ? PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "") : null;
+
     try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
-      };
-      if (ytKey) headers["x-api-key"] = ytKey;
-      const res = await fetch(`${base}/api/info`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({ url: clean }),
-        signal: controller.signal,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.detail || data?.error || `Server error ${res.status}`);
-      }
+      setActiveServer(primaryBase);
+      const data = await fetchViaServer(clean, primaryBase, controller.signal);
       setDetails({
         title: data?.title || "audio",
         thumbnail: data?.thumbnail || null,
         duration: fmtDuration(data?.duration),
         uploader: data?.uploader || null,
       });
-    } catch (e) {
-      if ((e as Error).name !== "AbortError") {
-        setError((e as Error).message || "Lookup failed.");
+    } catch (e1) {
+      if (fallbackBase && fallbackBase !== primaryBase && (e1 as Error).name !== "AbortError") {
+        try {
+          setActiveServer(fallbackBase);
+          const data = await fetchViaServer(clean, fallbackBase, controller.signal);
+          setDetails({
+            title: data?.title || "audio",
+            thumbnail: data?.thumbnail || null,
+            duration: fmtDuration(data?.duration),
+            uploader: data?.uploader || null,
+          });
+          return;
+        } catch {
+          /* fallback also errored, surface primary error */
+        }
+      }
+      if ((e1 as Error).name !== "AbortError") {
+        setError((e1 as Error).message || "Lookup failed.");
       }
     } finally {
       setLoading(false);
@@ -112,7 +143,7 @@ export default function MusicDownloaderPage() {
       audio_format: format,
     });
     if (ytKey) params.set("api_key", ytKey);
-    return `${serverUrl.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
+    return `${activeServer.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
   }
 
   async function pasteFromClipboard() {
@@ -137,7 +168,7 @@ export default function MusicDownloaderPage() {
       <BackToToolsLink />
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-          Music Downloader
+          Audio Downloader
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
           Paste a link and extract the audio as MP3, OGG, WAV or OPUS. Works

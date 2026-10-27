@@ -288,6 +288,7 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
       const attempts = [
+        ["--extractor-args", "youtube:player-client=mweb,tv,web_safari"],
         ["--extractor-args", "youtube:player-client=web,web_safari"],
         ["--extractor-args", "youtube:player-client=android,web"],
         [],
@@ -295,7 +296,7 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], 35000, customCookiesPath);
+          return await runYtDlp([...extra, ...args], Math.min(timeoutMs || 15000, 15000), customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
@@ -578,6 +579,24 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
       const resources = [...byHeight.values()].sort(
         (a, b) => b.quality - a.quality,
       );
+      if (!bestAudio) {
+        const muxedVideo = resources.find((r) => r.hasAudio && r.directUrl);
+        if (muxedVideo) {
+          bestAudio = {
+            id: "audio",
+            quality: 0,
+            ext: "mp3",
+            size: muxedVideo.size,
+            sizeLabel: muxedVideo.sizeLabel,
+            hasAudio: true,
+            fps: null,
+            audioOnly: true,
+            bitrate: 128000,
+            directUrl: muxedVideo.directUrl,
+            isMp4: true,
+          };
+        }
+      }
       if (bestAudio) resources.push(bestAudio);
 
       if (resources.length > 0) {
@@ -906,7 +925,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     res.json(data);
   } catch (e) {
     if (vid) {
-      const directYt = await fetchYouTubeDirect(vid, cookieHeader);
+      const directYt = await fetchYouTubeDirect(vid, cookieHeader || SERVER_COOKIE_HEADER);
       if (directYt) {
         if (!tempCookiePath) parseCache.set(key, { data: directYt, expires: Date.now() + CACHE_MS });
         return res.json(directYt);
@@ -1015,9 +1034,12 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
           : "mp3";
         const filename = `${sanitizeFilename(title)}.${af}`;
         res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+        const browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
         if (af === "m4a" && audioResource?.isM4a) {
           res.setHeader("Content-Type", "audio/mp4");
           const ff = spawn("ffmpeg", [
+            "-headers",
+            browserHeaders,
             "-i",
             audioUrl,
             "-vn",
@@ -1037,6 +1059,8 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
         } else {
           res.setHeader("Content-Type", "audio/mpeg");
           const ff = spawn("ffmpeg", [
+            "-headers",
+            browserHeaders,
             "-i",
             audioUrl,
             "-vn",
@@ -1121,7 +1145,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     const af = ["mp3", "ogg", "opus", "wav", "m4a"].includes(String(audio_format))
       ? String(audio_format)
       : "mp3";
-    args = ["-x", "--audio-format", af, "--audio-quality", "0"];
+    args = ["-f", "ba/ba*/b/best", "-x", "--audio-format", af, "--audio-quality", "0"];
   } else if (format_id && /^[A-Za-z0-9_-]+$/.test(String(format_id))) {
     // Exact resource from /api/info; merge with best audio when needed.
     const cleanId = String(format_id).replace(/^ye_/, "");
