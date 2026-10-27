@@ -636,6 +636,26 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     }
 });
 
+app.MapGet("/api/debug-stream", async (HttpContext ctx, CancellationToken ct) =>
+{
+    var url = ctx.Request.Query["url"].FirstOrDefault() ?? "https://www.youtube.com/watch?v=MMeOzvw9h7Y";
+    var data = await GetVideoDataAsync(url, ct, null, bypassCache: true);
+    var v = data.Video.FirstOrDefault();
+    if (v == null) return Results.Json(new { error = "no video" });
+    using var req = new HttpRequestMessage(HttpMethod.Get, v.Url);
+    req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+    req.Headers.Add("Range", "bytes=0-100");
+    using var res = await rawHttp.SendAsync(req, ct);
+    var body = await res.Content.ReadAsStringAsync(ct);
+    return Results.Json(new
+    {
+        url = v.Url[..Math.Min(120, v.Url.Length)],
+        statusCode = (int)res.StatusCode,
+        headers = res.Headers.Select(h => $"{h.Key}: {string.Join(",", h.Value)}").ToArray(),
+        bodyPreview = body[..Math.Min(200, body.Length)]
+    });
+});
+
 app.Urls.Clear();
 app.Urls.Add($"http://*:{port}");
 Console.WriteLine($"toolverse-ye-backend on :{port} (cookies: {(hasCookies ? "yes" : "no")})");
