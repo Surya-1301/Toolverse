@@ -176,20 +176,20 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
     var clients = new[]
     {
-        // ANDROID (unciphered direct streaming URLs without N-challenge)
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "20.10.38",
-            ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
-        // IOS (Apple iPhone — provides unciphered adaptive formats)
+        // IOS (Apple iPhone — provides unciphered adaptive formats 1080p, 720p, 480p, 360p, audio)
         new Dictionary<string, object?>
         {
             ["clientName"] = "IOS", ["clientVersion"] = "19.29.1",
             ["deviceMake"] = "Apple", ["deviceModel"] = "iPhone16,2",
             ["osName"] = "iOS", ["osVersion"] = "17.5.1.21F90",
             ["hl"] = "en",
+        },
+        // ANDROID (unciphered direct streaming URLs without N-challenge)
+        new Dictionary<string, object?>
+        {
+            ["clientName"] = "ANDROID", ["clientVersion"] = "20.10.38",
+            ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
+            ["visitorData"] = visitorData, ["hl"] = "en",
         },
         // VISIONOS
         new Dictionary<string, object?>
@@ -199,11 +199,11 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
             ["hl"] = "en",
         },
-        // WEB
+        // TVHTML5
         new Dictionary<string, object?>
         {
-            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
-            ["visitorData"] = visitorData, ["hl"] = "en",
+            ["clientName"] = "TVHTML5_SIMPLY_EMBEDDED_PLAYER", ["clientVersion"] = "2.0",
+            ["hl"] = "en",
         },
     };
     string lastError = "unknown player error";
@@ -220,10 +220,14 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        if (client.TryGetValue("clientName", out var cn))
+        if (client.TryGetValue("clientName", out var cnObj) && cnObj is string cn)
         {
-            if (cn is "ANDROID")
+            if (cn == "ANDROID")
                 req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
+            else if (cn == "IOS")
+                req.Headers.Add("User-Agent", "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)");
+            else if (cn == "VISIONOS")
+                req.Headers.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15");
             else
                 req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
 
@@ -334,8 +338,8 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         if (bestCandidate == null || (videoInfos.Count + audioInfos.Count) > (bestCandidate.Value.Video.Count + bestCandidate.Value.Audio.Count))
         {
             bestCandidate = candidate;
-            // Stop at first client that yields direct unthrottled streams (avoids falling through to N-ciphered WEB)!
-            if (videoInfos.Count > 0 || audioInfos.Count > 0)
+            // Stop early if candidate yields rich multiple video qualities and audio
+            if (videoInfos.Count >= 3 && audioInfos.Count > 0)
                 break;
         }
     }
@@ -455,73 +459,12 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.6-debug-player",
+    version = "2.7-stable",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
     visitorCookies = true,
     maxMinutes,
-});
-
-app.MapGet("/api/debug-player", async (string id, CancellationToken ct) =>
-{
-    const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-    var visitorData = await ResolveVisitorDataAsync(ct, serverCookies);
-    var clients = new[]
-    {
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "20.10.38",
-            ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
-    };
-    var results = new List<object>();
-    foreach (var client in clients)
-    {
-        var cn = client["clientName"]?.ToString() ?? "";
-        var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
-        {
-            ["videoId"] = id,
-            ["contentCheckOk"] = true,
-            ["racyCheckOk"] = true,
-            ["context"] = new Dictionary<string, object?> { ["client"] = client },
-        });
-        using var req = new HttpRequestMessage(HttpMethod.Post,
-            $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
-        req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        if (cn == "ANDROID")
-            req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
-        else
-        {
-            req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-            AddVisitorAuth(req, serverCookies);
-        }
-        using var res = await rawHttp.SendAsync(req, ct);
-        using var doc = JsonDocument.Parse(await res.Content.ReadAsStringAsync(ct));
-        var root = doc.RootElement;
-        var status = root.TryGetProperty("playabilityStatus", out var ps)
-            && ps.TryGetProperty("status", out var st) ? st.GetString() : null;
-        var reason = ps.TryGetProperty("reason", out var rea) ? rea.GetString() : null;
-        var formatsCount = root.TryGetProperty("streamingData", out var sd)
-            && sd.TryGetProperty("formats", out var fmts) ? fmts.GetArrayLength() : 0;
-        var firstUrl = formatsCount > 0 && fmts[0].TryGetProperty("url", out var u) ? u.GetString() : null;
-        int? streamStatus = null;
-        if (firstUrl != null)
-        {
-            using var dlReq = new HttpRequestMessage(HttpMethod.Get, firstUrl);
-            dlReq.Headers.Add("User-Agent", cn == "ANDROID" ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip" : "Mozilla/5.0");
-            using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, ct);
-            streamStatus = (int)dlRes.StatusCode;
-        }
-        results.Add(new { client = cn, status, reason, formatsCount, streamStatus });
-    }
-    return Results.Json(results);
 });
 
 // ---- Video info + resource table ----
@@ -631,7 +574,11 @@ async Task DownloadMediaStreamAsync(string streamUrl, string destinationPath, IR
     using var dlReq = new HttpRequestMessage(HttpMethod.Get, streamUrl);
     var ua = streamUrl.Contains("c=ANDROID", StringComparison.OrdinalIgnoreCase)
         ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
-        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+        : streamUrl.Contains("c=IOS", StringComparison.OrdinalIgnoreCase)
+            ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
+            : streamUrl.Contains("c=VISIONOS", StringComparison.OrdinalIgnoreCase)
+                ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+                : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
     dlReq.Headers.Add("User-Agent", ua);
     dlReq.Headers.Add("Referer", "https://www.youtube.com/");
     if (cookies.Count > 0)

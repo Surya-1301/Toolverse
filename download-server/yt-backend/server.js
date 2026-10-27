@@ -443,24 +443,21 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 
     const clients = [
       {
-        clientName: "WEB",
-        clientVersion: "2.20241021.01.00",
+        clientName: "IOS",
+        clientVersion: "19.29.1",
+        deviceMake: "Apple",
+        deviceModel: "iPhone16,2",
+        osName: "iOS",
+        osVersion: "17.5.1.21F90",
         hl: "en",
-        gl: "US",
-        ...(visitorData ? { visitorData } : {}),
       },
       {
         clientName: "ANDROID",
-        clientVersion: "21.26.364",
-        androidSdkVersion: 30,
+        clientVersion: "20.10.38",
+        androidSdkVersion: 31,
         osName: "Android",
-        osVersion: "11",
+        osVersion: "12",
         ...(visitorData ? { visitorData } : {}),
-        hl: "en",
-      },
-      {
-        clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
-        clientVersion: "2.0",
         hl: "en",
       },
       {
@@ -474,9 +471,16 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
         hl: "en",
       },
       {
-        clientName: "WEB_EMBEDDED_PLAYER",
-        clientVersion: "1.20240101.01.00",
+        clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
+        clientVersion: "2.0",
         hl: "en",
+      },
+      {
+        clientName: "WEB",
+        clientVersion: "2.20241021.01.00",
+        hl: "en",
+        gl: "US",
+        ...(visitorData ? { visitorData } : {}),
       },
     ];
 
@@ -488,7 +492,13 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
           ...(cookieHeader ? { Cookie: cookieHeader } : {}),
           ...(sapisidHash ? { Authorization: sapisidHash } : {}),
         };
-        if (client.clientName === "WEB") {
+        if (client.clientName === "ANDROID") {
+          extraHeaders["User-Agent"] = "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip";
+        } else if (client.clientName === "IOS") {
+          extraHeaders["User-Agent"] = "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)";
+        } else if (client.clientName === "VISIONOS") {
+          extraHeaders["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15";
+        } else if (client.clientName === "WEB") {
           extraHeaders["X-YouTube-Client-Name"] = "1";
           extraHeaders["X-YouTube-Client-Version"] = "2.20241021.01.00";
           extraHeaders["Origin"] = "https://www.youtube.com";
@@ -1034,7 +1044,14 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
           : "mp3";
         const filename = `${sanitizeFilename(title)}.${af}`;
         res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-        const browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
+        const audioUa = audioUrl.includes("c=ANDROID")
+          ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
+          : audioUrl.includes("c=IOS")
+          ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
+          : audioUrl.includes("c=VISIONOS")
+          ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+          : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+        const browserHeaders = `User-Agent: ${audioUa}\r\nReferer: https://www.youtube.com/\r\n`;
         if (af === "m4a" && audioResource?.isM4a) {
           res.setHeader("Content-Type", "audio/mp4");
           const ff = spawn("ffmpeg", [
@@ -1084,9 +1101,23 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     if (targetResource?.directUrl) {
       const ext = targetResource.ext || "mp4";
       const filename = `${sanitizeFilename(title)}.${ext}`;
+      const vUa = targetResource.directUrl.includes("c=ANDROID")
+        ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
+        : targetResource.directUrl.includes("c=IOS")
+        ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
+        : targetResource.directUrl.includes("c=VISIONOS")
+        ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
+        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+      const vHeaders = `User-Agent: ${vUa}\r\nReferer: https://www.youtube.com/\r\n`;
+
       if (targetResource.hasAudio) {
         try {
-          const sRes = await fetch(targetResource.directUrl);
+          const sRes = await fetch(targetResource.directUrl, {
+            headers: {
+              "User-Agent": vUa,
+              Referer: "https://www.youtube.com/",
+            },
+          });
           if (sRes.ok) {
             res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
             res.setHeader("Content-Type", ext === "webm" ? "video/webm" : "video/mp4");
@@ -1099,12 +1130,23 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       }
 
       const audioUrl = audioResource?.directUrl || cached?.audioDirectUrl;
+      const aUa = (audioUrl || "").includes("c=ANDROID")
+        ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
+        : (audioUrl || "").includes("c=IOS")
+        ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
+        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+      const aHeaders = `User-Agent: ${aUa}\r\nReferer: https://www.youtube.com/\r\n`;
+
       res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
       res.setHeader("Content-Type", "video/mp4");
       const ffArgs = audioUrl
         ? [
+            "-headers",
+            vHeaders,
             "-i",
             targetResource.directUrl,
+            "-headers",
+            aHeaders,
             "-i",
             audioUrl,
             "-c:v",
@@ -1118,6 +1160,8 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
             "pipe:1",
           ]
         : [
+            "-headers",
+            vHeaders,
             "-i",
             targetResource.directUrl,
             "-c",
