@@ -609,6 +609,14 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             using var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = ffmpegPath;
             proc.StartInfo.ArgumentList.Add("-y");
+            proc.StartInfo.ArgumentList.Add("-tls_verify");
+            proc.StartInfo.ArgumentList.Add("0");
+            proc.StartInfo.ArgumentList.Add("-reconnect");
+            proc.StartInfo.ArgumentList.Add("1");
+            proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
+            proc.StartInfo.ArgumentList.Add("1");
+            proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
+            proc.StartInfo.ArgumentList.Add("5");
             proc.StartInfo.ArgumentList.Add("-user_agent");
             proc.StartInfo.ArgumentList.Add(browserUa);
             proc.StartInfo.ArgumentList.Add("-referer");
@@ -658,7 +666,10 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             await proc.WaitForExitAsync(token);
             var stderr = await stderrTask;
             if (!File.Exists(outPath) || new FileInfo(outPath).Length == 0)
-                throw new YoutubeExplodeException($"FFmpeg audio extraction failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
+            {
+                var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
+                throw new YoutubeExplodeException($"FFmpeg audio extraction failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
+            }
 
             var stream = new FileStream(outPath, FileMode.Open, FileAccess.Read, FileShare.None,
                 65536, FileOptions.DeleteOnClose);
@@ -700,6 +711,14 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             using var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = ffmpegPath;
             proc.StartInfo.ArgumentList.Add("-y");
+            proc.StartInfo.ArgumentList.Add("-tls_verify");
+            proc.StartInfo.ArgumentList.Add("0");
+            proc.StartInfo.ArgumentList.Add("-reconnect");
+            proc.StartInfo.ArgumentList.Add("1");
+            proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
+            proc.StartInfo.ArgumentList.Add("1");
+            proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
+            proc.StartInfo.ArgumentList.Add("5");
             proc.StartInfo.ArgumentList.Add("-user_agent");
             proc.StartInfo.ArgumentList.Add(browserUa);
             proc.StartInfo.ArgumentList.Add("-referer");
@@ -719,7 +738,10 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             await proc.WaitForExitAsync(token);
             var stderr = await stderrTask;
             if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
-                throw new YoutubeExplodeException($"FFmpeg video download failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
+            {
+                var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
+                throw new YoutubeExplodeException($"FFmpeg video download failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
+            }
         }
         else
         {
@@ -729,6 +751,14 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             using var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = ffmpegPath;
             proc.StartInfo.ArgumentList.Add("-y");
+            proc.StartInfo.ArgumentList.Add("-tls_verify");
+            proc.StartInfo.ArgumentList.Add("0");
+            proc.StartInfo.ArgumentList.Add("-reconnect");
+            proc.StartInfo.ArgumentList.Add("1");
+            proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
+            proc.StartInfo.ArgumentList.Add("1");
+            proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
+            proc.StartInfo.ArgumentList.Add("5");
             proc.StartInfo.ArgumentList.Add("-user_agent");
             proc.StartInfo.ArgumentList.Add(browserUa);
             proc.StartInfo.ArgumentList.Add("-referer");
@@ -737,6 +767,14 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             proc.StartInfo.ArgumentList.Add(videoStream.Url);
             if (audio is not null)
             {
+                proc.StartInfo.ArgumentList.Add("-tls_verify");
+                proc.StartInfo.ArgumentList.Add("0");
+                proc.StartInfo.ArgumentList.Add("-reconnect");
+                proc.StartInfo.ArgumentList.Add("1");
+                proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
+                proc.StartInfo.ArgumentList.Add("1");
+                proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
+                proc.StartInfo.ArgumentList.Add("5");
                 proc.StartInfo.ArgumentList.Add("-user_agent");
                 proc.StartInfo.ArgumentList.Add(browserUa);
                 proc.StartInfo.ArgumentList.Add("-referer");
@@ -763,6 +801,11 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             var stderrTask = proc.StandardError.ReadToEndAsync(token);
             await proc.WaitForExitAsync(token);
             var stderr = await stderrTask;
+            if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
+            {
+                var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
+                throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
+            }
             if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
                 throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
         }
