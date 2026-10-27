@@ -36,7 +36,7 @@ export function getApiBaseCandidates() {
     normalizeConfiguredUrl(process.env.NEXT_PUBLIC_API_BASE_URL),
 
     // Use only the deployed Cloudflare Worker API.
-    "https://toolversex-api.jethalalmirror.workers.dev",
+    "https://toolverse-api.toolversee.workers.dev",
   ]);
 }
 

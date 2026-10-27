@@ -8,7 +8,7 @@ type RouteContext = {
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
-  "https://toolversex-api.jethalalmirror.workers.dev";
+  "https://toolverse-api.toolversee.workers.dev";
 
 export async function GET(_request: Request, context: RouteContext) {
   const { id } = await context.params;
