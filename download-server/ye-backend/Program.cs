@@ -110,20 +110,14 @@ bool RateOk(HttpContext ctx, int maxPerMin)
     return q.Count <= maxPerMin;
 }
 
-// ---- YoutubeExplode client (server holds no cookies of its own) ----
-var youtube = new YoutubeClient();
-var hasCookies = false;
-
-// ---- Visitor cookies: parsed per request, never stored or logged ----
-// Accepts raw Netscape cookies.txt text or its base64 form (base64 is what
-// the frontend sends in the download query string, where raw text with
-// tabs/newlines does not belong). Only the count is ever logged.
+// ---- Visitor / Server cookies ----
+// Accepts raw Netscape cookies.txt text or its base64 form.
 static List<Cookie> ParseVisitorCookies(string? input)
 {
     var cookies = new List<Cookie>();
     if (string.IsNullOrWhiteSpace(input))
         return cookies;
-    var text = input.Trim();
+    var text = input.Trim().Trim('"', '\'');
     if (!text.Contains(".youtube.com", StringComparison.OrdinalIgnoreCase)
         && !text.Contains('\t'))
     {
@@ -152,6 +146,12 @@ static List<Cookie> ParseVisitorCookies(string? input)
     }
     return cookies;
 }
+
+// ---- YoutubeExplode client (supports server-level COOKIES_B64 env var) ----
+var serverCookies = ParseVisitorCookies(Environment.GetEnvironmentVariable("COOKIES_B64"));
+var hasCookies = serverCookies.Count > 0;
+var youtube = hasCookies ? new YoutubeClient(serverCookies) : new YoutubeClient();
+Console.WriteLine($"[startup] toolverse-ye-backend loaded {serverCookies.Count} server cookies.");
 
 static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies)
 {
@@ -364,14 +364,17 @@ var cache = new ConcurrentDictionary<string, (DateTimeOffset Expires, VideoData 
 
 async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadOnlyList<Cookie>? visitorCookies = null)
 {
-    var vc = visitorCookies ?? Array.Empty<Cookie>();
+    var vc = (visitorCookies != null && visitorCookies.Count > 0) ? visitorCookies : serverCookies;
     // Visitor-cookie requests are never served from, or written to, the
     // shared cache: a manifest fetched as one visitor must never leak to
     // another. Only anonymous requests use the cache.
-    if (vc.Count == 0 && cache.TryGetValue(url, out var hit) && hit.Expires > DateTimeOffset.UtcNow)
-        return hit.Data;
-    if (vc.Count > 0)
-        Console.WriteLine($"[info] visitor cookies supplied ({vc.Count} cookies)");
+    if (visitorCookies == null || visitorCookies.Count == 0)
+    {
+        if (cache.TryGetValue(url, out var hit) && hit.Expires > DateTimeOffset.UtcNow)
+            return hit.Data;
+    }
+    if (visitorCookies != null && visitorCookies.Count > 0)
+        Console.WriteLine($"[info] visitor cookies supplied ({visitorCookies.Count} cookies)");
     // NOTE: new VideoId(url) does NOT normalize — it stores the raw string.
     // Only VideoId.Parse/TryParse extract the 11-char id from a watch URL.
     var videoId = VideoId.TryParse(url)
@@ -384,8 +387,7 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     }
     else
     {
-        // The library client must carry the visitor's cookies too, or its
-        // player calls would go out anonymous while the raw calls do not.
+        // The library client must carry the cookies too
         var client = vc.Count > 0 ? new YoutubeClient(vc) : youtube;
         try
         {
@@ -399,7 +401,7 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     var data = manifest is not null
         ? new VideoData(raw.Meta, manifest.GetVideoStreams().ToList(), manifest.GetAudioStreams().ToList(), "youtubeExplode", raw.ClientUsed)
         : new VideoData(raw.Meta, raw.Video, raw.Audio, "rawPlayer", raw.ClientUsed);
-    if (vc.Count == 0)
+    if (visitorCookies == null || visitorCookies.Count == 0)
         cache[url] = (DateTimeOffset.UtcNow.AddMinutes(cacheMinutes), data);
     return data;
 }
@@ -433,9 +435,7 @@ app.MapGet("/", () => new
     service = "toolverse-ye-backend",
     engine = "YoutubeExplode",
     cookies = hasCookies,
-    // Build marker: true only on the visitor-cookies build. Open the
-    // backend URL in a browser to confirm the deployed build supports
-    // per-request visitor cookies at all.
+    serverCookiesCount = serverCookies.Count,
     visitorCookies = true,
     maxMinutes,
 });
@@ -543,10 +543,8 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     var qualityRaw = q["quality"].FirstOrDefault();
     var audioOnly = q["audio"].FirstOrDefault() == "1";
     var visitorCookies = ParseVisitorCookies(q["cookies"].FirstOrDefault());
-    // Stream URLs are pre-signed once issued, but the download calls go
-    // through the visitor's client anyway so nothing in the chain is
-    // anonymous when the visitor supplied cookies.
-    var dlClient = visitorCookies.Count > 0 ? new YoutubeClient(visitorCookies) : youtube;
+    var activeCookies = visitorCookies.Count > 0 ? visitorCookies : serverCookies;
+    var dlClient = activeCookies.Count > 0 ? new YoutubeClient(activeCookies) : youtube;
     // Only mp3 output is supported (Converter has no m4a container target);
     // any other requested audio format falls back to mp3, like yt-backend's default.
     var audioFormat = "mp3";
