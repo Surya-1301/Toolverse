@@ -7,7 +7,7 @@ export const PRIVATE_YT_BACKEND = stripSlash(
 
 /** YoutubeExplode backend (.NET 8): specialized alternative for YouTube. */
 export const PRIVATE_YE_BACKEND = stripSlash(
-  process.env.NEXT_PUBLIC_YE_BACKEND || "https://toolverse-ye-backend.onrender.com",
+  process.env.NEXT_PUBLIC_YE_BACKEND || "https://toolverse-ye-api.onrender.com",
 );
 
 export const PRIVATE_YT_KEY = "";
