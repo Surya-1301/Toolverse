@@ -563,6 +563,22 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
     }
 });
 
+async Task DownloadMediaStreamAsync(string streamUrl, string destinationPath, IReadOnlyList<Cookie> cookies, CancellationToken ct)
+{
+    using var dlReq = new HttpRequestMessage(HttpMethod.Get, streamUrl);
+    dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+    dlReq.Headers.Add("Referer", "https://www.youtube.com/");
+    dlReq.Headers.Add("Origin", "https://www.youtube.com");
+    dlReq.Headers.Add("Range", "bytes=0-");
+    if (cookies.Count > 0)
+        dlReq.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+
+    using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, ct);
+    dlRes.EnsureSuccessStatusCode();
+    await using var fs = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
+    await dlRes.Content.CopyToAsync(fs, ct);
+}
+
 // ---- Download ----
 app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
 {
@@ -594,9 +610,6 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var videoStreams = data.Video;
         var audioStreams = data.Audio;
 
-        const string browserUa = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-        const string browserRef = "https://www.youtube.com/";
-
         if (audioOnly)
         {
             var audio = audioStreams
@@ -604,71 +617,70 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
                 .FirstOrDefault()
                 ?? videoStreams.FirstOrDefault(s => s is MuxedStreamInfo) as IStreamInfo
                 ?? throw new YoutubeExplodeException("No audio stream available.");
+            var inPath = Path.Combine(tmpDir, $"in-{id}.bin");
             var outPath = Path.Combine(tmpDir, $"tvdl-{id}.{audioFormat}");
 
-            using var proc = new System.Diagnostics.Process();
-            proc.StartInfo.FileName = ffmpegPath;
-            proc.StartInfo.ArgumentList.Add("-y");
-            proc.StartInfo.ArgumentList.Add("-tls_verify");
-            proc.StartInfo.ArgumentList.Add("0");
-            proc.StartInfo.ArgumentList.Add("-reconnect");
-            proc.StartInfo.ArgumentList.Add("1");
-            proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
-            proc.StartInfo.ArgumentList.Add("1");
-            proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
-            proc.StartInfo.ArgumentList.Add("5");
-            proc.StartInfo.ArgumentList.Add("-user_agent");
-            proc.StartInfo.ArgumentList.Add(browserUa);
-            proc.StartInfo.ArgumentList.Add("-referer");
-            proc.StartInfo.ArgumentList.Add(browserRef);
-            proc.StartInfo.ArgumentList.Add("-i");
-            proc.StartInfo.ArgumentList.Add(audio.Url);
-            proc.StartInfo.ArgumentList.Add("-vn");
-            if (audioFormat == "m4a")
+            try
             {
-                proc.StartInfo.ArgumentList.Add("-c:a");
-                proc.StartInfo.ArgumentList.Add("aac");
-                proc.StartInfo.ArgumentList.Add("-b:a");
-                proc.StartInfo.ArgumentList.Add("192k");
+                await DownloadMediaStreamAsync(audio.Url, inPath, activeCookies, token);
+
+                using var proc = new System.Diagnostics.Process();
+                proc.StartInfo.FileName = ffmpegPath;
+                proc.StartInfo.ArgumentList.Add("-y");
+                proc.StartInfo.ArgumentList.Add("-i");
+                proc.StartInfo.ArgumentList.Add(inPath);
+                proc.StartInfo.ArgumentList.Add("-vn");
+                if (audioFormat == "m4a")
+                {
+                    proc.StartInfo.ArgumentList.Add("-c:a");
+                    proc.StartInfo.ArgumentList.Add("aac");
+                    proc.StartInfo.ArgumentList.Add("-b:a");
+                    proc.StartInfo.ArgumentList.Add("192k");
+                }
+                else if (audioFormat == "opus")
+                {
+                    proc.StartInfo.ArgumentList.Add("-c:a");
+                    proc.StartInfo.ArgumentList.Add("libopus");
+                    proc.StartInfo.ArgumentList.Add("-b:a");
+                    proc.StartInfo.ArgumentList.Add("128k");
+                }
+                else if (audioFormat == "ogg")
+                {
+                    proc.StartInfo.ArgumentList.Add("-c:a");
+                    proc.StartInfo.ArgumentList.Add("libvorbis");
+                    proc.StartInfo.ArgumentList.Add("-b:a");
+                    proc.StartInfo.ArgumentList.Add("192k");
+                }
+                else if (audioFormat == "wav")
+                {
+                    proc.StartInfo.ArgumentList.Add("-c:a");
+                    proc.StartInfo.ArgumentList.Add("pcm_s16le");
+                }
+                else
+                {
+                    proc.StartInfo.ArgumentList.Add("-c:a");
+                    proc.StartInfo.ArgumentList.Add("libmp3lame");
+                    proc.StartInfo.ArgumentList.Add("-b:a");
+                    proc.StartInfo.ArgumentList.Add("192k");
+                }
+                proc.StartInfo.ArgumentList.Add(outPath);
+                proc.StartInfo.RedirectStandardError = true;
+                proc.StartInfo.UseShellExecute = false;
+                proc.StartInfo.CreateNoWindow = true;
+                proc.Start();
+                var stderrTask = proc.StandardError.ReadToEndAsync(token);
+                await proc.WaitForExitAsync(token);
+                var stderr = await stderrTask;
+                if (!File.Exists(outPath) || new FileInfo(outPath).Length == 0)
+                {
+                    var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
+                    throw new YoutubeExplodeException($"FFmpeg audio extraction failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
+                }
             }
-            else if (audioFormat == "opus")
+            finally
             {
-                proc.StartInfo.ArgumentList.Add("-c:a");
-                proc.StartInfo.ArgumentList.Add("libopus");
-                proc.StartInfo.ArgumentList.Add("-b:a");
-                proc.StartInfo.ArgumentList.Add("128k");
-            }
-            else if (audioFormat == "ogg")
-            {
-                proc.StartInfo.ArgumentList.Add("-c:a");
-                proc.StartInfo.ArgumentList.Add("libvorbis");
-                proc.StartInfo.ArgumentList.Add("-b:a");
-                proc.StartInfo.ArgumentList.Add("192k");
-            }
-            else if (audioFormat == "wav")
-            {
-                proc.StartInfo.ArgumentList.Add("-c:a");
-                proc.StartInfo.ArgumentList.Add("pcm_s16le");
-            }
-            else
-            {
-                proc.StartInfo.ArgumentList.Add("-c:a");
-                proc.StartInfo.ArgumentList.Add("libmp3lame");
-                proc.StartInfo.ArgumentList.Add("-b:a");
-                proc.StartInfo.ArgumentList.Add("192k");
-            }
-            proc.StartInfo.ArgumentList.Add(outPath);
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.Start();
-            var stderrTask = proc.StandardError.ReadToEndAsync(token);
-            await proc.WaitForExitAsync(token);
-            var stderr = await stderrTask;
-            if (!File.Exists(outPath) || new FileInfo(outPath).Length == 0)
-            {
-                var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
-                throw new YoutubeExplodeException($"FFmpeg audio extraction failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
+                if (File.Exists(inPath))
+                    try { File.Delete(inPath); } catch {}
             }
 
             var stream = new FileStream(outPath, FileMode.Open, FileAccess.Read, FileShare.None,
@@ -708,104 +720,59 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            using var proc = new System.Diagnostics.Process();
-            proc.StartInfo.FileName = ffmpegPath;
-            proc.StartInfo.ArgumentList.Add("-y");
-            proc.StartInfo.ArgumentList.Add("-tls_verify");
-            proc.StartInfo.ArgumentList.Add("0");
-            proc.StartInfo.ArgumentList.Add("-reconnect");
-            proc.StartInfo.ArgumentList.Add("1");
-            proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
-            proc.StartInfo.ArgumentList.Add("1");
-            proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
-            proc.StartInfo.ArgumentList.Add("5");
-            proc.StartInfo.ArgumentList.Add("-user_agent");
-            proc.StartInfo.ArgumentList.Add(browserUa);
-            proc.StartInfo.ArgumentList.Add("-referer");
-            proc.StartInfo.ArgumentList.Add(browserRef);
-            proc.StartInfo.ArgumentList.Add("-i");
-            proc.StartInfo.ArgumentList.Add(videoStream.Url);
-            proc.StartInfo.ArgumentList.Add("-c");
-            proc.StartInfo.ArgumentList.Add("copy");
-            proc.StartInfo.ArgumentList.Add("-movflags");
-            proc.StartInfo.ArgumentList.Add("+faststart");
-            proc.StartInfo.ArgumentList.Add(outVideo);
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.Start();
-            var stderrTask = proc.StandardError.ReadToEndAsync(token);
-            await proc.WaitForExitAsync(token);
-            var stderr = await stderrTask;
-            if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
-            {
-                var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
-                throw new YoutubeExplodeException($"FFmpeg video download failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
-            }
+            await DownloadMediaStreamAsync(videoStream.Url, outVideo, activeCookies, token);
         }
         else
         {
+            var inVideo = Path.Combine(tmpDir, $"inv-{id}.mp4");
+            var inAudio = Path.Combine(tmpDir, $"ina-{id}.m4a");
             var audio = audioStreams
                 .OrderByDescending(s => s.Bitrate.BitsPerSecond)
                 .FirstOrDefault();
-            using var proc = new System.Diagnostics.Process();
-            proc.StartInfo.FileName = ffmpegPath;
-            proc.StartInfo.ArgumentList.Add("-y");
-            proc.StartInfo.ArgumentList.Add("-tls_verify");
-            proc.StartInfo.ArgumentList.Add("0");
-            proc.StartInfo.ArgumentList.Add("-reconnect");
-            proc.StartInfo.ArgumentList.Add("1");
-            proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
-            proc.StartInfo.ArgumentList.Add("1");
-            proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
-            proc.StartInfo.ArgumentList.Add("5");
-            proc.StartInfo.ArgumentList.Add("-user_agent");
-            proc.StartInfo.ArgumentList.Add(browserUa);
-            proc.StartInfo.ArgumentList.Add("-referer");
-            proc.StartInfo.ArgumentList.Add(browserRef);
-            proc.StartInfo.ArgumentList.Add("-i");
-            proc.StartInfo.ArgumentList.Add(videoStream.Url);
-            if (audio is not null)
+            try
             {
-                proc.StartInfo.ArgumentList.Add("-tls_verify");
-                proc.StartInfo.ArgumentList.Add("0");
-                proc.StartInfo.ArgumentList.Add("-reconnect");
-                proc.StartInfo.ArgumentList.Add("1");
-                proc.StartInfo.ArgumentList.Add("-reconnect_streamed");
-                proc.StartInfo.ArgumentList.Add("1");
-                proc.StartInfo.ArgumentList.Add("-reconnect_delay_max");
-                proc.StartInfo.ArgumentList.Add("5");
-                proc.StartInfo.ArgumentList.Add("-user_agent");
-                proc.StartInfo.ArgumentList.Add(browserUa);
-                proc.StartInfo.ArgumentList.Add("-referer");
-                proc.StartInfo.ArgumentList.Add(browserRef);
-                proc.StartInfo.ArgumentList.Add("-i");
-                proc.StartInfo.ArgumentList.Add(audio.Url);
-                proc.StartInfo.ArgumentList.Add("-c:v");
-                proc.StartInfo.ArgumentList.Add("copy");
-                proc.StartInfo.ArgumentList.Add("-c:a");
-                proc.StartInfo.ArgumentList.Add("aac");
+                await DownloadMediaStreamAsync(videoStream.Url, inVideo, activeCookies, token);
+                if (audio is not null)
+                {
+                    await DownloadMediaStreamAsync(audio.Url, inAudio, activeCookies, token);
+                    using var proc = new System.Diagnostics.Process();
+                    proc.StartInfo.FileName = ffmpegPath;
+                    proc.StartInfo.ArgumentList.Add("-y");
+                    proc.StartInfo.ArgumentList.Add("-i");
+                    proc.StartInfo.ArgumentList.Add(inVideo);
+                    proc.StartInfo.ArgumentList.Add("-i");
+                    proc.StartInfo.ArgumentList.Add(inAudio);
+                    proc.StartInfo.ArgumentList.Add("-c:v");
+                    proc.StartInfo.ArgumentList.Add("copy");
+                    proc.StartInfo.ArgumentList.Add("-c:a");
+                    proc.StartInfo.ArgumentList.Add("aac");
+                    proc.StartInfo.ArgumentList.Add("-movflags");
+                    proc.StartInfo.ArgumentList.Add("+faststart");
+                    proc.StartInfo.ArgumentList.Add(outVideo);
+                    proc.StartInfo.RedirectStandardError = true;
+                    proc.StartInfo.UseShellExecute = false;
+                    proc.StartInfo.CreateNoWindow = true;
+                    proc.Start();
+                    var stderrTask = proc.StandardError.ReadToEndAsync(token);
+                    await proc.WaitForExitAsync(token);
+                    var stderr = await stderrTask;
+                    if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
+                    {
+                        var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
+                        throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
+                    }
+                }
+                else
+                {
+                    File.Move(inVideo, outVideo, overwrite: true);
+                }
             }
-            else
+            finally
             {
-                proc.StartInfo.ArgumentList.Add("-c");
-                proc.StartInfo.ArgumentList.Add("copy");
+                if (File.Exists(inVideo)) try { File.Delete(inVideo); } catch {}
+                if (File.Exists(inAudio)) try { File.Delete(inAudio); } catch {}
             }
-            proc.StartInfo.ArgumentList.Add("-movflags");
-            proc.StartInfo.ArgumentList.Add("+faststart");
-            proc.StartInfo.ArgumentList.Add(outVideo);
-            proc.StartInfo.RedirectStandardError = true;
-            proc.StartInfo.UseShellExecute = false;
-            proc.StartInfo.CreateNoWindow = true;
-            proc.Start();
-            var stderrTask = proc.StandardError.ReadToEndAsync(token);
-            await proc.WaitForExitAsync(token);
-            var stderr = await stderrTask;
-            if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
-            {
-                var errTail = stderr.Length > 500 ? stderr[^500..] : stderr;
-                throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {errTail.Replace("\r", "").Replace("\n", " ")}");
-            }
+        }
             if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
                 throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
         }
