@@ -190,33 +190,26 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     if (!string.IsNullOrEmpty(visitorData))
         androidClient["visitorData"] = visitorData;
 
-    var clients = new[] { androidClient };
+    var attempts = (cookies.Count > 0) ? new[] { false, true } : new[] { false };
+    const string cn = "ANDROID";
     string lastError = "unknown player error";
     (PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)? bestCandidate = null;
-    foreach (var client in clients)
+    foreach (var useCookies in attempts)
     {
         var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
         {
             ["videoId"] = videoId,
             ["contentCheckOk"] = true,
             ["racyCheckOk"] = true,
-            ["context"] = new Dictionary<string, object?> { ["client"] = client },
+            ["context"] = new Dictionary<string, object?> { ["client"] = androidClient },
         });
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        var cn = client["clientName"]?.ToString() ?? "";
-        if (cn == "ANDROID")
-        {
-            req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
-            if (cookies.Count > 0)
-                req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
-        }
-        else
-        {
-            req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-            AddVisitorAuth(req, cookies);
-        }
+        req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
+        if (useCookies && cookies.Count > 0)
+            req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+
         using var res = await rawHttp.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode)
         {
@@ -483,7 +476,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "3.0-robust",
+    version = "3.1-clean-first",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
