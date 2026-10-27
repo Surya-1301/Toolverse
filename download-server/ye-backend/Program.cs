@@ -455,7 +455,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.4-clean-cookies",
+    version = "2.5-gv-debug",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
@@ -577,7 +577,11 @@ async Task DownloadMediaStreamAsync(string streamUrl, string destinationPath, IR
         dlReq.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
 
     using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, ct);
-    dlRes.EnsureSuccessStatusCode();
+    if (!dlRes.IsSuccessStatusCode)
+    {
+        var body = await dlRes.Content.ReadAsStringAsync(ct);
+        throw new YoutubeExplodeException($"GoogleVideo returned HTTP {(int)dlRes.StatusCode}: {body[..Math.Min(300, body.Length)]}");
+    }
     await using var fs = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
     await dlRes.Content.CopyToAsync(fs, ct);
 }
