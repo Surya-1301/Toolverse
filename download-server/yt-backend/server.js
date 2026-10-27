@@ -679,7 +679,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.4.0",
+    version: "2.5.0",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -687,6 +687,86 @@ app.get(["/", "/health"], (req, res) => {
     hasServerCookieHeader: !!SERVER_COOKIE_HEADER,
     cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
+  });
+});
+
+app.get("/api/debug-player", async (req, res) => {
+  const videoId = String(req.query.v || "enY83Li8_ps").trim();
+  const activeCookieHeader = SERVER_COOKIE_HEADER;
+  const sapisidHash = getSapisidHash(activeCookieHeader);
+
+  let swStatus = null;
+  let swLength = 0;
+  let visitorData = null;
+  try {
+    const swRes = await httpsGet(
+      "https://www.youtube.com/sw.js_data",
+      activeCookieHeader ? { Cookie: activeCookieHeader } : {},
+    );
+    swStatus = swRes.status;
+    swLength = swRes.text ? swRes.text.length : 0;
+    let swText = swRes.text;
+    if (swText.startsWith(")]}'")) swText = swText.slice(4);
+    const swData = JSON.parse(swText);
+    visitorData = swData?.[0]?.[2]?.[0]?.[0]?.[13];
+  } catch (e) {
+    swStatus = e.message;
+  }
+
+  const clients = [
+    { clientName: "VISIONOS", clientVersion: "1.02", deviceMake: "Apple", deviceModel: "RealityDevice17,1", osName: "visionOS", osVersion: "26.5.23O471", ...(visitorData ? { visitorData } : {}), hl: "en" },
+    { clientName: "ANDROID", clientVersion: "21.26.364", androidSdkVersion: 30, osName: "Android", osVersion: "11", ...(visitorData ? { visitorData } : {}), hl: "en" },
+    { clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER", clientVersion: "2.0", hl: "en" },
+    { clientName: "WEB", clientVersion: "2.20241021.01.00", hl: "en", gl: "US", ...(visitorData ? { visitorData } : {}) },
+  ];
+
+  const results = [];
+  for (const client of clients) {
+    const extraHeaders = {
+      ...(activeCookieHeader ? { Cookie: activeCookieHeader } : {}),
+      ...(sapisidHash ? { Authorization: sapisidHash } : {}),
+    };
+    if (client.clientName === "WEB") {
+      extraHeaders["Origin"] = "https://www.youtube.com";
+      extraHeaders["Referer"] = "https://www.youtube.com/";
+      extraHeaders["X-YouTube-Client-Name"] = "1";
+      extraHeaders["X-YouTube-Client-Version"] = "2.20241021.01.00";
+    }
+
+    try {
+      const resp = await innertubePost(
+        { videoId, contentCheckOk: true, racyCheckOk: true, context: { client } },
+        extraHeaders,
+      );
+      const ps = resp.data?.playabilityStatus;
+      const sd = resp.data?.streamingData;
+      const allFormats = [...(sd?.formats || []), ...(sd?.adaptiveFormats || [])];
+      results.push({
+        client: client.clientName,
+        httpStatus: resp.status,
+        playability: ps?.status || null,
+        reason: ps?.reason || null,
+        formatsCount: allFormats.length,
+        directUrlsCount: allFormats.filter((f) => f.url).length,
+        cipherUrlsCount: allFormats.filter((f) => f.signatureCipher || f.cipher).length,
+      });
+    } catch (err) {
+      results.push({
+        client: client.clientName,
+        error: err.message,
+      });
+    }
+  }
+
+  res.json({
+    videoId,
+    hasServerCookies: HAS_COOKIES,
+    cookieHeaderLen: activeCookieHeader ? activeCookieHeader.length : 0,
+    hasSapisidHash: !!sapisidHash,
+    swStatus,
+    swLength,
+    hasVisitorData: !!visitorData,
+    results,
   });
 });
 
