@@ -176,14 +176,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
     var clients = new[]
     {
-        // IOS (Apple iPhone — provides unciphered adaptive formats 1080p, 720p, 480p, 360p, audio)
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "IOS", ["clientVersion"] = "19.29.1",
-            ["deviceMake"] = "Apple", ["deviceModel"] = "iPhone16,2",
-            ["osName"] = "iOS", ["osVersion"] = "17.5.1.21F90",
-            ["hl"] = "en",
-        },
         // ANDROID (unciphered direct streaming URLs without N-challenge)
         new Dictionary<string, object?>
         {
@@ -191,19 +183,11 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
-        // VISIONOS
+        // WEB
         new Dictionary<string, object?>
         {
-            ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
-            ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
-            ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
-            ["hl"] = "en",
-        },
-        // TVHTML5
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "TVHTML5_SIMPLY_EMBEDDED_PLAYER", ["clientVersion"] = "2.0",
-            ["hl"] = "en",
+            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
+            ["visitorData"] = visitorData, ["hl"] = "en",
         },
     };
     string lastError = "unknown player error";
@@ -220,19 +204,17 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         using var req = new HttpRequestMessage(HttpMethod.Post,
             $"https://www.youtube.com/youtubei/v1/player?key={apiKeyInnertube}&hl=en");
         req.Content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
-        if (client.TryGetValue("clientName", out var cnObj) && cnObj is string cn)
+        var cn = client["clientName"]?.ToString() ?? "";
+        if (cn == "ANDROID")
         {
-            if (cn == "ANDROID")
-                req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
-            else if (cn == "IOS")
-                req.Headers.Add("User-Agent", "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)");
-            else if (cn == "VISIONOS")
-                req.Headers.Add("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15");
-            else
-                req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-
-            if (cn is "WEB" or "TVHTML5_SIMPLY_EMBEDDED_PLAYER")
-                AddVisitorAuth(req, cookies);
+            req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
+            if (cookies.Count > 0)
+                req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+        }
+        else
+        {
+            req.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+            AddVisitorAuth(req, cookies);
         }
         using var res = await rawHttp.SendAsync(req, ct);
         if (!res.IsSuccessStatusCode)
@@ -289,42 +271,50 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             {
                 foreach (var f in fmts.EnumerateArray())
                 {
-                    if (!f.TryGetProperty("url", out var u)) continue;
-                    var (mime, _, codecs) = ParseMime(f);
-                    if (mime != "video/mp4") continue; // only mp4 muxed is usable as-is
-                    var h = PropInt(f, "height", 0);
-                    var w = PropInt(f, "width", 0);
-                    if (h <= 0) continue;
-                    videoInfos.Add(new MuxedStreamInfo(
-                        u.GetString()!, new Container("mp4"), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
-                        codecs.Length > 1 ? codecs[1] : "", null, null,
-                        codecs.Length > 0 ? codecs[0] : "",
-                        new VideoQuality(h, PropInt(f, "fps", 30)), new Resolution(w, h)));
+                    try
+                    {
+                        if (!f.TryGetProperty("url", out var u)) continue;
+                        var (mime, _, codecs) = ParseMime(f);
+                        if (mime != "video/mp4") continue; // only mp4 muxed is usable as-is
+                        var h = PropInt(f, "height", 0);
+                        var w = PropInt(f, "width", 0);
+                        if (h <= 0) continue;
+                        videoInfos.Add(new MuxedStreamInfo(
+                            u.GetString()!, new Container("mp4"), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
+                            codecs.Length > 1 ? codecs[1] : "", null, null,
+                            codecs.Length > 0 ? codecs[0] : "",
+                            new VideoQuality(h, PropInt(f, "fps", 30)), new Resolution(w, h)));
+                    }
+                    catch { /* skip malformed format */ }
                 }
             }
             if (sd.TryGetProperty("adaptiveFormats", out var afmts))
             {
                 foreach (var f in afmts.EnumerateArray())
                 {
-                    if (!f.TryGetProperty("url", out var u)) continue;
-                    var (mime, sub, codecs) = ParseMime(f);
-                    var h = PropInt(f, "height", 0);
-                    var w = PropInt(f, "width", 0);
-                    var fps = PropInt(f, "fps", 30);
-                    if (mime.StartsWith("video/"))
+                    try
                     {
-                        if (h <= 0) continue;
-                        videoInfos.Add(new VideoOnlyStreamInfo(
-                            u.GetString()!, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
-                            codecs.Length > 0 ? codecs[0] : "",
-                            new VideoQuality(h, fps), new Resolution(w, h), false));
+                        if (!f.TryGetProperty("url", out var u)) continue;
+                        var (mime, sub, codecs) = ParseMime(f);
+                        var h = PropInt(f, "height", 0);
+                        var w = PropInt(f, "width", 0);
+                        var fps = PropInt(f, "fps", 30);
+                        if (mime.StartsWith("video/"))
+                        {
+                            if (h <= 0) continue;
+                            videoInfos.Add(new VideoOnlyStreamInfo(
+                                u.GetString()!, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
+                                codecs.Length > 0 ? codecs[0] : "",
+                                new VideoQuality(h, fps), new Resolution(w, h), false));
+                        }
+                        else if (mime.StartsWith("audio/"))
+                        {
+                            audioInfos.Add(new AudioOnlyStreamInfo(
+                                u.GetString()!, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
+                                codecs.Length > 0 ? codecs[0] : "", null, null));
+                        }
                     }
-                    else if (mime.StartsWith("audio/"))
-                    {
-                        audioInfos.Add(new AudioOnlyStreamInfo(
-                            u.GetString()!, new Container(sub), new FileSize(ParseLen(f)), new Bitrate(ParseBitrate(f)),
-                            codecs.Length > 0 ? codecs[0] : "", null, null));
-                    }
+                    catch { /* skip malformed format */ }
                 }
             }
         }
@@ -333,13 +323,12 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             lastError = "player OK but no direct-URL streams";
             continue;
         }
-        var clientUsed = client["clientName"]?.ToString() ?? "?";
-        var candidate = (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, clientUsed);
+        var candidate = (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, cn);
         if (bestCandidate == null || (videoInfos.Count + audioInfos.Count) > (bestCandidate.Value.Video.Count + bestCandidate.Value.Audio.Count))
         {
             bestCandidate = candidate;
             // Stop early if candidate yields rich multiple video qualities and audio
-            if (videoInfos.Count >= 3 && audioInfos.Count > 0)
+            if (videoInfos.Count >= 2 && audioInfos.Count > 0)
                 break;
         }
     }
@@ -370,7 +359,19 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
 
     var videoId = VideoId.TryParse(url)
         ?? throw new ArgumentException($"Invalid YouTube video ID or URL '{url}'.");
-    var raw = await FetchPlayerResponseAsync(videoId.Value, ct, vc);
+
+    (PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)? raw = null;
+    string? rawError = null;
+    try
+    {
+        raw = await FetchPlayerResponseAsync(videoId.Value, ct, vc);
+    }
+    catch (Exception ex)
+    {
+        rawError = ex.Message;
+        Console.WriteLine($"[player] raw player error: {ex.Message}");
+    }
+
     StreamManifest? manifest = null;
     string? yeError = null;
     if (Environment.GetEnvironmentVariable("FORCE_RAW_FALLBACK") == "1")
@@ -419,14 +420,35 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
                 catch (Exception ex4)
                 {
                     yeError = (yeError != null ? yeError + " | " : "") + $"clean: {ex3.GetType().Name} ({ex3.Message}) | cleanNoHttp: {ex4.GetType().Name} ({ex4.Message})";
-                    Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw.ClientUsed} player streams");
+                    Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw?.ClientUsed} player streams");
                 }
             }
         }
     }
+
+    if (manifest == null && raw == null)
+        throw new YoutubeExplodeException($"Could not extract video streams. (YE: {yeError} | Raw: {rawError})");
+
+    PlayerMetadata meta = raw?.Meta ?? new PlayerMetadata("YouTube Video", "", null, null);
+    if (raw == null && manifest != null)
+    {
+        try
+        {
+            var dlClient = vc.Count > 0 ? new YoutubeClient(vc) : new YoutubeClient();
+            var v = await dlClient.Videos.GetAsync(videoId.Value, ct);
+            meta = new PlayerMetadata(
+                v.Title,
+                v.Author.ChannelTitle,
+                v.Duration?.TotalSeconds,
+                v.Thumbnails.OrderByDescending(t => t.Resolution.Area).FirstOrDefault()?.Url
+            );
+        }
+        catch { /* keep fallback meta */ }
+    }
+
     var data = manifest is not null
-        ? new VideoData(raw.Meta, manifest.GetVideoStreams().ToList(), manifest.GetAudioStreams().ToList(), "youtubeExplode", raw.ClientUsed, null)
-        : new VideoData(raw.Meta, raw.Video, raw.Audio, "rawPlayer", raw.ClientUsed, yeError);
+        ? new VideoData(meta, manifest.GetVideoStreams().ToList(), manifest.GetAudioStreams().ToList(), "youtubeExplode", raw?.ClientUsed ?? "youtubeExplode", null)
+        : new VideoData(meta, raw!.Value.Video, raw.Value.Audio, "rawPlayer", raw.Value.ClientUsed, yeError);
     if (visitorCookies == null || visitorCookies.Count == 0)
         cache[url] = (DateTimeOffset.UtcNow.AddMinutes(cacheMinutes), data);
     return data;
@@ -459,7 +481,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.7-stable",
+    version = "2.8-resilient",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
