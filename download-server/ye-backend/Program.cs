@@ -339,11 +339,11 @@ static long ParseBitrate(JsonElement f) =>
 
 var cache = new ConcurrentDictionary<string, (DateTimeOffset Expires, VideoData Data)>(); // VideoData defined below
 
-async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadOnlyList<Cookie>? visitorCookies = null)
+async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadOnlyList<Cookie>? visitorCookies = null, bool bypassCache = false)
 {
     var vc = (visitorCookies != null && visitorCookies.Count > 0) ? visitorCookies : serverCookies;
 
-    if (visitorCookies == null || visitorCookies.Count == 0)
+    if (!bypassCache && (visitorCookies == null || visitorCookies.Count == 0))
     {
         if (cache.TryGetValue(url, out var hit) && hit.Expires > DateTimeOffset.UtcNow)
             return hit.Data;
@@ -534,7 +534,7 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
 
     try
     {
-        var data = await GetVideoDataAsync(url!, token, visitorCookies);
+        var data = await GetVideoDataAsync(url!, token, visitorCookies, bypassCache: true);
         var dlClient = (activeCookies.Count > 0 && data.Source != "youtubeExplode")
             ? new YoutubeClient(customHttpClient, activeCookies)
             : new YoutubeClient();
@@ -595,13 +595,28 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            // Stream directly using clean rawHttp to avoid sending YouTube cookies/Origin to googlevideo CDN (which causes 403)
-            using var dlReq = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
-            dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
-            using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, token);
-            dlRes.EnsureSuccessStatusCode();
-            await using var fs = new FileStream(outVideo, FileMode.Create, FileAccess.Write, FileShare.None);
-            await dlRes.Content.CopyToAsync(fs, token);
+            // Stream directly using clean rawHttp to avoid sending conflicting headers to googlevideo CDN
+            HttpResponseMessage? dlRes = null;
+            try
+            {
+                var dlReq = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
+                dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+                dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, token);
+                if (dlRes.StatusCode == HttpStatusCode.Forbidden && activeCookies.Count > 0)
+                {
+                    dlRes.Dispose();
+                    var dlReqAuth = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
+                    AddVisitorAuth(dlReqAuth, activeCookies);
+                    dlRes = await rawHttp.SendAsync(dlReqAuth, HttpCompletionOption.ResponseHeadersRead, token);
+                }
+                dlRes.EnsureSuccessStatusCode();
+                await using var fs = new FileStream(outVideo, FileMode.Create, FileAccess.Write, FileShare.None);
+                await dlRes.Content.CopyToAsync(fs, token);
+            }
+            finally
+            {
+                dlRes?.Dispose();
+            }
         }
         else
         {
