@@ -595,7 +595,13 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            await dlClient.Videos.Streams.DownloadAsync(videoStream, outVideo, null, token);
+            // Stream directly using clean rawHttp to avoid sending YouTube cookies/Origin to googlevideo CDN (which causes 403)
+            using var dlReq = new HttpRequestMessage(HttpMethod.Get, videoStream.Url);
+            dlReq.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+            using var dlRes = await rawHttp.SendAsync(dlReq, HttpCompletionOption.ResponseHeadersRead, token);
+            dlRes.EnsureSuccessStatusCode();
+            await using var fs = new FileStream(outVideo, FileMode.Create, FileAccess.Write, FileShare.None);
+            await dlRes.Content.CopyToAsync(fs, token);
         }
         else
         {
