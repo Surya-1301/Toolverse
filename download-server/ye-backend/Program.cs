@@ -148,9 +148,18 @@ static List<Cookie> ParseVisitorCookies(string? input)
 }
 
 // ---- YoutubeExplode client (supports server-level COOKIES_B64 env var) ----
+var customHttpClient = new HttpClient(new SocketsHttpHandler
+{
+    PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+    ConnectTimeout = TimeSpan.FromSeconds(15),
+});
+customHttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
+customHttpClient.DefaultRequestHeaders.Add("Origin", "https://www.youtube.com");
+customHttpClient.DefaultRequestHeaders.Add("Referer", "https://www.youtube.com/");
+
 var serverCookies = ParseVisitorCookies(Environment.GetEnvironmentVariable("COOKIES_B64"));
 var hasCookies = serverCookies.Count > 0;
-var youtube = hasCookies ? new YoutubeClient(serverCookies) : new YoutubeClient();
+var youtube = hasCookies ? new YoutubeClient(serverCookies, customHttpClient) : new YoutubeClient(customHttpClient);
 Console.WriteLine($"[startup] toolverse-ye-backend loaded {serverCookies.Count} server cookies.");
 
 static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies)
@@ -210,7 +219,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
             ["deviceMake"] = "Apple", ["deviceModel"] = "RealityDevice17,1",
             ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
-            ["visitorData"] = visitorData, ["hl"] = "en",
+            ["hl"] = "en",
         },
         // IOS (Apple iPhone — provides unciphered adaptive formats)
         new Dictionary<string, object?>
@@ -218,7 +227,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["clientName"] = "IOS", ["clientVersion"] = "19.29.1",
             ["deviceMake"] = "Apple", ["deviceModel"] = "iPhone16,2",
             ["osName"] = "iOS", ["osVersion"] = "17.5.1.21F90",
-            ["visitorData"] = visitorData, ["hl"] = "en",
+            ["hl"] = "en",
         },
         // ANDROID (YoutubeExplode's fallback)
         new Dictionary<string, object?>
@@ -419,20 +428,22 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     }
     else
     {
-        // The library client must carry the cookies too
-        var client = vc.Count > 0 ? new YoutubeClient(vc) : youtube;
+        // The library client must carry the cookies and custom HTTP headers
+        var client = vc.Count > 0 ? new YoutubeClient(vc, customHttpClient) : youtube;
+        string? yeError = null;
         try
         {
             manifest = await client.Videos.Streams.GetManifestAsync(videoId, ct);
         }
-        catch (Exception ex) when (ex is HttpRequestException or IOException)
+        catch (Exception ex)
         {
-            Console.WriteLine($"[fallback] YE manifest failed ({ex.GetType().Name}: {ex.Message[..Math.Min(120, ex.Message.Length)]}); using raw {raw.ClientUsed} player streams");
+            yeError = $"{ex.GetType().Name}: {ex.Message}";
+            Console.WriteLine($"[fallback] YE manifest failed ({yeError}); using raw {raw.ClientUsed} player streams");
         }
     }
     var data = manifest is not null
-        ? new VideoData(raw.Meta, manifest.GetVideoStreams().ToList(), manifest.GetAudioStreams().ToList(), "youtubeExplode", raw.ClientUsed)
-        : new VideoData(raw.Meta, raw.Video, raw.Audio, "rawPlayer", raw.ClientUsed);
+        ? new VideoData(raw.Meta, manifest.GetVideoStreams().ToList(), manifest.GetAudioStreams().ToList(), "youtubeExplode", raw.ClientUsed, null)
+        : new VideoData(raw.Meta, raw.Video, raw.Audio, "rawPlayer", raw.ClientUsed, yeError);
     if (visitorCookies == null || visitorCookies.Count == 0)
         cache[url] = (DateTimeOffset.UtcNow.AddMinutes(cacheMinutes), data);
     return data;
@@ -546,6 +557,8 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
             hasAudio,
             cookies = visitorCookies.Count > 0,
             source = data.Source,
+            clientUsed = data.RawClient,
+            yeError = data.YeError,
         });
     }
     catch (Exception ex) when (ex is YoutubeExplodeException or OperationCanceledException or ArgumentException or FormatException or HttpRequestException or IOException)
@@ -688,4 +701,4 @@ await app.RunAsync();
 
 // Type declarations must follow all top-level statements.
 record PlayerMetadata(string Title, string Author, double? DurationSeconds, string? ThumbnailUrl);
-record VideoData(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string Source, string RawClient);
+record VideoData(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string Source, string RawClient, string? YeError = null);
