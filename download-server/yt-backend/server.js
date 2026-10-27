@@ -50,13 +50,9 @@ function innertubePost(payload, headers = {}) {
           "Content-Length": Buffer.byteLength(data),
           "User-Agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-          "Origin": "https://www.youtube.com",
-          "Referer": "https://www.youtube.com/",
-          "X-YouTube-Client-Name": "1",
-          "X-YouTube-Client-Version": "2.20241021.01.00",
           ...headers,
         },
-        timeout: 7000,
+        timeout: 8000,
       },
       (res) => {
         let text = "";
@@ -186,12 +182,13 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
   return new Promise((resolve, reject) => {
     const cookiesToUse = customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null);
     const fullArgs = [
+      "--force-ipv4",
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       "--geo-bypass",
       "--no-check-certificates",
       "--socket-timeout",
-      "20",
+      "12",
       ...args,
     ];
     const proc = spawn("yt-dlp", fullArgs, { timeout: timeoutMs });
@@ -254,12 +251,13 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
     if (customCookiesPath || HAS_COOKIES) {
       const attempts = [
         ["--extractor-args", "youtube:player-client=web,web_safari"],
+        ["--extractor-args", "youtube:player-client=android,web"],
         [],
       ];
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], 20000, customCookiesPath);
+          return await runYtDlp([...extra, ...args], 35000, customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
@@ -273,7 +271,7 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], 15000, customCookiesPath);
+          return await runYtDlp([...extra, ...args], 12000, customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
@@ -480,6 +478,12 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
           ...(cookieHeader ? { Cookie: cookieHeader } : {}),
           ...(sapisidHash ? { Authorization: sapisidHash } : {}),
         };
+        if (client.clientName === "WEB") {
+          extraHeaders["X-YouTube-Client-Name"] = "1";
+          extraHeaders["X-YouTube-Client-Version"] = "2.20241021.01.00";
+          extraHeaders["Origin"] = "https://www.youtube.com";
+          extraHeaders["Referer"] = "https://www.youtube.com/";
+        }
         const res = await innertubePost(
           {
             videoId,
