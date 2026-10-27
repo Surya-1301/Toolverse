@@ -454,6 +454,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
+    version = "2.1-stream-fix",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
@@ -772,9 +773,6 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
                 if (File.Exists(inVideo)) try { File.Delete(inVideo); } catch {}
                 if (File.Exists(inAudio)) try { File.Delete(inAudio); } catch {}
             }
-        }
-            if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
-                throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
         }
         var vStream = new FileStream(outVideo, FileMode.Open, FileAccess.Read, FileShare.None,
             65536, FileOptions.DeleteOnClose);
