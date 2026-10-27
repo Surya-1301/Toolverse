@@ -150,22 +150,26 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
 }
 var rawHttp = new HttpClient();
 
-async Task<string> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<Cookie> cookies)
+async Task<string?> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<Cookie> cookies)
 {
-    using var req = new HttpRequestMessage(HttpMethod.Get, "https://www.youtube.com/sw.js_data");
-    req.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-    req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
-    AddVisitorAuth(req, cookies);
-    using var res = await rawHttp.SendAsync(req, ct);
-    res.EnsureSuccessStatusCode();
-    var json = await res.Content.ReadAsStringAsync(ct);
-    if (json.StartsWith(")]}'"))
-        json = json[4..];
-    using var doc = JsonDocument.Parse(json);
-    var value = doc.RootElement[0][2][0][0][13].GetString();
-    if (string.IsNullOrWhiteSpace(value))
-        throw new YoutubeExplodeException("Failed to resolve visitor data.");
-    return value;
+    try
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "https://www.youtube.com/sw.js_data");
+        req.Headers.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+        req.Headers.Add("User-Agent", "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip");
+        AddVisitorAuth(req, cookies);
+        using var res = await rawHttp.SendAsync(req, ct);
+        if (!res.IsSuccessStatusCode) return null;
+        var json = await res.Content.ReadAsStringAsync(ct);
+        if (json.StartsWith(")]}'"))
+            json = json[4..];
+        using var doc = JsonDocument.Parse(json);
+        return doc.RootElement[0][2][0][0][13].GetString();
+    }
+    catch
+    {
+        return null;
+    }
 }
 
 async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)> FetchPlayerResponseAsync(string videoId, CancellationToken ct, IReadOnlyList<Cookie> cookies)
@@ -174,16 +178,19 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     // appends to youtubei requests; it is embedded in YouTube's own pages).
     const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
-    var clients = new[]
+    var androidClient = new Dictionary<string, object?>
     {
-        // ANDROID (unciphered direct streaming URLs without N-challenge)
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "20.10.38",
-            ["androidSdkVersion"] = 31, ["osName"] = "Android", ["osVersion"] = "12",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
+        ["clientName"] = "ANDROID",
+        ["clientVersion"] = "20.10.38",
+        ["androidSdkVersion"] = 31,
+        ["osName"] = "Android",
+        ["osVersion"] = "12",
+        ["hl"] = "en",
     };
+    if (!string.IsNullOrEmpty(visitorData))
+        androidClient["visitorData"] = visitorData;
+
+    var clients = new[] { androidClient };
     string lastError = "unknown player error";
     (PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)? bestCandidate = null;
     foreach (var client in clients)
@@ -476,7 +483,7 @@ app.MapGet("/", () => new
 {
     ok = true,
     service = "toolverse-ye-backend",
-    version = "2.9-android-direct",
+    version = "3.0-robust",
     engine = "YoutubeExplode",
     cookies = hasCookies,
     serverCookiesCount = serverCookies.Count,
@@ -579,7 +586,7 @@ app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationT
         return Results.Json(new
         {
             error = "Could not fetch video info.",
-            detail = ex.Message[..Math.Min(200, ex.Message.Length)],
+            detail = ex.Message,
             hint = "YouTube blocks anonymous server IPs; this service needs an unflagged IP.",
             cookiesUsed = visitorCookies.Count > 0,
         }, statusCode: 502);
