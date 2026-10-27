@@ -159,7 +159,7 @@ customHttpClient.DefaultRequestHeaders.Add("Referer", "https://www.youtube.com/"
 
 var serverCookies = ParseVisitorCookies(Environment.GetEnvironmentVariable("COOKIES_B64"));
 var hasCookies = serverCookies.Count > 0;
-var youtube = hasCookies ? new YoutubeClient(serverCookies, customHttpClient) : new YoutubeClient(customHttpClient);
+var youtube = hasCookies ? new YoutubeClient(customHttpClient, serverCookies) : new YoutubeClient(customHttpClient);
 Console.WriteLine($"[startup] toolverse-ye-backend loaded {serverCookies.Count} server cookies.");
 
 static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies)
@@ -422,6 +422,7 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
         ?? throw new ArgumentException($"Invalid YouTube video ID or URL '{url}'.");
     var raw = await FetchPlayerResponseAsync(videoId.Value, ct, vc);
     StreamManifest? manifest = null;
+    string? yeError = null;
     if (Environment.GetEnvironmentVariable("FORCE_RAW_FALLBACK") == "1")
     {
         Console.WriteLine("[fallback] FORCE_RAW_FALLBACK=1; using raw player streams");
@@ -429,8 +430,7 @@ async Task<VideoData> GetVideoDataAsync(string url, CancellationToken ct, IReadO
     else
     {
         // The library client must carry the cookies and custom HTTP headers
-        var client = vc.Count > 0 ? new YoutubeClient(vc, customHttpClient) : youtube;
-        string? yeError = null;
+        var client = vc.Count > 0 ? new YoutubeClient(customHttpClient, vc) : youtube;
         try
         {
             manifest = await client.Videos.Streams.GetManifestAsync(videoId, ct);
@@ -589,7 +589,7 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
     var audioOnly = q["audio"].FirstOrDefault() == "1";
     var visitorCookies = ParseVisitorCookies(q["cookies"].FirstOrDefault());
     var activeCookies = visitorCookies.Count > 0 ? visitorCookies : serverCookies;
-    var dlClient = activeCookies.Count > 0 ? new YoutubeClient(activeCookies) : youtube;
+    var dlClient = activeCookies.Count > 0 ? new YoutubeClient(customHttpClient, activeCookies) : youtube;
     // Only mp3 output is supported (Converter has no m4a container target);
     // any other requested audio format falls back to mp3, like yt-backend's default.
     var audioFormat = "mp3";
