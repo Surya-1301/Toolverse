@@ -204,14 +204,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
     var clients = new[]
     {
-        // ANDROID (YoutubeExplode's most reliable client)
-        new Dictionary<string, object?>
-        {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
-            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
-            ["visitorData"] = visitorData, ["hl"] = "en",
-        },
-        // VISIONOS
+        // VISIONOS (primary in YoutubeExplode — provides unciphered 1080p/720p/480p/audio)
         new Dictionary<string, object?>
         {
             ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
@@ -219,7 +212,28 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
-        // WEB (with cookies and SAPISIDHASH)
+        // IOS (Apple iPhone — provides unciphered adaptive formats)
+        new Dictionary<string, object?>
+        {
+            ["clientName"] = "IOS", ["clientVersion"] = "19.29.1",
+            ["deviceMake"] = "Apple", ["deviceModel"] = "iPhone16,2",
+            ["osName"] = "iOS", ["osVersion"] = "17.5.1.21F90",
+            ["visitorData"] = visitorData, ["hl"] = "en",
+        },
+        // ANDROID (YoutubeExplode's fallback)
+        new Dictionary<string, object?>
+        {
+            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
+            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+            ["visitorData"] = visitorData, ["hl"] = "en",
+        },
+        // TVHTML5
+        new Dictionary<string, object?>
+        {
+            ["clientName"] = "TVHTML5_SIMPLY_EMBEDDED_PLAYER", ["clientVersion"] = "2.0",
+            ["hl"] = "en",
+        },
+        // WEB
         new Dictionary<string, object?>
         {
             ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
@@ -227,6 +241,7 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         },
     };
     string lastError = "unknown player error";
+    (PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)? bestCandidate = null;
     foreach (var client in clients)
     {
         var payload = JsonSerializer.Serialize(new Dictionary<string, object?>
@@ -348,8 +363,17 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             continue;
         }
         var clientUsed = client["clientName"]?.ToString() ?? "?";
-        return (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, clientUsed);
+        var candidate = (new PlayerMetadata(title, author, duration, thumb), videoInfos, audioInfos, clientUsed);
+        if (bestCandidate == null || (videoInfos.Count + audioInfos.Count) > (bestCandidate.Value.Video.Count + bestCandidate.Value.Audio.Count))
+        {
+            bestCandidate = candidate;
+            // If we found multiple video streams and audio streams, we have rich formats!
+            if (videoInfos.Count >= 3 && audioInfos.Count >= 1)
+                break;
+        }
     }
+    if (bestCandidate != null)
+        return bestCandidate.Value;
     throw new YoutubeExplodeException($"Video is not playable via the player API: {lastError}");
 }
 
