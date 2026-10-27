@@ -594,6 +594,9 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var videoStreams = data.Video;
         var audioStreams = data.Audio;
 
+        const string browserUa = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+        const string browserRef = "https://www.youtube.com/";
+
         if (audioOnly)
         {
             var audio = audioStreams
@@ -603,12 +606,13 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
                 ?? throw new YoutubeExplodeException("No audio stream available.");
             var outPath = Path.Combine(tmpDir, $"tvdl-{id}.{audioFormat}");
 
-            var browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
             using var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = ffmpegPath;
             proc.StartInfo.ArgumentList.Add("-y");
-            proc.StartInfo.ArgumentList.Add("-headers");
-            proc.StartInfo.ArgumentList.Add(browserHeaders);
+            proc.StartInfo.ArgumentList.Add("-user_agent");
+            proc.StartInfo.ArgumentList.Add(browserUa);
+            proc.StartInfo.ArgumentList.Add("-referer");
+            proc.StartInfo.ArgumentList.Add(browserRef);
             proc.StartInfo.ArgumentList.Add("-i");
             proc.StartInfo.ArgumentList.Add(audio.Url);
             proc.StartInfo.ArgumentList.Add("-vn");
@@ -650,9 +654,11 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.CreateNoWindow = true;
             proc.Start();
+            var stderrTask = proc.StandardError.ReadToEndAsync(token);
             await proc.WaitForExitAsync(token);
+            var stderr = await stderrTask;
             if (!File.Exists(outPath) || new FileInfo(outPath).Length == 0)
-                throw new YoutubeExplodeException("FFmpeg failed to extract audio from stream.");
+                throw new YoutubeExplodeException($"FFmpeg audio extraction failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
 
             var stream = new FileStream(outPath, FileMode.Open, FileAccess.Read, FileShare.None,
                 65536, FileOptions.DeleteOnClose);
@@ -691,12 +697,13 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
         var outVideo = Path.Combine(tmpDir, $"tvdl-{id}.mp4");
         if (wantMuxed)
         {
-            var browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
             using var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = ffmpegPath;
             proc.StartInfo.ArgumentList.Add("-y");
-            proc.StartInfo.ArgumentList.Add("-headers");
-            proc.StartInfo.ArgumentList.Add(browserHeaders);
+            proc.StartInfo.ArgumentList.Add("-user_agent");
+            proc.StartInfo.ArgumentList.Add(browserUa);
+            proc.StartInfo.ArgumentList.Add("-referer");
+            proc.StartInfo.ArgumentList.Add(browserRef);
             proc.StartInfo.ArgumentList.Add("-i");
             proc.StartInfo.ArgumentList.Add(videoStream.Url);
             proc.StartInfo.ArgumentList.Add("-c");
@@ -708,27 +715,32 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.CreateNoWindow = true;
             proc.Start();
+            var stderrTask = proc.StandardError.ReadToEndAsync(token);
             await proc.WaitForExitAsync(token);
+            var stderr = await stderrTask;
             if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
-                throw new YoutubeExplodeException("FFmpeg failed to download video stream.");
+                throw new YoutubeExplodeException($"FFmpeg video download failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
         }
         else
         {
             var audio = audioStreams
                 .OrderByDescending(s => s.Bitrate.BitsPerSecond)
                 .FirstOrDefault();
-            var browserHeaders = "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36\r\nReferer: https://www.youtube.com/\r\nOrigin: https://www.youtube.com\r\n";
             using var proc = new System.Diagnostics.Process();
             proc.StartInfo.FileName = ffmpegPath;
             proc.StartInfo.ArgumentList.Add("-y");
-            proc.StartInfo.ArgumentList.Add("-headers");
-            proc.StartInfo.ArgumentList.Add(browserHeaders);
+            proc.StartInfo.ArgumentList.Add("-user_agent");
+            proc.StartInfo.ArgumentList.Add(browserUa);
+            proc.StartInfo.ArgumentList.Add("-referer");
+            proc.StartInfo.ArgumentList.Add(browserRef);
             proc.StartInfo.ArgumentList.Add("-i");
             proc.StartInfo.ArgumentList.Add(videoStream.Url);
             if (audio is not null)
             {
-                proc.StartInfo.ArgumentList.Add("-headers");
-                proc.StartInfo.ArgumentList.Add(browserHeaders);
+                proc.StartInfo.ArgumentList.Add("-user_agent");
+                proc.StartInfo.ArgumentList.Add(browserUa);
+                proc.StartInfo.ArgumentList.Add("-referer");
+                proc.StartInfo.ArgumentList.Add(browserRef);
                 proc.StartInfo.ArgumentList.Add("-i");
                 proc.StartInfo.ArgumentList.Add(audio.Url);
                 proc.StartInfo.ArgumentList.Add("-c:v");
@@ -748,9 +760,11 @@ app.MapGet("/api/download", async (HttpContext ctx, CancellationToken ct) =>
             proc.StartInfo.UseShellExecute = false;
             proc.StartInfo.CreateNoWindow = true;
             proc.Start();
+            var stderrTask = proc.StandardError.ReadToEndAsync(token);
             await proc.WaitForExitAsync(token);
+            var stderr = await stderrTask;
             if (!File.Exists(outVideo) || new FileInfo(outVideo).Length == 0)
-                throw new YoutubeExplodeException("FFmpeg failed to download and mux video streams.");
+                throw new YoutubeExplodeException($"FFmpeg muxing failed (exit {proc.ExitCode}): {stderr[..Math.Min(400, stderr.Length)]}");
         }
         var vStream = new FileStream(outVideo, FileMode.Open, FileAccess.Read, FileShare.None,
             65536, FileOptions.DeleteOnClose);
