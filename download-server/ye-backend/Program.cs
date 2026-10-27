@@ -158,6 +158,8 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
     if (cookies.Count == 0)
         return;
     req.Headers.Add("Cookie", string.Join("; ", cookies.Select(c => $"{c.Name}={c.Value}")));
+    req.Headers.Add("Origin", "https://www.youtube.com");
+    req.Headers.Add("Referer", "https://www.youtube.com/");
     var sapisid = cookies.FirstOrDefault(c => c.Name == "__Secure-3PAPISID")?.Value
         ?? cookies.FirstOrDefault(c => c.Name == "SAPISID")?.Value;
     if (string.IsNullOrEmpty(sapisid))
@@ -202,7 +204,14 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
     var visitorData = await ResolveVisitorDataAsync(ct, cookies);
     var clients = new[]
     {
-        // VISIONOS (primary in YoutubeExplode)
+        // ANDROID (YoutubeExplode's most reliable client)
+        new Dictionary<string, object?>
+        {
+            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
+            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+            ["visitorData"] = visitorData, ["hl"] = "en",
+        },
+        // VISIONOS
         new Dictionary<string, object?>
         {
             ["clientName"] = "VISIONOS", ["clientVersion"] = "1.02",
@@ -210,11 +219,10 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
             ["osName"] = "visionOS", ["osVersion"] = "26.5.23O471",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
-        // ANDROID (YoutubeExplode's fallback)
+        // WEB (with cookies and SAPISIDHASH)
         new Dictionary<string, object?>
         {
-            ["clientName"] = "ANDROID", ["clientVersion"] = "21.26.364",
-            ["androidSdkVersion"] = 30, ["osName"] = "Android", ["osVersion"] = "11",
+            ["clientName"] = "WEB", ["clientVersion"] = "2.20241021.01.00",
             ["visitorData"] = visitorData, ["hl"] = "en",
         },
     };

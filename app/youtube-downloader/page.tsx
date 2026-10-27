@@ -91,8 +91,8 @@ const YT_COOKIES_KEY = "yt-visitor-cookies";
 
 export default function YoutubeDownloaderPage() {
   const [url, setUrl] = useState("");
-  // Private server, baked in and hidden from the UI.
-  const serverUrl = PRIVATE_YT_BACKEND;
+  // Private server: use Ohio (.NET YoutubeExplode) as primary YouTube endpoint
+  const serverUrl = PRIVATE_YE_BACKEND;
   const ytKey = PRIVATE_YT_KEY;
   const [activeServer, setActiveServer] = useState(serverUrl);
   const [loading, setLoading] = useState(false);
@@ -208,7 +208,7 @@ export default function YoutubeDownloaderPage() {
     }
     const normalizedUrl = `https://www.youtube.com/watch?v=${vid}`;
     const base = serverUrl.trim().replace(/\/+$/, "");
-    const yeBase = PRIVATE_YE_BACKEND.trim().replace(/\/+$/, "");
+    const fallbackBase = PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -221,10 +221,10 @@ export default function YoutubeDownloaderPage() {
       setActiveServer(base);
       await fetchViaServer(normalizedUrl, base);
     } catch (e1) {
-      if (yeBase && yeBase !== base && (e1 as Error).name !== "AbortError") {
+      if (fallbackBase && fallbackBase !== base && (e1 as Error).name !== "AbortError") {
         try {
-          setActiveServer(yeBase);
-          await fetchViaServer(normalizedUrl, yeBase);
+          setActiveServer(fallbackBase);
+          await fetchViaServer(normalizedUrl, fallbackBase);
           return;
         } catch {
           /* fallback also errored, surface primary error */
@@ -616,7 +616,7 @@ export default function YoutubeDownloaderPage() {
       <div className="mt-10">
         <HowToUse
           title="How to use the YouTube Downloader"
-          subtitle="Download any YouTube video or Short in six quick steps."
+          subtitle=""
           steps={[
             {
               title: "Find your video",
