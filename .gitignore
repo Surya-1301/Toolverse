@@ -50,3 +50,9 @@ next-env.d.ts
 
 # misc
 .vercelx
+
+# IDE / editor
+.vscode
+
+# AI agents
+.agents
