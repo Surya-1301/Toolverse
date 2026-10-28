@@ -383,15 +383,69 @@ export default function YoutubeDownloaderPage() {
           </button>
           {showCookies ? (
             <div className="mt-3 rounded-2xl border border-white/10 p-4 light:border-slate-900/10">
-              <p className="text-xs leading-5 text-slate-400 light:text-slate-600">
-                If fetching fails with a sign-in error, paste your own
-                exported YouTube cookies here (browser extension “Get
-                cookies.txt LOCALLY”, while logged into YouTube) or drop
-                the cookies.txt file below. They are sent with your
-                requests only, never stored on the server, and never
-                shared with anyone. Paste once — they are remembered in
-                this browser so you don&apos;t paste again.
-              </p>
+              <div className="mb-4 rounded-xl border border-white/5 bg-white/[0.02] p-3.5 text-xs light:border-slate-900/5 light:bg-slate-50">
+                <div className="mb-2.5 font-semibold text-slate-200 light:text-slate-800">
+                  Quick Steps to Export &amp; Add Cookies:
+                </div>
+                <ol className="space-y-2 text-slate-300 light:text-slate-600">
+                  <li className="flex items-start gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-[11px] font-bold text-red-400">
+                      1
+                    </span>
+                    <span>
+                      Install the free browser extension{" "}
+                      <a
+                        href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-red-400 underline decoration-red-400/40 underline-offset-2 hover:text-red-300"
+                      >
+                        Get cookies.txt LOCALLY
+                      </a>{" "}
+                      (available for Chrome, Edge, Brave, and Firefox).
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-[11px] font-bold text-red-400">
+                      2
+                    </span>
+                    <span>
+                      Open{" "}
+                      <a
+                        href="https://www.youtube.com"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-medium text-slate-200 underline decoration-slate-400/40 hover:text-white light:text-slate-800"
+                      >
+                        YouTube.com
+                      </a>{" "}
+                      in a new tab and make sure you are logged in to your account.
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-[11px] font-bold text-red-400">
+                      3
+                    </span>
+                    <span>
+                      Click the extension icon in your browser toolbar and click{" "}
+                      <strong className="text-white light:text-slate-900">&quot;Export&quot;</strong> to download the{" "}
+                      <code className="rounded bg-white/10 px-1 py-0.5 font-mono text-[11px] text-red-300 light:bg-slate-200 light:text-red-700">cookies.txt</code> file (or copy the text).
+                    </span>
+                  </li>
+                  <li className="flex items-start gap-2.5">
+                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-500/20 text-[11px] font-bold text-red-400">
+                      4
+                    </span>
+                    <span>
+                      Paste the copied text in the box below or click{" "}
+                      <strong className="text-white light:text-slate-900">&quot;Drop cookies.txt file&quot;</strong>.
+                    </span>
+                  </li>
+                </ol>
+                <p className="mt-3 border-t border-white/5 pt-2.5 text-[11px] text-slate-400 light:border-slate-900/5 light:text-slate-500">
+                  🔒 <strong>Privacy note:</strong> Cookies are stored only in your local browser and sent solely to authenticate stream requests. They are never saved to our server or database.
+                </p>
+              </div>
               <textarea
                 value={cookiesText}
                 onChange={(e) => setCookiesText(e.target.value)}
