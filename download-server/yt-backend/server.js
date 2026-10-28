@@ -225,7 +225,6 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
       "--js-runtimes",
       "node",
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
-      ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       "--geo-bypass",
       "--no-check-certificates",
       "--socket-timeout",
@@ -726,8 +725,14 @@ app.get(["/", "/health"], (req, res) => {
     hasServerCookieHeader: !!SERVER_COOKIE_HEADER,
     cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
     hasProxy: !!process.env.PROXY_URL,
+    cachedEntries: parseCache.size,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
+});
+
+app.all("/api/clear-cache", (req, res) => {
+  parseCache.clear();
+  res.json({ ok: true, cleared: true });
 });
 
 app.get("/api/debug-player", async (req, res) => {
@@ -899,7 +904,8 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   // Visitor-cookie requests are never served from/written to the shared cache
   if (!tempCookiePath) {
     const cached = parseCache.get(key);
-    if (cached && cached.expires > Date.now()) {
+    const cachedVids = cached?.data?.resources?.filter((r) => !r.audioOnly) || [];
+    if (cached && cached.expires > Date.now() && cachedVids.length > 1) {
       return res.json({ ...cached.data, cached: true });
     }
   }
