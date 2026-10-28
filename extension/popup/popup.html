@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toolverse Downloader</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="header">
+    <div class="logo">
+      <span class="icon">⚡</span>
+      <span class="title">Toolverse</span>
+    </div>
+    <span class="badge">Downloader</span>
+  </div>
+
+  <div class="container">
+    <div id="loading" class="status-box hidden">
+      <div class="spinner"></div>
+      <p>Detecting video streams…</p>
+    </div>
+
+    <div id="detected-card" class="card hidden">
+      <div class="video-preview">
+        <img id="thumb" src="" alt="Thumbnail" class="thumb">
+        <div class="video-info">
+          <p id="video-title" class="video-title">Video Title</p>
+          <p id="video-meta" class="video-meta">Quality options available</p>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="btn-open-toolverse" class="btn btn-primary">
+          <span>Open Full Quality Table (4K / 1080p)</span>
+        </button>
+      </div>
+
+      <div class="qualities-section">
+        <p class="section-title">Quick Downloads:</p>
+        <div id="qualities-list" class="qualities-list"></div>
+      </div>
+    </div>
+
+    <div id="manual-input" class="manual-box">
+      <label for="url-input" class="label">Paste any video URL:</label>
+      <div class="input-row">
+        <input type="url" id="url-input" placeholder="YouTube, Instagram Reel, etc." class="input">
+        <button id="btn-fetch" class="btn btn-action">Fetch</button>
+      </div>
+    </div>
+
+    <div id="error-box" class="error-box hidden"></div>
+  </div>
+
+  <div class="footer">
+    <a href="https://toolversee.pages.dev" target="_blank" class="footer-link">Visit Toolverse Tools</a>
+    <span class="dot">•</span>
+    <a href="https://toolversee.pages.dev/tools/download-tools" target="_blank" class="footer-link">More Downloaders</a>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
