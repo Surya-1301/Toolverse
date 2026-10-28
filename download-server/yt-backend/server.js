@@ -304,7 +304,8 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
       throw lastErr;
     } else {
       const attempts = [
-        ["--extractor-args", "youtube:player-client=tv_simply,web_embedded,ios"],
+        ["--extractor-args", "youtube:player-client=android,ios,web"],
+        ["--extractor-args", "youtube:player-client=mweb,web_safari"],
         [],
       ];
       let lastErr = null;
