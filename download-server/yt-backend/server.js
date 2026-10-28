@@ -735,6 +735,59 @@ app.all("/api/clear-cache", (req, res) => {
   res.json({ ok: true, cleared: true });
 });
 
+app.get("/api/debug-direct", async (req, res) => {
+  const videoId = String(req.query.v || "ni78Ft1bXPU").trim();
+  const logs = [];
+  const activeCookieHeader = SERVER_COOKIE_HEADER;
+  const clients = [
+    {
+      clientName: "ANDROID",
+      clientVersion: "20.10.38",
+      androidSdkVersion: 31,
+      osName: "Android",
+      osVersion: "12",
+      hl: "en",
+      userAgent: "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+      isMobile: true,
+    },
+    {
+      clientName: "WEB",
+      clientVersion: "2.20241021.01.00",
+      hl: "en",
+      gl: "US",
+      userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+      isMobile: false,
+    },
+  ];
+  for (const client of clients) {
+    try {
+      const { userAgent, isMobile, ...clientPayload } = client;
+      const resp = await innertubePost(
+        {
+          videoId,
+          contentCheckOk: true,
+          racyCheckOk: true,
+          context: { client: clientPayload },
+        },
+        { "User-Agent": userAgent, ...(isMobile ? {} : { Cookie: activeCookieHeader, Authorization: getSapisidHash(activeCookieHeader), Origin: "https://www.youtube.com", Referer: "https://www.youtube.com/" }) },
+      );
+      const formats = [...(resp.data?.streamingData?.formats || []), ...(resp.data?.streamingData?.adaptiveFormats || [])];
+      logs.push({
+        client: client.clientName,
+        status: resp.status,
+        playability: resp.data?.playabilityStatus?.status,
+        reason: resp.data?.playabilityStatus?.reason,
+        formatsCount: formats.length,
+        directUrls: formats.filter((f) => f.url).length,
+        error: resp.error,
+      });
+    } catch (e) {
+      logs.push({ client: client.clientName, exception: e.message });
+    }
+  }
+  res.json({ logs, hasProxy: !!process.env.PROXY_URL, proxyDispatcher: !!proxyDispatcher });
+});
+
 app.get("/api/debug-player", async (req, res) => {
   const videoId = String(req.query.v || "Ph9WRhlPacY").trim();
   const activeCookieHeader = SERVER_COOKIE_HEADER;
