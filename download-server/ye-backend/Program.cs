@@ -484,6 +484,26 @@ app.MapGet("/", () => new
     maxMinutes,
 });
 
+app.MapGet("/health", () => Results.Json(new
+{
+    ok = true,
+    status = "healthy",
+    service = "toolverse-ye-backend",
+    version = "3.1-clean-first",
+    engine = "YoutubeExplode",
+    cookies = hasCookies,
+    serverCookiesCount = serverCookies.Count,
+}));
+
+app.MapGet("/healthz", () => Results.Json(new
+{
+    ok = true,
+    status = "healthy",
+    service = "toolverse-ye-backend",
+    version = "3.1-clean-first",
+    engine = "YoutubeExplode",
+}));
+
 // ---- Video info + resource table ----
 app.MapPost("/api/info", async (HttpContext ctx, JsonElement body, CancellationToken ct) =>
 {
