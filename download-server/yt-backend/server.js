@@ -221,6 +221,8 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
     const cookiesToUse = customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null);
     const fullArgs = [
       "--force-ipv4",
+      "--js-runtimes",
+      "node",
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       "--geo-bypass",
@@ -816,6 +818,8 @@ app.get("/api/debug-ytdlp", async (req, res) => {
     const fullArgs = [
       "--verbose",
       "--force-ipv4",
+      "--js-runtimes",
+      "node",
       ...(HAS_COOKIES ? ["--cookies", COOKIES_PATH] : []),
       "--geo-bypass",
       "--no-check-certificates",
@@ -900,13 +904,18 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
 
   // Fast direct Innertube resolution for YouTube (bypasses datacenter IP HTML bot wall)
   const vid = getYouTubeVideoId(key);
+  let directFallback = null;
   if (vid) {
     const directYt = await fetchYouTubeDirect(vid, activeCookieHeader);
     if (directYt) {
-      if (!tempCookiePath) {
-        parseCache.set(key, { data: directYt, expires: Date.now() + CACHE_MS });
+      const vidQualities = directYt.resources?.filter((r) => !r.audioOnly) || [];
+      if (vidQualities.length > 1) {
+        if (!tempCookiePath) {
+          parseCache.set(key, { data: directYt, expires: Date.now() + CACHE_MS });
+        }
+        return res.json(directYt);
       }
-      return res.json(directYt);
+      directFallback = directYt;
     }
   }
 
@@ -945,6 +954,10 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     }
     res.json(data);
   } catch (e) {
+    if (directFallback) {
+      if (!tempCookiePath) parseCache.set(key, { data: directFallback, expires: Date.now() + CACHE_MS });
+      return res.json(directFallback);
+    }
     if (vid) {
       const directYt = await fetchYouTubeDirect(vid, cookieHeader || SERVER_COOKIE_HEADER);
       if (directYt) {

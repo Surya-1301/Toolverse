@@ -1,11 +1,11 @@
 
 FROM node:22-slim
 
-ARG CACHE_DATE=2026-10-28-02
+ARG CACHE_DATE=2026-10-28-03
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends curl ffmpeg ca-certificates python3 \
-  && (apt-get install -y --no-install-recommends quickjs || true) \
+  && apt-get install -y --no-install-recommends curl ffmpeg ca-certificates python3 unzip \
+  && (curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/usr/local sh || true) \
   && ln -sf /usr/local/bin/node /usr/bin/node \
   && ln -sf /usr/local/bin/node /usr/bin/nodejs \
   && rm -rf /var/lib/apt/lists/* \
