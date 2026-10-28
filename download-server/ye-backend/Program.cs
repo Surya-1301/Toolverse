@@ -174,10 +174,8 @@ async Task<string?> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<
 
 async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStreamInfo> Audio, string ClientUsed)> FetchPlayerResponseAsync(string videoId, CancellationToken ct, IReadOnlyList<Cookie> cookies)
 {
-    // YouTube's public innertube web-client key (the same one YoutubeExplode
-    // appends to youtubei requests; it is embedded in YouTube's own pages).
+    // YouTube's public innertube key
     const string apiKeyInnertube = "AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8";
-    var visitorData = await ResolveVisitorDataAsync(ct, cookies);
     var androidClient = new Dictionary<string, object?>
     {
         ["clientName"] = "ANDROID",
@@ -187,8 +185,6 @@ async Task<(PlayerMetadata Meta, List<IVideoStreamInfo> Video, List<IAudioStream
         ["osVersion"] = "12",
         ["hl"] = "en",
     };
-    if (!string.IsNullOrEmpty(visitorData))
-        androidClient["visitorData"] = visitorData;
 
     var attempts = (cookies.Count > 0) ? new[] { false, true } : new[] { false };
     const string cn = "ANDROID";

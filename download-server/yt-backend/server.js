@@ -444,6 +444,16 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 
     const clients = [
       {
+        clientName: "ANDROID",
+        clientVersion: "20.10.38",
+        androidSdkVersion: 31,
+        osName: "Android",
+        osVersion: "12",
+        hl: "en",
+        userAgent: "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+        isMobile: true,
+      },
+      {
         clientName: "IOS",
         clientVersion: "19.29.1",
         deviceMake: "Apple",
@@ -451,15 +461,8 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
         osName: "iOS",
         osVersion: "17.5.1.21F90",
         hl: "en",
-      },
-      {
-        clientName: "ANDROID",
-        clientVersion: "20.10.38",
-        androidSdkVersion: 31,
-        osName: "Android",
-        osVersion: "12",
-        ...(visitorData ? { visitorData } : {}),
-        hl: "en",
+        userAgent: "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)",
+        isMobile: true,
       },
       {
         clientName: "VISIONOS",
@@ -470,11 +473,8 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
         osVersion: "26.5.23O471",
         ...(visitorData ? { visitorData } : {}),
         hl: "en",
-      },
-      {
-        clientName: "TVHTML5_SIMPLY_EMBEDDED_PLAYER",
-        clientVersion: "2.0",
-        hl: "en",
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15",
+        isMobile: false,
       },
       {
         clientName: "WEB",
@@ -482,35 +482,33 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
         hl: "en",
         gl: "US",
         ...(visitorData ? { visitorData } : {}),
+        userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+        isMobile: false,
       },
     ];
 
     for (const client of clients) {
-      const sapisidHash = getSapisidHash(cookieHeader);
+      const sapisidHash = client.isMobile ? null : getSapisidHash(cookieHeader);
       let pJson = null;
       try {
         const extraHeaders = {
-          ...(cookieHeader ? { Cookie: cookieHeader } : {}),
+          "User-Agent": client.userAgent,
+          ...(cookieHeader && !client.isMobile ? { Cookie: cookieHeader } : {}),
           ...(sapisidHash ? { Authorization: sapisidHash } : {}),
         };
-        if (client.clientName === "ANDROID") {
-          extraHeaders["User-Agent"] = "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip";
-        } else if (client.clientName === "IOS") {
-          extraHeaders["User-Agent"] = "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)";
-        } else if (client.clientName === "VISIONOS") {
-          extraHeaders["User-Agent"] = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15";
-        } else if (client.clientName === "WEB") {
+        if (client.clientName === "WEB") {
           extraHeaders["X-YouTube-Client-Name"] = "1";
           extraHeaders["X-YouTube-Client-Version"] = "2.20241021.01.00";
           extraHeaders["Origin"] = "https://www.youtube.com";
           extraHeaders["Referer"] = "https://www.youtube.com/";
         }
+        const { userAgent, isMobile, ...clientPayload } = client;
         const res = await innertubePost(
           {
             videoId,
             contentCheckOk: true,
             racyCheckOk: true,
-            context: { client },
+            context: { client: clientPayload },
           },
           extraHeaders,
         );
