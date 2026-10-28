@@ -14,6 +14,7 @@ if (dns.setDefaultResultOrder) {
 }
 
 let proxyDispatcher = undefined;
+let proxyInitError = null;
 if (process.env.PROXY_URL) {
   try {
     const { ProxyAgent } = require("undici");
@@ -23,6 +24,7 @@ if (process.env.PROXY_URL) {
       process.env.PROXY_URL.replace(/:[^:@]+@/, ":***@"),
     );
   } catch (err) {
+    proxyInitError = err.message;
     console.error("[proxy] Failed to initialize ProxyAgent:", err.message);
   }
 }
@@ -785,7 +787,7 @@ app.get("/api/debug-direct", async (req, res) => {
       logs.push({ client: client.clientName, exception: e.message });
     }
   }
-  res.json({ logs, hasProxy: !!process.env.PROXY_URL, proxyDispatcher: !!proxyDispatcher });
+  res.json({ logs, hasProxy: !!process.env.PROXY_URL, proxyDispatcher: !!proxyDispatcher, proxyInitError, rawProxyUrl: process.env.PROXY_URL ? process.env.PROXY_URL.replace(/:[^:@]+@/, ":***@") : null });
 });
 
 app.get("/api/debug-player", async (req, res) => {
