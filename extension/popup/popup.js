@@ -121,13 +121,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Detect active tab on popup open
+  function isSpecificVideoUrl(url) {
+    return /youtube\.com\/watch\?v=|youtu\.be\/[A-Za-z0-9_-]{11}|youtube\.com\/shorts\/|instagram\.com\/(?:reel|reels|p)\//i.test(url);
+  }
+
+  // Pre-fill active video URL into the input without auto-fetching
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     if (tabs && tabs[0] && tabs[0].url) {
       const activeUrl = tabs[0].url;
-      if (isSupportedMediaUrl(activeUrl)) {
+      if (isSpecificVideoUrl(activeUrl)) {
         urlInput.value = activeUrl;
-        fetchVideoInfo(activeUrl);
       }
     }
   });
