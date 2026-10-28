@@ -46,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || "Could not fetch video streams.");
+        throw new Error(err.detail || err.error || "Could not fetch video info.");
       }
 
       const data = await res.json();
@@ -146,3 +146,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
