@@ -20,9 +20,9 @@ const tools = [
     icon: <Clapperboard className="h-6 w-6" />,
   },
   {
-    title: "Music Downloader",
+    title: "Audio Downloader",
     description:
-      "Download music from YouTube and other platforms as high-quality MP3 audio.",
+      "Download audio from YouTube and other platforms as high-quality MP3 audio.",
     href: "/music-downloader",
     icon: <Music className="h-6 w-6" />,
   },
