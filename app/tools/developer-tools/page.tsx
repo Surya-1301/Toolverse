@@ -3,37 +3,28 @@
 import {
   ArrowLeft,
   ArrowRight,
-  AudioLines,
   Bot,
   Braces,
-  Clapperboard,
   Clock,
-  Film,
   Fingerprint,
-  GitCompare,
-  GitMerge,
   Globe2,
   Hash,
   KeyRound,
   Link2,
   LockKeyhole,
   MapPin,
-  Music,
   Network,
   Send,
   ShieldCheck,
   Shuffle,
   Tags,
-  TextQuote,
-  CaseSensitive,
   WalletCards,
-  Waves,
 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 
 const tools = [
-  {   
+  {
     title: "IP Address Lookup",
     description:
       "See your public IP address with location, network, and timezone details.",
@@ -95,52 +86,18 @@ const tools = [
     icon: <LockKeyhole className="h-6 w-6" />,
   },
   {
-    title: "Lorem Ipsum Generator",
-    description:
-      "Generate classic placeholder text as paragraphs, sentences, or words with optional HTML tags.",
-    href: "/lorem-ipsum-generator",
-    icon: <TextQuote className="h-6 w-6" />,
-  },
-  {
-    title: "Text Counter",
-    description:
-      "Count words, characters, letters, numbers, spaces, punctuation, sentences, paragraphs, lines, and reading time — all in one place.",
-    href: "/text-counter",
-    icon: <Hash className="h-6 w-6" />,
-  },
-  {
-    title: "Case Converter",
-    description: "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case.",
-    href: "/case-converter",
-    icon: <CaseSensitive className="h-6 w-6" />,
-  },
-  {
-    title: "Duplicate Line Remover",
-    description:
-      "Remove duplicate or blank lines from text and copy the cleaned result.",
-    href: "/duplicate-line-remover",
-    icon: <GitMerge className="h-6 w-6" />,
-  },
-  {
     title: "Timestamp Converter",
     description:
       "Convert Unix timestamps to dates, dates to Unix timestamps, and view timezones.",
     href: "/timestamp-converter",
     icon: <Clock className="h-6 w-6" />,
   },
-   {
+  {
     title: "URL Tools",
     description:
       "Parse URL components, encode or decode text, and trace redirect chains in one place.",
     href: "/url-tools",
     icon: <Link2 className="h-6 w-6" />,
-  },
-  {
-    title: "Text to Speech",
-    description:
-      "Turn text into spoken audio using your browser's built-in voice engine.",
-    href: "/text-to-speech",
-    icon: <AudioLines className="h-6 w-6" />,
   },
   {
     title: "Domain Lookup",
@@ -157,18 +114,11 @@ const tools = [
     icon: <Send className="h-6 w-6" />,
   },
   {
-    title: "Text Compare / Diff",
+    title: "Email, Phone & IBAN Validator",
     description:
-      "Compare two blocks of text side by side and see added, removed, and unchanged lines.",
-    href: "/text-compare",
-    icon: <GitCompare className="h-6 w-6" />,
-  },
-  {
-  title: "Email, Phone & IBAN Validator",
-  description:
-    "Validate emails, phone numbers, and IBANs in one private, local tool.",
-  href: "/email-phone-iban-validator",
-  icon: <ShieldCheck className="h-6 w-6" />,
+      "Validate emails, phone numbers, and IBANs in one private, local tool.",
+    href: "/email-phone-iban-validator",
+    icon: <ShieldCheck className="h-6 w-6" />,
   },
   {
     title: "Meta Tag Generator",
@@ -183,19 +133,6 @@ const tools = [
       "Build crawl rules, crawl delays and sitemaps, then download a ready robots.txt file.",
     href: "/robots-txt-generator",
     icon: <Bot className="h-6 w-6" />,
-  },
-  {
-    title: "Audio Converter",
-    description:
-      "Convert audio between MP3, WAV, and WebM right in your browser.",
-    href: "/audio-converter",
-    icon: <Waves className="h-6 w-6" />,
-  },
-  {
-    title: "Instagram Reels Downloader",
-    description: "Download Instagram reels, posts and carousels in HD.",
-    href: "/instagram-reels-downloader",
-    icon: <Film className="h-6 w-6" />,
   },
 ];
 
@@ -221,7 +158,9 @@ function RelatedToolCard({
         </div>
 
         <div>
-          <h2 className="text-lg font-bold text-white light:text-slate-900">{title}</h2>
+          <h2 className="text-lg font-bold text-white light:text-slate-900">
+            {title}
+          </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-400 light:text-slate-600">
             {description}
@@ -237,7 +176,7 @@ function RelatedToolCard({
   );
 }
 
-export default function TextDeveloperToolsPage() {
+export default function DeveloperToolsPage() {
   return (
     <Container className="py-12 sm:py-16">
       <Link
@@ -250,11 +189,12 @@ export default function TextDeveloperToolsPage() {
 
       <div className="mx-auto mt-8 max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
-          Text and Developer Tools
+          Developer Tools
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-         Count, transform, encode, decode, hash, generate, and convert text, UUIDs, passwords, URLs, timestamps, colors, and more.        </p>
+          Generate UUIDs, passwords, hashes, Base64, JWTs, validate data, test APIs, and more.
+        </p>
       </div>
 
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -265,3 +205,4 @@ export default function TextDeveloperToolsPage() {
     </Container>
   );
 }
+

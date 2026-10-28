@@ -18,10 +18,12 @@ const mainLinks = [
 ];
 
 const toolLinks = [
+  { href: "/tools/download-tools", label: "Download tools" },
   { href: "/tools/image-tools", label: "Image tools" },
   { href: "/tools/conversion-tools", label: "Conversion tools" },
   { href: "/tools/formatter-tools", label: "Formatter tools" },
-  { href: "/tools/text-developer-tools", label: "Developer tools" },
+  { href: "/tools/text-tools", label: "Text tools" },
+  { href: "/tools/developer-tools", label: "Developer tools" },
 ];
 
 export function Header() {

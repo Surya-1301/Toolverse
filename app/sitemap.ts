@@ -22,7 +22,8 @@ const staticPaths = [
   "tools/download-tools",
   "tools/formatter-tools",
   "tools/image-tools",
-  "tools/text-developer-tools",
+  "tools/text-tools",
+  "tools/developer-tools",
 ];
 
 const legalPaths = ["contact", "privacy", "terms", "report-abuse"];

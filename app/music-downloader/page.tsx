@@ -294,7 +294,7 @@ export default function MusicDownloaderPage() {
 
       <div className="mt-10">
         <HowToUse
-          title="How to use the Music Downloader"
+          title="How to use the Audio Downloader"
           subtitle=""
           steps={[
             {

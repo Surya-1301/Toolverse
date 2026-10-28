@@ -725,7 +725,7 @@ export default function EmailPhoneIbanValidatorPage() {
   return (
     <Container className="py-12 sm:py-16">
       <Link
-        href="/tools/text-developer-tools"
+        href="/tools/developer-tools"
         className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
       >
         <ArrowLeft className="h-4 w-4" />

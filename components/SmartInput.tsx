@@ -65,7 +65,7 @@ const detectionMeta: Record<
     label: "Text detected",
     description:
       "Work with text and developer utilities.",
-    href: "/tools/text-developer-tools",
+    href: "/tools/developer-tools",
   },
 };
 

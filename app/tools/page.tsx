@@ -3,6 +3,7 @@
 import {
   ArrowRight,
   Code2,
+  Download,
   FileCode2,
   FilePenLine,
   FileUp,
@@ -13,9 +14,10 @@ import {
   MapPin,
   QrCode,
   Text,
+  Type,
   Wrench,
   Sparkles,
-  WalletCards,
+  Clapperboard,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -76,12 +78,11 @@ const popularTools = [
     status: "live" as const,
   },
 {
-    title: "Credit Card Generator",
+    title: "YouTube Downloader",
     description:
-      "Generate test cards or validate any card's checksum and brand.",
-    href: "/credit-card-generator",
-    icon: <WalletCards className="h-6 w-6" />,
-    status: "live" as const,
+      "Download YouTube videos and audio in multiple resolutions and formats.",
+    href: "/youtube-downloader",
+    icon: <Clapperboard className="h-6 w-6" />,
   },
   {
     title: "Fake Address Generator",
@@ -106,6 +107,15 @@ const popularTools = [
    ========================================================================== */
 
 const categoryCards = [
+
+  {
+    title: "Download Tools",
+    description:
+      "Download YouTube videos, music, Instagram reels, and convert audio — all from your browser.",
+    href: "/tools/download-tools",
+    icon: <Download className="h-7 w-7" />,
+    status: "live" as const,
+  },
   {
     title: "Image Tools",
     description:
@@ -134,10 +144,19 @@ const categoryCards = [
   },
 
   {
-    title: "Text & Developer Tools",
+    title: "Text Tools",
     description:
-      "Generate UUIDs, passwords, hashes, Base64, JWTs, regex matches, timestamps, URLs, and colors.",
-    href: "/tools/text-developer-tools",
+      "Count, transform, compare, convert, and generate placeholder text with ease.",
+    href: "/tools/text-tools",
+    icon: <Type className="h-7 w-7" />,
+    status: "live" as const,
+  },
+
+  {
+    title: "Developer Tools",
+    description:
+      "Generate UUIDs, passwords, hashes, Base64, JWTs, validate data, test APIs, and more.",
+    href: "/tools/developer-tools",
     icon: <Wrench className="h-7 w-7" />,
     status: "live" as const,
   },
