@@ -49,21 +49,51 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   async function downloadSubtitles(vid, title) {
-    const res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&fmt=json3`);
-    if (!res.ok) throw new Error("Subtitles not found for this video.");
-    const json = await res.json();
-    if (!json?.events?.length) throw new Error("No caption events available.");
+    // 1. Try English
+    let res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&fmt=json3`);
+    let text = await res.text();
+
+    // 2. Try auto-generated captions
+    if (!text || !text.trim()) {
+      res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&kind=asr&fmt=json3`);
+      text = await res.text();
+    }
+
+    // 3. Try default track without language filter
+    if (!text || !text.trim()) {
+      res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&fmt=json3`);
+      text = await res.text();
+    }
+
+    if (!text || !text.trim()) {
+      throw new Error("No subtitles or captions are available for this video.");
+    }
+
+    let json = null;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error("Subtitles format could not be parsed for this video.");
+    }
+
+    if (!json?.events || !json.events.length) {
+      throw new Error("No subtitle caption events found for this video.");
+    }
 
     let srt = "";
     let idx = 1;
     for (const ev of json.events) {
       if (!ev.segs) continue;
-      const text = ev.segs.map((s) => s.utf8).join("").trim();
-      if (!text || text === "\n") continue;
+      const textSeg = ev.segs.map((s) => s.utf8).join("").trim();
+      if (!textSeg || textSeg === "\n") continue;
       const start = ev.tStartMs || 0;
       const end = start + (ev.dDurationMs || 2000);
-      srt += `${idx}\n${fmtSrtTime(start)} --> ${fmtSrtTime(end)}\n${text}\n\n`;
+      srt += `${idx}\n${fmtSrtTime(start)} --> ${fmtSrtTime(end)}\n${textSeg}\n\n`;
       idx++;
+    }
+
+    if (!srt.trim()) {
+      throw new Error("No readable text found in captions.");
     }
 
     const blob = new Blob([srt], { type: "text/plain;charset=utf-8" });
@@ -91,12 +121,26 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ url }),
       });
 
+      const rawText = await res.text();
+      let data = null;
+      try {
+        data = rawText ? JSON.parse(rawText) : null;
+      } catch {}
+
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.detail || err.error || "Could not fetch video info.");
+        throw new Error(
+          data?.detail ||
+          data?.error ||
+          (res.status === 502 || res.status === 504
+            ? "Backend server is waking up. Please wait 15 seconds and try again."
+            : `Server returned error (${res.status}).`)
+        );
       }
 
-      const data = await res.json();
+      if (!data) {
+        throw new Error("Server returned an empty or invalid response. Please try again.");
+      }
+
       renderVideoCard(data, url);
     } catch (err) {
       showError(err.message || "Failed to inspect video streams.");

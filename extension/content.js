@@ -33,22 +33,51 @@
 
   async function downloadSubtitles(vid, title) {
     try {
-      // Fetch English or auto captions from YouTube timedtext
-      const res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&fmt=json3`);
-      if (!res.ok) throw new Error("Subtitles not found for this video.");
-      const json = await res.json();
-      if (!json?.events?.length) throw new Error("No caption events available.");
+      // 1. Try English track
+      let res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&fmt=json3`);
+      let text = await res.text();
+
+      // 2. Try auto captions
+      if (!text || !text.trim()) {
+        res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&kind=asr&fmt=json3`);
+        text = await res.text();
+      }
+
+      // 3. Try default track without language filter
+      if (!text || !text.trim()) {
+        res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&fmt=json3`);
+        text = await res.text();
+      }
+
+      if (!text || !text.trim()) {
+        throw new Error("No subtitles or captions are available for this video.");
+      }
+
+      let json = null;
+      try {
+        json = JSON.parse(text);
+      } catch {
+        throw new Error("Subtitles format could not be parsed for this video.");
+      }
+
+      if (!json?.events || !json.events.length) {
+        throw new Error("No subtitle caption events found for this video.");
+      }
 
       let srt = "";
       let idx = 1;
       for (const ev of json.events) {
         if (!ev.segs) continue;
-        const text = ev.segs.map((s) => s.utf8).join("").trim();
-        if (!text || text === "\n") continue;
+        const textSeg = ev.segs.map((s) => s.utf8).join("").trim();
+        if (!textSeg || textSeg === "\n") continue;
         const start = ev.tStartMs || 0;
         const end = start + (ev.dDurationMs || 2000);
-        srt += `${idx}\n${fmtSrtTime(start)} --> ${fmtSrtTime(end)}\n${text}\n\n`;
+        srt += `${idx}\n${fmtSrtTime(start)} --> ${fmtSrtTime(end)}\n${textSeg}\n\n`;
         idx++;
+      }
+
+      if (!srt.trim()) {
+        throw new Error("No readable text found in captions.");
       }
 
       const blob = new Blob([srt], { type: "text/plain;charset=utf-8" });
@@ -60,7 +89,7 @@
       document.body.removeChild(dlLink);
       URL.revokeObjectURL(dlLink.href);
     } catch (err) {
-      alert(`Could not download subtitles: ${err.message || "No captions found"}`);
+      alert(`Notice: ${err.message || "No captions available"}`);
     }
   }
 
