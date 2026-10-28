@@ -229,7 +229,13 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
       "12",
       ...args,
     ];
-    const proc = spawn("yt-dlp", fullArgs, { timeout: timeoutMs });
+    const proc = spawn("yt-dlp", fullArgs, {
+      timeout: timeoutMs,
+      env: {
+        ...process.env,
+        PATH: `/usr/local/bin:/usr/bin:/bin:${process.env.PATH || ""}`,
+      },
+    });
     let stdout = "";
     let stderr = "";
     proc.stdout.on("data", (d) => {
@@ -819,7 +825,13 @@ app.get("/api/debug-ytdlp", async (req, res) => {
       "--no-playlist",
       testUrl,
     ];
-    const proc = spawn("yt-dlp", fullArgs, { timeout: 12000 });
+    const proc = spawn("yt-dlp", fullArgs, {
+      timeout: 12000,
+      env: {
+        ...process.env,
+        PATH: `/usr/local/bin:/usr/bin:/bin:${process.env.PATH || ""}`,
+      },
+    });
     let stdout = "";
     let stderr = "";
     proc.stdout.on("data", (d) => { stdout += d; });

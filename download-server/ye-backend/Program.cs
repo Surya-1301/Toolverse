@@ -83,11 +83,6 @@ static List<Cookie> ParseVisitorCookies(string? input)
         try { text = System.Text.Encoding.UTF8.GetString(Convert.FromBase64String(text)); }
         catch { return cookies; }
     }
-    var allowedCookies = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-    {
-        "SID", "HSID", "SSID", "APISID", "SAPISID", "LOGIN_INFO"
-    };
-
     foreach (var line in text.Split('\n'))
     {
         var l = line.Trim();
@@ -99,7 +94,7 @@ static List<Cookie> ParseVisitorCookies(string? input)
             continue;
         var name = parts[5].Trim();
         var val = parts[6].Trim();
-        if (!allowedCookies.Contains(name))
+        if (string.IsNullOrEmpty(name))
             continue;
         try
         {
