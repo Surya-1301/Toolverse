@@ -5,13 +5,13 @@ import {
   Code2,
   Download,
   FileCode2,
+  FilePenLine,
   FileUp,
   ImageDown,
   ImagePlus,
   Images,
   Link2,
   MapPin,
-  Music,
   QrCode,
   Text,
   Type,
@@ -30,11 +30,11 @@ import { ToolCard } from "../../components/ToolCard";
 
 const popularTools = [
   {
-    title: "Music Downloader",
+    title: "PDF Editor",
     description:
-      "Download music from YouTube and other platforms as high-quality MP3 audio.",
-    href: "/music-downloader",
-    icon: <Music className="h-6 w-6" />,
+      "Merge, split, extract, remove, scan, edit, convert, compress, and secure PDFs in one place.",
+    href: "https://pdfverse.pages.dev/",
+    icon: <FilePenLine className="h-6 w-6" />,
     status: "live" as const,
   },
   {
