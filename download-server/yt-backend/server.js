@@ -294,19 +294,20 @@ function normalizeUrl(rawUrl) {
 
 async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint = "") {
   const isYt = /youtube\.com|youtu\.be/i.test(urlHint || args.join(" "));
+  const isDump = args.includes("--dump-json");
+  const effectiveTimeout = isDump ? Math.min(timeoutMs || 25000, 25000) : (timeoutMs || MAX_MS);
 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
       const attempts = [
-        ["--extractor-args", "youtube:player-client=mweb,tv,web_safari"],
+        [],
         ["--extractor-args", "youtube:player-client=web,web_safari"],
         ["--extractor-args", "youtube:player-client=android,web"],
-        [],
       ];
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], Math.min(timeoutMs || 15000, 15000), customCookiesPath);
+          return await runYtDlp([...extra, ...args], effectiveTimeout, customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
@@ -321,7 +322,7 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
       let lastErr = null;
       for (const extra of attempts) {
         try {
-          return await runYtDlp([...extra, ...args], 12000, customCookiesPath);
+          return await runYtDlp([...extra, ...args], effectiveTimeout, customCookiesPath);
         } catch (e) {
           lastErr = e;
         }
@@ -331,7 +332,7 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   }
 
   // Non-YouTube (e.g. Instagram)
-  return await runYtDlp(args, Math.min(timeoutMs, 40000), customCookiesPath);
+  return await runYtDlp(args, effectiveTimeout, customCookiesPath);
 }
 
 function isValidUrl(u) {
@@ -1080,7 +1081,7 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     } catch {}
   }
 
-  // Handle direct Instagram stream if fetched via direct fallback
+  // Direct stream fallback for Instagram
   if (format_id && String(format_id).startsWith("ig_")) {
     let directUrl = parseCache.get(key)?.data?.directUrl;
     let title = parseCache.get(key)?.data?.title || "instagram_reel";
@@ -1106,167 +1107,6 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       } catch (streamErr) {
         console.error("Direct stream failed:", streamErr);
       }
-    }
-  }
-
-  // Handle direct YouTube Innertube stream
-  const ytVid = getYouTubeVideoId(key);
-  if (ytVid && (String(format_id || "").startsWith("ye_") || audioOnly || !format_id)) {
-    let cached = parseCache.get(key)?.data;
-    if (!cached || !cached.resources) {
-      cached = await fetchYouTubeDirect(ytVid, cookieHeader || SERVER_COOKIE_HEADER);
-    }
-    const audioResource = cached?.resources?.find((r) => r.audioOnly);
-    let targetResource = cached?.resources?.find((r) => r.id === format_id);
-    if (!targetResource && quality) {
-      const q = parseInt(quality, 10);
-      const vids = (cached?.resources || []).filter((r) => !r.audioOnly);
-      targetResource = vids.find((r) => r.quality <= q) || vids[0];
-    }
-    const title = cached?.title || "youtube_video";
-
-    if (audioOnly || targetResource?.audioOnly) {
-      const audioUrl = (targetResource?.audioOnly ? targetResource.directUrl : null) || audioResource?.directUrl || cached?.audioDirectUrl;
-      if (audioUrl) {
-        const af = ["mp3", "ogg", "opus", "wav", "m4a"].includes(String(audio_format))
-          ? String(audio_format)
-          : "mp3";
-        const filename = `${sanitizeFilename(title)}.${af}`;
-        res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-        const audioUa = audioUrl.includes("c=ANDROID")
-          ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
-          : audioUrl.includes("c=IOS")
-          ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
-          : audioUrl.includes("c=VISIONOS")
-          ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
-          : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-        const browserHeaders = `User-Agent: ${audioUa}\r\nReferer: https://www.youtube.com/\r\n`;
-        if (af === "m4a" && audioResource?.isM4a) {
-          res.setHeader("Content-Type", "audio/mp4");
-          const ff = spawn("ffmpeg", [
-            "-headers",
-            browserHeaders,
-            "-i",
-            audioUrl,
-            "-vn",
-            "-c:a",
-            "copy",
-            "-movflags",
-            "frag_keyframe+empty_moov+default_base_moof",
-            "-f",
-            "mp4",
-            "pipe:1",
-          ]);
-          ff.stdout.pipe(res);
-          ff.stderr.on("data", () => {});
-          req.on("close", () => ff.kill());
-          if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
-          return;
-        } else {
-          res.setHeader("Content-Type", "audio/mpeg");
-          const ff = spawn("ffmpeg", [
-            "-headers",
-            browserHeaders,
-            "-i",
-            audioUrl,
-            "-vn",
-            "-acodec",
-            "libmp3lame",
-            "-b:a",
-            "192k",
-            "-f",
-            "mp3",
-            "pipe:1",
-          ]);
-          ff.stdout.pipe(res);
-          ff.stderr.on("data", () => {});
-          req.on("close", () => ff.kill());
-          if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
-          return;
-        }
-      }
-    }
-
-    if (targetResource?.directUrl) {
-      const ext = targetResource.ext || "mp4";
-      const filename = `${sanitizeFilename(title)}.${ext}`;
-      const vUa = targetResource.directUrl.includes("c=ANDROID")
-        ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
-        : targetResource.directUrl.includes("c=IOS")
-        ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
-        : targetResource.directUrl.includes("c=VISIONOS")
-        ? "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Safari/605.1.15"
-        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-      const vHeaders = `User-Agent: ${vUa}\r\nReferer: https://www.youtube.com/\r\n`;
-
-      if (targetResource.hasAudio) {
-        try {
-          const sRes = await fetch(targetResource.directUrl, {
-            headers: {
-              "User-Agent": vUa,
-              Referer: "https://www.youtube.com/",
-            },
-          });
-          if (sRes.ok) {
-            res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-            res.setHeader("Content-Type", ext === "webm" ? "video/webm" : "video/mp4");
-            const { Readable } = require("stream");
-            Readable.fromWeb(sRes.body).pipe(res);
-            if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
-            return;
-          }
-        } catch {}
-      }
-
-      const audioUrl = audioResource?.directUrl || cached?.audioDirectUrl;
-      const aUa = (audioUrl || "").includes("c=ANDROID")
-        ? "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip"
-        : (audioUrl || "").includes("c=IOS")
-        ? "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; en_US)"
-        : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
-      const aHeaders = `User-Agent: ${aUa}\r\nReferer: https://www.youtube.com/\r\n`;
-
-      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-      res.setHeader("Content-Type", "video/mp4");
-      const ffArgs = audioUrl
-        ? [
-            "-headers",
-            vHeaders,
-            "-i",
-            targetResource.directUrl,
-            "-headers",
-            aHeaders,
-            "-i",
-            audioUrl,
-            "-c:v",
-            "copy",
-            "-c:a",
-            "aac",
-            "-movflags",
-            "frag_keyframe+empty_moov+default_base_moof",
-            "-f",
-            "mp4",
-            "pipe:1",
-          ]
-        : [
-            "-headers",
-            vHeaders,
-            "-i",
-            targetResource.directUrl,
-            "-c",
-            "copy",
-            "-movflags",
-            "frag_keyframe+empty_moov+default_base_moof",
-            "-f",
-            "mp4",
-            "pipe:1",
-          ];
-      const ff = spawn("ffmpeg", ffArgs);
-      ff.stdout.pipe(res);
-      ff.stderr.on("data", () => {});
-      req.on("close", () => ff.kill());
-      if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});
-      return;
     }
   }
 

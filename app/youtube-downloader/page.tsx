@@ -538,45 +538,7 @@ export default function YoutubeDownloaderPage() {
               </div>
             </div>
 
-            {/* Quick Action Buttons: Best Video & Best Audio */}
-            {bestVideo || bestAudio ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {bestVideo ? (
-                  <button
-                    type="button"
-                    onClick={() => handleDownload(bestVideo)}
-                    disabled={downloadingId === bestVideo.id}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-red-600 px-5 text-sm font-semibold text-white transition hover:bg-red-500 disabled:opacity-60"
-                  >
-                    {downloadingId === bestVideo.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Download className="h-4 w-4" />
-                    )}
-                    {downloadingId === bestVideo.id
-                      ? "Starting download…"
-                      : `Best video (${bestVideo.quality}p)`}
-                  </button>
-                ) : null}
-                {bestAudio ? (
-                  <button
-                    type="button"
-                    onClick={() => handleDownload(bestAudio)}
-                    disabled={downloadingId === bestAudio.id}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/15 light:bg-slate-900/5 light:text-slate-900 light:hover:bg-slate-900/10 disabled:opacity-60"
-                  >
-                    {downloadingId === bestAudio.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Music className="h-4 w-4" />
-                    )}
-                    {downloadingId === bestAudio.id
-                      ? "Starting download…"
-                      : "Best audio (MP3)"}
-                  </button>
-                ) : null}
-              </div>
-            ) : null}
+            {/* Details Card */}
 
             {/* Video Qualities List */}
             {videoResources.length ? (
