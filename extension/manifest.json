@@ -23,11 +23,14 @@
   "permissions": [
     "activeTab",
     "storage",
-    "downloads"
+    "downloads",
+    "contextMenus"
   ],
   "host_permissions": [
     "https://toolverse-yt-api-cyg1.onrender.com/*",
-    "https://toolversee.pages.dev/*"
+    "https://toolversee.pages.dev/*",
+    "https://i.ytimg.com/*",
+    "*://*.youtube.com/*"
   ],
   "content_scripts": [
     {
@@ -40,3 +43,4 @@
     }
   ]
 }
+

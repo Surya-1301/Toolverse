@@ -35,3 +35,4 @@ A Chrome & Edge browser extension (Manifest V3) for downloading high-definition 
    * **Category:** `Photos & Media` or `Productivity`
    * **Description:** Emphasize supported media platforms (Instagram, generic web videos, media tools) and Toolverse companion functionality.
 5. Submit for review!
+

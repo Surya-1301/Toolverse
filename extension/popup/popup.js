@@ -11,6 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const metaEl = document.getElementById("video-meta");
   const qualitiesListEl = document.getElementById("qualities-list");
   const btnOpenToolverse = document.getElementById("btn-open-toolverse");
+  const btnDownloadThumb = document.getElementById("btn-download-thumb");
+  const btnDownloadSub = document.getElementById("btn-download-sub");
   const urlInput = document.getElementById("url-input");
   const btnFetch = document.getElementById("btn-fetch");
   const errorBox = document.getElementById("error-box");
@@ -29,6 +31,51 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function isSupportedMediaUrl(url) {
     return /youtube\.com|youtu\.be|instagram\.com/i.test(url);
+  }
+
+  function getYouTubeVideoId(url) {
+    const s = String(url || "");
+    const m = s.match(/(?:watch\?v=|youtu\.be\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : null;
+  }
+
+  function fmtSrtTime(ms) {
+    const totalSec = Math.floor(ms / 1000);
+    const msec = ms % 1000;
+    const h = Math.floor(totalSec / 3600);
+    const m = Math.floor((totalSec % 3600) / 60);
+    const s = totalSec % 60;
+    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")},${String(msec).padStart(3, "0")}`;
+  }
+
+  async function downloadSubtitles(vid, title) {
+    const res = await fetch(`https://www.youtube.com/api/timedtext?v=${vid}&lang=en&fmt=json3`);
+    if (!res.ok) throw new Error("Subtitles not found for this video.");
+    const json = await res.json();
+    if (!json?.events?.length) throw new Error("No caption events available.");
+
+    let srt = "";
+    let idx = 1;
+    for (const ev of json.events) {
+      if (!ev.segs) continue;
+      const text = ev.segs.map((s) => s.utf8).join("").trim();
+      if (!text || text === "\n") continue;
+      const start = ev.tStartMs || 0;
+      const end = start + (ev.dDurationMs || 2000);
+      srt += `${idx}\n${fmtSrtTime(start)} --> ${fmtSrtTime(end)}\n${text}\n\n`;
+      idx++;
+    }
+
+    const blob = new Blob([srt], { type: "text/plain;charset=utf-8" });
+    const reader = new FileReader();
+    reader.onload = () => {
+      chrome.downloads.download({
+        url: reader.result,
+        filename: `${title}.srt`,
+        saveAs: true,
+      });
+    };
+    reader.readAsDataURL(blob);
   }
 
   async function fetchVideoInfo(url) {
@@ -104,6 +151,40 @@ document.addEventListener("DOMContentLoaded", () => {
       const encoded = encodeURIComponent(sourceUrl);
       chrome.tabs.create({ url: `${TOOLVERSE_WEB}/youtube-downloader?url=${encoded}` });
     };
+
+    const ytId = getYouTubeVideoId(sourceUrl);
+    const safeTitle = (data.title || "video").replace(/[/\\?%*:|"<>#]/g, "-").slice(0, 70);
+
+    if (btnDownloadThumb) {
+      btnDownloadThumb.onclick = () => {
+        const thumbUrl = ytId
+          ? `https://i.ytimg.com/vi/${ytId}/maxresdefault.jpg`
+          : (data.thumbnail || "https://toolversee.pages.dev/icon.png");
+        chrome.downloads.download({
+          url: thumbUrl,
+          filename: `${safeTitle}_thumb.jpg`,
+          saveAs: true,
+        });
+      };
+    }
+
+    if (btnDownloadSub) {
+      btnDownloadSub.onclick = async () => {
+        if (!ytId) {
+          showError("Subtitles are currently available for YouTube videos.");
+          return;
+        }
+        try {
+          const btnOrigText = btnDownloadSub.textContent;
+          btnDownloadSub.textContent = "Fetching .srt...";
+          await downloadSubtitles(ytId, safeTitle);
+          btnDownloadSub.textContent = btnOrigText;
+        } catch (e) {
+          showError(e.message || "No subtitles found for this video.");
+          btnDownloadSub.textContent = "📝 Subtitles (.srt)";
+        }
+      };
+    }
 
     cardEl.classList.remove("hidden");
   }

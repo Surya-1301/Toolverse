@@ -148,6 +148,26 @@ body {
   background: #b91c1c;
 }
 
+.extra-tools-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.btn-secondary {
+  background: #1e293b;
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11px;
+  padding: 7px 10px;
+}
+
+.btn-secondary:hover {
+  background: #334155;
+  color: #ffffff;
+}
+
 .section-title {
   font-size: 11px;
   font-weight: 600;
@@ -278,3 +298,4 @@ body {
 .hidden {
   display: none !important;
 }
+
