@@ -56,3 +56,6 @@ next-env.d.ts
 
 # AI agents
 .agents
+
+# skills
+skills-lock.json
