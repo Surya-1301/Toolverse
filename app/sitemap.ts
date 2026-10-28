@@ -10,7 +10,7 @@ const toolSlugs = Object.keys(toolSeo);
 
 // The last date the sitemap content itself changed. Keep this ≤ today's date
 // so Google does not discard lastmod as "impossible / in the future".
-const lastmod = new Date("2026-09-12");
+const lastmod = new Date("2026-10-28");
 
 // Static pages outside the tool catalog (paths only — changefreq/priority are
 // ignored by Google and only add noise to the XML).
