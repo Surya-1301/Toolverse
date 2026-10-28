@@ -471,8 +471,10 @@ static bool IsValidUrl(string? u) =>
     Uri.TryCreate(u, UriKind.Absolute, out var uri)
     && (uri.Scheme == "http" || uri.Scheme == "https");
 
-// ---- Health ----
-app.MapGet("/", () => new
+// ---- Health (supports both GET and HEAD for UptimeRobot and health checkers) ----
+var getAndHead = new[] { "GET", "HEAD" };
+
+app.MapMethods("/", getAndHead, () => Results.Json(new
 {
     ok = true,
     service = "toolverse-ye-backend",
@@ -482,9 +484,9 @@ app.MapGet("/", () => new
     serverCookiesCount = serverCookies.Count,
     visitorCookies = true,
     maxMinutes,
-});
+}));
 
-app.MapGet("/health", () => Results.Json(new
+app.MapMethods("/health", getAndHead, () => Results.Json(new
 {
     ok = true,
     status = "healthy",
@@ -495,7 +497,7 @@ app.MapGet("/health", () => Results.Json(new
     serverCookiesCount = serverCookies.Count,
 }));
 
-app.MapGet("/healthz", () => Results.Json(new
+app.MapMethods("/healthz", getAndHead, () => Results.Json(new
 {
     ok = true,
     status = "healthy",
