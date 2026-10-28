@@ -13,64 +13,65 @@ if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
 }
 
-function httpsGet(urlStr, headers = {}) {
-  return new Promise((resolve, reject) => {
-    const req = https.get(
-      urlStr,
-      {
-        family: 4,
-        headers: {
-          "User-Agent": "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
-          "Accept": "application/json",
-          ...headers,
-        },
-        timeout: 6000,
-      },
-      (res) => {
-        let text = "";
-        res.on("data", (chunk) => (text += chunk));
-        res.on("end", () => resolve({ status: res.statusCode, text }));
-      },
+let proxyDispatcher = undefined;
+if (process.env.PROXY_URL) {
+  try {
+    const { ProxyAgent } = require("undici");
+    proxyDispatcher = new ProxyAgent(process.env.PROXY_URL);
+    console.log(
+      "[proxy] Fetch proxy enabled:",
+      process.env.PROXY_URL.replace(/:[^:@]+@/, ":***@"),
     );
-    req.on("error", reject);
-    req.on("timeout", () => req.destroy(new Error("httpsGet timeout (family 4)")));
-  });
+  } catch (err) {
+    console.error("[proxy] Failed to initialize ProxyAgent:", err.message);
+  }
 }
 
-function innertubePost(payload, headers = {}) {
-  return new Promise((resolve, reject) => {
-    const data = JSON.stringify(payload);
-    const req = https.request(
+async function httpsGet(urlStr, headers = {}) {
+  try {
+    const res = await fetch(urlStr, {
+      headers: {
+        "User-Agent":
+          "com.google.android.youtube/20.10.38 (Linux; U; ANDROID 11) gzip",
+        Accept: "application/json",
+        ...headers,
+      },
+      signal: AbortSignal.timeout(8000),
+      ...(proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
+    });
+    const text = await res.text();
+    return { status: res.status, text };
+  } catch (err) {
+    return { status: 500, text: "", error: err.message };
+  }
+}
+
+async function innertubePost(payload, headers = {}) {
+  try {
+    const res = await fetch(
       "https://www.youtube.com/youtubei/v1/player?key=AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8&hl=en",
       {
         method: "POST",
-        family: 4,
         headers: {
           "Content-Type": "application/json",
-          "Content-Length": Buffer.byteLength(data),
           "User-Agent":
             "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
           ...headers,
         },
-        timeout: 8000,
-      },
-      (res) => {
-        let text = "";
-        res.on("data", (chunk) => (text += chunk));
-        res.on("end", () => {
-          try {
-            resolve({ status: res.statusCode, data: JSON.parse(text) });
-          } catch (err) {
-            resolve({ status: res.statusCode, text, error: err.message });
-          }
-        });
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(10000),
+        ...(proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
       },
     );
-    req.on("error", reject);
-    req.on("timeout", () => req.destroy(new Error("Innertube POST timeout (family 4)")));
-    req.write(data);
-    req.end();
-  });
+    const text = await res.text();
+    try {
+      return { status: res.status, data: JSON.parse(text) };
+    } catch (parseErr) {
+      return { status: res.status, text, error: parseErr.message };
+    }
+  } catch (err) {
+    return { status: 500, text: "", error: err.message };
+  }
 }
 
 const app = express();
@@ -650,6 +651,8 @@ async function fetchInstagramDirect(url) {
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
+      signal: AbortSignal.timeout(8000),
+      ...(proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
     });
     if (!res.ok) return null;
     const html = await res.text();
@@ -722,6 +725,7 @@ app.get(["/", "/health"], (req, res) => {
     cookiesFileBytes,
     hasServerCookieHeader: !!SERVER_COOKIE_HEADER,
     cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
+    hasProxy: !!process.env.PROXY_URL,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
 });

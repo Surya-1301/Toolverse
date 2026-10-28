@@ -91,8 +91,8 @@ const YT_COOKIES_KEY = "yt-visitor-cookies";
 
 export default function YoutubeDownloaderPage() {
   const [url, setUrl] = useState("");
-  // Private server: use Ohio (.NET YoutubeExplode) as primary YouTube endpoint
-  const serverUrl = PRIVATE_YE_BACKEND;
+  // Private server: use YT backend (with cookies + yt-dlp) as primary YouTube endpoint
+  const serverUrl = PRIVATE_YT_BACKEND;
   const ytKey = PRIVATE_YT_KEY;
   const [activeServer, setActiveServer] = useState(serverUrl);
   const [loading, setLoading] = useState(false);
@@ -208,7 +208,7 @@ export default function YoutubeDownloaderPage() {
     }
     const normalizedUrl = `https://www.youtube.com/watch?v=${vid}`;
     const base = serverUrl.trim().replace(/\/+$/, "");
-    const fallbackBase = PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
+    const fallbackBase = PRIVATE_YE_BACKEND.trim().replace(/\/+$/, "");
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;

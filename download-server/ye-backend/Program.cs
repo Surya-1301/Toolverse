@@ -115,11 +115,19 @@ static List<Cookie> ParseVisitorCookies(string? input)
 }
 
 // ---- YoutubeExplode client (supports server-level COOKIES_B64 env var) ----
-var customHttpClient = new HttpClient(new SocketsHttpHandler
+var proxyUrl = Environment.GetEnvironmentVariable("PROXY_URL");
+var handler = new SocketsHttpHandler
 {
     PooledConnectionLifetime = TimeSpan.FromMinutes(15),
     ConnectTimeout = TimeSpan.FromSeconds(15),
-});
+};
+if (!string.IsNullOrWhiteSpace(proxyUrl))
+{
+    handler.Proxy = new WebProxy(proxyUrl);
+    handler.UseProxy = true;
+    Console.WriteLine($"[startup] ye-backend proxy configured: {proxyUrl.Split('@').LastOrDefault()}");
+}
+var customHttpClient = new HttpClient(handler);
 customHttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36");
 
 var serverCookies = ParseVisitorCookies(Environment.GetEnvironmentVariable("COOKIES_B64"));
@@ -143,7 +151,17 @@ static void AddVisitorAuth(HttpRequestMessage req, IReadOnlyList<Cookie> cookies
     var hash = Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(bytes)).ToLowerInvariant();
     req.Headers.Add("Authorization", $"SAPISIDHASH {ts}_{hash}");
 }
-var rawHttp = new HttpClient();
+
+var rawHandler = new SocketsHttpHandler
+{
+    ConnectTimeout = TimeSpan.FromSeconds(15),
+};
+if (!string.IsNullOrWhiteSpace(proxyUrl))
+{
+    rawHandler.Proxy = new WebProxy(proxyUrl);
+    rawHandler.UseProxy = true;
+}
+var rawHttp = new HttpClient(rawHandler);
 
 async Task<string?> ResolveVisitorDataAsync(CancellationToken ct, IReadOnlyList<Cookie> cookies)
 {

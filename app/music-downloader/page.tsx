@@ -100,8 +100,8 @@ export default function MusicDownloaderPage() {
     setDetails(null);
 
     const isYt = isYouTube(clean);
-    const primaryBase = isYt ? PRIVATE_YE_BACKEND.trim().replace(/\/+$/, "") : PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
-    const fallbackBase = isYt ? PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "") : null;
+    const primaryBase = PRIVATE_YT_BACKEND.trim().replace(/\/+$/, "");
+    const fallbackBase = PRIVATE_YE_BACKEND.trim().replace(/\/+$/, "");
 
     try {
       setActiveServer(primaryBase);
