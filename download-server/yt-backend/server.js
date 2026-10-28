@@ -1120,14 +1120,17 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       : "mp3";
     args = ["-f", "ba/ba*/b/best", "-x", "--audio-format", af, "--audio-quality", "0"];
   } else if (format_id && /^[A-Za-z0-9_-]+$/.test(String(format_id))) {
-    // Exact resource from /api/info; merge with best audio when needed.
+    // Exact resource from /api/info; merge with best audio only when needed.
     const cleanId = String(format_id).replace(/^ye_/, "");
-    args = [
-      "-f",
-      `${cleanId}+bestaudio/best`,
-      "--merge-output-format",
-      "mp4",
-    ];
+    const isMuxed = cleanId === "18" || cleanId === "22";
+    args = isMuxed
+      ? ["-f", cleanId]
+      : [
+          "-f",
+          `${cleanId}+bestaudio/best`,
+          "--merge-output-format",
+          "mp4",
+        ];
   } else {
     const q = Math.max(144, Math.min(2160, parseInt(quality, 10) || 720));
     args = [
@@ -1161,7 +1164,10 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
         "--retries",
         "3",
         "--concurrent-fragments",
-        "4",
+        "5",
+        "--buffer-size",
+        "1M",
+        "--no-part",
         "-o",
         outTmpl,
         key,
