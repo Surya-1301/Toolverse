@@ -442,26 +442,22 @@ export function Header() {
                 flex
                 items-center
                 justify-center
-                gap-2
-                rounded-2xl
-                border
-                border-white/20
-                bg-white/[0.04]
-                px-4
+                gap-1.5
+                rounded-xl
+                px-3
                 py-3.5
+                text-center
                 text-sm
                 font-medium
                 text-slate-200
                 transition-colors
-                hover:bg-white/[0.08]
+                hover:bg-white/10
                 hover:text-white
                 active:bg-white/[0.12]
                 focus:outline-none
                 focus-visible:outline-none
-                light:border-slate-900/15
-                light:bg-slate-900/[0.04]
                 light:text-slate-700
-                light:hover:bg-slate-900/10
+                light:hover:bg-slate-900/5
                 light:hover:text-slate-900
               "
               aria-expanded={isMobileToolsOpen}
