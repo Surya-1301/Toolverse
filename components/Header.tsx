@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Container } from "./Container";
 import { ThemeToggle } from "./ThemeToggle";
@@ -27,10 +28,47 @@ const toolLinks = [
 ];
 
 export function Header() {
-  const [isMenuOpen, setIsMenuOpen] =
-    useState(false);
-const [isToolsOpen, setIsToolsOpen] =
-  useState(false);
+  const pathname = usePathname();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const toolsRef = useRef<HTMLDivElement>(null);
+
+  // Automatically close all menus on page navigation
+  useEffect(() => {
+    setIsToolsOpen(false);
+    setIsMenuOpen(false);
+  }, [pathname]);
+
+  // Click outside and Escape key handler to close Tools dropdown
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (
+        toolsRef.current &&
+        !toolsRef.current.contains(event.target as Node)
+      ) {
+        setIsToolsOpen(false);
+      }
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsToolsOpen(false);
+        setIsMenuOpen(false);
+      }
+    }
+
+    if (isToolsOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isToolsOpen]);
 
   return (
     <header
@@ -132,6 +170,7 @@ const [isToolsOpen, setIsToolsOpen] =
             <Link
               key={link.href}
               href={link.href}
+              onClick={() => setIsToolsOpen(false)}
               className="
                 rounded-full
                 px-3.5
@@ -153,7 +192,7 @@ const [isToolsOpen, setIsToolsOpen] =
               {link.label}
             </Link>
           ))}
-          <div className="relative">
+          <div ref={toolsRef} className="relative">
             <button
               type="button"
               onClick={() => setIsToolsOpen((open) => !open)}
@@ -196,6 +235,9 @@ const [isToolsOpen, setIsToolsOpen] =
             {isToolsOpen ? (
               <div
                 className="
+                  apple-glass
+                  relative
+                  overflow-hidden
                   absolute
                   right-0
                   top-full
@@ -205,8 +247,7 @@ const [isToolsOpen, setIsToolsOpen] =
                   rounded-2xl
                   border
                   border-white/[0.12]
-                  bg-[#0c1222]/90
-                  p-2
+                  p-1.5
                   text-sm
                   text-slate-200
                   backdrop-blur-2xl
@@ -219,31 +260,36 @@ const [isToolsOpen, setIsToolsOpen] =
                 "
                 role="menu"
               >
-                {toolLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsToolsOpen(false)}
-                    className="
-                      block
-                      rounded-lg
-                      px-3
-                      py-2
-                      transition
-                      hover:bg-white/10
-                      hover:text-white
-                      focus:outline-none
-                      focus-visible:ring-2
-                      focus-visible:ring-sky-400/50
-                      light:text-slate-700
-                      light:hover:bg-slate-900/5
-                      light:hover:text-slate-900
-                    "
-                    role="menuitem"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
+                <div className="apple-specular opacity-40" />
+                <div className="relative flex flex-col gap-0.5">
+                  {toolLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      onClick={() => setIsToolsOpen(false)}
+                      className="
+                        block
+                        rounded-xl
+                        px-3.5
+                        py-2.5
+                        font-medium
+                        transition-all
+                        duration-150
+                        hover:bg-white/10
+                        hover:text-white
+                        focus:outline-none
+                        focus-visible:ring-2
+                        focus-visible:ring-sky-400/50
+                        light:text-slate-700
+                        light:hover:bg-slate-900/5
+                        light:hover:text-slate-900
+                      "
+                      role="menuitem"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             ) : null}
           </div>
