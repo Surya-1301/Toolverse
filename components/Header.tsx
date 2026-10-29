@@ -377,32 +377,35 @@ export function Header() {
       ================================================================ */}
 
       {isMenuOpen ? (
-        <Container className="pb-4 md:hidden">
-          <nav
-            id="mobile-navigation"
-            aria-label="Mobile navigation"
-            className="
-              relative
-              overflow-hidden
-              grid
-              grid-cols-2
-              gap-2
-              rounded-3xl
-              border
-              border-white/[0.12]
-              bg-[#070a14]/95
-              p-3
-              text-sm
-              text-slate-200
-              backdrop-blur-2xl
-              shadow-2xl
-              shadow-black/80
-              light:border-slate-900/10
-              light:bg-white/95
-              light:text-slate-700
-              light:shadow-slate-900/15
-            "
-          >
+        <div className="absolute left-0 right-0 top-full z-50 pt-2 pb-4 md:hidden">
+          <Container>
+            <nav
+              id="mobile-navigation"
+              aria-label="Mobile navigation"
+              className="
+                relative
+                overflow-hidden
+                max-h-[calc(100vh-5rem)]
+                overflow-y-auto
+                grid
+                grid-cols-2
+                gap-2
+                rounded-3xl
+                border
+                border-white/[0.12]
+                bg-[#070a14]/95
+                p-3
+                text-sm
+                text-slate-200
+                backdrop-blur-2xl
+                shadow-2xl
+                shadow-black/80
+                light:border-slate-900/10
+                light:bg-white/95
+                light:text-slate-700
+                light:shadow-slate-900/15
+              "
+            >
             <div className="apple-specular opacity-40" />
             {mainLinks.map((link) => (
               <Link
@@ -506,7 +509,8 @@ export function Header() {
               : null}
           </nav>
         </Container>
-      ) : null}
+      </div>
+    ) : null}
     </header>
   );
 }
