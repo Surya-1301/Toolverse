@@ -247,7 +247,7 @@ export default function ImageHostPage() {
           </label>
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-md light:border-slate-900/10 light:bg-white">
               <p className="break-all text-sm font-medium text-white light:text-slate-900">
                 {file.name}
               </p>
@@ -270,7 +270,7 @@ export default function ImageHostPage() {
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none backdrop-blur-md transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -357,7 +357,7 @@ export default function ImageHostPage() {
                   <input
                     value={pageUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200 outline-none backdrop-blur-md light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
 
@@ -368,7 +368,7 @@ export default function ImageHostPage() {
                   <input
                     value={directUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200 outline-none backdrop-blur-md light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
               </div>

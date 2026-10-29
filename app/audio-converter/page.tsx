@@ -495,7 +495,7 @@ export default function AudioConverterPage() {
         {info && !error && (
           <div className="mt-2 space-y-5">
             {/* File card */}
-            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+            <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 backdrop-blur-md light:border-slate-900/10 light:bg-white">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/20">
                 <Music className="h-6 w-6" />
               </div>

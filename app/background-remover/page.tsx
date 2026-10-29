@@ -270,7 +270,7 @@ export default function BackgroundRemoverPage() {
           </label>
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-slate-400 backdrop-blur-md light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
                 <span className="font-semibold text-slate-300 light:text-slate-700">Selected:</span>{" "}
                 {file.name}
@@ -337,7 +337,7 @@ export default function BackgroundRemoverPage() {
           </div>
 
           {resultBlob && file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm text-slate-400 backdrop-blur-md light:border-slate-900/10 light:bg-white light:text-slate-600">
               <p>
                 <span className="font-semibold text-slate-300 light:text-slate-700">Output:</span>{" "}
                 {baseName(file)}-no-bg.png

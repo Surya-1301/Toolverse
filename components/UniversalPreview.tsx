@@ -152,7 +152,7 @@ export function UniversalPreview({
   if (!file && !url) {
     return (
       <div
-        className={`flex w-full flex-col items-center justify-center rounded-2xl border border-white/10 bg-slate-950/40 p-6 text-center light:border-slate-900/10 light:bg-slate-50 ${className}`}
+        className={`flex w-full flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center backdrop-blur-sm light:border-slate-900/15 light:bg-slate-50 ${className}`}
         style={{ minHeight: heightStyle }}
       >
         <ImageIcon className="mb-2 h-8 w-8 text-slate-500 light:text-slate-400" />
@@ -459,7 +459,7 @@ function UniversalPdfCanvasPreview({
   return (
     <div
       ref={containerRef}
-      className="flex w-full flex-1 flex-col overflow-hidden bg-slate-950 light:bg-slate-900"
+      className="flex w-full flex-1 flex-col overflow-hidden bg-white/[0.02] light:bg-white"
       style={{ minHeight: heightStyle }}
     >
       {/* Sticky PDF Toolbar */}

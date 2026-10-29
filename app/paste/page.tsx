@@ -533,7 +533,7 @@ export default function PastePage() {
               </h3>
             </div>
 
-            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm light:border-slate-900/10 light:bg-white">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">

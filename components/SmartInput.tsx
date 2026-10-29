@@ -434,7 +434,7 @@ export default function SmartInput() {
             <button
               type="button"
               onClick={copyInput}
-              className=" absolute bottom-3 right-3 z-20 hidden min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:text-slate-700 light:shadow-slate-900/10 light:hover:text-slate-900"
+              className=" absolute bottom-3 right-3 z-20 hidden min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.04] px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-white/[0.08] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070a14] md:inline-flex light:text-slate-700 light:shadow-slate-900/10 light:hover:text-slate-900"
             >
               {copied ? (
                 <>
@@ -514,7 +514,7 @@ export default function SmartInput() {
                 fileInputRef.current?.click()
               }
               aria-label="Upload an image"
-              className=" absolute right-3 top-1/2 hidden min-h-10 -translate-y-1/2 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-sky-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
+              className=" absolute right-3 top-1/2 hidden min-h-10 -translate-y-1/2 items-center gap-2 rounded-xl border border-white/[0.10] bg-white/[0.04] px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-white/[0.08] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070a14] md:inline-flex light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-sky-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
             >
               <Upload
                 aria-hidden="true"

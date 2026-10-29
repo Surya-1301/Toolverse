@@ -198,7 +198,7 @@ export default function ImagePlaceholderPage() {
                   max="8192"
                   value={width}
                   onChange={(event) => setWidth(Number(event.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none backdrop-blur-md transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
                 <input
                   type="number"
@@ -206,7 +206,7 @@ export default function ImagePlaceholderPage() {
                   max="8192"
                   value={height}
                   onChange={(event) => setHeight(Number(event.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none backdrop-blur-md transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -215,7 +215,7 @@ export default function ImagePlaceholderPage() {
                     key={aspect.label}
                     type="button"
                     onClick={() => applyAspect(aspect)}
-                    className="rounded-lg border border-white/10 bg-slate-950 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
+                    className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold text-slate-400 backdrop-blur-md transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
                   >
                     {aspect.label}
                   </button>
@@ -285,7 +285,7 @@ export default function ImagePlaceholderPage() {
                 value={text}
                 onChange={(event) => setText(event.target.value)}
                 placeholder="Optional label"
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none backdrop-blur-md transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
               <label className="mt-2 flex items-center gap-2.5 text-sm text-slate-400 light:text-slate-600">
                 <input
@@ -302,7 +302,7 @@ export default function ImagePlaceholderPage() {
           {/* RIGHT: preview + output */}
           <div>
             <p className="mb-2 text-sm font-semibold text-slate-300 light:text-slate-700">Preview</p>
-            <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+            <div className="flex items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-3 backdrop-blur-sm light:border-slate-900/15 light:bg-white">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}

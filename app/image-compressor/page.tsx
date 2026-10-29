@@ -1094,7 +1094,7 @@ export default function ImageCompressorPage() {
                   type="text"
                   value={outputFileName}
                   onChange={(event) => setOutputFileName(event.target.value)}
-                  className="min-h-12 w-full min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-950 px-4 text-base text-white outline-none transition focus:border-sky-400/50 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="min-h-12 w-full min-w-0 flex-1 rounded-2xl border border-white/10 bg-white/[0.02] px-4 text-base text-white outline-none backdrop-blur-md transition focus:border-sky-400/50 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
 
                 <button
