@@ -135,7 +135,7 @@ const categoryCards = [
   },
 
   {
-    title: "Formatter & Minifier",
+    title: "Formatter & Minifier Tools",
     description:
       "Format, validate, minify, clean, and copy developer-friendly code outputs.",
     href: "/tools/formatter-tools",
@@ -184,7 +184,7 @@ function CategoryToolCard({
   return (
     <Link
       href={href}
-      className="apple-glass group relative block overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-[22px]"
+      className="apple-glass group relative flex flex-col justify-between overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-[22px] h-full"
     >
       <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
 
@@ -193,44 +193,46 @@ function CategoryToolCard({
           Existing desktop design remains unchanged
       ================================================================= */}
 
-      <div className="hidden p-5 sm:block">
-        {/* Icon + Status */}
+      <div className="hidden p-5 sm:flex sm:h-full sm:flex-col sm:justify-between">
+        <div>
+          {/* Icon + Status */}
 
-        <div className="mb-4 flex items-start justify-between gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 transition group-hover:scale-105 group-hover:text-sky-200 light:text-sky-600 light:border-sky-500/20">
-            {icon}
+          <div className="mb-4 flex items-start justify-between gap-4">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 transition group-hover:scale-105 group-hover:text-sky-200 light:text-sky-600 light:border-sky-500/20">
+              {icon}
+            </div>
+
+            <span
+              className={
+                isLive
+                  ? "rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-500/25"
+                  : "rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25"
+              }
+            >
+              {isLive ? "Live" : "Coming soon"}
+            </span>
           </div>
 
-          <span
-            className={
-              isLive
-                ? "rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-500/25"
-                : "rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25"
-            }
-          >
-            {isLive ? "Live" : "Coming soon"}
-          </span>
+          {/* Title */}
+
+          <h2 className="text-lg font-bold tracking-tight text-white light:text-slate-900">
+            {title}
+          </h2>
+
+          {/* Description */}
+
+          <p className="mt-3 text-sm leading-5 text-slate-400 light:text-slate-600">
+            {description}
+          </p>
         </div>
-
-        {/* Title */}
-
-        <h2 className="text-lg font-bold tracking-tight text-white light:text-slate-900">
-          {title}
-        </h2>
-
-        {/* Description */}
-
-        <p className="mt-3 min-h-[60px] text-sm leading-5 text-slate-400 light:text-slate-600">
-          {description}
-        </p>
 
         {/* Action */}
 
         <div
           className={
             isLive
-              ? "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 group-hover:text-sky-300"
-              : "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500"
+              ? "mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 group-hover:text-sky-300"
+              : "mt-5 inline-flex items-center gap-2 text-sm font-semibold text-slate-500"
           }
         >
           {isLive ? "View tools" : "Launching soon"}
@@ -401,7 +403,7 @@ export default function ToolsPage() {
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-2">
+        <div className="grid items-stretch gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
           {categoryCards.map((category) => (
             <CategoryToolCard
               key={category.title}
