@@ -184,7 +184,7 @@ function CategoryToolCard({
   return (
     <Link
       href={href}
-      className="apple-glass group relative block overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-2xl"
+      className="apple-glass group relative block overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-[22px]"
     >
       <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
 
@@ -265,18 +265,18 @@ function CategoryToolCard({
           └────────────────────────────────────┘
       ================================================================= */}
 
-      <div className="sm:hidden p-3.5">
+      <div className="sm:hidden p-4.5">
         {/* ==============================================================
             TOP AREA
         ============================================================== */}
 
-        <div className="relative flex items-start gap-3">
+        <div className="relative flex items-start gap-3.5">
           {/* ============================================================
               ICON
           ============================================================ */}
 
           <div
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 [&>svg]:h-5 [&>svg]:w-5"
+            className="flex h-[54px] w-[54px] shrink-0 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 [&>svg]:h-6 [&>svg]:w-6"
           >
             {icon}
           </div>
@@ -291,7 +291,7 @@ function CategoryToolCard({
             {/* Title */}
 
             <h2
-              className="text-[15px] font-bold leading-snug tracking-tight text-white light:text-slate-900"
+              className="text-[17px] font-bold leading-snug tracking-tight text-white light:text-slate-900"
             >
               {title}
             </h2>
@@ -299,7 +299,7 @@ function CategoryToolCard({
             {/* Description */}
 
             <p
-              className="mt-1 text-xs leading-relaxed text-slate-400 line-clamp-2 light:text-slate-600"
+              className="mt-1.5 text-[13.5px] leading-relaxed text-slate-400 line-clamp-2 light:text-slate-600"
             >
               {description}
             </p>
@@ -312,8 +312,8 @@ function CategoryToolCard({
           <span
             className={
               isLive
-                ? "absolute right-0 top-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 border border-emerald-500/25"
-                : "absolute right-0 top-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-300 border border-amber-500/25"
+                ? "absolute right-0 top-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-500/25"
+                : "absolute right-0 top-0 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25"
             }
           >
             {isLive ? "Live" : "Coming soon"}
@@ -327,8 +327,8 @@ function CategoryToolCard({
         <div
           className={
             isLive
-              ? "mt-3 flex items-center gap-1.5 text-xs font-medium text-sky-400"
-              : "mt-3 flex items-center gap-1.5 text-xs font-medium text-slate-500"
+              ? "mt-4 flex items-center gap-2 text-[13.5px] font-semibold text-sky-400"
+              : "mt-4 flex items-center gap-2 text-[13.5px] font-semibold text-slate-500"
           }
         >
           {isLive ? "View tools" : "Launching soon"}
@@ -336,8 +336,8 @@ function CategoryToolCard({
           <ArrowRight
             className={
               isLive
-                ? "h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
-                : "h-3.5 w-3.5"
+                ? "h-4 w-4 transition-transform group-hover:translate-x-1"
+                : "h-4 w-4"
             }
           />
         </div>
