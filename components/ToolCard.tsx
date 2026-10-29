@@ -25,7 +25,7 @@ export function ToolCard({
       className={cn(
         "apple-glass group relative overflow-hidden rounded-3xl p-5 transition-all duration-200",
 
-        "max-sm:rounded-[28px] max-sm:p-5",
+        "max-sm:rounded-2xl max-sm:p-3.5",
 
         isLive &&
           "hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15",
@@ -48,6 +48,7 @@ export function ToolCard({
           gap-4
 
           max-sm:mb-0
+          max-sm:gap-3
         "
       >
         {/* Icon Squircle */}
@@ -75,9 +76,11 @@ export function ToolCard({
             light:text-sky-600
             light:border-sky-500/20
 
-            max-sm:h-[76px]
-            max-sm:w-[76px]
-            max-sm:rounded-[23px]
+            max-sm:h-11
+            max-sm:w-11
+            max-sm:rounded-xl
+            max-sm:[&>svg]:h-5
+            max-sm:[&>svg]:w-5
           "
         >
           {icon}
@@ -96,11 +99,12 @@ export function ToolCard({
         >
           <h3
             className="
-              text-[21px]
+              text-[15px]
               font-bold
-              leading-[1.25]
+              leading-snug
               tracking-tight
               text-white
+              light:text-slate-900
             "
           >
             {title}
@@ -108,10 +112,12 @@ export function ToolCard({
 
           <p
             className="
-              mt-3
-              text-[16px]
-              leading-7
+              mt-1
+              text-xs
+              leading-relaxed
               text-slate-400
+              line-clamp-2
+              light:text-slate-600
             "
           >
             {description}
@@ -128,9 +134,9 @@ export function ToolCard({
             "max-sm:right-0",
             "max-sm:top-0",
             "max-sm:z-10",
-            "max-sm:px-3",
-            "max-sm:py-1.5",
-            "max-sm:text-sm",
+            "max-sm:px-2",
+            "max-sm:py-0.5",
+            "max-sm:text-[11px]",
             "max-sm:font-semibold",
 
             isLive
@@ -147,11 +153,11 @@ export function ToolCard({
       ============================================================ */}
 
       <div className="max-sm:hidden">
-        <h3 className="text-lg font-semibold text-white">
+        <h3 className="text-lg font-semibold text-white light:text-slate-900">
           {title}
         </h3>
 
-        <p className="mt-2 min-h-12 text-sm leading-6 text-slate-400">
+        <p className="mt-2 min-h-12 text-sm leading-6 text-slate-400 light:text-slate-600">
           {description}
         </p>
       </div>
@@ -164,9 +170,9 @@ export function ToolCard({
         className={cn(
           "mt-5 flex items-center gap-2 text-sm font-semibold",
 
-          "max-sm:mt-7",
-          "max-sm:text-[16px]",
-          "max-sm:font-semibold",
+          "max-sm:mt-3",
+          "max-sm:text-xs",
+          "max-sm:font-medium",
 
           isLive
             ? "text-sky-400 group-hover:text-sky-300"
@@ -179,8 +185,8 @@ export function ToolCard({
           className={cn(
             "h-4 w-4 transition",
 
-            "max-sm:h-5",
-            "max-sm:w-5",
+            "max-sm:h-3.5",
+            "max-sm:w-3.5",
 
             isLive && "group-hover:translate-x-1",
           )}

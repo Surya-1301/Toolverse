@@ -184,7 +184,7 @@ function CategoryToolCard({
   return (
     <Link
       href={href}
-      className="apple-glass group relative block overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-[28px]"
+      className="apple-glass group relative block overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-2xl"
     >
       <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
 
@@ -265,18 +265,18 @@ function CategoryToolCard({
           └────────────────────────────────────┘
       ================================================================= */}
 
-      <div className="sm:hidden p-5">
+      <div className="sm:hidden p-3.5">
         {/* ==============================================================
             TOP AREA
         ============================================================== */}
 
-        <div className="relative flex items-start gap-4">
+        <div className="relative flex items-start gap-3">
           {/* ============================================================
               ICON
           ============================================================ */}
 
           <div
-            className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-[23px] bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 [&>svg]:h-5 [&>svg]:w-5"
           >
             {icon}
           </div>
@@ -286,12 +286,12 @@ function CategoryToolCard({
           ============================================================ */}
 
           <div
-            className="min-w-0 flex-1 pr-12"
+            className="min-w-0 flex-1 pr-14"
           >
             {/* Title */}
 
             <h2
-              className="text-[21px] font-bold leading-[1.25] tracking-tight text-white light:text-slate-900"
+              className="text-[15px] font-bold leading-snug tracking-tight text-white light:text-slate-900"
             >
               {title}
             </h2>
@@ -299,7 +299,7 @@ function CategoryToolCard({
             {/* Description */}
 
             <p
-              className="mt-3 text-[16px] leading-7 text-slate-400 light:text-slate-600"
+              className="mt-1 text-xs leading-relaxed text-slate-400 line-clamp-2 light:text-slate-600"
             >
               {description}
             </p>
@@ -312,8 +312,8 @@ function CategoryToolCard({
           <span
             className={
               isLive
-                ? "absolute right-0 top-0 rounded-full bg-emerald-500/15 px-3 py-1.5 text-sm font-semibold text-emerald-300 border border-emerald-500/25"
-                : "absolute right-0 top-0 rounded-full bg-amber-500/15 px-3 py-1.5 text-sm font-semibold text-amber-300 border border-amber-500/25"
+                ? "absolute right-0 top-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300 border border-emerald-500/25"
+                : "absolute right-0 top-0 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-semibold text-amber-300 border border-amber-500/25"
             }
           >
             {isLive ? "Live" : "Coming soon"}
@@ -327,8 +327,8 @@ function CategoryToolCard({
         <div
           className={
             isLive
-              ? "mt-8 flex items-center gap-2 text-[16px] font-semibold text-sky-400"
-              : "mt-8 flex items-center gap-2 text-[16px] font-semibold text-slate-500"
+              ? "mt-3 flex items-center gap-1.5 text-xs font-medium text-sky-400"
+              : "mt-3 flex items-center gap-1.5 text-xs font-medium text-slate-500"
           }
         >
           {isLive ? "View tools" : "Launching soon"}
@@ -336,8 +336,8 @@ function CategoryToolCard({
           <ArrowRight
             className={
               isLive
-                ? "h-5 w-5 transition-transform group-hover:translate-x-1"
-                : "h-5 w-5"
+                ? "h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
+                : "h-3.5 w-3.5"
             }
           />
         </div>
