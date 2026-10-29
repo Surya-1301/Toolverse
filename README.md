@@ -21,16 +21,17 @@ No sign-up. Most tools run entirely on your device, so your input never leaves y
 
 ---
 
-## Android app
+## Mobile apps (Android & iOS)
 ![Toolverse Download](public/app.png)
 
-Toolverse is also available as a native Android app — all 59 tools, wrapped with Capacitor.
+Toolverse is available as a native mobile app wrapped with Capacitor 8 — all 59+ tools with offline-first client processing and native system integrations.
 
-📥 **Download:** https://downloadtoolverse.dpdns.org/
+📥 **Android APK Download:** https://downloadtoolverse.dpdns.org/
 
-- Free forever, no account needed
-- Most tools work fully offline on your device
-- APKs are built with Capacitor + GitHub Actions and attached to each release
+- **Apple Fluid Design**: Clean frosted glassmorphism interface with custom dark/light theme support, responsive floating overlays, and touch-optimized ergonomics.
+- **Offline Capable**: Most formatters, converters, and generators run 100% locally on your device with zero data leaving your phone.
+- **Native Integrations**: Capacitor plugins for native sharing, local notifications, file system access, and dynamic status bar styling.
+- **Automated Builds**: APKs are built with Capacitor + GitHub Actions and attached to each release tag.
 
 > The APK is debug-signed, so Android will show an "unknown developer" warning during sideloading. This is expected for apps installed outside the Play Store.
 
@@ -163,10 +164,13 @@ Conversion Tools category.
 
 ## Tech Stack
 
-### Frontend
+### Frontend & Mobile
 
 - **Next.js 16** (App Router) + **React 19**
 - **TypeScript** · **Tailwind CSS 4**
+- **Capacitor 8** (`@capacitor/core`, `@capacitor/android`, `@capacitor/ios`)
+- Native Capacitor plugins: `@capacitor/app`, `@capacitor/filesystem`, `@capacitor/local-notifications`, `@capacitor/share`, `@capacitor/status-bar`
+- **Apple Fluid Design System**: Ultra-frosted glassmorphic cards (`.apple-glass`), specular light accents (`.apple-specular`), midnight dark mode (`#070a14`), and adaptive responsive popovers
 - `pdf-lib` — client-side PDF generation
 - `browser-image-compression`, `heic2any` — image workflows
 - `qrcode`, `xlsx`, `lamejs`, `bcryptjs`, `lucide-react`
@@ -282,6 +286,11 @@ Open http://localhost:3000
 | `npm run build:cloudflare` | Build with OpenNext for Cloudflare |
 | `npm run preview:cloudflare` | Preview the Cloudflare build |
 | `npm run deploy:cloudflare` | Build & deploy to Cloudflare Pages |
+| `npm run build:mobile` | Export web build and sync to Capacitor Android & iOS |
+| `npm run build:android` | Export web build and sync to Capacitor Android |
+| `npm run build:ios` | Export web build and sync to Capacitor iOS |
+| `npm run apk` | Build and compile debug Android APK locally |
+| `npm run ios` | Build and open iOS project in Xcode |
 
 </div>
 

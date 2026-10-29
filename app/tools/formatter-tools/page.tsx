@@ -96,7 +96,7 @@ export default function FormatterToolsPage() {
       <div className="mx-auto mt-8 max-w-3xl text-center">
 
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
-          Formatter & Minifier
+          Formatter & Minifier Tools
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">

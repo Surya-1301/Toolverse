@@ -5,12 +5,12 @@ import { toolSeo } from "@/lib/seoTools";
 
 const TOOL_CATEGORY: Record<string, { parent: string; parentUrl: string }> = {
   // -- Formatter tools
-  "html-formatter": { parent: "Formatter & Minifier", parentUrl: "/tools/formatter-tools" },
-  "css-formatter": { parent: "Formatter & Minifier", parentUrl: "/tools/formatter-tools" },
-  "javascript-formatter": { parent: "Formatter & Minifier", parentUrl: "/tools/formatter-tools" },
-  "json-formatter": { parent: "Formatter & Minifier", parentUrl: "/tools/formatter-tools" },
-  "sql-formatter": { parent: "Formatter & Minifier", parentUrl: "/tools/formatter-tools" },
-  "typescript-formatter": { parent: "Formatter & Minifier", parentUrl: "/tools/formatter-tools" },
+  "html-formatter": { parent: "Formatter & Minifier Tools", parentUrl: "/tools/formatter-tools" },
+  "css-formatter": { parent: "Formatter & Minifier Tools", parentUrl: "/tools/formatter-tools" },
+  "javascript-formatter": { parent: "Formatter & Minifier Tools", parentUrl: "/tools/formatter-tools" },
+  "json-formatter": { parent: "Formatter & Minifier Tools", parentUrl: "/tools/formatter-tools" },
+  "sql-formatter": { parent: "Formatter & Minifier Tools", parentUrl: "/tools/formatter-tools" },
+  "typescript-formatter": { parent: "Formatter & Minifier Tools", parentUrl: "/tools/formatter-tools" },
 
   // -- Conversion tools
   "markdown-to-pdf": { parent: "Conversion Tools", parentUrl: "/tools/conversion-tools" },
