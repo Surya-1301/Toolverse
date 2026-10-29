@@ -367,7 +367,7 @@ export default function PastePage() {
               type="button"
               onClick={openAlias}
               disabled={isCheckingAlias}
-              className="w-full shrink-0 rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-3 text-base font-bold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-lg light:border-slate-900/10 light:bg-white light:text-slate-900 light:hover:bg-slate-900/10"
+              className="w-full shrink-0 rounded-2xl bg-sky-500 px-5 py-3 text-base font-bold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto sm:text-lg"
             >
               {isCheckingAlias ? "..." : "Go"}
             </button>
@@ -467,7 +467,7 @@ export default function PastePage() {
                   }
                   openInBrowser(pasteUrl);
                 }}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
               >
                 Open
                 <ExternalLink className="h-4 w-4" />
@@ -475,7 +475,7 @@ export default function PastePage() {
               <button
                 type="button"
                 onClick={() => copyValue("page")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 light:border-slate-900/10 light:text-slate-900"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-emerald-500/30 px-4 py-2.5 text-sm font-semibold text-emerald-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/10 light:border-emerald-600/30 light:text-emerald-700 light:hover:bg-emerald-50"
               >
                 {copied === "page" ? (
                   <Check className="h-4 w-4" />
@@ -493,7 +493,7 @@ export default function PastePage() {
             type="button"
             onClick={createPaste}
             disabled={isCreating}
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -506,7 +506,7 @@ export default function PastePage() {
           <button
             type="button"
             onClick={clearAll}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
           >
             <Eraser className="h-4 w-4" />
             Clear
@@ -549,7 +549,7 @@ export default function PastePage() {
                             onClick={() => {
                               router.push(`/paste-view?id=${paste.id}`);
                             }}
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
+                            className="rounded-lg border border-sky-500/30 px-2 py-0.5 text-[10px] text-sky-300 hover:border-sky-500/50 hover:bg-sky-500/10 sm:px-2.5 sm:py-1 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                           >
                             Open
                           </button>
@@ -558,7 +558,7 @@ export default function PastePage() {
                             onClick={() =>
                               openInBrowser(apiUrl(`/raw/${paste.id}`))
                             }
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600"
+                            className="rounded-lg border border-indigo-500/30 px-2 py-0.5 text-[10px] text-indigo-300 hover:border-indigo-500/50 hover:bg-indigo-500/10 sm:px-2.5 sm:py-1 light:border-indigo-600/30 light:text-indigo-700 light:hover:bg-indigo-50"
                           >
                             Raw
                           </button>
@@ -569,7 +569,7 @@ export default function PastePage() {
                                 prev.filter((p) => p.id !== paste.id),
                               )
                             }
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-500"
+                            className="rounded-lg border border-red-500/30 px-2 py-0.5 text-[10px] text-red-300 hover:border-red-500/50 hover:bg-red-500/10 sm:px-2.5 sm:py-1 light:border-red-600/30 light:text-red-700 light:hover:bg-red-50"
                           >
                             Remove
                           </button>

@@ -433,7 +433,7 @@ export default function MarkdownToPdfPage() {
         <button
           onClick={downloadPdf}
           disabled={!input.trim() || isGenerating}
-          className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:opacity-50"
         >
           <Download className="h-4 w-4" />
           {isGenerating ? "Generating…" : "Download PDF"}

@@ -362,7 +362,7 @@ export default function HashGeneratorPage() {
 
             <button
               onClick={clearAll}
-              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:gap-2 sm:text-sm"
+              className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-xs transition sm:gap-2 sm:text-sm"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -396,7 +396,7 @@ export default function HashGeneratorPage() {
 
                       <button
                         onClick={() => copyValue(result.value)}
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
+                        className="inline-flex items-center gap-2 rounded-lg border border-sky-500/30 px-3 py-2 text-xs font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                       >
                         {copiedValue === result.value ? (
                           <Check className="h-4 w-4" />

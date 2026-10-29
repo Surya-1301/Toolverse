@@ -452,7 +452,7 @@ export default function FileSharePage() {
             <button
               type="button"
               onClick={clearAll}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -518,7 +518,7 @@ export default function FileSharePage() {
                   href={ownerUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-indigo-600 text-white font-semibold shadow-sm hover:bg-indigo-500 px-4 py-2.5 text-sm transition"
                 >
                   Open owner
                   <ExternalLink className="h-4 w-4" />
@@ -528,7 +528,7 @@ export default function FileSharePage() {
                   href={userUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-4 py-2.5 text-sm transition"
                 >
                   Open user
                   <ExternalLink className="h-4 w-4" />
@@ -537,7 +537,7 @@ export default function FileSharePage() {
                 <button
                   type="button"
                   onClick={copyUserUrl}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -596,7 +596,7 @@ export default function FileSharePage() {
                               href={`/file?id=${r.id}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-400 hover:bg-white/5 light:border-slate-900/10 light:text-slate-600"
+                              className="rounded-lg bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-2.5 py-1 text-[10px]"
                             >
                               View
                             </a>
@@ -607,7 +607,7 @@ export default function FileSharePage() {
                                   prev.filter((x) => x.id !== r.id),
                                 )
                               }
-                              className="rounded-lg border border-white/10 px-2.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 light:border-slate-900/10 light:text-slate-500"
+                              className="rounded-lg border border-red-500/30 px-2.5 py-1 text-[10px] text-red-300 hover:border-red-500/50 hover:bg-red-500/10 light:border-red-600/30 light:text-red-700"
                             >
                               Remove
                             </button>

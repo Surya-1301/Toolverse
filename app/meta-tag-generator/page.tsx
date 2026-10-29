@@ -430,7 +430,7 @@ export default function MetaTagGeneratorPage() {
           <button
             type="button"
             onClick={clearAll}
-            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
           >
             <Eraser className="h-4 w-4" />
             Clear
@@ -523,7 +523,7 @@ export default function MetaTagGeneratorPage() {
                 type="button"
                 onClick={downloadSnippet}
                 disabled={!snippet}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <Download className="h-4 w-4" />
                 .html

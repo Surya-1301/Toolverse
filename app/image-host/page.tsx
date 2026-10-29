@@ -309,7 +309,7 @@ export default function ImageHostPage() {
             <button
               type="button"
               onClick={clearAll}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -382,7 +382,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("page")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                 >
                   {copied === "page" ? (
                     <Check className="h-4 w-4" />
@@ -395,7 +395,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("direct")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                 >
                   {copied === "direct" ? (
                     <Check className="h-4 w-4" />
@@ -408,7 +408,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("markdown")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                 >
                   {copied === "markdown" ? (
                     <Check className="h-4 w-4" />
@@ -421,7 +421,7 @@ export default function ImageHostPage() {
                 <button
                   type="button"
                   onClick={() => copyValue("html")}
-                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                 >
                   {copied === "html" ? (
                     <Check className="h-4 w-4" />

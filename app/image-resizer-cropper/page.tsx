@@ -587,7 +587,7 @@ export default function ImageResizerCropperPage() {
                   <button
                     key={ratio}
                     onClick={() => applyAspectRatio(ratio)}
-                    className="rounded-xl border border-white/10 px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
+                    className="rounded-xl border border-sky-500/30 px-4 py-2 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                   >
                     {ratio}
                   </button>
@@ -628,7 +628,7 @@ export default function ImageResizerCropperPage() {
 
             <button
               onClick={clearAll}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:px-4 sm:text-sm"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-xs transition sm:px-4 sm:text-sm"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -682,7 +682,7 @@ export default function ImageResizerCropperPage() {
           {outputPreview ? (
             <button
               onClick={download}
-              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+              className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition"
             >
               <Download className="h-4 w-4" />
               Download {outputName} image

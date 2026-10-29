@@ -205,7 +205,7 @@ export default function ImagePlaceholderPage() {
                     key={aspect.label}
                     type="button"
                     onClick={() => applyAspect(aspect)}
-                    className="rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold text-slate-400 backdrop-blur-md transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
+                    className="rounded-lg border border-sky-500/20 bg-white/[0.03] px-2.5 py-1 text-xs font-semibold text-slate-300 backdrop-blur-md transition hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-300 light:border-sky-600/20 light:bg-white light:text-slate-700 light:hover:bg-sky-50 light:hover:text-sky-700"
                   >
                     {aspect.label}
                   </button>
@@ -232,7 +232,7 @@ export default function ImagePlaceholderPage() {
                     key={preset.bg}
                     type="button"
                     onClick={() => setBg(preset.bg)}
-                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
+                    className="rounded-lg border border-sky-500/20 px-2.5 py-1 text-xs font-semibold text-slate-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-300 light:border-sky-600/20 light:text-slate-700 light:hover:bg-sky-50 light:hover:text-sky-700"
                   >
                     {preset.label}
                   </button>
@@ -259,7 +259,7 @@ export default function ImagePlaceholderPage() {
                     key={preset.fg}
                     type="button"
                     onClick={() => setFg(preset.fg)}
-                    className="rounded-lg border border-white/10 px-2.5 py-1 text-xs font-semibold text-slate-400 transition hover:bg-white/10 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/10 light:hover:text-slate-900"
+                    className="rounded-lg border border-sky-500/20 px-2.5 py-1 text-xs font-semibold text-slate-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-300 light:border-sky-600/20 light:text-slate-700 light:hover:bg-sky-50 light:hover:text-sky-700"
                   >
                     {preset.label}
                   </button>
@@ -307,7 +307,7 @@ export default function ImagePlaceholderPage() {
                 <a
                   href={previewUrl}
                   download={`placeholder-${width}x${height}.svg`}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-3 py-2.5 text-sm transition"
                 >
                   <Download className="h-4 w-4" />
                   SVG
@@ -315,7 +315,7 @@ export default function ImagePlaceholderPage() {
                 <button
                   onClick={() => downloadRaster("png")}
                   disabled={isRasterizing !== null}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 px-3 py-2.5 text-sm font-semibold text-emerald-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/10 disabled:opacity-40 light:border-emerald-600/30 light:text-emerald-700 light:hover:bg-emerald-50"
                 >
                   {isRasterizing === "png" ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -327,7 +327,7 @@ export default function ImagePlaceholderPage() {
                 <button
                   onClick={() => downloadRaster("webp")}
                   disabled={isRasterizing !== null}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 px-3 py-2.5 text-sm font-semibold text-emerald-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/10 disabled:opacity-40 light:border-emerald-600/30 light:text-emerald-700 light:hover:bg-emerald-50"
                 >
                   {isRasterizing === "webp" ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -338,7 +338,7 @@ export default function ImagePlaceholderPage() {
                 </button>
                 <button
                   onClick={copyUrl}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-3 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-3 py-2.5 text-sm transition"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />

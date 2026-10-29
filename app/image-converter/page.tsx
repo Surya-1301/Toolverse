@@ -668,7 +668,7 @@ export default function ImageConverterPage() {
             <button
               type="button"
               onClick={clearAll}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -749,7 +749,7 @@ export default function ImageConverterPage() {
             type="button"
             onClick={downloadConvertedImage}
             disabled={!convertedBlob}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200"
           >
             <Download className="h-4 w-4" />
             Download converted image

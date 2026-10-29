@@ -266,7 +266,7 @@ export default function ImageUpscalerPage() {
               <button
                 onClick={download}
                 disabled={!resultUrl}
-                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:disabled:bg-slate-200 light:disabled:text-slate-400 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                className="hidden sm:inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-xs transition disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 sm:px-4 sm:text-sm light:disabled:bg-slate-200 light:disabled:text-slate-400"
               >
                 <Download className="h-4 w-4" />
                 Download PNG
@@ -274,7 +274,7 @@ export default function ImageUpscalerPage() {
 
               <button
                 onClick={clearAll}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:px-4 sm:text-sm"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-xs transition sm:px-4 sm:text-sm"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -316,7 +316,7 @@ export default function ImageUpscalerPage() {
             {resultUrl ? (
               <button
                 onClick={download}
-                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition sm:hidden border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition sm:hidden"
               >
                 <Download className="h-4 w-4" />
                 Download PNG

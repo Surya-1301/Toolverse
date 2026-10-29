@@ -206,7 +206,7 @@ export default function JwtDecoderPage() {
         <div className="mt-5 grid grid-cols-2 gap-3">
           <button
             onClick={handleDecode}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400"
           >
             <KeyRound className="h-4 w-4" />
             Decode JWT
@@ -214,7 +214,7 @@ export default function JwtDecoderPage() {
 
           <button
             onClick={clearAll}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
           >
             <Eraser className="h-4 w-4" />
             Clear
@@ -232,7 +232,7 @@ export default function JwtDecoderPage() {
             <button
               onClick={() => copyValue("header", headerOutput)}
               disabled={!headerOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
+              className="inline-flex items-center gap-2 rounded-xl border border-sky-500/30 px-3 py-2 text-xs font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50 light:disabled:bg-slate-200 light:disabled:text-slate-400"
             >
               {copied === "header" ? (
                 <Check className="h-4 w-4" />
@@ -260,7 +260,7 @@ export default function JwtDecoderPage() {
             <button
               onClick={() => copyValue("payload", payloadOutput)}
               disabled={!payloadOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
+              className="inline-flex items-center gap-2 rounded-xl border border-sky-500/30 px-3 py-2 text-xs font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50 light:disabled:bg-slate-200 light:disabled:text-slate-400"
             >
               {copied === "payload" ? (
                 <Check className="h-4 w-4" />

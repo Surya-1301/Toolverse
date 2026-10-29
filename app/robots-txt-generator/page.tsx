@@ -252,7 +252,7 @@ export default function RobotsTxtGeneratorPage() {
           <button
             type="button"
             onClick={() => setRules((prev) => [...prev, makeRule("Googlebot")])}
-            className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/15 px-4 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/15 light:text-slate-900 light:hover:bg-slate-900/5"
+            className="mt-4 inline-flex min-h-10 items-center gap-2 rounded-xl border border-sky-500/30 px-4 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
           >
             <Plus className="h-4 w-4" />
             Add bot rule
@@ -276,7 +276,7 @@ export default function RobotsTxtGeneratorPage() {
           <button
             type="button"
             onClick={clearAll}
-            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="mt-6 inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
           >
             <Eraser className="h-4 w-4" />
             Reset
@@ -309,7 +309,7 @@ export default function RobotsTxtGeneratorPage() {
             <button
               type="button"
               onClick={downloadTxt}
-              className="inline-flex h-11 flex-none items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-emerald-500/30 px-4 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/10 sm:flex-1 sm:text-sm"
+              className="inline-flex h-11 flex-none items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 text-xs transition sm:flex-1 sm:text-sm"
             >
               <Download className="h-4 w-4 shrink-0" />
               Download

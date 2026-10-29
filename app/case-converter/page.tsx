@@ -398,7 +398,7 @@ export default function CaseConverterPage() {
             type="button"
             onClick={copyOutput}
             disabled={!output}
-            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-200 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:text-slate-600 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:border-white/10 disabled:text-slate-600"
           >
             {copied ? (
               <Check className="h-4 w-4" />
@@ -414,7 +414,7 @@ export default function CaseConverterPage() {
           <button
             type="button"
             onClick={clear}
-            className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
+            className="col-span-2 inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition sm:col-span-1"
           >
             <Eraser className="h-4 w-4" />
             Clear

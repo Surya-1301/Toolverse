@@ -354,7 +354,7 @@ export default function PasswordGeneratorPage() {
 
             <button
               onClick={() => setShowPassword((value) => !value)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-sky-500/30 px-4 py-3 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />
@@ -367,7 +367,7 @@ export default function PasswordGeneratorPage() {
             <button
               onClick={copyPassword}
               disabled={!password}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10 light:disabled:bg-slate-200 light:disabled:text-slate-400"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:border-white/10 disabled:bg-slate-800 disabled:text-slate-500 light:disabled:bg-slate-200 light:disabled:text-slate-400"
             >
               {copied ? (
                 <Check className="h-4 w-4" />
@@ -536,7 +536,7 @@ export default function PasswordGeneratorPage() {
 
           <button
             onClick={clearAll}
-            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:gap-2 sm:text-sm"
+            className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-xs transition sm:gap-2 sm:text-sm"
           >
             <Eraser className="h-4 w-4" />
             Clear

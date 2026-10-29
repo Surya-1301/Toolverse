@@ -257,7 +257,7 @@ export default function IpLookupPage() {
             <button
               onClick={lookupCustom}
               disabled={!customIp.trim() || loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
             >
               <Search className="h-4 w-4" />
               Look up
@@ -265,7 +265,7 @@ export default function IpLookupPage() {
             <button
               onClick={lookupOwn}
               disabled={lookingUpOwn || loading}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-4 py-3 text-sm transition disabled:cursor-not-allowed disabled:opacity-40"
             >
               <User className="h-4 w-4" />
               My IP
@@ -299,7 +299,7 @@ export default function IpLookupPage() {
             <p className="text-sm leading-6 text-red-200">{error}</p>
             <button
               onClick={() => lookingUpOwn ? lookupOwn() : lookupCustom()}
-              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
             >
               <RefreshCw className="h-4 w-4" />
               Try again
@@ -319,7 +319,7 @@ export default function IpLookupPage() {
               <div className="mt-4 flex flex-wrap justify-center gap-3">
                 <button
                   onClick={copyIp}
-                  className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
+                  className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -331,7 +331,7 @@ export default function IpLookupPage() {
 
                 <button
                   onClick={() => lookingUpOwn ? lookupOwn() : lookupCustom()}
-                  className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                  className="inline-flex items-center gap-2 rounded-xl border border-sky-500/30 px-4 py-2.5 text-sm font-semibold text-sky-300 transition hover:border-sky-500/50 hover:bg-sky-500/10 light:border-sky-600/30 light:text-sky-700 light:hover:bg-sky-50"
                 >
                   <RefreshCw className="h-4 w-4" />
                   Refresh

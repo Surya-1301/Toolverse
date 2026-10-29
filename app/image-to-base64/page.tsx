@@ -265,7 +265,7 @@ export default function ImageToBase64Page() {
 
             <button
               onClick={copyOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
+              className="inline-flex items-center gap-2 rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-3 py-2 text-xs transition"
             >
               {copied ? (
                 <Check className="h-4 w-4" />
@@ -295,7 +295,7 @@ export default function ImageToBase64Page() {
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <button
           onClick={base64ToImage}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400"
         >
           <RefreshCw className="h-4 w-4" />
           Decode Base64
@@ -303,7 +303,7 @@ export default function ImageToBase64Page() {
 
         <button
           onClick={downloadImage}
-          className="inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-sm transition"
         >
           <Download className="h-4 w-4" />
           <span className="sm:hidden">Image</span>
@@ -312,7 +312,7 @@ export default function ImageToBase64Page() {
 
         <button
           onClick={clearAll}
-          className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
+          className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition sm:col-span-1"
         >
           <Eraser className="h-4 w-4" />
           Clear

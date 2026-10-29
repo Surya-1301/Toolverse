@@ -163,7 +163,7 @@ export default function CssFormatterPage() {
 
             <button
               onClick={copyOutput}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2 text-xs font-semibold text-slate-200 transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-800 light:hover:bg-slate-900/10"
+              className="inline-flex items-center gap-2 rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-3 py-2 text-xs transition"
             >
               {copied ? (
                 <Check className="h-4 w-4 shrink-0" />
@@ -186,7 +186,7 @@ export default function CssFormatterPage() {
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={formatCss}
-          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400"
         >
           <Wand2 className="h-4 w-4 shrink-0" />
           Format CSS
@@ -194,7 +194,7 @@ export default function CssFormatterPage() {
 
         <button
           onClick={minifyCss}
-          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm transition"
         >
           <Minimize2 className="h-4 w-4 shrink-0" />
           Minify CSS
@@ -202,14 +202,14 @@ export default function CssFormatterPage() {
 
         <button
           onClick={stripComments}
-          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-white/10 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl bg-amber-600 text-white font-semibold shadow-sm hover:bg-amber-500 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm transition"
         >
           Remove comments
         </button>
 
         <button
           onClick={clearAll}
-          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+          className="inline-flex items-center justify-center gap-1.5 sm:gap-2 whitespace-nowrap rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-2 sm:px-4 py-2.5 text-[13px] sm:text-sm transition"
         >
           <Eraser className="h-4 w-4 shrink-0" />
           Clear

@@ -611,7 +611,7 @@ function UrlShortenerContent() {
             <button
               type="button"
               onClick={clearAll}
-              className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
             >
               <Eraser className="h-4 w-4" />
               Clear
@@ -663,7 +663,7 @@ function UrlShortenerContent() {
                             href={`${getFrontendOrigin()}/go?slug=${shortened.slug}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-400 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"
+                            className="rounded-lg bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-2 py-0.5 text-[10px] sm:px-2.5 sm:py-1"
                           >
                             Open
                           </a>
@@ -674,7 +674,7 @@ function UrlShortenerContent() {
                                 prev.filter((u) => u.slug !== shortened.slug),
                               )
                             }
-                            className="rounded-lg border border-white/10 px-2 py-0.5 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:py-1 light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
+                            className="rounded-lg border border-red-500/30 px-2 py-0.5 text-[10px] text-red-300 hover:border-red-500/50 hover:bg-red-500/10 sm:px-2.5 sm:py-1 light:border-red-600/30 light:text-red-700 light:hover:bg-red-50"
                           >
                             Remove
                           </button>

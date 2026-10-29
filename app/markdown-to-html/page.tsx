@@ -202,7 +202,7 @@ export default function MarkdownToHtmlPage() {
       <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
         <button
           onClick={copyOutput}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400"
         >
           {copied ? (
             <Check className="h-4 w-4" />
@@ -214,7 +214,7 @@ export default function MarkdownToHtmlPage() {
 
         <button
           onClick={downloadHtml}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl px-4 py-2.5 text-[11px] font-semibold transition sm:text-sm border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2.5 text-[11px] transition sm:text-sm"
         >
           <Download className="h-4 w-4 shrink-0" />
           Download HTML

@@ -665,7 +665,7 @@ export default function DomainLookupPage() {
               </p>
               <button
                 onClick={copyDns}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-3 py-1.5 text-xs transition"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Copied" : "Copy"}
@@ -699,7 +699,7 @@ export default function DomainLookupPage() {
               </div>
               <button
                 onClick={copyWhois}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-xs font-semibold text-white transition hover:bg-white/10 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                className="inline-flex items-center gap-2 rounded-lg bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-3 py-2 text-xs transition"
               >
                 {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                 {copied ? "Copied" : "Copy"}
@@ -773,7 +773,7 @@ export default function DomainLookupPage() {
               <div>
                 <button
                   onClick={() => setShowRaw(!showRaw)}
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-sky-400/90 transition hover:text-sky-300 light:text-sky-600 light:hover:text-sky-700"
                 >
                   <Fingerprint className="h-3.5 w-3.5" />
                   {showRaw ? "Hide" : "Show"} raw RDAP data
@@ -830,8 +830,8 @@ export default function DomainLookupPage() {
                         </span>
                       </div>
 
-                      <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">
-                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                      <div className="mt-4 grid min-w-0 grid-cols-2 gap-2.5 sm:gap-3">
+                        <div className="col-span-2 min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white sm:col-span-1">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <Building2 className="h-3.5 w-3.5" />
                             Issuer
@@ -840,25 +840,25 @@ export default function DomainLookupPage() {
                             {cert.issuer_name || "—"}
                           </p>
                         </div>
-                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                        <div className="col-span-1 min-w-0 rounded-xl border border-white/10 bg-slate-950 p-2.5 light:border-slate-900/10 light:bg-white sm:p-3">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             Valid from
                           </p>
-                          <p className="mt-1 break-words text-xs font-semibold text-slate-200 light:text-slate-800">
+                          <p className="mt-1 break-words text-[11px] font-semibold text-slate-200 light:text-slate-800 sm:text-xs">
                             {sslFormatDate(cert.not_before)}
                           </p>
                         </div>
-                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                        <div className="col-span-1 min-w-0 rounded-xl border border-white/10 bg-slate-950 p-2.5 light:border-slate-900/10 light:bg-white sm:p-3">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             Expires
                           </p>
-                          <p className="mt-1 break-words text-xs font-semibold text-slate-200 light:text-slate-800">
+                          <p className="mt-1 break-words text-[11px] font-semibold text-slate-200 light:text-slate-800 sm:text-xs">
                             {sslFormatDate(cert.not_after)}
                           </p>
                         </div>
-                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                        <div className="col-span-2 min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white sm:col-span-1">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <Fingerprint className="h-3.5 w-3.5" />
                             Serial
@@ -899,7 +899,7 @@ export default function DomainLookupPage() {
         <div className="mt-6 flex justify-center">
           <button
             onClick={clearAll}
-            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
           >
             <Eraser className="h-4 w-4" />
             Clear

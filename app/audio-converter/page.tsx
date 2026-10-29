@@ -580,14 +580,14 @@ export default function AudioConverterPage() {
                   </div>
                   <button
                     onClick={download}
-                    className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+                    className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 text-white font-semibold shadow-sm hover:bg-emerald-500 px-4 py-2 text-xs transition"
                   >
                     <Download className="h-4 w-4" /> Download
                   </button>
                   <button
                     onClick={copyToClipboard}
                     disabled={!navigator.clipboard || !window.ClipboardItem}
-                    className="inline-flex items-center gap-2 rounded-lg border border-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                    className="inline-flex items-center gap-2 rounded-lg bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-4 py-2 text-xs transition disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                     {copied ? "Copied" : "Copy"}

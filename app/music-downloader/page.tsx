@@ -187,7 +187,7 @@ export default function MusicDownloaderPage() {
               onClick={pasteFromClipboard}
               aria-label="Paste from clipboard"
               title="Paste from clipboard"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white font-semibold shadow-sm hover:bg-indigo-500 transition"
             >
               <ClipboardPaste className="h-5 w-5" />
             </button>
@@ -217,7 +217,7 @@ export default function MusicDownloaderPage() {
             type="button"
             onClick={fetchInfo}
             disabled={loading || !url.trim()}
-            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-6 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-6 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -229,7 +229,7 @@ export default function MusicDownloaderPage() {
           <button
             type="button"
             onClick={reset}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 text-sm transition"
           >
             <Eraser className="h-4 w-4" />
             Clear

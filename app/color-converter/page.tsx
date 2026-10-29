@@ -628,7 +628,7 @@ export default function ColorConverterPage() {
 
             <button
               onClick={clearAll}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition"
             >
               <Eraser className="h-4 w-4" />
               Clear

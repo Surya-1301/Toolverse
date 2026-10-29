@@ -369,7 +369,7 @@ export default function TextToSpeechPage() {
                 type="button"
                 onClick={speak}
                 disabled={!text.trim()}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
               >
                 <Play className="h-4 w-4" />
                 Speak
@@ -379,7 +379,7 @@ export default function TextToSpeechPage() {
                 type="button"
                 onClick={togglePause}
                 disabled={!speaking}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:opacity-40 sm:px-5"
               >
                 {paused ? (
                   <Play className="h-4 w-4" />
@@ -394,7 +394,7 @@ export default function TextToSpeechPage() {
                 type="button"
                 onClick={stopSpeech}
                 disabled={!speaking}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-40 sm:px-5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 py-2.5 text-sm transition disabled:cursor-not-allowed disabled:opacity-40 sm:px-5"
               >
                 <Square className="h-4 w-4" />
                 Stop
@@ -403,7 +403,7 @@ export default function TextToSpeechPage() {
               <button
                 type="button"
                 onClick={() => setText("")}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:col-span-1 sm:px-5 light:border-slate-900/10 light:text-slate-700 light:hover:bg-slate-900/10 light:hover:text-slate-900"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:border-red-500/50 hover:bg-red-500/10 sm:col-span-1 sm:px-5 light:border-red-600/30 light:text-red-700 light:hover:bg-red-50"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -412,7 +412,7 @@ export default function TextToSpeechPage() {
               <button
                 type="button"
                 onClick={resetSettings}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white sm:col-span-1 sm:px-5 light:border-slate-900/10 light:text-slate-700 light:hover:bg-slate-900/10 light:hover:text-slate-900"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-amber-600 text-white font-semibold shadow-sm hover:bg-amber-500 px-4 py-2.5 text-sm transition sm:col-span-1 sm:px-5"
               >
                 <RotateCcw className="h-4 w-4" />
                 Reset
