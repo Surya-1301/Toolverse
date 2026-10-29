@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Container } from "./Container";
@@ -31,12 +31,14 @@ export function Header() {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isToolsOpen, setIsToolsOpen] = useState(false);
+  const [isMobileToolsOpen, setIsMobileToolsOpen] = useState(false);
   const headerRef = useRef<HTMLElement>(null);
   const toolsRef = useRef<HTMLDivElement>(null);
 
   // Automatically close all menus on page navigation or refresh
   useEffect(() => {
     setIsToolsOpen(false);
+    setIsMobileToolsOpen(false);
     setIsMenuOpen(false);
   }, [pathname]);
 
@@ -57,12 +59,14 @@ export function Header() {
         !headerRef.current.contains(target)
       ) {
         setIsMenuOpen(false);
+        setIsMobileToolsOpen(false);
       }
     }
 
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setIsToolsOpen(false);
+        setIsMobileToolsOpen(false);
         setIsMenuOpen(false);
       }
     }
@@ -314,9 +318,12 @@ export function Header() {
 
           <button
             type="button"
-            onClick={() =>
-              setIsMenuOpen((open) => !open)
-            }
+            onClick={() => {
+              setIsMenuOpen((open) => {
+                if (open) setIsMobileToolsOpen(false);
+                return !open;
+              });
+            }}
             className="
               inline-flex
               h-11
@@ -402,7 +409,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 onClick={() => {
-                  setIsToolsOpen(false);
+                  setIsMobileToolsOpen(false);
                   setIsMenuOpen(false);
                 }}
                 className="
@@ -410,13 +417,15 @@ export function Header() {
                   px-3
                   py-3
                   text-center
+                  text-sm
                   font-medium
-                  transition
+                  text-slate-200
+                  transition-colors
                   hover:bg-white/10
                   hover:text-white
+                  active:bg-white/[0.12]
                   focus:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-sky-400/50
+                  focus-visible:outline-none
                   light:text-slate-700
                   light:hover:bg-slate-900/5
                   light:hover:text-slate-900
@@ -428,65 +437,70 @@ export function Header() {
             <div className="col-span-2 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-md light:border-slate-900/10 light:bg-slate-900/[0.03]">
               <button
                 type="button"
-                onClick={() => setIsToolsOpen((open) => !open)}
+                onClick={() => setIsMobileToolsOpen((open) => !open)}
                 className="
                   flex
                   w-full
                   items-center
                   justify-between
                   px-4
-                  py-3
+                  py-3.5
+                  text-sm
                   font-medium
-                  transition
+                  text-slate-200
+                  transition-colors
                   hover:bg-white/[0.05]
+                  active:bg-white/[0.08]
                   focus:outline-none
-                  focus-visible:ring-2
-                  focus-visible:ring-sky-400/50
+                  focus-visible:outline-none
                   light:text-slate-700
                   light:hover:bg-slate-900/5
                   light:hover:text-slate-900
                 "
-                aria-expanded={isToolsOpen}
+                aria-expanded={isMobileToolsOpen}
                 aria-haspopup="true"
               >
                 <span>Tools</span>
                 <ChevronDown
-                  className={`h-4 w-4 transition-transform duration-200 ${
-                    isToolsOpen ? "rotate-180 text-sky-400" : ""
+                  className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
+                    isMobileToolsOpen ? "rotate-180 text-sky-400" : ""
                   }`}
                 />
               </button>
-              {isToolsOpen ? (
-                <div className="grid grid-cols-2 gap-1.5 border-t border-white/10 p-2 light:border-slate-900/10">
+              {isMobileToolsOpen ? (
+                <div className="flex flex-col border-t border-white/[0.08] p-1.5 light:border-slate-900/[0.08]">
                   {toolLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
                       onClick={() => {
-                        setIsToolsOpen(false);
+                        setIsMobileToolsOpen(false);
                         setIsMenuOpen(false);
                       }}
                       className="
+                        flex
+                        items-center
+                        justify-between
                         rounded-xl
-                        px-3
-                        py-2.5
-                        text-center
-                        text-xs
+                        px-3.5
+                        py-3
+                        text-sm
                         font-medium
-                        text-slate-300
-                        transition
-                        hover:bg-white/10
+                        text-slate-200
+                        transition-colors
+                        hover:bg-white/[0.08]
                         hover:text-white
+                        active:bg-white/[0.14]
                         focus:outline-none
-                        focus-visible:ring-2
-                        focus-visible:ring-sky-400/50
+                        focus-visible:outline-none
                         light:text-slate-700
                         light:hover:bg-slate-900/5
                         light:hover:text-slate-900
                       "
                       role="menuitem"
                     >
-                      {link.label}
+                      <span>{link.label}</span>
+                      <ChevronRight className="h-4 w-4 text-slate-500 opacity-60 light:text-slate-400" />
                     </Link>
                   ))}
                 </div>
