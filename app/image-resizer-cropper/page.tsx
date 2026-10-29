@@ -428,7 +428,7 @@ export default function ImageResizerCropperPage() {
             className={[
               "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
               mode === item.key
-                ? "border-violet-500 bg-violet-600/20 text-white"
+                ? "border-sky-500 bg-sky-500/20 text-white"
                 : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
             ].join(" ")}
           >
@@ -444,8 +444,8 @@ export default function ImageResizerCropperPage() {
             Upload image
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
-            <Upload className="mb-3 h-9 w-9 text-violet-300" />
+          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
+            <Upload className="mb-3 h-9 w-9 text-sky-300" />
 
             <span className="font-semibold text-white light:text-slate-900">
               Click to choose image
@@ -501,7 +501,7 @@ export default function ImageResizerCropperPage() {
                     : setX(event.target.value)
                 }
                 placeholder={mode === "resize" ? "Width" : "0"}
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -521,7 +521,7 @@ export default function ImageResizerCropperPage() {
                 }
                 placeholder={mode === "resize" ? "Auto" : "0"}
                 disabled={mode === "resize" && keepAspectRatio}
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 disabled:cursor-not-allowed disabled:opacity-50 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -534,7 +534,7 @@ export default function ImageResizerCropperPage() {
                     onChange={(event) =>
                       setKeepAspectRatio(event.target.checked)
                     }
-                    className="h-4 w-4 accent-violet-600"
+                    className="h-4 w-4 accent-sky-500"
                   />
                   Keep ratio
                 </label>
@@ -553,7 +553,7 @@ export default function ImageResizerCropperPage() {
                     onChange={(event) =>
                       setQuality(Number(event.target.value))
                     }
-                    className="mt-1.5 w-full accent-violet-500"
+                    className="mt-1.5 w-full accent-sky-500"
                   />
                 </div>
               </>
@@ -569,7 +569,7 @@ export default function ImageResizerCropperPage() {
                     min="1"
                     value={width}
                     onChange={(event) => setWidth(event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   />
                 </div>
 
@@ -583,7 +583,7 @@ export default function ImageResizerCropperPage() {
                     min="1"
                     value={height}
                     onChange={(event) => setHeight(event.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                   />
                 </div>
               </>
@@ -618,7 +618,7 @@ export default function ImageResizerCropperPage() {
             <button
               onClick={process}
               disabled={isProcessing || !file}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
             >
               {isProcessing ? (
                 <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -657,7 +657,7 @@ export default function ImageResizerCropperPage() {
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center light:border-slate-900/15 light:bg-white">
+          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
             {outputPreview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img

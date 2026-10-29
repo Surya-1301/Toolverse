@@ -184,8 +184,10 @@ function CategoryToolCard({
   return (
     <Link
       href={href}
-      className="group relative block overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] transition duration-200 hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] max-sm:rounded-[28px] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+      className="apple-glass group relative block overflow-hidden rounded-3xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15 max-sm:rounded-[28px]"
     >
+      <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
+
       {/* ================================================================
           DESKTOP VERSION
           Existing desktop design remains unchanged
@@ -195,15 +197,15 @@ function CategoryToolCard({
         {/* Icon + Status */}
 
         <div className="mb-4 flex items-start justify-between gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 transition group-hover:scale-105 group-hover:text-sky-200 light:text-sky-600 light:border-sky-500/20">
             {icon}
           </div>
 
           <span
             className={
               isLive
-                ? "rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-300"
-                : "rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-semibold text-amber-300"
+                ? "rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-500/25"
+                : "rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25"
             }
           >
             {isLive ? "Live" : "Coming soon"}
@@ -227,7 +229,7 @@ function CategoryToolCard({
         <div
           className={
             isLive
-              ? "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-violet-200"
+              ? "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 group-hover:text-sky-300"
               : "mt-4 inline-flex items-center gap-2 text-sm font-semibold text-slate-500"
           }
         >
@@ -274,7 +276,7 @@ function CategoryToolCard({
           ============================================================ */}
 
           <div
-            className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-[23px] bg-violet-600/25 text-violet-200 ring-1 ring-violet-400/25"
+            className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-[23px] bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10"
           >
             {icon}
           </div>
@@ -310,8 +312,8 @@ function CategoryToolCard({
           <span
             className={
               isLive
-                ? "absolute right-0 top-0 rounded-full bg-emerald-500/10 px-3 py-1.5 text-sm font-semibold text-emerald-300"
-                : "absolute right-0 top-0 rounded-full bg-amber-500/10 px-3 py-1.5 text-sm font-semibold text-amber-300"
+                ? "absolute right-0 top-0 rounded-full bg-emerald-500/15 px-3 py-1.5 text-sm font-semibold text-emerald-300 border border-emerald-500/25"
+                : "absolute right-0 top-0 rounded-full bg-amber-500/15 px-3 py-1.5 text-sm font-semibold text-amber-300 border border-amber-500/25"
             }
           >
             {isLive ? "Live" : "Coming soon"}
@@ -325,7 +327,7 @@ function CategoryToolCard({
         <div
           className={
             isLive
-              ? "mt-8 flex items-center gap-2 text-[16px] font-semibold text-violet-200"
+              ? "mt-8 flex items-center gap-2 text-[16px] font-semibold text-sky-400"
               : "mt-8 flex items-center gap-2 text-[16px] font-semibold text-slate-500"
           }
         >

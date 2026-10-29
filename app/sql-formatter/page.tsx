@@ -330,7 +330,7 @@ export default function SqlFormatterPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder={"SELECT u.name, u.email, COUNT(o.id) AS order_count\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nWHERE u.active = 1\nGROUP BY u.id\nHAVING COUNT(o.id) > 5\nORDER BY order_count DESC\nLIMIT 10;"}
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
@@ -357,7 +357,7 @@ export default function SqlFormatterPage() {
             readOnly
             value={output}
             placeholder="Output will appear here..."
-            className="min-h-[440px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[440px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
       </div>

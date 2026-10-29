@@ -262,12 +262,14 @@ export default function SmartInput() {
       "
     >
       {/* ================================================================
-          OUTER INPUT CARD
+          OUTER INPUT CARD (Apple Fluid Glass Capsule)
       ================================================================ */}
 
       <div
-        className=" rounded-3xl border border-white/[0.08] bg-black/[0.10] p-2 shadow-[0_20px_70px_rgba(0,0,0,0.25)] backdrop-blur-md sm:p-2.5 light:border-slate-900/10"
+        className="apple-glass relative rounded-3xl p-2 sm:p-2.5 shadow-2xl shadow-black/40 overflow-hidden"
       >
+        <div className="apple-specular" />
+
         {/* ================================================================
             MAIN INPUT SURFACE
         ================================================================ */}
@@ -278,21 +280,21 @@ export default function SmartInput() {
             overflow-visible
             rounded-2xl
             border
-            border-white/[0.09]
-            bg-white/[0.018]
+            border-white/[0.08]
+            bg-white/[0.02]
             transition-all
             duration-200
             light:border-slate-900/10
             light:bg-white
-            focus-within:border-violet-400/30
-            focus-within:bg-white/[0.025]
-            focus-within:shadow-[0_0_40px_rgba(124,58,237,0.08)]
-            light:focus-within:border-violet-500/40
+            focus-within:border-sky-400/40
+            focus-within:bg-white/[0.035]
+            focus-within:shadow-[0_0_35px_rgba(56,189,248,0.12)]
+            light:focus-within:border-sky-500/40
             light:focus-within:bg-white
           "
         >
           {/* ============================================================
-              SUBTLE PURPLE AMBIENT LIGHT
+              SUBTLE AMBIENT LIGHT
           ============================================================ */}
 
           <div
@@ -305,7 +307,7 @@ export default function SmartInput() {
               h-52
               w-52
               rounded-full
-              bg-violet-500/[0.06]
+              bg-sky-500/[0.07]
               blur-3xl
             "
           />
@@ -388,7 +390,7 @@ export default function SmartInput() {
               <button
                 type="button"
                 onClick={copyInput}
-                className=" inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-violet-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-violet-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-violet-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
+                className=" inline-flex min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-sky-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
               >
                 {copied ? (
                   <>
@@ -411,7 +413,7 @@ export default function SmartInput() {
                 fileInputRef.current?.click()
               }
               aria-label="Upload an image"
-              className=" inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.025] px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-violet-400/25 hover:bg-white/[0.055] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] light:border-slate-900/15 light:bg-white light:text-slate-700 light:hover:border-violet-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
+              className=" inline-flex min-h-9 items-center gap-2 rounded-lg border border-white/[0.10] bg-white/[0.025] px-3 py-1.5 text-xs font-medium text-slate-300 transition-all duration-200 hover:border-sky-400/25 hover:bg-white/[0.055] hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] light:border-slate-900/15 light:bg-white light:text-slate-700 light:hover:border-sky-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
             >
               <Upload
                 aria-hidden="true"
@@ -432,7 +434,7 @@ export default function SmartInput() {
             <button
               type="button"
               onClick={copyInput}
-              className=" absolute bottom-3 right-3 z-20 hidden min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-violet-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-violet-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:text-slate-700 light:shadow-slate-900/10 light:hover:text-slate-900"
+              className=" absolute bottom-3 right-3 z-20 hidden min-h-10 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:text-slate-700 light:shadow-slate-900/10 light:hover:text-slate-900"
             >
               {copied ? (
                 <>
@@ -512,7 +514,7 @@ export default function SmartInput() {
                 fileInputRef.current?.click()
               }
               aria-label="Upload an image"
-              className=" absolute right-3 top-1/2 hidden min-h-10 -translate-y-1/2 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-violet-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-violet-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-violet-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
+              className=" absolute right-3 top-1/2 hidden min-h-10 -translate-y-1/2 items-center gap-2 rounded-xl border border-white/[0.10] bg-[#080b1d]/90 px-3.5 py-2 text-xs font-medium text-slate-300 shadow-lg shadow-black/10 backdrop-blur-md transition-all duration-200 hover:border-sky-400/30 hover:bg-[#0d1028] hover:text-white hover:shadow-sky-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#030617] md:inline-flex light:border-slate-900/10 light:bg-white light:text-slate-700 light:shadow-slate-900/10 light:hover:border-sky-400/50 light:hover:bg-slate-100 light:hover:text-slate-900"
             >
               <Upload
                 aria-hidden="true"
@@ -537,13 +539,16 @@ export default function SmartInput() {
               gap-3
               rounded-2xl
               border
-              border-violet-400/15
-              bg-violet-500/[0.045]
+              border-sky-400/20
+              bg-sky-500/[0.06]
               p-3
+              backdrop-blur-md
               sm:flex-row
               sm:items-center
               sm:justify-between
               sm:p-4
+              light:border-sky-600/15
+              light:bg-sky-500/[0.08]
             "
           >
             {/* ==========================================================
@@ -568,10 +573,16 @@ export default function SmartInput() {
                   items-center
                   justify-center
                   rounded-xl
-                  bg-violet-500/10
-                  text-violet-300
-                  ring-1
-                  ring-violet-400/15
+                  bg-gradient-to-br
+                  from-sky-500/20
+                  to-cyan-500/20
+                  text-sky-300
+                  border
+                  border-sky-400/20
+                  shadow-md
+                  shadow-sky-500/10
+                  light:text-sky-700
+                  light:border-sky-500/20
                 "
               >
                 <DetectionIcon className="h-5 w-5" />
@@ -599,30 +610,29 @@ export default function SmartInput() {
             <Link
               href={detection.href}
               className="
+                apple-pill-btn
                 inline-flex
                 min-h-10
                 shrink-0
                 items-center
                 justify-center
                 gap-2
-                rounded-xl
-                bg-violet-600
-                px-4
+                rounded-full
+                px-5
                 py-2.5
                 text-xs
                 font-semibold
                 text-white
-                shadow-lg
-                shadow-violet-600/10
-                transition
-
-                hover:bg-violet-500
-
+                shadow-md
+                shadow-sky-500/20
+                transition-all
+                duration-150
+                active:scale-[0.98]
                 focus:outline-none
                 focus-visible:ring-2
-                focus-visible:ring-violet-400/60
+                focus-visible:ring-sky-400/60
                 focus-visible:ring-offset-2
-                focus-visible:ring-offset-[#030617]
+                focus-visible:ring-offset-[#070a14]
               "
             >
               Open tool

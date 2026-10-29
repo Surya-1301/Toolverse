@@ -23,17 +23,16 @@ export function ToolCard({
   const content = (
     <div
       className={cn(
-        "group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.035] p-5 transition duration-200",
+        "apple-glass group relative overflow-hidden rounded-3xl p-5 transition-all duration-200",
 
         "max-sm:rounded-[28px] max-sm:p-5",
 
         isLive &&
-          "hover:-translate-y-1 hover:border-violet-500/60 hover:bg-white/[0.06] hover:shadow-2xl hover:shadow-violet-950/30",
+          "hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15",
       )}
     >
-      {/* Top gradient */}
-
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-violet-400/60 to-transparent opacity-0 transition group-hover:opacity-100" />
+      {/* Apple Top Specular Line */}
+      <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
 
       {/* ============================================================
           ICON + STATUS
@@ -51,7 +50,7 @@ export function ToolCard({
           max-sm:mb-0
         "
       >
-        {/* Icon */}
+        {/* Icon Squircle */}
 
         <div
           className="
@@ -61,11 +60,20 @@ export function ToolCard({
             shrink-0
             items-center
             justify-center
-            rounded-xl
-            bg-violet-600/20
-            text-violet-300
-            ring-1
-            ring-violet-400/20
+            rounded-2xl
+            bg-gradient-to-br
+            from-sky-500/20
+            to-cyan-500/20
+            text-sky-300
+            border
+            border-sky-400/20
+            shadow-md
+            shadow-sky-500/10
+            transition
+            group-hover:scale-105
+            group-hover:text-sky-200
+            light:text-sky-600
+            light:border-sky-500/20
 
             max-sm:h-[76px]
             max-sm:w-[76px]
@@ -114,7 +122,7 @@ export function ToolCard({
 
         <span
           className={cn(
-            "rounded-full px-2.5 py-1 text-xs",
+            "rounded-full px-2.5 py-1 text-xs border font-medium",
 
             "max-sm:absolute",
             "max-sm:right-0",
@@ -126,8 +134,8 @@ export function ToolCard({
             "max-sm:font-semibold",
 
             isLive
-              ? "bg-emerald-500/10 text-emerald-300"
-              : "bg-amber-500/10 text-amber-300",
+              ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
+              : "bg-amber-500/15 text-amber-300 border-amber-500/25",
           )}
         >
           {isLive ? "Live" : "Coming soon"}
@@ -154,14 +162,14 @@ export function ToolCard({
 
       <div
         className={cn(
-          "mt-5 flex items-center gap-2 text-sm font-medium",
+          "mt-5 flex items-center gap-2 text-sm font-semibold",
 
           "max-sm:mt-7",
           "max-sm:text-[16px]",
           "max-sm:font-semibold",
 
           isLive
-            ? "text-violet-300"
+            ? "text-sky-400 group-hover:text-sky-300"
             : "text-slate-600",
         )}
       >

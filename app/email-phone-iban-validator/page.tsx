@@ -811,7 +811,7 @@ export default function EmailPhoneIbanValidatorPage() {
               autoComplete="email"
               spellCheck={false}
               placeholder="you@example.com"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {emailResult ? (
@@ -884,7 +884,7 @@ export default function EmailPhoneIbanValidatorPage() {
               autoComplete="tel"
               inputMode="tel"
               placeholder="+1 415 555 0132"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {phoneResult ? (
@@ -950,7 +950,7 @@ export default function EmailPhoneIbanValidatorPage() {
               autoComplete="off"
               spellCheck={false}
               placeholder="DE89 3704 0044 0532 0130 00"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg tracking-wider text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg tracking-wider text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {ibanResult ? (
@@ -1123,7 +1123,7 @@ function TabButton({
       className={[
         "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
         active
-          ? "border-violet-500 bg-violet-600/20 text-white"
+          ? "border-sky-500 bg-sky-500/20 text-white"
           : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10 hover:text-white light:hover:text-slate-900",
       ].join(" ")}
     >
@@ -1153,7 +1153,7 @@ function EmptyState({
   icon?: ReactNode;
 }) {
   return (
-    <div className="mt-4 flex min-h-[72px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+    <div className="mt-4 flex min-h-[72px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
       <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
         {icon}
         {children}

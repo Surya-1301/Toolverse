@@ -6,10 +6,11 @@ import { SharedViewer } from "@/components/SharedViewer";
 function FileLoading() {
   return (
     <div className="py-12 sm:py-16">
-      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+      <div className="apple-glass relative overflow-hidden flex min-h-[300px] items-center justify-center rounded-3xl p-8 backdrop-blur-xl">
+        <div className="apple-specular opacity-40" />
         <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
           <svg
-            className="h-5 w-5 animate-spin"
+            className="h-5 w-5 animate-spin text-sky-400"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

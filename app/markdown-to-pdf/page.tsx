@@ -395,7 +395,7 @@ export default function MarkdownToPdfPage() {
           <textarea
             value={input}
             onChange={(event) => setInput(event.target.value)}
-            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[460px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             placeholder="Write Markdown here..."
           />
         </div>
@@ -411,7 +411,7 @@ export default function MarkdownToPdfPage() {
               dangerouslySetInnerHTML={{ __html: html }}
             />
           ) : (
-            <div className="flex min-h-[460px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 p-6 text-sm text-slate-500 light:border-slate-900/10 light:bg-white">
+            <div className="flex min-h-[460px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-sm text-slate-500 light:border-slate-900/15 light:bg-white">
               Your formatted preview appears here as you type.
             </div>
           )}
@@ -424,7 +424,7 @@ export default function MarkdownToPdfPage() {
 .md-preview ul{list-style:disc}
 .md-preview ol{list-style:decimal}
 .md-preview li{margin:.25em 0}
-.md-preview blockquote{margin:.7em 0;padding:.4em .9em;border-left:3px solid #7c3aed;opacity:.9}
+.md-preview blockquote{margin:.7em 0;padding:.4em .9em;border-left:3px solid #0ea5e9;opacity:.9}
 .md-preview pre{background:rgba(148,163,184,.12);border-radius:.6rem;padding:.8rem;overflow:auto;margin:.7em 0}
 .md-preview code{font-family:ui-monospace,monospace;font-size:.85em;background:rgba(148,163,184,.16);padding:.1em .35em;border-radius:.3rem}
 .md-preview pre code{background:transparent;padding:0}

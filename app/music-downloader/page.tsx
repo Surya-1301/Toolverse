@@ -38,10 +38,10 @@ function BackToToolsLink() {
 }
 
 const inputClass =
-  "min-h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
+  "min-h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
 
 const selectClass =
-  "min-h-11 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900";
+  "min-h-11 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900";
 
 type MediaDetails = {
   title: string;
@@ -226,7 +226,7 @@ export default function MusicDownloaderPage() {
             type="button"
             onClick={fetchInfo}
             disabled={loading || !url.trim()}
-            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-6 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
@@ -262,7 +262,7 @@ export default function MusicDownloaderPage() {
                   className="h-20 w-20 shrink-0 rounded-xl object-cover"
                 />
               ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-violet-600/20 text-violet-300">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-sky-500/20 text-sky-300">
                   <Music className="h-8 w-8" />
                 </div>
               )}

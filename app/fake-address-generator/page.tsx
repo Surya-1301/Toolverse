@@ -208,7 +208,7 @@ export default function FakeAddressGeneratorPage() {
                 className={[
                   "inline-flex items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition sm:justify-start",
                   selectedLocale.key === loc.key
-                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    ? "border-sky-500 bg-sky-500/20 text-white"
                     : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
@@ -231,7 +231,7 @@ export default function FakeAddressGeneratorPage() {
               value={zipcode}
               onChange={(e) => setZipcode(e.target.value)}
               placeholder="Enter zipcode to generate addresses for a specific area"
-              className="w-full rounded-xl border border-white/10 bg-slate-950 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-500 transition light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-500 transition light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
           {zipcode && (
@@ -253,7 +253,7 @@ export default function FakeAddressGeneratorPage() {
             step="1"
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
-            className="w-full accent-violet-500"
+            className="w-full accent-sky-500"
           />
         </div>
 
@@ -271,7 +271,7 @@ export default function FakeAddressGeneratorPage() {
                 className={[
                   "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                   style === opt
-                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    ? "border-sky-500 bg-sky-500/20 text-white"
                     : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
@@ -285,7 +285,7 @@ export default function FakeAddressGeneratorPage() {
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             onClick={generate}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             <RefreshCw className="h-4 w-4" />
             Generate
@@ -338,7 +338,7 @@ export default function FakeAddressGeneratorPage() {
                   const user = users[index];
                   return (
                     <li key={index} className="flex items-start gap-3 px-4 py-4">
-                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-violet-600/20 text-xs font-bold text-violet-300">
+                      <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-sky-500/20 text-xs font-bold text-sky-300">
                         {index + 1}
                       </span>
                       <div className="min-w-0 flex-1">

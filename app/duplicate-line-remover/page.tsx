@@ -182,7 +182,7 @@ export default function DuplicateLineRemoverPage() {
               value={input}
               onChange={(event) => setInput(event.target.value)}
               placeholder={"apple\nbanana\napple\n  banana\n\ncherry"}
-              className="min-h-[300px] w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="min-h-[300px] w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -221,7 +221,7 @@ export default function DuplicateLineRemoverPage() {
               type="checkbox"
               checked={trim}
               onChange={(event) => setTrim(event.target.checked)}
-              className="h-4 w-4 accent-violet-600"
+              className="h-4 w-4 accent-sky-500"
             />
             Trim whitespace
           </label>
@@ -231,7 +231,7 @@ export default function DuplicateLineRemoverPage() {
               type="checkbox"
               checked={removeEmpty}
               onChange={(event) => setRemoveEmpty(event.target.checked)}
-              className="h-4 w-4 accent-violet-600"
+              className="h-4 w-4 accent-sky-500"
             />
             Remove empty lines
           </label>
@@ -241,7 +241,7 @@ export default function DuplicateLineRemoverPage() {
               type="checkbox"
               checked={dedupe}
               onChange={(event) => setDedupe(event.target.checked)}
-              className="h-4 w-4 accent-violet-600"
+              className="h-4 w-4 accent-sky-500"
             />
             Remove duplicates
           </label>
@@ -251,7 +251,7 @@ export default function DuplicateLineRemoverPage() {
               type="checkbox"
               checked={ignoreCase}
               onChange={(event) => setIgnoreCase(event.target.checked)}
-              className="h-4 w-4 accent-violet-600"
+              className="h-4 w-4 accent-sky-500"
             />
             Ignore letter case
           </label>
@@ -276,7 +276,7 @@ export default function DuplicateLineRemoverPage() {
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           <button
             onClick={process}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             <Wand2 className="h-4 w-4" />
             Process lines

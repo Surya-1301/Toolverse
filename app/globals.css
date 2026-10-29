@@ -4,49 +4,53 @@
 
 :root,
 [data-theme="dark"] {
-  --background: #020617;
+  --background: #070a14;
   --foreground: #ffffff;
   --surface: #ffffff;
-  --surface-muted: rgba(255, 255, 255, 0.03);
-  --surface-strong: #0f172a;
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.15);
+  --surface-muted: rgba(255, 255, 255, 0.04);
+  --surface-strong: #0c1222;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --accent: #7c3aed;
-  --accent-soft: rgba(124, 58, 237, 0.15);
-  --accent-text: #ddd6fe;
-  --ring-offset: #020617;
-  --card: rgba(255, 255, 255, 0.03);
-  --card-hover: rgba(255, 255, 255, 0.05);
-  --code-bg: #020617;
-  --scrollbar-track: #020617;
-  --scrollbar-thumb: #334155;
-  --scrollbar-thumb-hover: #475569;
+  --accent: #38bdf8;
+  --accent-soft: rgba(56, 189, 248, 0.15);
+  --accent-text: #bae6fd;
+  --ring-offset: #070a14;
+  --card: rgba(255, 255, 255, 0.04);
+  --card-hover: rgba(255, 255, 255, 0.07);
+  --code-bg: #070a14;
+  --scrollbar-track: #070a14;
+  --scrollbar-thumb: #1e293b;
+  --scrollbar-thumb-hover: #334155;
+  --specular-line: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+  --glow-accent: rgba(56, 189, 248, 0.18);
 }
 
 [data-theme="light"] {
-  --background: #f8fafc;
+  --background: #f1f5f9;
   --foreground: #0f172a;
   --surface: #0f172a;
   --surface-muted: rgba(15, 23, 42, 0.04);
   --surface-strong: #ffffff;
-  --border: rgba(15, 23, 42, 0.1);
-  --border-strong: rgba(15, 23, 42, 0.15);
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
   --text-primary: #0f172a;
   --text-secondary: #475569;
   --text-muted: #64748b;
-  --accent: #7c3aed;
-  --accent-soft: rgba(124, 58, 237, 0.1);
-  --accent-text: #5b21b6;
-  --ring-offset: #f8fafc;
-  --card: rgba(15, 23, 42, 0.03);
-  --card-hover: rgba(15, 23, 42, 0.06);
+  --accent: #0284c7;
+  --accent-soft: rgba(2, 132, 199, 0.12);
+  --accent-text: #0369a1;
+  --ring-offset: #f1f5f9;
+  --card: rgba(255, 255, 255, 0.75);
+  --card-hover: rgba(255, 255, 255, 0.95);
   --code-bg: #0f172a;
   --scrollbar-track: #e2e8f0;
   --scrollbar-thumb: #94a3b8;
   --scrollbar-thumb-hover: #64748b;
+  --specular-line: linear-gradient(90deg, transparent 0%, rgba(14, 165, 233, 0.35) 50%, transparent 100%);
+  --glow-accent: rgba(14, 165, 233, 0.12);
 
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
@@ -60,6 +64,7 @@
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
 }
+
 [data-theme="light"] .border-white\/10,
 [data-theme="light"] .border-white\/15,
 [data-theme="light"] .border-white\/20,
@@ -170,9 +175,9 @@
 [data-theme="light"] .shadow-black\/\[0\.30\] {
   --tw-shadow-color: rgba(15, 23, 42, 0.08);
 }
-[data-theme="light"] .shadow-violet-950\/30,
-[data-theme="light"] .shadow-violet-950\/20 {
-  --tw-shadow-color: rgba(124, 58, 237, 0.1);
+[data-theme="light"] .shadow-sky-950\/30,
+[data-theme="light"] .shadow-sky-950\/20 {
+  --tw-shadow-color: rgba(14, 165, 233, 0.1);
 }
 
 /* ── Blog prose ───────────────────────────────────────────────────────────── */
@@ -187,36 +192,36 @@
   color: color-mix(in oklab, var(--color-slate-600, #475569) 100%, transparent) !important;
 }
 
-[data-theme="light"] .text-violet-100,
-[data-theme="light"] .text-violet-200,
-[data-theme="light"] .text-violet-300,
-[data-theme="light"] .text-violet-400,
-[data-theme="light"] .text-violet-500 {
-  color: color-mix(in oklab, var(--color-violet-700, #6d28d9) 100%, transparent) !important;
+[data-theme="light"] .text-sky-100,
+[data-theme="light"] .text-sky-200,
+[data-theme="light"] .text-sky-300,
+[data-theme="light"] .text-sky-400,
+[data-theme="light"] .text-sky-500 {
+  color: color-mix(in oklab, var(--color-sky-700, #0369a1) 100%, transparent) !important;
 }
-[data-theme="light"] .text-violet-100\/80 {
-  color: color-mix(in oklab, var(--color-violet-700, #6d28d9) 100%, transparent);
+[data-theme="light"] .text-sky-100\/80 {
+  color: color-mix(in oklab, var(--color-sky-700, #0369a1) 100%, transparent);
   opacity: 0.9;
 }
 
-/* ── White text on translucent violet backgrounds ───────────────────────────
- *  In light mode, translucent violet backgrounds (bg-violet-600/20 etc.) are
+/* ── White text on translucent sky backgrounds ───────────────────────────
+ *  In light mode, translucent sky backgrounds (bg-sky-500/20 etc.) are
  *  nearly invisible against white, washing out white text.  Boost the
- *  background to a solid violet so white labels stay crisp and on-brand.
+ *  background to a solid sky so white labels stay crisp and on-brand.
  */
-[data-theme="light"] [class*="bg-violet-600/20"][class*="text-white"],
-[data-theme="light"] [class*="bg-violet-600/15"][class*="text-white"],
-[data-theme="light"] [class*="bg-violet-500/20"][class*="text-white"],
-[data-theme="light"] [class*="bg-violet-500/35"][class*="text-white"] {
-  background-color: var(--accent, #7c3aed) !important;
+[data-theme="light"] [class*="bg-sky-500/20"][class*="text-white"],
+[data-theme="light"] [class*="bg-sky-500/15"][class*="text-white"],
+[data-theme="light"] [class*="bg-sky-500/20"][class*="text-white"],
+[data-theme="light"] [class*="bg-sky-500/35"][class*="text-white"] {
+  background-color: var(--accent, #0284c7) !important;
   color: white !important;
 }
 
-/* ── Solid violet backgrounds keep white text ──────────────────────────────
- *  CTAs and buttons using bg-violet-600 + text-white must stay white in light
+/* ── Solid sky backgrounds keep white text ──────────────────────────────
+ *  CTAs and buttons using bg-sky-500 + text-white must stay white in light
  *  mode (the blanket .text-white rule above would dim them to dark slate).
  */
-[data-theme="light"] [class*="bg-violet-600"][class*="text-white"]:not([class*="bg-violet-600/"]) {
+[data-theme="light"] [class*="bg-sky-500"][class*="text-white"]:not([class*="bg-sky-500/"]) {
   color: white !important;
 }
 
@@ -265,7 +270,7 @@
 
 /* ── Selection ────────────────────────────────────────────────────────────── */
 [data-theme="light"] ::selection {
-  background: #7c3aed;
+  background: #0284c7;
   color: white;
 }
 
@@ -292,15 +297,22 @@ footer {
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;
+  background-color: var(--background);
 }
 
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at top, rgba(124, 58, 237, 0.18), transparent 35rem),
+    radial-gradient(circle at top, rgba(14, 165, 233, 0.12), transparent 38rem),
     var(--background);
   color: var(--foreground);
   overflow-x: hidden;
+}
+
+[data-theme="light"] body {
+  background:
+    radial-gradient(circle at top, rgba(14, 165, 233, 0.06), transparent 38rem),
+    var(--background);
 }
 
 button,
@@ -319,17 +331,29 @@ button:disabled {
 }
 
 textarea,
-input {
+input,
+select {
   color-scheme: dark;
-  caret-color: #7c3aed;
+  caret-color: #0ea5e9;
   -webkit-tap-highlight-color: transparent;
 }
 
+select option {
+  background-color: #0c1222;
+  color: #f8fafc;
+}
+
 [data-theme="light"] textarea,
-[data-theme="light"] input {
+[data-theme="light"] input,
+[data-theme="light"] select {
   color-scheme: light;
-  caret-color: #7c3aed;
+  caret-color: #0284c7;
   -webkit-tap-highlight-color: transparent;
+}
+
+[data-theme="light"] select option {
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
 img,
@@ -346,26 +370,26 @@ select {
 }
 
 ::selection {
-  background: #7c3aed;
+  background: #0284c7;
   color: white;
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #020617;
+  background: #070a14;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #1e293b;
   border-radius: 999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #334155;
 }
 
 [data-theme="light"] ::-webkit-scrollbar-track {
@@ -382,6 +406,111 @@ select {
 
 /* Ensure text selection remains readable in light mode */
 [data-theme="light"] ::selection {
-  background: #7c3aed;
+  background: #0284c7;
   color: white;
+}
+
+/* ── Apple Fluid Glass Utilities ────────────────────────────────────────── */
+.apple-glass {
+  background: var(--card);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.apple-glass-hover:hover {
+  background: var(--card-hover);
+  border-color: rgba(56, 189, 248, 0.35);
+  box-shadow: 0 16px 36px -8px var(--glow-accent);
+  transform: translateY(-2px);
+}
+
+.apple-specular {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: var(--specular-line);
+  opacity: 0.65;
+  pointer-events: none;
+}
+
+.apple-pill-btn {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+  box-shadow: 0 4px 16px -2px rgba(14, 165, 233, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apple-pill-btn:hover {
+  box-shadow: 0 8px 24px -2px rgba(14, 165, 233, 0.5);
+  transform: translateY(-1px);
+}
+.apple-pill-btn:active {
+  transform: scale(0.98);
+}
+
+/* ── Apple Fluid Glass Global Mapping Across All Tools ───────────────────── */
+.bg-sky-500 {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%) !important;
+  box-shadow: 0 4px 16px -2px rgba(14, 165, 233, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bg-sky-500:hover,
+.hover\:bg-sky-500:hover {
+  background: linear-gradient(135deg, #38bdf8 0%, #0369a1 100%) !important;
+  box-shadow: 0 8px 24px -2px rgba(14, 165, 233, 0.5);
+  transform: translateY(-1px);
+}
+.bg-sky-500:active {
+  transform: scale(0.98);
+}
+
+/* Translucent badges and icon containers across all tools */
+.bg-sky-500\/20,
+.bg-sky-500\/25,
+.bg-sky-500\/15,
+.bg-sky-500\/15,
+.bg-sky-500\/20,
+.bg-sky-500\/10 {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.16) 0%, rgba(6, 182, 212, 0.16) 100%) !important;
+  border: 1px solid rgba(56, 189, 248, 0.22) !important;
+}
+
+/* Text accents */
+.text-sky-200,
+.text-sky-300,
+.text-sky-400 {
+  color: #38bdf8 !important;
+}
+[data-theme="light"] .text-sky-200,
+[data-theme="light"] .text-sky-300,
+[data-theme="light"] .text-sky-400 {
+  color: #0284c7 !important;
+}
+
+/* Border glows and focus rings */
+.border-sky-400\/40,
+.border-sky-500\/40,
+.border-sky-500\/50,
+.border-sky-500\/60,
+.hover\:border-sky-400\/40:hover,
+.hover\:border-sky-500\/50:hover,
+.hover\:border-sky-500\/60:hover {
+  border-color: rgba(56, 189, 248, 0.45) !important;
+}
+
+.focus\:ring-sky-400:focus,
+.focus-visible\:ring-sky-400\/50:focus-visible,
+.focus-visible\:ring-sky-400\/60:focus-visible,
+.focus-visible\:ring-sky-400\/70:focus-visible {
+  --tw-ring-color: rgba(56, 189, 248, 0.6) !important;
+}
+
+/* Card surfaces receive Apple fluid glassmorphism blur */
+.bg-white\/\[0\.03\],
+.bg-white\/\[0\.035\],
+.bg-white\/\[0\.025\] {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
 }

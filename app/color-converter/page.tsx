@@ -55,7 +55,7 @@ function normalizeHex(value: string) {
 
   if (!/^[0-9a-fA-F]{6}$/.test(hex)) {
     throw new Error(
-      "Enter a valid HEX color, for example #7C3AED.",
+      "Enter a valid HEX color, for example #0EA5E9.",
     );
   }
 
@@ -579,7 +579,7 @@ export default function ColorConverterPage() {
                   )
                 }
                 placeholder="Enter color value..."
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -600,7 +600,7 @@ export default function ColorConverterPage() {
                       | "hsl",
                   )
                 }
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 <option value="hex">
                   HEX
@@ -630,7 +630,7 @@ export default function ColorConverterPage() {
               onClick={
                 convertColor
               }
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
             >
               <Wand2 className="h-4 w-4" />
               Convert color
@@ -737,7 +737,7 @@ export default function ColorConverterPage() {
               </div>
             </div>
           ) : (
-            <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 text-center light:border-slate-900/10 light:bg-white">
+            <div className="flex min-h-[240px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
               <p className="text-sm text-slate-500 light:text-slate-500">
                 Color preview will appear
                 here after conversion.
@@ -748,7 +748,7 @@ export default function ColorConverterPage() {
           {/* Palette */}
           <div className="mt-6">
             <div className="mb-3 flex items-center gap-2">
-              <Palette className="h-4 w-4 text-violet-300" />
+              <Palette className="h-4 w-4 text-sky-300" />
 
               <h3 className="text-sm font-semibold text-slate-300 light:text-slate-700">
                 Palette generator
@@ -769,7 +769,7 @@ export default function ColorConverterPage() {
                           item.value,
                         )
                       }
-                      className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950 text-left transition hover:border-violet-400/40 light:border-slate-900/10 light:bg-white"
+                      className="group overflow-hidden rounded-2xl border border-white/10 bg-slate-950 text-left transition hover:border-sky-400/40 light:border-slate-900/10 light:bg-white"
                     >
                       <div
                         className="h-16"
@@ -788,7 +788,7 @@ export default function ColorConverterPage() {
                           {item.value}
                         </p>
 
-                        <p className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-violet-300">
+                        <p className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-sky-300">
                           {copied ===
                           item.label
                             ? "Copied"
@@ -807,7 +807,7 @@ export default function ColorConverterPage() {
                 )}
               </div>
             ) : (
-              <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+              <div className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
                 <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                   Palette colors will
                   appear here after

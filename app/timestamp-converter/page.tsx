@@ -321,7 +321,7 @@ export default function TimestampConverterPage() {
                 setTimestampInput(event.target.value)
               }
               placeholder="Seconds or milliseconds..."
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -337,7 +337,7 @@ export default function TimestampConverterPage() {
               onChange={(event) =>
                 setDateInput(event.target.value)
               }
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm text-slate-100 outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
 
@@ -352,7 +352,7 @@ export default function TimestampConverterPage() {
               onChange={(event) =>
                 setTimezone(event.target.value)
               }
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               <option value="">
                 Select timezone

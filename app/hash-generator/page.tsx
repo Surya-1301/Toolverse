@@ -352,7 +352,7 @@ export default function HashGeneratorPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Paste text here..."
-            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[420px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
           {error ? (
@@ -364,7 +364,7 @@ export default function HashGeneratorPage() {
           <div className="mt-5 flex items-stretch gap-3 sm:grid sm:grid-cols-2">
             <button
               onClick={generateHashes}
-              className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
             >
               <LockKeyhole className="h-4 w-4 shrink-0" />
               Generate hashes
@@ -424,7 +424,7 @@ export default function HashGeneratorPage() {
                 ))}
               </div>
             ) : (
-              <div className="flex min-h-[380px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+              <div className="flex min-h-[380px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
                 <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                   Generated hashes will appear here.
                 </p>

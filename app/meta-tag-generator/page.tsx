@@ -62,10 +62,10 @@ function Field({
 }
 
 const inputClass =
-  "min-h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
+  "min-h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
 
 const selectClass =
-  "min-h-10 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900";
+  "min-h-10 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900";
 
 export default function MetaTagGeneratorPage() {
   const [title, setTitle] = useState("");
@@ -75,7 +75,7 @@ export default function MetaTagGeneratorPage() {
   const [canonical, setCanonical] = useState("");
   const [robotsIndex, setRobotsIndex] = useState(true);
   const [robotsFollow, setRobotsFollow] = useState(true);
-  const [themeColor, setThemeColor] = useState("#7c3aed");
+  const [themeColor, setThemeColor] = useState("#0ea5e9");
 
   const [ogTitle, setOgTitle] = useState("");
   const [ogDescription, setOgDescription] = useState("");
@@ -228,7 +228,7 @@ export default function MetaTagGeneratorPage() {
     setCanonical("");
     setRobotsIndex(true);
     setRobotsFollow(true);
-    setThemeColor("#7c3aed");
+    setThemeColor("#0ea5e9");
     setOgTitle("");
     setOgDescription("");
     setOgImage("");
@@ -257,7 +257,7 @@ export default function MetaTagGeneratorPage() {
         {/* Form */}
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
-            <Tags className="h-5 w-5 text-violet-300" />
+            <Tags className="h-5 w-5 text-sky-300" />
             Basic meta tags
           </h2>
           <div className="space-y-4">
@@ -334,7 +334,7 @@ export default function MetaTagGeneratorPage() {
                   type="checkbox"
                   checked={robotsIndex}
                   onChange={(e) => setRobotsIndex(e.target.checked)}
-                  className="h-4 w-4 accent-violet-600"
+                  className="h-4 w-4 accent-sky-500"
                 />
                 Allow indexing
               </label>
@@ -343,7 +343,7 @@ export default function MetaTagGeneratorPage() {
                   type="checkbox"
                   checked={robotsFollow}
                   onChange={(e) => setRobotsFollow(e.target.checked)}
-                  className="h-4 w-4 accent-violet-600"
+                  className="h-4 w-4 accent-sky-500"
                 />
                 Follow links
               </label>
@@ -351,7 +351,7 @@ export default function MetaTagGeneratorPage() {
           </div>
 
           <h2 className="mb-4 mt-8 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
-            <Share2 className="h-5 w-5 text-violet-300" />
+            <Share2 className="h-5 w-5 text-sky-300" />
             Open Graph & Twitter
           </h2>
           <div className="space-y-4">
@@ -452,7 +452,7 @@ export default function MetaTagGeneratorPage() {
         <div className="space-y-6">
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
-              <Eye className="h-5 w-5 text-violet-300" />
+              <Eye className="h-5 w-5 text-sky-300" />
               Live preview
             </h2>
 
@@ -486,7 +486,7 @@ export default function MetaTagGeneratorPage() {
                   }}
                 />
               ) : (
-                <div className="flex h-24 items-center justify-center bg-gradient-to-br from-violet-600/40 to-slate-900 text-sm text-slate-500">
+                <div className="flex h-24 items-center justify-center bg-gradient-to-br from-sky-500/40 to-slate-900 text-sm text-slate-500">
                   <Globe className="mr-2 h-4 w-4" /> No OG image set
                 </div>
               )}
@@ -521,7 +521,7 @@ export default function MetaTagGeneratorPage() {
                 type="button"
                 onClick={copySnippet}
                 disabled={!snippet}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {copied ? (
                   <Check className="h-4 w-4" />

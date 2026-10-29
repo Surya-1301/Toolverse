@@ -233,7 +233,7 @@ export default function Base64EncoderDecoderPage() {
             value={input}
             onChange={(event) => setInput(event.target.value)}
             placeholder="Paste text or Base64 here..."
-            className="min-h-[430px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[430px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
           <div className="mt-4">
@@ -245,7 +245,7 @@ export default function Base64EncoderDecoderPage() {
               value={fileName}
               onChange={(event) => setFileName(event.target.value)}
               placeholder="decoded-file"
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
         </div>

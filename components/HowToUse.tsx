@@ -50,9 +50,10 @@ export function HowToUse({
         {steps.map((step) => (
           <div
             key={step.title}
-            className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+            className="apple-glass relative overflow-hidden rounded-2xl p-5 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/40"
           >
-            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-cyan-500 text-white shadow-lg shadow-cyan-500/20">
+            <div className="apple-specular opacity-50" />
+            <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10">
               {step.icon}
             </div>
 
@@ -72,9 +73,10 @@ export function HowToUse({
         {steps.slice(0, 4).map((step) => (
           <div
             key={step.title}
-            className="flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5 transition hover:border-violet-500/50 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+            className="apple-glass relative overflow-hidden flex items-center gap-4 rounded-2xl p-5 transition-all duration-200 hover:border-sky-400/40"
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-500/15 text-cyan-300 ring-1 ring-cyan-400/20">
+            <div className="apple-specular opacity-50" />
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10">
               {step.icon}
             </div>
             <div className="min-w-0 flex-1">

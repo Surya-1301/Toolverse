@@ -48,15 +48,15 @@ export default function Home() {
   return (
     <section className="relative overflow-hidden">
       {/* ====================================================================
-          BACKGROUND GLOW
+          BACKGROUND GLOW (Apple Aurora Ambient Lighting)
       ==================================================================== */}
 
       <div
-        className="pointer-events-none absolute left-1/2 top-0 -z-0 h-80 w-80 -translate-x-1/2 rounded-full bg-violet-600/30 blur-3xl"
+        className="pointer-events-none absolute left-1/2 -top-24 -z-0 h-[420px] w-[620px] -translate-x-1/2 rounded-full bg-sky-500/15 blur-[120px]"
       />
 
       <div
-        className="pointer-events-none absolute right-0 top-32 -z-0 h-72 w-72 rounded-full bg-fuchsia-600/10 blur-3xl"
+        className="pointer-events-none absolute right-0 top-36 -z-0 h-[360px] w-[460px] rounded-full bg-cyan-500/10 blur-[130px]"
       />
 
       <Container
@@ -67,8 +67,9 @@ export default function Home() {
         ================================================================== */}
 
         <p
-          className="mx-auto inline-flex rounded-full border border-violet-300/40 bg-violet-500/15 px-4 py-1.5 text-sm font-medium text-violet-100"
+          className="mx-auto inline-flex items-center gap-2 rounded-full border border-sky-400/25 bg-sky-500/10 px-4 py-1.5 text-xs font-semibold text-sky-300 backdrop-blur-md shadow-sm light:border-sky-600/20 light:bg-sky-500/10 light:text-sky-700"
         >
+          <span className="h-1.5 w-1.5 rounded-full bg-sky-400 animate-pulse" />
           Fast, free, privacy-friendly online tools
         </p>
 
@@ -111,7 +112,7 @@ export default function Home() {
         <div className="mt-6 flex justify-center">
           <Link
             href="/tools"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white shadow-md shadow-violet-600/15 transition-all duration-200 hover:bg-violet-500 hover:shadow-lg hover:shadow-violet-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+            className="apple-pill-btn inline-flex min-h-11 items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition-all duration-200 active:scale-[0.98]"
           >
             Explore all tools
           </Link>
@@ -130,14 +131,17 @@ export default function Home() {
             return (
               <div
                 key={feature.title}
-                className="group relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 text-left shadow-2xl shadow-black/10 transition hover:-translate-y-1 hover:border-violet-400/40 max-sm:p-5 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10"
+                className="apple-glass group relative overflow-hidden rounded-3xl p-6 text-left shadow-2xl transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/40 max-sm:p-5 light:shadow-slate-900/5"
               >
+                {/* Specular Top Reflection Line */}
+                <div className="apple-specular" />
+
                 {/* ==========================================================
                     CARD BACKGROUND GLOW
                 ========================================================== */}
 
                 <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-violet-500/10 blur-2xl transition group-hover:bg-violet-500/20"
+                  className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full bg-sky-500/10 blur-2xl transition group-hover:bg-sky-500/20"
                 />
 
                 {/* ==========================================================
@@ -146,7 +150,7 @@ export default function Home() {
 
                 <div className="relative hidden sm:block">
                   <div
-                    className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20 transition group-hover:scale-105 group-hover:bg-violet-600/25 group-hover:text-violet-200"
+                    className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 transition group-hover:scale-105 group-hover:text-sky-200 light:text-sky-600 light:border-sky-500/20"
                   >
                     <Icon
                       aria-hidden="true"
@@ -171,7 +175,7 @@ export default function Home() {
                   className="relative flex items-start gap-4 sm:hidden"
                 >
                   <div
-                    className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-300 ring-1 ring-violet-400/20 transition group-hover:scale-105 group-hover:bg-violet-600/25 group-hover:text-violet-200"
+                    className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 transition group-hover:scale-105 group-hover:text-sky-200 light:text-sky-600 light:border-sky-500/20"
                   >
                     <Icon
                       aria-hidden="true"

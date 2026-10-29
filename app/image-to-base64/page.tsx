@@ -216,7 +216,7 @@ export default function ImageToBase64Page() {
           </label>
 
           <label
-            className="flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 bg-slate-950/50 p-6 text-center transition hover:border-violet-400/40 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-slate-100 light:hover:bg-slate-50"
+            className="flex min-h-[200px] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
           >
             <FileImage className="h-10 w-10 text-slate-500 light:text-slate-500" />
 
@@ -262,7 +262,7 @@ export default function ImageToBase64Page() {
               onChange={(event) => setInput(event.target.value)}
               placeholder="Paste Base64 image data here..."
               rows={4}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
         </div>

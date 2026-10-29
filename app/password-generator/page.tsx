@@ -428,7 +428,7 @@ export default function PasswordGeneratorPage() {
               </div>
             </div>
           ) : (
-            <div className="mt-6 flex min-h-[80px] items-center justify-center rounded-2xl border border-dashed border-white/10 light:border-slate-900/10">
+            <div className="mt-6 flex min-h-[80px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] light:border-slate-900/15 light:bg-white">
               <p className="px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
                 Generate a password to see the analysis.
               </p>
@@ -499,7 +499,7 @@ export default function PasswordGeneratorPage() {
               step="1"
               value={length}
               onChange={(event) => setLength(Number(event.target.value))}
-              className="w-full accent-violet-500"
+              className="w-full accent-sky-500"
             />
 
             <input
@@ -508,7 +508,7 @@ export default function PasswordGeneratorPage() {
               max="128"
               value={length}
               onChange={(event) => setLength(Number(event.target.value))}
-              className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="mt-3 w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             />
           </div>
 
@@ -518,7 +518,7 @@ export default function PasswordGeneratorPage() {
                 type="checkbox"
                 checked={includeSymbols}
                 onChange={(event) => setIncludeSymbols(event.target.checked)}
-                className="h-4 w-4 accent-violet-600"
+                className="h-4 w-4 accent-sky-500"
               />
               Include symbols
             </label>
@@ -528,7 +528,7 @@ export default function PasswordGeneratorPage() {
                 type="checkbox"
                 checked={excludeAmbiguous}
                 onChange={(event) => setExcludeAmbiguous(event.target.checked)}
-                className="h-4 w-4 accent-violet-600"
+                className="h-4 w-4 accent-sky-500"
               />
               Exclude ambiguous chars
             </label>
@@ -538,7 +538,7 @@ export default function PasswordGeneratorPage() {
         <div className="mt-6 flex items-stretch gap-3 sm:grid sm:grid-cols-2">
           <button
             onClick={handleGenerate}
-            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex min-w-0 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             <KeyRound className="h-4 w-4 shrink-0" />
             Generate password

@@ -227,8 +227,8 @@ export default function ImageHostPage() {
             Upload image
           </label>
 
-          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
-            <Upload className="mb-3 h-8 w-8 text-violet-300" />
+          <label className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
+            <Upload className="mb-3 h-8 w-8 text-sky-300" />
 
             <span className="font-medium text-white light:text-slate-900">
               Click to choose image
@@ -270,7 +270,7 @@ export default function ImageHostPage() {
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -291,7 +291,7 @@ export default function ImageHostPage() {
               type="button"
               onClick={uploadImage}
               disabled={!file || isUploading}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -327,7 +327,7 @@ export default function ImageHostPage() {
             )}
           </div>
 
-          <div className="mt-5 flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+          <div className="mt-5 flex min-h-[320px] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-4 light:border-slate-900/15 light:bg-white">
             {preview ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img
@@ -432,7 +432,7 @@ export default function ImageHostPage() {
                   href={pageUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 font-medium text-violet-300 hover:text-violet-200"
+                  className="inline-flex items-center gap-2 font-medium text-sky-300 hover:text-sky-200"
                 >
                   Open image page
                   <ExternalLink className="h-4 w-4" />
@@ -442,7 +442,7 @@ export default function ImageHostPage() {
                   href={directUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 font-medium text-violet-300 hover:text-violet-200"
+                  className="inline-flex items-center gap-2 font-medium text-sky-300 hover:text-sky-200"
                 >
                   Open direct image
                   <ExternalLink className="h-4 w-4" />

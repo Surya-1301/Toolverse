@@ -203,7 +203,7 @@ export default function TextComparePage() {
             rows={10}
             placeholder="Paste the original text here…"
             spellCheck={false}
-            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
@@ -229,7 +229,7 @@ export default function TextComparePage() {
             rows={10}
             placeholder="Paste the changed text here…"
             spellCheck={false}
-            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="w-full resize-y rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
       </div>
@@ -238,7 +238,7 @@ export default function TextComparePage() {
       <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
         <button
           onClick={loadExample}
-          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-violet-500 sm:px-4 sm:text-sm"
+          className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-sky-500 sm:px-4 sm:text-sm"
         >
           <Sparkles className="h-4 w-4 shrink-0" />
           Compare example

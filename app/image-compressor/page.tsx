@@ -847,7 +847,7 @@ export default function ImageCompressorPage() {
           onClick={() => switchMode("image")}
           className={`w-1/2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
             mode === "image"
-              ? "bg-violet-600 text-white"
+              ? "bg-sky-500 text-white"
               : "text-slate-400 hover:bg-white/10 hover:text-white light:text-slate-600 light:hover:bg-slate-900/5 light:hover:text-slate-900"
           }`}
         >
@@ -859,7 +859,7 @@ export default function ImageCompressorPage() {
           onClick={() => switchMode("pdf")}
           className={`w-1/2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
             mode === "pdf"
-              ? "bg-violet-600 text-white"
+              ? "bg-sky-500 text-white"
               : "text-slate-400 hover:bg-white/10 hover:text-white light:text-slate-600 light:hover:bg-slate-900/5 light:hover:text-slate-900"
           }`}
         >
@@ -887,9 +887,9 @@ export default function ImageCompressorPage() {
                   openPicker();
                 }
               }}
-              className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
+              className="flex min-h-[220px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
             >
-              <Upload className="mb-3 h-8 w-8 text-violet-300" />
+              <Upload className="mb-3 h-8 w-8 text-sky-300" />
 
               <span className="font-medium text-white light:text-slate-900">
                 Click to upload {mode === "image" ? "image" : "PDF"}
@@ -911,7 +911,7 @@ export default function ImageCompressorPage() {
             </div>
 
             {originalFile ? (
-              <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+              <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 light:border-slate-900/10 light:bg-white">
                 <p className="break-all text-sm font-medium text-white light:text-slate-900">
                   {originalFile.name}
                 </p>
@@ -926,7 +926,7 @@ export default function ImageCompressorPage() {
               </div>
             ) : null}
 
-            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4 light:border-slate-900/10 light:bg-white">
               <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
                 Target file size
               </label>
@@ -943,7 +943,7 @@ export default function ImageCompressorPage() {
                     setTargetSizeHit(false);
                   }}
                   placeholder={targetSizeUnit === "MB" ? "e.g. 1" : "e.g. 500"}
-                  className="min-h-10 w-full min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                  className="min-h-10 w-full min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                 />
 
                 <select
@@ -952,7 +952,7 @@ export default function ImageCompressorPage() {
                     setTargetSizeUnit(event.target.value as "KB" | "MB");
                     setTargetSizeHit(false);
                   }}
-                  className="min-h-10 shrink-0 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="min-h-10 shrink-0 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm font-medium text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 >
                   <option value="KB">KB</option>
                   <option value="MB">MB</option>
@@ -984,7 +984,7 @@ export default function ImageCompressorPage() {
                   !targetSizeValue.trim() ||
                   targetBytesFromInput(targetSizeValue, targetSizeUnit) === null
                 }
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isCompressing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -1016,7 +1016,7 @@ export default function ImageCompressorPage() {
           <div className="min-w-0">
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 light:border-slate-900/10 light:bg-white">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold">Original</h2>
 
@@ -1027,11 +1027,11 @@ export default function ImageCompressorPage() {
                 ) : null}
               </div>
 
-              <div className="flex min-h-[240px] items-center justify-center overflow-hidden rounded-xl bg-white/[0.03] light:bg-white">
+              <div className="flex min-h-[240px] items-center justify-center overflow-hidden rounded-xl border border-dashed border-white/15 bg-white/[0.015] light:border-slate-900/15 light:bg-white">
                 {originalFile || originalPreview ? (
                   <UniversalPreview
                     file={originalFile}
-                    url={originalPreview}
+                    url={originalPreview || undefined}
                     name={originalFile?.name || "Original file"}
                     type={originalFile?.type || (mode === "pdf" ? "application/pdf" : "image/jpeg")}
                     height={240}
@@ -1046,7 +1046,7 @@ export default function ImageCompressorPage() {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 light:border-slate-900/10 light:bg-white">
               <div className="mb-3 flex items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold">Compressed</h2>
 
@@ -1057,11 +1057,11 @@ export default function ImageCompressorPage() {
                 ) : null}
               </div>
 
-              <div className="flex min-h-[240px] items-center justify-center overflow-hidden rounded-xl bg-white/[0.03] light:bg-white">
+              <div className="flex min-h-[240px] items-center justify-center overflow-hidden rounded-xl border border-dashed border-white/15 bg-white/[0.015] light:border-slate-900/15 light:bg-white">
                 {compressedFile || compressedPreview ? (
                   <UniversalPreview
                     file={compressedFile}
-                    url={compressedPreview}
+                    url={compressedPreview || undefined}
                     name={compressedFile?.name || "Compressed file"}
                     type={compressedFile?.type || (mode === "pdf" ? "application/pdf" : "image/jpeg")}
                     height={240}
@@ -1080,7 +1080,7 @@ export default function ImageCompressorPage() {
           </div>
 
           {compressedFile ? (
-            <div className="mt-5 rounded-2xl border border-white/10 bg-slate-950/70 p-5 sm:p-6 light:border-slate-900/10 light:bg-slate-100">
+            <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 light:border-slate-900/10 light:bg-slate-100">
               <label
                 htmlFor="compressed-output-name"
                 className="mb-3 block text-base font-semibold text-slate-300 light:text-slate-700"
@@ -1094,8 +1094,7 @@ export default function ImageCompressorPage() {
                   type="text"
                   value={outputFileName}
                   onChange={(event) => setOutputFileName(event.target.value)}
-                  className="min-h-12 w-full min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-950 px-4 text-base text-white outline-none transition focus:border-violet-400/50 light:border-slate-900/10 light:bg-white light:text-slate-900"
-                  aria-describedby="compressed-output-file-size"
+                  className="min-h-12 w-full min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-950 px-4 text-base text-white outline-none transition focus:border-sky-400/50 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
 
                 <button
@@ -1107,23 +1106,7 @@ export default function ImageCompressorPage() {
                   Download
                 </button>
               </div>
-
-              <p
-                id="compressed-output-file-size"
-                className="mt-2 text-sm font-semibold text-slate-400 light:text-slate-600"
-              >
-                {formatFileSize(compressedFile.size)}.{
-                  mode === "pdf"
-                    ? "pdf"
-                    : compressedFile.type.includes("png")
-                      ? "png"
-                      : compressedFile.type.includes("webp")
-                        ? "webp"
-                        : "jpg"
-                }
-              </p>
-
-             </div>
+            </div>
                ) : null}
           </div>
             </div>

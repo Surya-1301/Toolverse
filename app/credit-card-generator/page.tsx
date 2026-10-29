@@ -285,7 +285,7 @@ const BRAND_ACCENTS: Record<CardBrand, string> = {
   "American Express": "from-cyan-600 via-sky-700 to-blue-900",
   Discover: "from-amber-500 via-orange-600 to-orange-900",
   JCB: "from-emerald-600 via-green-700 to-slate-900",
-  "Diners Club": "from-violet-600 via-purple-700 to-slate-900",
+  "Diners Club": "from-sky-500 via-indigo-700 to-slate-900",
   UnionPay: "from-rose-600 via-red-700 to-slate-900",
   Unknown: "from-slate-600 via-slate-700 to-slate-900",
 };
@@ -418,7 +418,7 @@ export default function CreditCardGeneratorPage() {
               className={[
                 "inline-flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition sm:flex-none sm:justify-start",
                 tab === item.key
-                  ? "border-violet-500 bg-violet-600/20 text-white"
+                  ? "border-sky-500 bg-sky-500/20 text-white"
                   : "border-white/10 bg-slate-950 text-slate-400 hover:bg-white/10 light:border-slate-900/10 light:bg-white light:text-slate-600 light:hover:bg-slate-100 light:hover:text-slate-900",
               ].join(" ")}
             >
@@ -446,7 +446,7 @@ export default function CreditCardGeneratorPage() {
                 className={[
                   "rounded-xl border px-3 py-2 text-xs font-semibold transition",
                   brandChoice === b.key && !bin
-                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    ? "border-sky-500 bg-sky-500/20 text-white"
                     : "border-white/10 light:border-slate-900/10 bg-white/[0.03] light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10 hover:text-white light:hover:text-slate-900",
                 ].join(" ")}
               >
@@ -475,7 +475,7 @@ export default function CreditCardGeneratorPage() {
             spellCheck={false}
             maxLength={MAX_BIN_LENGTH}
             placeholder="411111"
-            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 font-mono text-lg tracking-widest text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 font-mono text-lg tracking-widest text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
           <p className="mt-2 text-xs leading-5 text-slate-500 light:text-slate-500">
@@ -515,7 +515,7 @@ export default function CreditCardGeneratorPage() {
                 className={[
                   "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition",
                   bin === preset.bin
-                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    ? "border-sky-500 bg-sky-500/20 text-white"
                     : "border-white/10 light:border-slate-900/10 bg-white/[0.03] light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10 hover:text-white light:hover:text-slate-900",
                 ].join(" ")}
               >
@@ -540,7 +540,7 @@ export default function CreditCardGeneratorPage() {
         {/* Generate button */}
         <button
           onClick={regenerate}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-violet-500 sm:w-auto sm:py-3"
+          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sky-500 sm:w-auto sm:py-3"
         >
           <Wand2 className="h-4 w-4" />
           {card ? "Generate another" : "Generate card"}
@@ -640,7 +640,7 @@ export default function CreditCardGeneratorPage() {
             <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <button
                 onClick={copyAll}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 sm:py-2.5"
               >
                 {copiedAll ? (
                   <Check className="h-4 w-4" />
@@ -682,7 +682,7 @@ export default function CreditCardGeneratorPage() {
               onChange={(event) => setValidateInput(event.target.value)}
               inputMode="numeric"
               placeholder="4111 1111 1111 1111"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg tracking-wider text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3.5 font-mono text-lg tracking-wider text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {validation ? (
@@ -736,7 +736,7 @@ export default function CreditCardGeneratorPage() {
                 </div>
               </div>
             ) : (
-              <div className="mt-4 flex min-h-[72px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+              <div className="mt-4 flex min-h-[72px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
                 <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
                   <Fingerprint className="h-4 w-4" />
                   Enter a card number to check its validity and brand.

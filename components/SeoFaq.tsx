@@ -143,7 +143,7 @@ export default function SeoFaq({ faq, pageUrl, crumbs, pageName, heading, subhea
         <section
           id="faq"
           aria-labelledby="tool-faq-heading"
-          className="mx-auto -mt-4 sm:mt-10 w-full max-w-6xl scroll-mt-24 px-4 pb-8 sm:pb-14 sm:px-6 lg:px-8"
+          className="mx-auto -mt-4 sm:-mt-6 lg:-mt-8 w-full max-w-6xl scroll-mt-24 px-4 pb-8 sm:pb-14 sm:px-6 lg:px-8"
         >
           <div className="text-center">
             <p className="text-xs font-mono font-medium tracking-[0.28em] text-slate-500 light:text-slate-500">
@@ -166,13 +166,14 @@ export default function SeoFaq({ faq, pageUrl, crumbs, pageName, heading, subhea
             {faq.map((item, index) => (
               <details
                 key={`${item.q}-${index}`}
-                className="group rounded-2xl border border-white/10 bg-white/[0.03] transition open:border-violet-500/40 open:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:open:bg-slate-50"
+                className="apple-glass group relative overflow-hidden rounded-2xl transition-all duration-200 open:border-sky-400/40 open:bg-white/[0.07] light:open:bg-slate-50"
               >
+                <div className="apple-specular opacity-40" />
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-4 sm:px-5 py-3.5 sm:py-4 text-left text-sm font-semibold text-white marker:hidden light:text-slate-900 [&::-webkit-details-marker]:hidden">
                   <span>{item.q}</span>
                   <span
                     aria-hidden="true"
-                    className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 text-base sm:text-lg font-medium leading-none text-slate-300 transition group-open:rotate-45 group-open:border-violet-500/40 group-open:text-violet-300 light:border-slate-900/10 light:text-slate-500 light:group-open:text-violet-600"
+                    className="flex h-7 w-7 sm:h-8 sm:w-8 shrink-0 items-center justify-center rounded-xl border border-white/10 text-base sm:text-lg font-medium leading-none text-slate-300 transition group-open:rotate-45 group-open:border-sky-400/40 group-open:text-sky-300 light:border-slate-900/10 light:text-slate-500 light:group-open:text-sky-600"
                   >
                     +
                   </span>

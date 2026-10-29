@@ -255,7 +255,7 @@ function QrGeneratorContent() {
             onChange={(event) => setText(event.target.value)}
             placeholder="Enter text or URL, or upload a file to generate QR code..."
             spellCheck={false}
-            className="min-h-[220px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[220px] w-full resize-y rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
 
           <input
@@ -268,7 +268,7 @@ function QrGeneratorContent() {
           {selectedFileName ? (
             <div className="mt-4 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700">
               <div className="flex items-start gap-2">
-                <FileUp className="mt-0.5 h-4 w-4 text-violet-300" />
+                <FileUp className="mt-0.5 h-4 w-4 text-sky-300" />
                 <div className="min-w-0">
                   <p className="break-all font-medium text-white light:text-slate-900">
                     {selectedFileName}
@@ -295,7 +295,7 @@ function QrGeneratorContent() {
             <button
               onClick={openFilePicker}
               disabled={isUploading}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl border border-white/10 bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

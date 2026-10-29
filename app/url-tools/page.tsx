@@ -338,7 +338,7 @@ export default function UrlToolsPage() {
               className={[
                 "inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                 tab === item.key
-                  ? "border-violet-500 bg-violet-600/20 text-white"
+                  ? "border-sky-500 bg-sky-500/20 text-white"
                   : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
               ].join(" ")}
             >
@@ -360,7 +360,7 @@ export default function UrlToolsPage() {
               placeholder="https://example.com/path?name=John&page=2#section"
               rows={4}
               spellCheck={false}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {parseError && (
@@ -372,7 +372,7 @@ export default function UrlToolsPage() {
             <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
               <button
                 onClick={handleParse}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
               >
                 <Wand2 className="h-4 w-4" />
                 Parse URL
@@ -423,7 +423,7 @@ export default function UrlToolsPage() {
                     <div className="space-y-1">
                       {parsed.queryParams.map(({ key, value }) => (
                         <div key={key} className="flex justify-between gap-4 text-sm">
-                          <span className="font-mono text-violet-300">{key}</span>
+                          <span className="font-mono text-sky-300">{key}</span>
                           <span className="font-mono text-right text-slate-100 light:text-slate-900">{value}</span>
                         </div>
                       ))}
@@ -464,7 +464,7 @@ export default function UrlToolsPage() {
                     className={[
                       "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                       encMode === m.key
-                        ? "border-violet-500 bg-violet-600/20 text-white"
+                        ? "border-sky-500 bg-sky-500/20 text-white"
                         : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                     ].join(" ")}
                   >
@@ -488,7 +488,7 @@ export default function UrlToolsPage() {
               rows={6}
               placeholder={encMode === "component" ? "Hello, world! 100% & <tag>" : "https://example.com/path?name=John Doe&age=30"}
               spellCheck={false}
-              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             {encError && (
@@ -562,7 +562,7 @@ export default function UrlToolsPage() {
               <button
                 onClick={checkRedirects}
                 disabled={!redirUrl.trim() || redirLoading}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {redirLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
                 {redirLoading ? "Checking..." : "Check redirects"}
@@ -584,7 +584,7 @@ export default function UrlToolsPage() {
                     className={[
                       "relative flex items-start gap-4 border-l-2 py-4 pl-6",
                       index < hops.length - 1 ? "border-white/10 light:border-slate-900/10" : "border-transparent",
-                      isRedirect(hop.status) ? "border-l-violet-500/40" : "",
+                      isRedirect(hop.status) ? "border-l-sky-500/40" : "",
                     ].join(" ")}
                   >
                     <span
@@ -592,7 +592,7 @@ export default function UrlToolsPage() {
                         "absolute -left-3.5 flex h-7 w-7 items-center justify-center rounded-full border-2 text-xs font-bold",
                         hop.final
                           ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
-                          : "border-violet-500 bg-violet-500/20 text-violet-300",
+                          : "border-sky-500 bg-sky-500/20 text-sky-300",
                       ].join(" ")}
                     >
                       {index + 1}
@@ -632,7 +632,7 @@ export default function UrlToolsPage() {
             )}
 
             {!redirLoading && hops.length === 0 && !redirError && (
-              <div className="mt-6 flex min-h-[100px] items-center justify-center rounded-2xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+              <div className="mt-6 flex min-h-[100px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
                 <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
                   <Network className="h-4 w-4" />
                   Paste a URL above to trace its redirect chain.

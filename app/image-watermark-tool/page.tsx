@@ -589,8 +589,8 @@ export default function ImageWatermarkToolPage() {
             Upload image, logo, or batch
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
-            <Upload className="mb-3 h-9 w-9 text-violet-300" />
+          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
+            <Upload className="mb-3 h-9 w-9 text-sky-300" />
 
             <span className="font-semibold text-white light:text-slate-900">
               Click to choose images
@@ -737,7 +737,7 @@ export default function ImageWatermarkToolPage() {
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/15 bg-slate-950 p-2 text-center light:border-slate-900/15 light:bg-white">
+          <div className="flex min-h-[420px] items-center justify-center overflow-hidden rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-2 text-center light:border-slate-900/15 light:bg-white">
             {previewUrl ? (
               <UniversalPreview
                 url={previewUrl}

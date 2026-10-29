@@ -200,21 +200,21 @@ function ParamEditor({
             type="checkbox"
             checked={p.enabled}
             onChange={(e) => update(i, "enabled", e.target.checked)}
-            className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-violet-500 focus:ring-violet-500 light:border-slate-300 light:bg-slate-200"
+            className="h-4 w-4 rounded border-slate-600 bg-slate-800 text-sky-500 focus:ring-sky-500 light:border-slate-300 light:bg-slate-200"
           />
           <input
             value={p.key}
             onChange={(e) => update(i, "key", e.target.value)}
             placeholder={keyPlaceholder || "Key"}
             spellCheck={false}
-            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
           <input
             value={p.value}
             onChange={(e) => update(i, "value", e.target.value)}
             placeholder={valuePlaceholder || "Value"}
             spellCheck={false}
-            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="rounded-lg border border-white/10 bg-slate-950 px-3 py-2 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
           <button
             onClick={() => onChange(params.filter((_, j) => j !== i))}
@@ -226,7 +226,7 @@ function ParamEditor({
       ))}
       <button
         onClick={() => onChange([...params, emptyParam()])}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-white/10 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-violet-400/40 hover:text-violet-300 light:border-slate-900/10 light:text-slate-600"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-white/10 px-3 py-2 text-xs font-medium text-slate-400 transition hover:border-sky-400/40 hover:text-sky-300 light:border-slate-900/10 light:text-slate-600"
       >
         <Plus className="h-3.5 w-3.5" /> Add
       </button>
@@ -260,8 +260,8 @@ function AuthEditor({
             onClick={() => onAuthTypeChange(t)}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
               authType === t
-                ? "bg-violet-600 text-white"
-                : "border border-white/10 text-slate-400 hover:border-violet-400/40 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:border-violet-400/40 light:hover:text-slate-900"
+                ? "bg-sky-500 text-white"
+                : "border border-white/10 text-slate-400 hover:border-sky-400/40 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:border-sky-400/40 light:hover:text-slate-900"
             }`}
           >
             {t === "none" ? "No Auth" : t === "bearer" ? "Bearer Token" : t === "basic" ? "Basic Auth" : "API Key"}
@@ -303,7 +303,7 @@ function AuthEditor({
               onChange={(e) => onConfigChange({ ...config, username: e.target.value })}
               placeholder="Username"
               spellCheck={false}
-              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
           <div>
@@ -314,7 +314,7 @@ function AuthEditor({
               type={showToken ? "text" : "password"}
               placeholder="Password"
               spellCheck={false}
-              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
           <button
@@ -337,7 +337,7 @@ function AuthEditor({
                 onChange={(e) => onConfigChange({ ...config, apiKeyName: e.target.value })}
                 placeholder="X-API-Key"
                 spellCheck={false}
-                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
             <div>
@@ -345,7 +345,7 @@ function AuthEditor({
               <select
                 value={config.apiKeyIn}
                 onChange={(e) => onConfigChange({ ...config, apiKeyIn: e.target.value as "header" | "query" })}
-                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-xs text-slate-100 outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 text-xs text-slate-100 outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 <option value="header">Header</option>
                 <option value="query">Query Param</option>
@@ -360,7 +360,7 @@ function AuthEditor({
               type={showToken ? "text" : "password"}
               placeholder="Enter API key"
               spellCheck={false}
-              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-lg border border-white/10 bg-slate-950 px-3 py-2.5 font-mono text-xs text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
             <button
               onClick={() => setShowToken(!showToken)}
@@ -374,7 +374,7 @@ function AuthEditor({
       )}
 
       {authType === "none" && (
-        <div className="rounded-xl border border-dashed border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+        <div className="rounded-xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
           <Lock className="mx-auto h-8 w-8 text-slate-600 light:text-slate-500" />
           <p className="mt-2 text-sm text-slate-500 light:text-slate-500">No authentication configured for this request.</p>
         </div>
@@ -680,7 +680,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
           {/* ===== Sidebar toggle (mobile) ===== */}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 transition hover:bg-violet-500 sm:hidden"
+            className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-sky-500 text-white shadow-lg shadow-sky-500/30 transition hover:bg-sky-500 sm:hidden"
           >
             <Database className="h-5 w-5" />
           </button>
@@ -697,13 +697,13 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 <div className="flex rounded-lg border border-white/10 bg-slate-900 p-0.5 light:border-slate-900/10 light:bg-white">
                   <button
                     onClick={() => setSidebarTab("collections")}
-                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "collections" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white light:text-slate-600 light:hover:text-slate-900"}`}
+                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "collections" ? "bg-sky-500 text-white" : "text-slate-400 hover:text-white light:text-slate-600 light:hover:text-slate-900"}`}
                   >
                     <BookOpen className="h-3.5 w-3.5" /> Saved
                   </button>
                   <button
                     onClick={() => setSidebarTab("history")}
-                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "history" ? "bg-violet-600 text-white" : "text-slate-400 hover:text-white light:text-slate-600 light:hover:text-slate-900"}`}
+                    className={`flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-semibold transition ${sidebarTab === "history" ? "bg-sky-500 text-white" : "text-slate-400 hover:text-white light:text-slate-600 light:hover:text-slate-900"}`}
                   >
                     <History className="h-3.5 w-3.5" /> History
                   </button>
@@ -720,7 +720,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                 {sidebarTab === "collections" && (
                   <>
                     {saved.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-white/10 p-6 text-center light:border-slate-900/10">
+                      <div className="rounded-xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
                         <BookOpen className="mx-auto h-7 w-7 text-slate-600 light:text-slate-500" />
                         <p className="mt-2 text-xs text-slate-500 light:text-slate-500">No saved requests yet.</p>
                         <p className="text-xs text-slate-600 light:text-slate-500">Send a request, then click Save.</p>
@@ -730,7 +730,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                       <div
                         key={s.id}
                         onClick={() => loadRequest(s)}
-                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-violet-400/30 hover:bg-white/[0.04] light:border-slate-900/10 light:bg-white"
+                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-sky-400/30 hover:bg-white/[0.04] light:border-slate-900/10 light:bg-white"
                       >
                         <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${METHOD_COLORS[s.method]}`}>
                           {s.method}
@@ -760,7 +760,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                       </button>
                     )}
                     {history.length === 0 && (
-                      <div className="rounded-xl border border-dashed border-white/10 p-6 text-center light:border-slate-900/10">
+                      <div className="rounded-xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
                         <History className="mx-auto h-7 w-7 text-slate-600 light:text-slate-500" />
                         <p className="mt-2 text-xs text-slate-500 light:text-slate-500">No request history yet.</p>
                       </div>
@@ -769,7 +769,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                       <div
                         key={h.id}
                         onClick={() => loadRequest({ ...h.request, method: h.method, url: h.url })}
-                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-violet-400/30 hover:bg-white/[0.04] light:border-slate-900/10 light:bg-white"
+                        className="group flex cursor-pointer items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-2.5 transition hover:border-sky-400/30 hover:bg-white/[0.04] light:border-slate-900/10 light:bg-white"
                       >
                         <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold ${METHOD_COLORS[h.method]}`}>
                           {h.method}
@@ -825,13 +825,13 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                       onClick={() => setReqTab(tab.key)}
                       className={`relative flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-2.5 text-xs font-semibold transition ${
                         reqTab === tab.key
-                          ? "border-violet-500 text-white"
+                          ? "border-sky-500 text-white"
                           : "border-transparent text-slate-500 hover:text-slate-300"
                       }`}
                     >
                       {tab.label}
                       {tab.badge > 0 && (
-                        <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-violet-500/30 px-1 text-[10px] text-violet-300">
+                        <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-sky-500/30 px-1 text-[10px] text-sky-300">
                           {tab.badge}
                         </span>
                       )}
@@ -867,8 +867,8 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                             disabled={disabled}
                             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
                               bodyType === bt
-                                ? "bg-violet-600 text-white"
-                                : "border border-white/10 text-slate-400 hover:border-violet-400/40 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:border-violet-400/40 light:hover:text-slate-900"
+                                ? "bg-sky-500 text-white"
+                                : "border border-white/10 text-slate-400 hover:border-sky-400/40 hover:text-white light:border-slate-900/10 light:text-slate-600 light:hover:border-sky-400/40 light:hover:text-slate-900"
                             }`}
                           >
                             {labels[bt]}
@@ -878,7 +878,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                     </div>
 
                     {(method === "GET" || method === "HEAD" || method === "OPTIONS") && bodyType === "none" && (
-                      <div className="rounded-xl border border-dashed border-white/10 bg-slate-950 p-6 text-center light:border-slate-900/10 light:bg-white">
+                      <div className="rounded-xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
                         <FileText className="mx-auto h-8 w-8 text-slate-600 light:text-slate-500" />
                         <p className="mt-2 text-sm text-slate-500 light:text-slate-500">Body is not sent for this HTTP method.</p>
                       </div>
@@ -891,7 +891,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                         rows={10}
                         placeholder={'{\n  "key": "value"\n}'}
                         spellCheck={false}
-                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     )}
 
@@ -902,7 +902,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                         rows={10}
                         placeholder="Enter raw text body..."
                         spellCheck={false}
-                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                        className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       />
                     )}
 
@@ -951,8 +951,8 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
 
               {/* ---- Save dialog ---- */}
               {showSaveDialog && (
-                <div className="mt-4 flex items-center gap-3 rounded-xl border border-violet-500/20 bg-violet-500/10 p-4">
-                  <Save className="h-4 w-4 shrink-0 text-violet-400" />
+                <div className="mt-4 flex items-center gap-3 rounded-xl border border-sky-500/20 bg-sky-500/10 p-4">
+                  <Save className="h-4 w-4 shrink-0 text-sky-400" />
                   <input
                     value={saveName}
                     onChange={(e) => setSaveName(e.target.value)}
@@ -964,7 +964,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                   <button
                     onClick={saveRequest}
                     disabled={!saveName.trim()}
-                    className="rounded-lg bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:opacity-40"
+                    className="rounded-lg bg-sky-500 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-sky-500 disabled:opacity-40"
                   >
                     Save
                   </button>
@@ -1014,7 +1014,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                           onClick={() => setResTab(tab.key)}
                           className={`border-b-2 px-4 py-2 text-xs font-semibold transition ${
                             resTab === tab.key
-                              ? "border-violet-500 text-white"
+                              ? "border-sky-500 text-white"
                               : "border-transparent text-slate-500 hover:text-slate-300"
                           }`}
                         >
@@ -1041,7 +1041,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                       )}
                       {Object.entries(result.headers).map(([key, value]) => (
                         <div key={key} className="flex gap-3 text-xs leading-6">
-                          <span className="shrink-0 font-semibold text-violet-300">{key}:</span>
+                          <span className="shrink-0 font-semibold text-sky-300">{key}:</span>
                           <span className="break-all text-slate-300 light:text-slate-700">{value}</span>
                         </div>
                       ))}

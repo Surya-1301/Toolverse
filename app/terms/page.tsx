@@ -210,7 +210,7 @@ export default function TermsPage() {
         <header className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10">
 
           <div>
-            <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
+            <p className="mb-4 inline-flex rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-sm font-medium text-sky-200">
               Legal & Service Terms
             </p>
 
@@ -235,10 +235,10 @@ export default function TermsPage() {
               return (
                 <div
                   key={item.title}
-                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition duration-200 hover:border-violet-400/20 hover:bg-slate-950/70 light:border-slate-900/10 light:bg-slate-100 light:hover:bg-slate-100"
+                  className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 transition duration-200 hover:border-sky-400/20 hover:bg-slate-950/70 light:border-slate-900/10 light:bg-slate-100 light:hover:bg-slate-100"
                 >
 
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/20">
                     <Icon className="h-5 w-5" />
                   </div>
 
@@ -299,14 +299,14 @@ export default function TermsPage() {
             return (
               <section
                 key={section.number}
-                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-violet-400/20 sm:p-8 light:border-slate-900/10 light:bg-white"
+                className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:border-sky-400/20 sm:p-8 light:border-slate-900/10 light:bg-white"
               >
 
                 <div className="flex items-start gap-4">
 
                   {/* Number */}
 
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-violet-600/15 text-sm font-bold text-violet-300 ring-1 ring-violet-400/20">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sm font-bold text-sky-300 ring-1 ring-sky-400/20">
                     {section.number}
                   </div>
 
@@ -316,7 +316,7 @@ export default function TermsPage() {
 
                     <div className="flex items-center gap-3">
 
-                      <Icon className="h-5 w-5 shrink-0 text-violet-300" />
+                      <Icon className="h-5 w-5 shrink-0 text-sky-300" />
 
                       <h2 className="text-xl font-semibold tracking-tight text-white sm:text-2xl light:text-slate-900">
                         {section.title}
@@ -334,7 +334,7 @@ export default function TermsPage() {
                           className="flex items-start gap-3"
                         >
 
-                          <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-violet-400" />
+                          <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-sky-400" />
 
                           <p className="text-sm leading-7 text-slate-300 sm:text-base light:text-slate-700">
                             {paragraph}
@@ -359,11 +359,11 @@ export default function TermsPage() {
             CONTACT / ABUSE SECTION
         ================================================================ */}
 
-        <section className="mt-8 rounded-3xl border border-violet-400/10 bg-violet-500/[0.04] p-6 sm:p-8">
+        <section className="mt-8 rounded-3xl border border-sky-400/10 bg-sky-500/[0.04] p-6 sm:p-8">
 
           <div className="flex items-start gap-4">
 
-            <UserCheck className="mt-1 h-6 w-6 shrink-0 text-violet-300" />
+            <UserCheck className="mt-1 h-6 w-6 shrink-0 text-sky-300" />
 
             <div>
 

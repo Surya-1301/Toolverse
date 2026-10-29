@@ -327,7 +327,7 @@ function UrlShortenerContent() {
               onChange={(event) => setLongUrl(event.target.value)}
               placeholder="https://example.com/very/long/url"
               type="url"
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -339,7 +339,7 @@ function UrlShortenerContent() {
               </label>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-                <span className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-400 sm:justify-start light:border-slate-900/10 light:bg-white light:text-slate-600">
+                <span className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-400 sm:justify-start light:border-slate-900/10 light:bg-white light:text-slate-600">
                   /s/
                 </span>
 
@@ -349,7 +349,7 @@ function UrlShortenerContent() {
                     setCustomSlug(event.target.value.toLowerCase())
                   }
                   placeholder="my-link"
-                  className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                  className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                 />
               </div>
             </div>
@@ -362,7 +362,7 @@ function UrlShortenerContent() {
               <select
                 value={expiry}
                 onChange={(event) => setExpiry(event.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               >
                 {expiryOptions.map((item) => (
                   <option key={item.value} value={item.value}>
@@ -389,13 +389,13 @@ function UrlShortenerContent() {
                 <input
                   value={shortUrl}
                   readOnly
-                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
+                  className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                 />
 
                 <button
                   type="button"
                   onClick={copyShortUrl}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 light:border-slate-900/10 light:text-slate-900"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 light:border-slate-900/10 light:text-slate-900"
                 >
                   {copied ? (
                     <Check className="h-4 w-4" />
@@ -436,11 +436,11 @@ function UrlShortenerContent() {
           {clicks !== null && clicks > 0 && clickLogs.length > 0 ? (
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
               <div className="mb-4 flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-violet-400" />
+                <BarChart3 className="h-5 w-5 text-sky-400" />
                 <h3 className="text-sm font-semibold text-white light:text-slate-900">
                   Click Statistics
                 </h3>
-                <span className="ml-auto rounded-full bg-violet-500/20 px-2.5 py-0.5 text-xs font-semibold text-violet-300">
+                <span className="ml-auto rounded-full bg-sky-500/20 px-2.5 py-0.5 text-xs font-semibold text-sky-300">
                   {clicks} total
                 </span>
               </div>
@@ -473,7 +473,7 @@ function UrlShortenerContent() {
                           </span>
                           <div className="relative h-4 flex-1 overflow-hidden rounded bg-white/5 light:bg-white/5">
                             <div
-                              className="absolute inset-y-0 left-0 rounded bg-violet-500/40"
+                              className="absolute inset-y-0 left-0 rounded bg-sky-500/40"
                               style={{
                                 width: `${Math.round((count / maxCount) * 100)}%`,
                               }}
@@ -516,7 +516,7 @@ function UrlShortenerContent() {
                           className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/[0.03] px-2.5 py-1 text-[11px] text-slate-300 light:border-slate-900/10 light:bg-white light:text-slate-700"
                         >
                           {ref}
-                          <span className="font-mono text-violet-400">
+                          <span className="font-mono text-sky-400">
                             {count}
                           </span>
                         </span>
@@ -531,7 +531,7 @@ function UrlShortenerContent() {
                 <p className="mb-2 text-xs font-medium text-slate-400 light:text-slate-600">
                   Recent clicks
                 </p>
-                <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
+                <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-white/[0.02] light:border-slate-900/10 light:bg-white">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
@@ -607,7 +607,7 @@ function UrlShortenerContent() {
               type="button"
               onClick={createShortUrl}
               disabled={isCreating}
-              className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isCreating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -632,13 +632,13 @@ function UrlShortenerContent() {
         <div className="mx-auto mt-5 max-w-6xl">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <div className="mb-4 flex items-center gap-2">
-              <Link2 className="h-5 w-5 text-violet-400" />
+              <Link2 className="h-5 w-5 text-sky-400" />
               <h3 className="text-sm font-semibold text-white light:text-slate-900">
                 Recent Shortened URLs
               </h3>
             </div>
 
-            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
+            <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-white/[0.02] light:border-slate-900/10 light:bg-white">
               <table className="w-full text-left text-xs">
                 <thead>
                   <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
@@ -657,7 +657,7 @@ function UrlShortenerContent() {
                 <tbody className="divide-y divide-white/5">
                   {recentUrls.map((shortened) => (
                     <tr key={shortened.slug} className="text-slate-300 light:text-slate-700">
-                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300 light:text-violet-700">
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-sky-300 light:text-sky-700">
                         /s/{shortened.slug}
                       </td>
                       <td className="hidden whitespace-nowrap px-3 py-2 text-center sm:table-cell">

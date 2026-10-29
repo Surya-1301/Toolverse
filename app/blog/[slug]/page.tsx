@@ -64,7 +64,7 @@ export async function generateMetadata({
 
 const categoryColors: Record<string, string> = {
   Guides: "bg-cyan-500/15 text-cyan-300 ring-cyan-400/20",
-  "Developer Tips": "bg-violet-500/15 text-violet-300 ring-violet-400/20",
+  "Developer Tips": "bg-sky-500/15 text-sky-300 ring-sky-400/20",
   Comparisons: "bg-fuchsia-500/15 text-fuchsia-300 ring-fuchsia-400/20",
   Security: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/20",
 };
@@ -138,7 +138,7 @@ function BodyRenderer({ body, tool }: { body: BlogPost["body"]; tool?: ReturnTyp
           return (
             <div
               key={key}
-              className="rounded-2xl border border-violet-400/20 bg-violet-500/10 p-4 text-sm leading-6 text-violet-200"
+              className="rounded-2xl border border-sky-400/20 bg-sky-500/10 p-4 text-sm leading-6 text-sky-200"
             >
               💡 {block.text}
             </div>
@@ -151,7 +151,7 @@ function BodyRenderer({ body, tool }: { body: BlogPost["body"]; tool?: ReturnTyp
             <Link
               key={key}
               href={`/${tool.slug}`}
-              className="group inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+              className="group inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
             >
               {block.text}
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
@@ -177,8 +177,8 @@ function ToolCta({ tool }: { tool: ReturnType<typeof getPostTool> }) {
   if (!tool) return null;
 
   return (
-    <div className="mt-12 rounded-3xl border border-violet-400/20 bg-violet-600/10 p-6 sm:p-8">
-      <p className="text-sm font-semibold uppercase tracking-wider text-violet-300">
+    <div className="mt-12 rounded-3xl border border-sky-400/20 bg-sky-500/10 p-6 sm:p-8">
+      <p className="text-sm font-semibold uppercase tracking-wider text-sky-300">
         Try it now
       </p>
       <h3 className="mt-2 text-xl font-bold text-white light:text-slate-900">{tool.title}</h3>
@@ -187,7 +187,7 @@ function ToolCta({ tool }: { tool: ReturnType<typeof getPostTool> }) {
       </p>
       <Link
         href={`/${tool.slug}`}
-        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+        className="mt-5 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
       >
         Open {tool.title.split(" - ")[0]}
         <ArrowRight className="h-4 w-4" />
@@ -214,7 +214,7 @@ export default async function BlogArticlePage({
         <h1 className="text-3xl font-bold text-white light:text-slate-900">Post not found</h1>
         <Link
           href="/blog"
-          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-violet-300 hover:text-violet-200"
+          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-200"
         >
           <ArrowLeft className="h-4 w-4" /> Back to blog
         </Link>
@@ -337,7 +337,7 @@ export default async function BlogArticlePage({
               <li key={section.id}>
                 <a
                   href={`#${section.id}`}
-                  className="text-slate-400 transition hover:text-violet-300 light:text-slate-600"
+                  className="text-slate-400 transition hover:text-sky-300 light:text-slate-600"
                 >
                   {section.label}
                 </a>
@@ -347,7 +347,7 @@ export default async function BlogArticlePage({
               <li>
                 <a
                   href="#try-it"
-                  className="text-slate-400 transition hover:text-violet-300 light:text-slate-600"
+                  className="text-slate-400 transition hover:text-sky-300 light:text-slate-600"
                 >
                   Try it now — {tool.title.split(" - ")[0]}
                 </a>
@@ -387,12 +387,12 @@ export default async function BlogArticlePage({
                   <li key={rel.slug}>
                     <Link
                       href={`/blog/${rel.slug}`}
-                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 px-4 py-3 transition hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
+                      className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 px-4 py-3 transition hover:border-sky-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
                     >
-                      <span className="text-sm font-semibold text-white transition group-hover:text-violet-200 light:text-slate-900">
+                      <span className="text-sm font-semibold text-white transition group-hover:text-sky-200 light:text-slate-900">
                         {rel.title}
                       </span>
-                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-600 transition group-hover:translate-x-1 group-hover:text-violet-300 light:text-slate-500" />
+                      <ArrowRight className="h-4 w-4 shrink-0 text-slate-600 transition group-hover:translate-x-1 group-hover:text-sky-300 light:text-slate-500" />
                     </Link>
                   </li>
                 ))}

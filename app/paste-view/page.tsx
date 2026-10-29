@@ -29,9 +29,10 @@ export default function PasteViewPage() {
 function PasteLoading() {
   return (
     <Container className="py-6 sm:py-8">
-      <div className="flex min-h-[70vh] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+      <div className="apple-glass relative overflow-hidden flex min-h-[70vh] items-center justify-center rounded-3xl p-8 backdrop-blur-xl">
+        <div className="apple-specular opacity-40" />
         <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin text-sky-400" />
           Loading paste...
         </div>
       </div>
@@ -207,55 +208,58 @@ function PasteEditor() {
             {error}
           </div>
         ) : paste ? (
-          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
-            <div className="mb-3 flex items-center justify-between gap-3">
-              <Link
-                href="/paste"
-                className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Back
-              </Link>
-
-              <div className="flex min-w-0 shrink items-center gap-2">
-                <span className="min-w-0 truncate rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400 light:bg-slate-100 light:text-slate-600">
-                  Paste ID: {paste.id}
-                </span>
-
-                {typeof paste.views === "number" && paste.views > 0 ? (
-                  <span className="shrink-0 rounded-full bg-white/5 px-3 py-1 text-xs text-slate-400 light:text-slate-600">
-                    {paste.views} view{paste.views === 1 ? "" : "s"}
-                  </span>
-                ) : null}
-
-                <div
-                  className={`shrink-0 rounded-full px-3 py-1 text-xs ${
-                    saveStatus === "error"
-                      ? "bg-red-500/10 text-red-300"
-                      : saveStatus === "saving"
-                        ? "bg-violet-500/10 text-violet-300"
-                        : "bg-emerald-500/10 text-emerald-300"
-                  }`}
+          <div className="apple-glass relative overflow-hidden rounded-3xl p-5 sm:p-6 backdrop-blur-xl">
+            <div className="apple-specular opacity-40" />
+            <div className="relative">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <Link
+                  href="/paste"
+                  className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-slate-300 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-700 light:hover:bg-slate-900/10"
                 >
-                  {getSaveLabel()}
+                  <ArrowLeft className="h-4 w-4" />
+                  Back
+                </Link>
+
+                <div className="flex min-w-0 shrink items-center gap-2">
+                  <span className="min-w-0 truncate rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-400 light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">
+                    Paste ID: {paste.id}
+                  </span>
+
+                  {typeof paste.views === "number" && paste.views > 0 ? (
+                    <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-400 light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">
+                      {paste.views} view{paste.views === 1 ? "" : "s"}
+                    </span>
+                  ) : null}
+
+                  <div
+                    className={`shrink-0 rounded-full px-3 py-1 text-xs font-medium ${
+                      saveStatus === "error"
+                        ? "border border-red-500/30 bg-red-500/10 text-red-300"
+                        : saveStatus === "saving"
+                          ? "border border-sky-500/30 bg-sky-500/10 text-sky-300"
+                          : "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                    }`}
+                  >
+                    {getSaveLabel()}
+                  </div>
                 </div>
               </div>
+
+              {error ? (
+                <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+                  {error}
+                </div>
+              ) : null}
+
+              <textarea
+                value={content}
+                onChange={handleContentChange}
+                spellCheck={false}
+                autoFocus
+                placeholder="Start typing..."
+                className="min-h-[75vh] w-full resize-y rounded-2xl border border-white/10 bg-white/[0.02] p-5 font-mono text-sm leading-6 text-slate-100 outline-none backdrop-blur-sm transition placeholder:text-slate-500 focus:border-sky-400 focus:bg-white/[0.04] focus:ring-1 focus:ring-sky-400/30 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              />
             </div>
-
-            {error ? (
-              <div className="mb-3 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
-                {error}
-              </div>
-            ) : null}
-
-            <textarea
-              value={content}
-              onChange={handleContentChange}
-              spellCheck={false}
-              autoFocus
-              placeholder="Start typing..."
-              className="min-h-[75vh] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-5 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
-            />
           </div>
         ) : null}
       </div>

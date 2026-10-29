@@ -146,7 +146,7 @@ export default function UuidGeneratorPage() {
             value={count}
             onChange={(event) => setCount(Number(event.target.value))}
             onKeyDown={(e) => { if (e.key === "Enter") generateUuids(); }}
-            className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none transition focus:border-violet-500 sm:w-40 light:border-slate-900/10 light:bg-white light:text-slate-900"
+            className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white outline-none transition focus:border-sky-500 sm:w-40 light:border-slate-900/10 light:bg-white light:text-slate-900"
           />
         </div>
 
@@ -154,7 +154,7 @@ export default function UuidGeneratorPage() {
           Generate between 1 and 1000 UUID v4 values.
         </p>
 
-        <div className="mt-6 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+        <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.03] p-4 light:border-slate-900/10 light:bg-white">
           {uuids.length ? (
             <div className="space-y-3">
               {uuids.map((uuid) => (
@@ -181,7 +181,7 @@ export default function UuidGeneratorPage() {
               ))}
             </div>
           ) : (
-            <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+            <div className="flex min-h-[260px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
               <p className="text-sm leading-6 text-slate-500 light:text-slate-500">
                 Generated UUIDs will appear here.
               </p>
@@ -192,7 +192,7 @@ export default function UuidGeneratorPage() {
         <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
           <button
             onClick={generateUuids}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             <RefreshCw className="h-4 w-4" />
             Generate

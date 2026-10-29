@@ -280,7 +280,7 @@ export default function TextToSpeechPage() {
               }
               rows={6}
               placeholder="Type or paste text to speak..."
-              className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
 
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -301,7 +301,7 @@ export default function TextToSpeechPage() {
                   onChange={(event) =>
                     setVoiceUri(event.target.value)
                   }
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 >
                   {voices.length === 0 ? (
                     <option value="">
@@ -344,7 +344,7 @@ export default function TextToSpeechPage() {
                         Number(event.target.value),
                       )
                     }
-                    className="w-full accent-violet-500"
+                    className="w-full accent-sky-500"
                   />
                 </div>
 
@@ -368,7 +368,7 @@ export default function TextToSpeechPage() {
                         Number(event.target.value),
                       )
                     }
-                    className="w-full accent-violet-500"
+                    className="w-full accent-sky-500"
                   />
                 </div>
               </div>
@@ -379,7 +379,7 @@ export default function TextToSpeechPage() {
                 type="button"
                 onClick={speak}
                 disabled={!text.trim()}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"
               >
                 <Play className="h-4 w-4" />
                 Speak

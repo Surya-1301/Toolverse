@@ -8,7 +8,6 @@ import {
   Download,
   Eraser,
   ImageDown,
-  ImagePlus,
   Sparkles,
   Upload,
   Wand2,
@@ -23,9 +22,6 @@ function getImageApiBaseUrl() {
     return envUrl.replace(/\/$/, "");
   }
 
-  // Local web dev only. Inside the native app the origin is also
-  // https://localhost, but http://localhost:10000 doesn't exist on the
-  // phone (and would be blocked as mixed content) — so never use it there.
   if (
     typeof window !== "undefined" &&
     window.location.hostname === "localhost" &&
@@ -254,8 +250,8 @@ export default function BackgroundRemoverPage() {
             Upload image
           </h2>
 
-          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
-            <Upload className="mb-3 h-9 w-9 text-violet-300" />
+          <label className="flex min-h-[230px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50">
+            <Upload className="mb-3 h-9 w-9 text-sky-300" />
 
             <span className="font-semibold text-white light:text-slate-900">
               Click to choose image
@@ -297,7 +293,7 @@ export default function BackgroundRemoverPage() {
             <button
               onClick={removeBackground}
               disabled={isProcessing}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 sm:px-4 sm:text-sm light:disabled:bg-slate-200"
             >
               <Wand2 className="h-4 w-4" />
               {isProcessing ? "Removing..." : "Remove background"}
@@ -326,7 +322,7 @@ export default function BackgroundRemoverPage() {
             </span>
           </div>
 
-          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center light:border-slate-900/15 light:bg-white">
+          <div className="flex min-h-[420px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center light:border-slate-900/15 light:bg-white">
             {outputPreview ? (
               <img
                 src={outputPreview}

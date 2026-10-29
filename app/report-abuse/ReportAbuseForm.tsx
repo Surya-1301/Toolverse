@@ -310,7 +310,7 @@ where necessary.
         <button
           type="button"
           onClick={handleSubmit}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
         >
           <Mail className="h-4 w-4" />
           Send abuse report

@@ -87,7 +87,7 @@ export const viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#7c3aed",
+  themeColor: "#070a14",
 };
 
 const jsonLd = {
@@ -164,7 +164,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
-      <body className="min-h-screen bg-slate-950 text-slate-100 antialiased light:bg-slate-50 light:text-slate-900">
+      <body className="min-h-screen bg-[#070a14] text-slate-100 antialiased light:bg-[#f1f5f9] light:text-slate-900">
         <Script
           defer
           src="https://static.cloudflareinsights.com/beacon.min.js"
@@ -180,13 +180,13 @@ export default function RootLayout({
 
           <main className="flex-1">{children}</main>
 
-          <footer className="border-t border-white/10 bg-slate-950/80 light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">
+          <footer className="border-t border-white/[0.05] bg-transparent light:border-slate-900/[0.05] light:bg-transparent text-slate-400 light:text-slate-600">
             <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                   <Link
                     href="/"
-                    className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-violet-200 light:text-slate-900 light:hover:text-violet-700"
+                    className="inline-flex text-base font-semibold tracking-tight text-white transition hover:text-sky-200 light:text-slate-900 light:hover:text-sky-700"
                   >
                     Toolverse
                   </Link>
@@ -214,9 +214,9 @@ export default function RootLayout({
                               rel: "noopener noreferrer",
                             }
                           : {})}
-                        className="group inline-flex items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-500 transition hover:text-violet-300 light:text-slate-600 light:hover:text-violet-700 light:text-slate-500"
+                        className="group inline-flex items-center gap-2 whitespace-nowrap text-sm font-medium text-slate-500 transition hover:text-sky-300 light:text-slate-600 light:hover:text-sky-700 light:text-slate-500"
                       >
-                        <Icon className="h-4 w-4 text-slate-400 transition group-hover:text-violet-300 light:text-slate-500" />
+                        <Icon className="h-4 w-4 text-slate-400 transition group-hover:text-sky-300 light:text-slate-500" />
                         <span>{item.label}</span>
                       </Link>
                     );

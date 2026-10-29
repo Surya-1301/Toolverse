@@ -30,8 +30,8 @@ export default function PasswordStrengthCheckerPage() {
           This tool has been merged into the <strong>Password Generator</strong>.
         </p>
 
-        <div className="mt-8 rounded-2xl border border-violet-500/30 bg-violet-500/10 p-6">
-          <div className="flex items-center gap-3 text-violet-300">
+        <div className="mt-8 rounded-2xl border border-sky-500/30 bg-sky-500/10 p-6">
+          <div className="flex items-center gap-3 text-sky-300">
             <ShieldCheck className="h-6 w-6 shrink-0" />
             <div>
               <p className="text-lg font-semibold text-white light:text-slate-900">
@@ -45,7 +45,7 @@ export default function PasswordStrengthCheckerPage() {
 
           <Link
             href="/password-generator"
-            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="mt-6 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             Open Password Generator
             <ArrowRight className="h-4 w-4" />

@@ -456,69 +456,70 @@ export function SharedViewer({ mode }: SharedViewerProps) {
   // This avoids exposing owner controls such as Direct, Copy page, upload, etc.
   if (mode === "share" && !isImage) {
     return (
-      <Container className="min-h-[calc(100vh-180px)] py-5 sm:py-20">
+      <Container className="min-h-[calc(100vh-180px)] py-8 sm:py-16">
         <div className="mx-auto max-w-[800px]">
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
-            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
+            <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
               {error}
             </div>
           ) : record ? (
             <section
-              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+              className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
               aria-label="Shared file"
             >
-              <div className="p-7 text-center sm:p-8 sm:text-left">
-                <h1 className="text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:text-[48px] light:text-slate-900">
+              <div className="apple-specular opacity-40" />
+              <div className="relative text-center sm:text-left">
+                <h1 className="text-[36px] font-bold leading-tight tracking-[-0.03em] text-white sm:text-[44px] light:text-slate-900">
                   Shared File
                 </h1>
 
-                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base light:text-slate-600">
+                <p className="mt-3 text-[15px] leading-relaxed text-slate-400 light:text-slate-600">
                   This file was encrypted before upload. Use the key in the share
                   link to decrypt it in your browser.
                 </p>
 
                 <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       File name
                     </p>
-                    <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 truncate text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {decryptedName || record.originalName || record.mimeType || "application/octet-stream"}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       Encrypted size
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {formatFileSize(record.size)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       Created
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {formatDate(record.createdAt)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       Expires
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {formatExpiry(record.expiresAt)}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-6 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
-                  <label className="block text-[15px] font-semibold text-emerald-100">
+                <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.08] p-5 backdrop-blur-md">
+                  <label className="block text-sm font-semibold text-emerald-200 light:text-emerald-700">
                     Encryption key
                   </label>
 
@@ -529,13 +530,13 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     aria-label="Encryption key"
                     spellCheck={false}
                     autoComplete="off"
-                    className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30 light:border-slate-900/10 light:bg-white light:text-slate-800 light:placeholder:text-slate-400"
+                    className="mt-3 h-12 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur-sm transition focus:border-emerald-400/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-emerald-400/20 light:border-slate-900/15 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                     placeholder="Encryption key from share link"
                   />
 
                   {decryptError ? (
                     <p
-                      className="mt-3 text-sm leading-5 text-red-300"
+                      className="mt-3 text-sm leading-5 text-red-300 light:text-red-600"
                       role="alert"
                     >
                       {decryptError}
@@ -546,7 +547,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     type="button"
                     onClick={decryptAndDownloadFile}
                     disabled={!encryptionKey || isDecrypting}
-                    className="mt-3 inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-500 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-3.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isDecrypting ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -567,35 +568,35 @@ export function SharedViewer({ mode }: SharedViewerProps) {
   // ============ IMAGE VIEW ============
   if (mode === "share" && isImage) {
     return (
-      <Container className="min-h-[calc(100vh-180px)] py-5 sm:py-20">
+      <Container className="min-h-[calc(100vh-180px)] py-8 sm:py-16">
         <div className="mx-auto max-w-[800px]">
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
-            <div className="rounded-[28px] border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
+            <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200 light:text-red-700">
               {error}
             </div>
           ) : record ? (
             <section
-              className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+              className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
               aria-label="Shared image"
             >
-             <div className="p-7 text-center sm:p-8 sm:text-left">
-  <div className="flex items-center justify-center gap-4 sm:justify-between">
-    <h1 className="w-full text-center text-[42px] font-bold leading-none tracking-[-0.04em] text-white sm:w-auto sm:text-left sm:text-[48px] light:text-slate-900">
-      Shared Image
-    </h1>
-                  
+              <div className="apple-specular opacity-40" />
+              <div className="relative text-center sm:text-left">
+                <div className="flex items-center justify-center gap-4 sm:justify-between">
+                  <h1 className="w-full text-center text-[36px] font-bold leading-tight tracking-[-0.03em] text-white sm:w-auto sm:text-left sm:text-[44px] light:text-slate-900">
+                    Shared Image
+                  </h1>
 
                   {/* Copy buttons - desktop/tablet only, right corner */}
                   <div className="hidden shrink-0 items-center gap-2 sm:flex">
                     <button
                       type="button"
                       onClick={() => copyValue("markdown")}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 text-xs sm:text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                     >
                       {copied === "markdown" ? (
-                        <Check className="h-4 w-4" />
+                        <Check className="h-4 w-4 text-emerald-400" />
                       ) : (
                         <Copy className="h-4 w-4" />
                       )}
@@ -605,10 +606,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     <button
                       type="button"
                       onClick={() => copyValue("html")}
-                      className="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-4 text-[14px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 text-xs sm:text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                     >
                       {copied === "html" ? (
-                        <Check className="h-4 w-4" />
+                        <Check className="h-4 w-4 text-emerald-400" />
                       ) : (
                         <Copy className="h-4 w-4" />
                       )}
@@ -617,23 +618,23 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
                 </div>
 
-                <p className="mt-4 text-[15px] leading-6 text-slate-400 sm:text-base light:text-slate-600">
+                <p className="mt-3 text-[15px] leading-relaxed text-slate-400 light:text-slate-600">
                   {record.encrypted
                     ? "This image was encrypted before upload. Use the key in the share link to decrypt it in your browser."
                     : "This image is ready to view and share."}
                 </p>
 
-{/* MOBILE IMAGE COPY ACTIONS - directly below the shared image */}
-                <div className="mt-6 grid grid-cols-2 gap-2 sm:hidden">
+                {/* MOBILE IMAGE COPY ACTIONS - directly below the shared image */}
+                <div className="mt-5 grid grid-cols-2 gap-2 sm:hidden">
                   <button
                     type="button"
                     onClick={() => copyValue("markdown")}
-                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-xs font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800"
                   >
                     {copied === "markdown" ? (
-                      <Check className="h-5 w-5" />
+                      <Check className="h-4 w-4 text-emerald-400" />
                     ) : (
-                      <Copy className="h-5 w-5" />
+                      <Copy className="h-4 w-4" />
                     )}
                     <span className="whitespace-nowrap">
                       {copied === "markdown" ? "Copied" : "Copy Markdown"}
@@ -643,12 +644,12 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   <button
                     type="button"
                     onClick={() => copyValue("html")}
-                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] border border-white/10 bg-transparent px-5 text-[15px] font-medium text-white transition hover:bg-white/[0.05] light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-100"
+                    className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 text-xs font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800"
                   >
                     {copied === "html" ? (
-                      <Check className="h-5 w-5" />
+                      <Check className="h-4 w-4 text-emerald-400" />
                     ) : (
-                      <Copy className="h-5 w-5" />
+                      <Copy className="h-4 w-4" />
                     )}
                     <span className="whitespace-nowrap">
                       {copied === "html" ? "Copied" : "Copy HTML"}
@@ -657,83 +658,82 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                 </div>
 
                 <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       File name
                     </p>
-                    <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 truncate text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {decryptedName || record.originalName || record.mimeType || "image/*"}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       {record.encrypted ? "Encrypted size" : "Image size"}
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {formatFileSize(displaySize)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       Created
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {formatDate(record.createdAt)}
                     </p>
                   </div>
 
-                  <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 light:border-slate-900/10 light:bg-white">
-                    <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">
+                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
+                    <p className="text-xs font-medium text-slate-400 light:text-slate-500">
                       Expires
                     </p>
-                    <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                       {formatExpiry(record.expiresAt)}
                     </p>
                   </div>
                 </div>
 
                 {/* IMAGE PREVIEW */}
-                <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
+                <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
                   {record.encrypted ? (
                     decryptedImageUrl ? (
-                      <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
+                      <div className="rounded-xl bg-black/30 p-3 light:bg-slate-900/5">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={decryptedImageUrl}
                           alt={displayName || "Decrypted shared image"}
-                          className="mx-auto max-h-[55vh] max-w-full rounded-xl object-contain"
+                          className="mx-auto max-h-[55vh] max-w-full rounded-lg object-contain"
                         />
                       </div>
                     ) : (
-                      <div className="flex min-h-[220px] items-center justify-center rounded-[16px] border border-dashed border-white/10 px-6 text-center text-sm text-slate-500 light:border-slate-900/10 light:text-slate-500">
+                      <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.015] px-6 text-center text-sm text-slate-400 light:border-slate-900/15 light:bg-slate-50 light:text-slate-500">
                         Decrypt the image below to preview it securely in your
                         browser.
                       </div>
                     )
                   ) : imageSrc && !imageFailed ? (
-                    <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
+                    <div className="rounded-xl bg-black/30 p-3 light:bg-slate-900/5">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={imageSrc}
                         alt={record.originalName || "Shared image"}
                         onError={() => setImageFailed(true)}
-                        className="mx-auto max-h-[55vh] max-w-full rounded-xl object-contain"
+                        className="mx-auto max-h-[55vh] max-w-full rounded-lg object-contain"
                       />
                     </div>
                   ) : (
-                    <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
+                    <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
                       Could not display this image.
                     </div>
                   )}
                 </div>
 
-                
                 {/* ENCRYPTION */}
                 {record.encrypted ? (
-                  <div className="mt-6 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
-                    <label className="block text-[15px] font-semibold text-emerald-100">
+                  <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.08] p-5 backdrop-blur-md">
+                    <label className="block text-sm font-semibold text-emerald-200 light:text-emerald-700">
                       Encryption key
                     </label>
 
@@ -744,25 +744,25 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       aria-label="Encryption key"
                       spellCheck={false}
                       autoComplete="off"
-                      className="mt-4 h-[52px] w-full rounded-[16px] border border-white/10 bg-[#020617] px-4 text-[15px] text-slate-200 outline-none placeholder:text-slate-600 focus:border-emerald-400/70 focus:ring-1 focus:ring-emerald-400/30 light:border-slate-900/10 light:bg-white light:text-slate-800 light:placeholder:text-slate-400"
+                      className="mt-3 h-12 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur-sm transition focus:border-emerald-400/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-emerald-400/20 light:border-slate-900/15 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                       placeholder="Encryption key from share link"
                     />
 
                     {decryptError ? (
                       <p
-                        className="mt-3 text-sm leading-5 text-red-300"
+                        className="mt-3 text-sm leading-5 text-red-300 light:text-red-600"
                         role="alert"
                       >
                         {decryptError}
                       </p>
                     ) : null}
 
-                    <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    <div className="mt-3.5 grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <button
                         type="button"
                         onClick={() => decryptImage(record, encryptionKey)}
                         disabled={!encryptionKey || isDecrypting}
-                        className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-500 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-400 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {isDecrypting ? (
                           <Loader2 className="h-5 w-5 animate-spin" />
@@ -771,25 +771,13 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         )}
                         {isDecrypting ? "Decrypting..." : "Decrypt & view image"}
                       </button>
-{/* MOBILE IMAGE DOWNLOAD */}
-                <div className="mt-3 sm:hidden">
-                  <button
-                    type="button"
-                    onClick={downloadImage}
-                    disabled={record.encrypted && !decryptedImageUrl}
-                    className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-5 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50 light:text-white"
-                  >
-                    <Download className="h-5 w-5" />
-                    Download image
-                  </button>
-                </div>
 
-                      {/* Download - desktop/tablet only, adjacent to decrypt */}
+                      {/* Download button */}
                       <button
                         type="button"
                         onClick={downloadImage}
                         disabled={!decryptedImageUrl}
-                        className="hidden h-[52px] items-center justify-center gap-2 rounded-[16px] bg-violet-600 px-4 text-[15px] font-medium text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50 sm:inline-flex light:text-white"
+                        className="apple-pill-btn inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Download className="h-5 w-5" />
                         Download image
@@ -797,7 +785,6 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     </div>
                   </div>
                 ) : null}
-
               </div>
             </section>
           ) : null}
@@ -821,150 +808,149 @@ export function SharedViewer({ mode }: SharedViewerProps) {
             <>
               <div className="mx-auto max-w-[800px]">
                 <section
-                  className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+                  className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
                   aria-label="Hosted image details"
                 >
-                  <div className="p-7 sm:p-8">
+                  <div className="apple-specular opacity-40" />
+                  <div className="relative">
                     <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                       <div className="min-w-0 text-center sm:text-left">
-                        <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px] light:text-slate-900">
+                        <h2 className="text-[32px] font-bold tracking-tight text-white sm:text-[40px] light:text-slate-900">
                           Hosted Image
                         </h2>
 
-                        <p className="mt-2 text-[15px] leading-6 text-slate-400 light:text-slate-600">
+                        <p className="mt-2 text-[15px] leading-relaxed text-slate-400 light:text-slate-600">
                           This image is securely stored and ready to view or download.
                         </p>
                       </div>
 
                       {mode === "owner" ? (
-                        <div className="grid w-full shrink-0 grid-cols-2 items-center gap-4 md:w-auto md:flex md:flex-row md:justify-end md:gap-2 md:-translate-y-2 lg:-translate-y-3">                        <Link
-                          href="/file-share"
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
-                        >
-                          <Plus className="h-4 w-4" />
-                          Upload new
-                        </Link>
-
-                        {!record.encrypted ? (
-                          <a
-                            href={getDirectUrl()}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                        <div className="grid w-full shrink-0 grid-cols-2 items-center gap-3 sm:flex sm:w-auto sm:flex-row sm:justify-end">
+                          <Link
+                            href="/file-share"
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                           >
-                            <ExternalLink className="h-4 w-4" />
-                            Direct
-                          </a>
-                        ) : null}
+                            <Plus className="h-4 w-4" />
+                            Upload new
+                          </Link>
 
-                        <button
-                          type="button"
-                          onClick={() => copyValue("page")}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
-                        >
-                          {copied === "page" ? (
-                            <Check className="h-4 w-4" />
-                          ) : (
-                            <Copy className="h-4 w-4" />
-                          )}
-                          {copied === "page" ? "Copied" : "Copy page"}
-                        </button>
-                      </div>
-                    ) : null}
+                          {!record.encrypted ? (
+                            <a
+                              href={getDirectUrl()}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                              Direct
+                            </a>
+                          ) : null}
+
+                          <button
+                            type="button"
+                            onClick={() => copyValue("page")}
+                            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
+                          >
+                            {copied === "page" ? (
+                              <Check className="h-4 w-4 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                            {copied === "page" ? "Copied" : "Copy page"}
+                          </button>
+                        </div>
+                      ) : null}
                     </div>
 
                     <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">File name</p>
-                        <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-xs font-medium text-slate-400 light:text-slate-500">File name</p>
+                        <p className="mt-1.5 truncate text-[15px] font-medium text-slate-100 light:text-slate-800">
                           {displayName || record.originalName || record.mimeType || "Untitled image"}
                         </p>
                       </div>
 
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Image size</p>
-                        <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-xs font-medium text-slate-400 light:text-slate-500">Image size</p>
+                        <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                           {formatFileSize(displaySize)}
                         </p>
                       </div>
 
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Created</p>
-                        <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-xs font-medium text-slate-400 light:text-slate-500">Created</p>
+                        <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                           {formatDate(record.createdAt)}
                         </p>
                       </div>
 
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Expires</p>
-                        <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                        <p className="text-xs font-medium text-slate-400 light:text-slate-500">Expires</p>
+                        <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                           {formatExpiry(record.expiresAt)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="mt-6 overflow-hidden rounded-[20px] border border-white/10 bg-[#020617]/95 p-4 sm:p-5 light:border-slate-900/10 light:bg-white">
+                    <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 backdrop-blur-md light:border-slate-900/10 light:bg-white">
                       {record.encrypted ? (
                         decryptedImageUrl ? (
-                          <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
+                          <div className="rounded-xl bg-black/30 p-3 light:bg-slate-900/5">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
                             <img
                               src={decryptedImageUrl}
                               alt={displayName || "Decrypted hosted image"}
-                              className="mx-auto max-h-[65vh] max-w-full rounded-xl object-contain"
+                              className="mx-auto max-h-[65vh] max-w-full rounded-lg object-contain"
                             />
                           </div>
                         ) : (
-                          <div className="rounded-[16px] border border-dashed border-white/10 px-6 py-12 text-center text-sm text-slate-500 light:border-slate-900/10 light:text-slate-500">
+                          <div className="rounded-xl border border-dashed border-white/15 bg-white/[0.015] px-6 py-12 text-center text-sm text-slate-400 light:border-slate-900/15 light:bg-slate-50 light:text-slate-500">
                             Decrypt the image below to preview it securely in your browser.
                           </div>
                         )
                       ) : imageSrc && !imageFailed ? (
-                        <div className="rounded-[16px] bg-black/20 p-3 light:bg-slate-900/5">
+                        <div className="rounded-xl bg-black/30 p-3 light:bg-slate-900/5">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img
                             src={imageSrc}
                             alt={record.originalName || "Hosted image"}
                             onError={() => setImageFailed(true)}
-                            className="mx-auto max-h-[65vh] max-w-full rounded-xl object-contain"
+                            className="mx-auto max-h-[65vh] max-w-full rounded-lg object-contain"
                           />
                         </div>
                       ) : (
-                        <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
+                        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-200 light:text-red-700">
                           Could not display this image.
                         </div>
                       )}
                     </div>
 
                     {record.encrypted ? (
-                      <div className="">
-                        
+                      <div className="mt-6">
                         {decryptError ? (
-                          <p className="">
+                          <p className="mb-3 text-sm text-red-300 light:text-red-600">
                             {decryptError}
                           </p>
                         ) : null}
 
-                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-1">
-                          <button
-                            type="button"
-                            onClick={downloadImage}
-                            disabled={!decryptedImageUrl}
-                            className="inline-flex h-[52px] w-full items-center justify-center gap-2 rounded-[16px] bg-emerald-600 px-4 text-[15px] font-medium text-white transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50 light:text-white"
-                          >
-                            <Download className="h-5 w-5" />
-                            Download image
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-6 rounded-[20px] border border-emerald-500/40 bg-emerald-500/[0.10] p-4 sm:p-5">
                         <button
                           type="button"
                           onClick={downloadImage}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 light:text-white"
+                          disabled={!decryptedImageUrl}
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
                         >
-                          <Download className="h-4 w-4" />
+                          <Download className="h-5 w-5" />
+                          Download image
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="mt-6">
+                        <button
+                          type="button"
+                          onClick={downloadImage}
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)]"
+                        >
+                          <Download className="h-5 w-5" />
                           Download image
                         </button>
                       </div>
@@ -990,95 +976,98 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                 <>
                   {/* Recent Hosted Stats */}
                   {hasHydrated && recentFiles.length > 0 ? (
-                    <div className="mx-auto mt-16 max-w-6xl">
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
-                        <div className="mb-4 flex items-center gap-2">
-                          <BarChart3 className="h-5 w-5 text-violet-400" />
-                          <h3 className="text-sm font-semibold text-white light:text-slate-900">
-                            Recent Images
-                          </h3>
-                        </div>
+                    <div className="mx-auto mt-14 max-w-6xl">
+                      <div className="apple-glass relative overflow-hidden rounded-2xl p-5 sm:p-6 backdrop-blur-xl">
+                        <div className="apple-specular opacity-30" />
+                        <div className="relative">
+                          <div className="mb-4 flex items-center gap-2.5">
+                            <BarChart3 className="h-5 w-5 text-sky-400" />
+                            <h3 className="text-base font-semibold text-white light:text-slate-900">
+                              Recent Images
+                            </h3>
+                          </div>
 
-                        <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
-                          <table className="w-full table-fixed text-left text-xs sm:table-auto">
-                            <thead>
-                              <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
-                                <th className="w-[52%] px-3 py-2 font-medium sm:w-auto">Name</th>
-                                <th className="hidden px-3 py-2 font-medium sm:table-cell">
-                                  Kind
-                                </th>
-                                <th className="hidden px-5 py-2 text-right font-medium sm:table-cell">
-                                  Size
-                                </th>
-                                <th className="w-[16%] px-1.5 py-2 text-center font-medium sm:w-auto sm:px-10 sm:text-right">
-                                  <span className="inline-block -translate-x-5 sm:translate-x-0">
-                                    Count
-                                  </span>
-                                </th>
-                                <th className="w-[32%] px-1.5 py-2 text-center font-medium sm:w-auto sm:px-14 sm:text-right">
-                                  Actions
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                              {recentFiles.map((r) => (
-                                <tr key={r.id} className="text-slate-300 light:text-slate-700">
-                                  <td className="max-w-[180px] truncate px-3 py-2 text-violet-300 light:text-violet-700">
-                                    {r.name || r.id}
-                                  </td>
-                                  <td className="hidden px-3 py-2 text-slate-500 capitalize sm:table-cell light:text-slate-500">
-                                    {r.kind}
-                                  </td>
-                                  <td className="hidden px-3 py-2 text-right text-slate-500 sm:table-cell light:text-slate-500">
-                                    {formatFileSize(r.size)}
-                                  </td>
-                                  <td className="w-[16%] px-1.5 py-2 text-center text-slate-500 sm:w-auto sm:px-11 sm:text-right light:text-slate-500">
-                                    <span className="inline-block -translate-x-5 whitespace-nowrap sm:translate-x-0">
-                                      {typeof r.views === "number"
-                                        ? `${r.views} views`
-                                        : typeof r.downloads === "number"
-                                          ? `${r.downloads} dl`
-                                          : "—"}
+                          <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm light:border-slate-900/10 light:bg-slate-50">
+                            <table className="w-full table-fixed text-left text-xs sm:table-auto">
+                              <thead>
+                                <tr className="border-b border-white/10 text-slate-400 light:border-slate-900/10 light:text-slate-500">
+                                  <th className="w-[52%] px-3.5 py-2.5 font-medium sm:w-auto">Name</th>
+                                  <th className="hidden px-3.5 py-2.5 font-medium sm:table-cell">
+                                    Kind
+                                  </th>
+                                  <th className="hidden px-5 py-2.5 text-right font-medium sm:table-cell">
+                                    Size
+                                  </th>
+                                  <th className="w-[16%] px-1.5 py-2.5 text-center font-medium sm:w-auto sm:px-10 sm:text-right">
+                                    <span className="inline-block -translate-x-5 sm:translate-x-0">
+                                      Count
                                     </span>
-                                  </td>
-                                  <td className="w-[32%] px-1.5 py-2 text-center sm:w-auto sm:px-2 sm:text-right sm:px-4 lg:px-6">
-                                    <div className="flex items-center justify-center gap-1 whitespace-nowrap sm:justify-end">
-                                      <a
-                                        href={`/file?id=${r.id}`}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
-                                      >
-                                        View
-                                      </a>
-                                      <button
-                                        type="button"
-                                        onClick={() =>
-                                          setRecentFiles((prev) =>
-                                            prev.filter((x) => x.id !== r.id),
-                                          )
-                                        }
-                                        className="rounded-lg border border-white/10 px-1.5 py-1 text-[10px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
-                                      >
-                                        Remove
-                                      </button>
-                                    </div>
-                                  </td>
+                                  </th>
+                                  <th className="w-[32%] px-1.5 py-2.5 text-center font-medium sm:w-auto sm:px-14 sm:text-right">
+                                    Actions
+                                  </th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
+                              </thead>
+                              <tbody className="divide-y divide-white/5">
+                                {recentFiles.map((r) => (
+                                  <tr key={r.id} className="text-slate-300 transition hover:bg-white/[0.02] light:text-slate-700">
+                                    <td className="max-w-[180px] truncate px-3.5 py-2.5 font-medium text-sky-300 light:text-sky-600">
+                                      {r.name || r.id}
+                                    </td>
+                                    <td className="hidden px-3.5 py-2.5 text-slate-400 capitalize sm:table-cell light:text-slate-500">
+                                      {r.kind}
+                                    </td>
+                                    <td className="hidden px-3.5 py-2.5 text-right text-slate-400 sm:table-cell light:text-slate-500">
+                                      {formatFileSize(r.size)}
+                                    </td>
+                                    <td className="w-[16%] px-1.5 py-2.5 text-center text-slate-400 sm:w-auto sm:px-11 sm:text-right light:text-slate-500">
+                                      <span className="inline-block -translate-x-5 whitespace-nowrap sm:translate-x-0">
+                                        {typeof r.views === "number"
+                                          ? `${r.views} views`
+                                          : typeof r.downloads === "number"
+                                            ? `${r.downloads} dl`
+                                            : "—"}
+                                      </span>
+                                    </td>
+                                    <td className="w-[32%] px-1.5 py-2.5 text-center sm:w-auto sm:px-2 sm:text-right sm:px-4 lg:px-6">
+                                      <div className="flex items-center justify-center gap-1.5 whitespace-nowrap sm:justify-end">
+                                        <a
+                                          href={`/file?id=${r.id}`}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-300 backdrop-blur-sm transition hover:border-sky-400/40 hover:bg-white/[0.08] hover:text-white sm:px-3 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"
+                                        >
+                                          View
+                                        </a>
+                                        <button
+                                          type="button"
+                                          onClick={() =>
+                                            setRecentFiles((prev) =>
+                                              prev.filter((x) => x.id !== r.id),
+                                            )
+                                          }
+                                          className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-400 backdrop-blur-sm transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-300 sm:px-3 light:border-slate-900/10 light:text-slate-500"
+                                        >
+                                          Remove
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
 
-                        <div className="mt-4 flex items-center justify-between">
-                          <p className="text-xs text-slate-500 light:text-slate-500"></p>
-                          <button
-                            type="button"
-                            onClick={() => setRecentFiles([])}
-                            className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
-                          >
-                            Clear all
-                          </button>
+                          <div className="mt-4 flex items-center justify-between">
+                            <p className="text-xs text-slate-400 light:text-slate-500"></p>
+                            <button
+                              type="button"
+                              onClick={() => setRecentFiles([])}
+                              className="rounded-lg border border-red-500/30 bg-red-500/[0.06] px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/15"
+                            >
+                              Clear all
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1094,7 +1083,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
 
   // ============ FILE VIEW ============
   return (
-    <Container className="py-12 sm:py-16">
+    <Container className="py-8 sm:py-16">
       <div className="mx-auto max-w-6xl">
         {isLoading ? (
           <ViewerLoading />
@@ -1104,27 +1093,20 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           </div>
         ) : record ? (
           <>
-            {(mode === "share" || isPdf) ? (
-              <div className="mb-8">
-                <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-                  {mode === "owner" && isPdf ? "Hosted PDF" : "Shared File"}
-                </h1>
-              </div>
-            ) : null}
-
             <div className="mx-auto max-w-[800px]">
               <section
-                className="overflow-hidden rounded-[28px] border border-white/10 bg-[#10101f]/95 shadow-[0_24px_80px_rgba(0,0,0,0.28)] light:border-slate-900/10 light:bg-white light:shadow-[0_24px_80px_rgba(15,23,42,0.08)]"
+                className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
                 aria-label={mode === "owner" ? "Hosted file details" : "Shared file details"}
               >
-                <div className="p-7 sm:p-8">
+                <div className="apple-specular opacity-40" />
+                <div className="relative">
                   <div className="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
                     <div className="min-w-0 text-center sm:text-left">
-                      <h2 className="text-2xl font-bold tracking-tight text-white sm:text-[40px] light:text-slate-900">
-                        Hosted File
+                      <h2 className="text-[32px] font-bold tracking-tight text-white sm:text-[40px] light:text-slate-900">
+                        {mode === "owner" && isPdf ? "Hosted PDF" : "Hosted File"}
                       </h2>
 
-                      <p className="mt-2 text-[15px] leading-6 text-slate-400 light:text-slate-600">
+                      <p className="mt-2 text-[15px] leading-relaxed text-slate-400 light:text-slate-600">
                         {isPdf
                           ? "This PDF is ready to open or download."
                           : "This file is securely stored and ready to download."}
@@ -1132,9 +1114,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     </div>
 
                     {mode === "owner" ? (
-                        <div className="grid w-full shrink-0 grid-cols-2 items-center gap-4 md:w-auto md:flex md:flex-row md:justify-end md:gap-2 md:-translate-y-2 lg:-translate-y-3">                        <Link
+                      <div className="grid w-full shrink-0 grid-cols-2 items-center gap-3 sm:flex sm:w-auto sm:flex-row sm:justify-end">
+                        <Link
                           href="/file-share"
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                         >
                           <Plus className="h-4 w-4" />
                           Upload new
@@ -1143,10 +1126,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <button
                           type="button"
                           onClick={() => copyValue("page")}
-                          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/10 md:w-auto md:px-4 md:py-2.5 light:border-slate-900/10 light:text-slate-900 light:hover:bg-slate-900/10"
+                          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                         >
                           {copied === "page" ? (
-                            <Check className="h-4 w-4" />
+                            <Check className="h-4 w-4 text-emerald-400" />
                           ) : (
                             <Copy className="h-4 w-4" />
                           )}
@@ -1157,41 +1140,41 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   </div>
 
                   <div className="mt-7 grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                      <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                        <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">File name</p>
-                        <p className="mt-2 truncate text-[15px] text-slate-200 light:text-slate-800">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-xs font-medium text-slate-400 light:text-slate-500">File name</p>
+                      <p className="mt-1.5 truncate text-[15px] font-medium text-slate-100 light:text-slate-800">
                         {record.originalName || record.mimeType || "Untitled file"}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                      <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">File size</p>
-                      <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-xs font-medium text-slate-400 light:text-slate-500">File size</p>
+                      <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                         {formatFileSize(record.size)}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                      <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Created</p>
-                      <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-xs font-medium text-slate-400 light:text-slate-500">Created</p>
+                      <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                         {formatDate(record.createdAt)}
                       </p>
                     </div>
 
-                    <div className="rounded-[18px] border border-white/10 bg-[#020617]/95 px-4 py-5 text-center sm:text-left light:border-slate-900/10 light:bg-white">
-                      <p className="text-[13px] font-medium text-slate-500 light:text-slate-500">Expires</p>
-                      <p className="mt-2 text-[15px] text-slate-200 light:text-slate-800">
+                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4.5 sm:p-5 backdrop-blur-md text-center sm:text-left light:border-slate-900/10 light:bg-white">
+                      <p className="text-xs font-medium text-slate-400 light:text-slate-500">Expires</p>
+                      <p className="mt-1.5 text-[15px] font-medium text-slate-100 light:text-slate-800">
                         {formatExpiry(record.expiresAt)}
                       </p>
                     </div>
                   </div>
 
                   {mode === "owner" ? (
-                    <div className="mt-5 ">
+                    <div className="mt-6">
                       <button
                         type="button"
                         onClick={downloadFile}
-                        className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400"
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)]"
                       >
                         <Download className="h-4 w-4" />
                         {isPdf ? "Open / Download PDF" : "Download file"}
@@ -1203,8 +1186,8 @@ export function SharedViewer({ mode }: SharedViewerProps) {
             </div>
 
             {mode === "share" ? (
-              <div className="mt-6 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-                <label className="mb-2 block text-sm font-medium text-emerald-100">
+              <div className="mx-auto mt-6 max-w-[800px] rounded-2xl border border-emerald-500/30 bg-emerald-500/[0.08] p-5 backdrop-blur-md">
+                <label className="mb-2 block text-sm font-semibold text-emerald-200 light:text-emerald-700">
                   Encryption key
                 </label>
 
@@ -1212,19 +1195,19 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   type="text"
                   value={encryptionKey}
                   onChange={(event) => setEncryptionKey(event.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none focus:border-emerald-400 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="mt-2 h-12 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-slate-100 placeholder:text-slate-500 outline-none backdrop-blur-sm transition focus:border-emerald-400/60 focus:bg-white/[0.07] focus:ring-2 focus:ring-emerald-400/20 light:border-slate-900/15 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
                   placeholder="Encryption key from share link"
                 />
 
                 {decryptError ? (
-                  <p className="mt-2 text-sm text-red-200 light:text-red-700">{decryptError}</p>
+                  <p className="mt-2 text-sm text-red-300 light:text-red-600">{decryptError}</p>
                 ) : null}
 
                 <button
                   type="button"
                   onClick={decryptAndDownloadFile}
                   disabled={!encryptionKey || isDecrypting}
-                  className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-400 disabled:opacity-40"
+                  className="mt-3.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Download className="h-4 w-4" />
                   {isDecrypting ? "Decrypting..." : "Decrypt & download"}
@@ -1236,85 +1219,86 @@ export function SharedViewer({ mode }: SharedViewerProps) {
 
         {mode === "owner" ? (
           <>
-
             {/* Recent Files Stats */}
             {recentFiles.filter((x) => x.kind === "file").length > 0 ? (
-              <div className="mx-auto mt-16 max-w-6xl">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
-                  <div className="mb-4 flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5 text-violet-400" />
-                    <h3 className="text-sm font-semibold text-white light:text-slate-900">
-                      Recent Files
-                    </h3>
-                  </div>
+              <div className="mx-auto mt-14 max-w-6xl">
+                <div className="apple-glass relative overflow-hidden rounded-2xl p-5 sm:p-6 backdrop-blur-xl">
+                  <div className="apple-specular opacity-30" />
+                  <div className="relative">
+                    <div className="mb-4 flex items-center gap-2.5">
+                      <BarChart3 className="h-5 w-5 text-sky-400" />
+                      <h3 className="text-base font-semibold text-white light:text-slate-900">
+                        Recent Files
+                      </h3>
+                    </div>
 
-                  <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
-                    <table className="w-full text-left text-xs">
-                      <thead>
-                        <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
-                          <th className="px-5 py-2 font-medium">Name</th>
-                          <th className="hidden px-3 py-2 font-medium sm:table-cell">
-                            Size
-                          </th>
-                          <th className="px-2 py-2 text-right font-medium sm:px-6 lg:px-8">Downloads</th>
-                          <th className="px-10 py-2 text-right font-medium sm:px-15 lg:px-17">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {recentFiles
-                          .filter((r) => r.kind === "file")
-                          .map((r) => (
-                            <tr key={r.id} className="text-slate-300 light:text-slate-700">
-                              <td className="max-w-[180px] truncate px-3 py-2 text-violet-300">
-                                {r.name || r.id}
-                              </td>
-                              <td className="hidden px-2 py-2 text-slate-500 sm:table-cell light:text-slate-500">
-                                {formatFileSize(r.size)}
-                              </td>
-                              <td className="px-8 py-2 text-right text-slate-500 sm:px-15 lg:px-15 light:text-slate-500">
-                                {typeof r.downloads === "number"
-                                  ? r.downloads
-                                  : "-"}
-                              </td>
-                              <td className="px-2 py-2 text-right sm:px-4 lg:px-6">
-                                <div className="flex items-center justify-end gap-1 whitespace-nowrap">
-                                  <a
-                                    href={`/file?id=${r.id}`}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
-                                  >
-                                    View
-                                  </a>
-                                  <button
-                                    type="button"
-                                    onClick={() =>
-                                      setRecentFiles((prev) =>
-                                        prev.filter((x) => x.id !== r.id),
-                                      )
-                                    }
-                                    className="rounded-lg border border-white/10 px-2 py-1 text-[11px] text-slate-500 hover:bg-white/5 sm:px-2.5 sm:text-[12px] light:border-slate-900/10 light:text-slate-500 light:hover:bg-slate-900/5"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                              </td>
-                            </tr>
-                          ))}
-                      </tbody>
-                    </table>
-                  </div>
+                    <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-white/[0.02] backdrop-blur-sm light:border-slate-900/10 light:bg-slate-50">
+                      <table className="w-full text-left text-xs">
+                        <thead>
+                          <tr className="border-b border-white/10 text-slate-400 light:border-slate-900/10 light:text-slate-500">
+                            <th className="px-5 py-2.5 font-medium">Name</th>
+                            <th className="hidden px-3 py-2.5 font-medium sm:table-cell">
+                              Size
+                            </th>
+                            <th className="px-2 py-2.5 text-right font-medium sm:px-6 lg:px-8">Downloads</th>
+                            <th className="px-10 py-2.5 text-right font-medium sm:px-15 lg:px-17">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-white/5">
+                          {recentFiles
+                            .filter((r) => r.kind === "file")
+                            .map((r) => (
+                              <tr key={r.id} className="text-slate-300 transition hover:bg-white/[0.02] light:text-slate-700">
+                                <td className="max-w-[180px] truncate px-3 py-2.5 font-medium text-sky-300 light:text-sky-600">
+                                  {r.name || r.id}
+                                </td>
+                                <td className="hidden px-2 py-2.5 text-slate-400 sm:table-cell light:text-slate-500">
+                                  {formatFileSize(r.size)}
+                                </td>
+                                <td className="px-8 py-2.5 text-right text-slate-400 sm:px-15 lg:px-15 light:text-slate-500">
+                                  {typeof r.downloads === "number"
+                                    ? r.downloads
+                                    : "-"}
+                                </td>
+                                <td className="px-2 py-2.5 text-right sm:px-4 lg:px-6">
+                                  <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
+                                    <a
+                                      href={`/file?id=${r.id}`}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-300 backdrop-blur-sm transition hover:border-sky-400/40 hover:bg-white/[0.08] hover:text-white sm:px-3 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"
+                                    >
+                                      View
+                                    </a>
+                                    <button
+                                      type="button"
+                                      onClick={() =>
+                                        setRecentFiles((prev) =>
+                                          prev.filter((x) => x.id !== r.id),
+                                        )
+                                      }
+                                      className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-400 backdrop-blur-sm transition hover:border-red-500/40 hover:bg-red-500/10 hover:text-red-300 sm:px-3 light:border-slate-900/10 light:text-slate-500"
+                                    >
+                                      Remove
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                        </tbody>
+                      </table>
+                    </div>
 
-                  <div className="mt-4 flex items-center justify-between">
-                    <p className="text-xs text-slate-500 light:text-slate-500">
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setRecentFiles([])}
-                      className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
-                    >
-                      Clear all
-                    </button>
+                    <div className="mt-4 flex items-center justify-between">
+                      <p className="text-xs text-slate-400 light:text-slate-500"></p>
+                      <button
+                        type="button"
+                        onClick={() => setRecentFiles([])}
+                        className="rounded-lg border border-red-500/30 bg-red-500/[0.06] px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/15"
+                      >
+                        Clear all
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1329,9 +1313,10 @@ export function SharedViewer({ mode }: SharedViewerProps) {
 function ViewerLoading() {
   return (
     <Container className="py-12 sm:py-16">
-      <div className="flex min-h-[300px] items-center justify-center rounded-3xl border border-white/10 bg-white/[0.03] light:border-slate-900/10 light:bg-white">
+      <div className="apple-glass relative overflow-hidden flex min-h-[300px] items-center justify-center rounded-3xl p-8 backdrop-blur-xl">
+        <div className="apple-specular opacity-40" />
         <div className="flex items-center gap-3 text-slate-400 light:text-slate-600">
-          <Loader2 className="h-5 w-5 animate-spin" />
+          <Loader2 className="h-5 w-5 animate-spin text-sky-400" />
           Loading...
         </div>
       </div>

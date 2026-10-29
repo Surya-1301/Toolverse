@@ -100,7 +100,7 @@ export default function OgImageGeneratorPage() {
   );
   const [subtitle, setSubtitle] = useState("Free online tools for developers & creators");
   const [siteName, setSiteName] = useState("Toolverse");
-  const [bgStart, setBgStart] = useState("#7c3aed");
+  const [bgStart, setBgStart] = useState("#0ea5e9");
   const [bgEnd, setBgEnd] = useState("#0f172a");
   const [textColor, setTextColor] = useState("#ffffff");
   const [logo, setLogo] = useState<HTMLImageElement | null>(null);
@@ -285,7 +285,7 @@ export default function OgImageGeneratorPage() {
                 onChange={(event) => setTitle(event.target.value)}
                 rows={2}
                 placeholder="Your headline here"
-                className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full resize-none rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -297,7 +297,7 @@ export default function OgImageGeneratorPage() {
                 value={subtitle}
                 onChange={(event) => setSubtitle(event.target.value)}
                 placeholder="Short description or tagline"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -309,7 +309,7 @@ export default function OgImageGeneratorPage() {
                 value={siteName}
                 onChange={(event) => setSiteName(event.target.value)}
                 placeholder="YourSite"
-                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
             </div>
 
@@ -375,7 +375,7 @@ export default function OgImageGeneratorPage() {
             <div className="flex flex-wrap gap-3">
               <button
                 onClick={render}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 sm:px-4 sm:text-sm"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-sky-500 sm:px-4 sm:text-sm"
               >
                 {isRendering ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

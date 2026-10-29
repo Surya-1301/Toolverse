@@ -39,13 +39,14 @@ const [isToolsOpen, setIsToolsOpen] =
         top-0
         z-50
         border-b
-        border-white/10
-        bg-slate-950/75
+        border-white/[0.05]
+        bg-[#070a14]/80
         backdrop-blur-xl
-        light:border-slate-900/10
-        light:bg-white/80
+        light:border-slate-900/[0.05]
+        light:bg-[#f1f5f9]/80
       "
     >
+      <div className="apple-specular opacity-40" />
       <Container
         className="
           flex
@@ -70,7 +71,7 @@ const [isToolsOpen, setIsToolsOpen] =
             text-white
             focus:outline-none
             focus-visible:ring-2
-            focus-visible:ring-violet-400/50
+            focus-visible:ring-sky-400/50
             focus-visible:ring-offset-2
             focus-visible:ring-offset-slate-950
             light:text-slate-900
@@ -132,15 +133,16 @@ const [isToolsOpen, setIsToolsOpen] =
               key={link.href}
               href={link.href}
               className="
-                rounded-lg
+                rounded-full
                 px-3.5
-                py-2
-                transition
-                hover:bg-white/10
+                py-1.5
+                transition-all
+                duration-150
+                hover:bg-white/[0.08]
                 hover:text-white
                 focus:outline-none
                 focus-visible:ring-2
-                focus-visible:ring-violet-400/50
+                focus-visible:ring-sky-400/50
                 focus-visible:ring-offset-1
                 focus-visible:ring-offset-slate-950
                 light:hover:bg-slate-900/5
@@ -158,18 +160,25 @@ const [isToolsOpen, setIsToolsOpen] =
               className="
                 flex
                 items-center
-                gap-1
-                rounded-lg
+                gap-1.5
+                rounded-full
+                border
+                border-white/[0.08]
+                bg-white/[0.03]
                 px-3.5
-                py-2
-                transition
-                hover:bg-white/10
+                py-1.5
+                transition-all
+                duration-150
+                hover:bg-white/[0.08]
+                hover:border-white/[0.15]
                 hover:text-white
                 focus:outline-none
                 focus-visible:ring-2
-                focus-visible:ring-violet-400/50
+                focus-visible:ring-sky-400/50
                 focus-visible:ring-offset-1
                 focus-visible:ring-offset-slate-950
+                light:border-slate-900/10
+                light:bg-white/60
                 light:hover:bg-slate-900/5
                 light:hover:text-slate-900
                 light:focus-visible:ring-offset-white
@@ -179,7 +188,7 @@ const [isToolsOpen, setIsToolsOpen] =
             >
               Tools
               <ChevronDown
-                className={`h-4 w-4 transition-transform ${
+                className={`h-3.5 w-3.5 transition-transform ${
                   isToolsOpen ? "rotate-180" : ""
                 }`}
               />
@@ -192,18 +201,19 @@ const [isToolsOpen, setIsToolsOpen] =
                   top-full
                   z-50
                   mt-2
-                  w-48
-                  rounded-xl
+                  w-52
+                  rounded-2xl
                   border
-                  border-white/10
-                  bg-slate-900/95
+                  border-white/[0.12]
+                  bg-[#0c1222]/90
                   p-2
                   text-sm
                   text-slate-200
+                  backdrop-blur-2xl
                   shadow-2xl
-                  shadow-black/20
+                  shadow-black/50
                   light:border-slate-900/10
-                  light:bg-white
+                  light:bg-white/95
                   light:text-slate-700
                   light:shadow-slate-900/10
                 "
@@ -224,7 +234,7 @@ const [isToolsOpen, setIsToolsOpen] =
                       hover:text-white
                       focus:outline-none
                       focus-visible:ring-2
-                      focus-visible:ring-violet-400/50
+                      focus-visible:ring-sky-400/50
                       light:text-slate-700
                       light:hover:bg-slate-900/5
                       light:hover:text-slate-900
@@ -267,7 +277,7 @@ const [isToolsOpen, setIsToolsOpen] =
               hover:text-white
               focus:outline-none
               focus-visible:ring-2
-              focus-visible:ring-violet-400/50
+              focus-visible:ring-sky-400/50
               light:border-slate-900/10
               light:bg-slate-900/[0.04]
               light:text-slate-700
@@ -322,7 +332,7 @@ const [isToolsOpen, setIsToolsOpen] =
               shadow-2xl
               shadow-black/20
               light:border-slate-900/10
-              light:bg-white
+              light:bg-[#f1f5f9]
               light:text-slate-700
               light:shadow-slate-900/10
             "
@@ -345,7 +355,7 @@ const [isToolsOpen, setIsToolsOpen] =
                   hover:text-white
                   focus:outline-none
                   focus-visible:ring-2
-                  focus-visible:ring-violet-400/50
+                  focus-visible:ring-sky-400/50
                   light:text-slate-700
                   light:hover:bg-slate-900/5
                   light:hover:text-slate-900
@@ -372,7 +382,7 @@ const [isToolsOpen, setIsToolsOpen] =
                 hover:text-white
                 focus:outline-none
                 focus-visible:ring-2
-                focus-visible:ring-violet-400/50
+                focus-visible:ring-sky-400/50
                 light:text-slate-700
                 light:hover:bg-slate-900/5
                 light:hover:text-slate-900
@@ -407,7 +417,7 @@ const [isToolsOpen, setIsToolsOpen] =
                       hover:text-white
                       focus:outline-none
                       focus-visible:ring-2
-                      focus-visible:ring-violet-400/50
+                      focus-visible:ring-sky-400/50
                       light:text-slate-700
                       light:hover:bg-slate-900/5
                       light:hover:text-slate-900

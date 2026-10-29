@@ -462,7 +462,7 @@ export default function AudioConverterPage() {
               e.preventDefault();
               handleFile(e.dataTransfer.files?.[0]);
             }}
-            className="cursor-pointer rounded-2xl border-2 border-dashed border-white/15 bg-slate-950/50 p-10 text-center transition hover:border-violet-400/40 hover:bg-slate-950 light:border-slate-900/15 light:bg-slate-100 light:hover:bg-slate-100"
+            className="cursor-pointer rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-10 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
           >
             <input
               ref={fileInputRef}
@@ -472,7 +472,7 @@ export default function AudioConverterPage() {
               onChange={(e) => handleFile(e.target.files?.[0])}
             />
             {loading ? (
-              <Loader2 className="mx-auto h-10 w-10 animate-spin text-violet-400" />
+              <Loader2 className="mx-auto h-10 w-10 animate-spin text-sky-400" />
             ) : (
               <Upload className="mx-auto h-10 w-10 text-slate-500 light:text-slate-500" />
             )}
@@ -496,7 +496,7 @@ export default function AudioConverterPage() {
           <div className="mt-2 space-y-5">
             {/* File card */}
             <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/20">
                 <Music className="h-6 w-6" />
               </div>
               <div className="min-w-0 flex-1">
@@ -524,8 +524,8 @@ export default function AudioConverterPage() {
                     onClick={() => onFormatChange(fmt)}
                     className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition ${
                       outputFormat === fmt
-                        ? "border-violet-400/50 bg-violet-600/15 text-white"
-                        : "border-white/10 text-slate-400 hover:border-violet-400/30 hover:text-white"
+                        ? "border-sky-400/50 bg-sky-500/15 text-white"
+                        : "border-white/10 text-slate-400 hover:border-sky-400/30 hover:text-white"
                     }`}
                   >
                     <FileAudio className="h-4 w-4" />
@@ -552,7 +552,7 @@ export default function AudioConverterPage() {
                 step={outputFormat === "wav" ? 8 : 16}
                 value={kbps}
                 onChange={(e) => setKbps(Number(e.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-sky-500"
               />
               {outputFormat !== "wav" && (
                 <div className="mt-1 flex justify-between text-[10px] text-slate-600 light:text-slate-500">
@@ -567,7 +567,7 @@ export default function AudioConverterPage() {
             <button
               onClick={convert}
               disabled={converting}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-50"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-6 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {converting ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

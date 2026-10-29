@@ -206,7 +206,7 @@ export default function RandomStringGeneratorPage() {
                 className={[
                   "rounded-xl border px-4 py-2.5 font-mono text-sm font-semibold transition",
                   option.value
-                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    ? "border-sky-500 bg-sky-500/20 text-white"
                     : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
@@ -234,7 +234,7 @@ export default function RandomStringGeneratorPage() {
               step="1"
               value={length}
               onChange={(event) => setLength(Number(event.target.value))}
-              className="w-full accent-violet-500"
+              className="w-full accent-sky-500"
             />
           </div>
 
@@ -249,7 +249,7 @@ export default function RandomStringGeneratorPage() {
               step="1"
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
-              className="w-full accent-violet-500"
+              className="w-full accent-sky-500"
             />
           </div>
         </div>
@@ -273,7 +273,7 @@ export default function RandomStringGeneratorPage() {
                 className={[
                   "rounded-xl border px-4 py-2 text-sm font-semibold transition",
                   separator === option.key
-                    ? "border-violet-500 bg-violet-600/20 text-white"
+                    ? "border-sky-500 bg-sky-500/20 text-white"
                     : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
@@ -287,7 +287,7 @@ export default function RandomStringGeneratorPage() {
                 onChange={(event) => setCustomSeparator(event.target.value)}
                 maxLength={8}
                 placeholder="-"
-                className="w-20 rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-center text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                className="w-20 rounded-xl border border-white/10 bg-slate-950 px-3 py-2 text-center text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
               />
             ) : null}
           </div>
@@ -298,7 +298,7 @@ export default function RandomStringGeneratorPage() {
           <button
             onClick={regenerate}
             disabled={!charset.length}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             <RefreshCw className="h-4 w-4" />
             Generate
@@ -353,7 +353,7 @@ export default function RandomStringGeneratorPage() {
             </div>
           </div>
         ) : (
-          <div className="mt-6 flex min-h-[72px] items-center justify-center rounded-xl border border-dashed border-white/10 light:border-slate-900/10">
+          <div className="mt-6 flex min-h-[72px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.015] light:border-slate-900/15 light:bg-white">
             <p className="flex items-center gap-2 px-6 text-center text-sm leading-6 text-slate-500 light:text-slate-500">
               <ArrowRight className="h-4 w-4" />
               Set the options and generate a string to see it here.

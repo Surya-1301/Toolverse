@@ -140,7 +140,7 @@ export default function ReportAbusePage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100">
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/20">
                 <Flag className="h-5 w-5" />
               </div>
 
@@ -155,7 +155,7 @@ export default function ReportAbusePage() {
             </div>
 
             <div className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100">
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/20">
                 <ShieldCheck className="h-5 w-5" />
               </div>
 
@@ -195,7 +195,7 @@ export default function ReportAbusePage() {
                   key={item.title}
                   className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100"
                 >
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-violet-700 light:ring-slate-900/10">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-sky-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-sky-700 light:ring-slate-900/10">
                     <Icon className="h-5 w-5" />
                   </div>
 
@@ -218,7 +218,7 @@ export default function ReportAbusePage() {
 
         <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
           <div className="mb-5 flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-violet-700 light:ring-slate-900/10">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-sky-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-sky-700 light:ring-slate-900/10">
               <FileWarning className="h-5 w-5" />
             </div>
 
@@ -236,7 +236,7 @@ export default function ReportAbusePage() {
                   key={item.title}
                   className="rounded-2xl border border-white/10 bg-slate-950/50 p-4 light:border-slate-900/10 light:bg-slate-100"
                 >
-                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-violet-700 light:ring-slate-900/10">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl bg-white/[0.04] text-sky-300 ring-1 ring-white/10 light:bg-slate-900/5 light:text-sky-700 light:ring-slate-900/10">
                     <Icon className="h-5 w-5" />
                   </div>
 

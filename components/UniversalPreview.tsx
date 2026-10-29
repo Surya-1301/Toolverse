@@ -163,7 +163,7 @@ export function UniversalPreview({
 
   return (
     <div
-      className={`relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white ${className}`}
+      className={`relative flex w-full flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.015] light:border-slate-900/10 light:bg-white ${className}`}
       style={{ minHeight: heightStyle }}
     >
       {kind === "pdf" && (
@@ -178,15 +178,24 @@ export function UniversalPreview({
       )}
 
       {kind === "image" && (
-        <UniversalImagePreview
-          url={activeUrl}
-          name={resolvedName}
-          fileSize={file?.size}
-          heightStyle={heightStyle}
-          showControls={showControls}
-          onDownload={onDownload}
-          alt={alt}
-        />
+        activeUrl ? (
+          <UniversalImagePreview
+            url={activeUrl}
+            name={resolvedName}
+            fileSize={file?.size}
+            heightStyle={heightStyle}
+            showControls={showControls}
+            onDownload={onDownload}
+            alt={alt}
+          />
+        ) : (
+          <div
+            className="flex w-full flex-1 items-center justify-center p-6 text-xs text-slate-500"
+            style={{ minHeight: heightStyle }}
+          >
+            <span>Loading preview...</span>
+          </div>
+        )
       )}
 
       {kind === "video" && (
@@ -194,23 +203,36 @@ export function UniversalPreview({
           className="flex w-full items-center justify-center bg-black p-2"
           style={{ minHeight: heightStyle }}
         >
-          <video
-            src={activeUrl}
-            controls
-            playsInline
-            className="max-h-[360px] max-w-full rounded-xl"
-          />
+          {activeUrl ? (
+            <video
+              src={activeUrl}
+              controls
+              playsInline
+              className="max-h-[360px] max-w-full rounded-xl"
+            />
+          ) : (
+            <div className="text-xs text-slate-500">Loading video...</div>
+          )}
         </div>
       )}
 
       {kind === "audio" && (
-        <UniversalAudioPreview
-          url={activeUrl}
-          name={resolvedName}
-          fileSize={file?.size}
-          heightStyle={heightStyle}
-          onDownload={onDownload}
-        />
+        activeUrl ? (
+          <UniversalAudioPreview
+            url={activeUrl}
+            name={resolvedName}
+            fileSize={file?.size}
+            heightStyle={heightStyle}
+            onDownload={onDownload}
+          />
+        ) : (
+          <div
+            className="flex w-full flex-1 items-center justify-center p-6 text-xs text-slate-500"
+            style={{ minHeight: heightStyle }}
+          >
+            <span>Loading audio...</span>
+          </div>
+        )
       )}
 
       {kind === "text" && (
@@ -409,7 +431,7 @@ function UniversalPdfCanvasPreview({
         className="flex w-full flex-col items-center justify-center gap-3 p-6 text-center"
         style={{ minHeight: heightStyle }}
       >
-        <Loader2 className="h-7 w-7 animate-spin text-violet-400" />
+        <Loader2 className="h-7 w-7 animate-spin text-sky-400" />
         <p className="text-xs font-medium text-slate-300 light:text-slate-600">
           Rendering PDF preview…
         </p>
@@ -551,7 +573,7 @@ function UniversalImagePreview({
 
   return (
     <div
-      className="flex w-full flex-1 flex-col overflow-hidden bg-slate-950 light:bg-slate-100"
+      className="flex w-full flex-1 flex-col overflow-hidden bg-white/[0.015] light:bg-slate-50"
       style={{ minHeight: heightStyle }}
     >
       {showControls && (
@@ -613,20 +635,24 @@ function UniversalImagePreview({
       )}
 
       <div className="flex flex-1 items-center justify-center overflow-auto p-3">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={url}
-          alt={alt || name}
-          onLoad={(e) => {
-            const img = e.currentTarget;
-            setDimensions({ w: img.naturalWidth, h: img.naturalHeight });
-          }}
-          style={{
-            transform: `scale(${zoom})`,
-            transition: "transform 0.15s ease-out",
-          }}
-          className="max-h-[380px] max-w-full rounded-lg object-contain shadow-md"
-        />
+        {url ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={url}
+            alt={alt || name}
+            onLoad={(e) => {
+              const img = e.currentTarget;
+              setDimensions({ w: img.naturalWidth, h: img.naturalHeight });
+            }}
+            style={{
+              transform: `scale(${zoom})`,
+              transition: "transform 0.15s ease-out",
+            }}
+            className="max-h-[380px] max-w-full rounded-lg object-contain shadow-md"
+          />
+        ) : (
+          <div className="text-xs text-slate-500">Loading preview...</div>
+        )}
       </div>
     </div>
   );
@@ -650,10 +676,10 @@ function UniversalAudioPreview({
 }) {
   return (
     <div
-      className="flex w-full flex-1 flex-col items-center justify-center gap-4 bg-slate-950 p-6 text-center light:bg-slate-50"
+      className="flex w-full flex-1 flex-col items-center justify-center gap-4 bg-white/[0.015] p-6 text-center light:bg-slate-50"
       style={{ minHeight: heightStyle }}
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-400">
+      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-500/20 text-sky-400">
         <Music className="h-8 w-8" />
       </div>
       <div>
@@ -667,13 +693,15 @@ function UniversalAudioPreview({
         )}
       </div>
 
-      <audio src={url} controls className="w-full max-w-sm rounded-xl" />
+      {url ? (
+        <audio src={url} controls className="w-full max-w-sm rounded-xl" />
+      ) : null}
 
       {onDownload && (
         <button
           type="button"
           onClick={onDownload}
-          className="inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-violet-500"
+          className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-500"
         >
           <Download className="h-4 w-4" />
           <span>Download Audio</span>
@@ -732,7 +760,7 @@ function UniversalTextPreview({
 
   return (
     <div
-      className="flex w-full flex-1 flex-col overflow-hidden bg-slate-950 light:bg-slate-900"
+      className="flex w-full flex-1 flex-col overflow-hidden bg-white/[0.015] light:bg-slate-50"
       style={{ minHeight: heightStyle }}
     >
       <div className="flex shrink-0 items-center justify-between border-b border-white/10 bg-slate-900 px-3 py-2 text-xs text-slate-300">
@@ -741,7 +769,7 @@ function UniversalTextPreview({
           <button
             type="button"
             onClick={onDownload}
-            className="inline-flex h-6 items-center gap-1 rounded bg-violet-600 px-2 text-[10px] font-semibold text-white hover:bg-violet-500"
+            className="inline-flex h-6 items-center gap-1 rounded bg-sky-500 px-2 text-[10px] font-semibold text-white hover:bg-sky-500"
           >
             <Download className="h-3 w-3" />
             <span>Save</span>
@@ -782,10 +810,10 @@ function UniversalFallbackPreview({
 }) {
   return (
     <div
-      className="flex w-full flex-1 flex-col items-center justify-center gap-3 bg-slate-950 p-6 text-center light:bg-slate-50"
+      className="flex w-full flex-1 flex-col items-center justify-center gap-3 bg-white/[0.015] p-6 text-center light:bg-slate-50"
       style={{ minHeight: heightStyle }}
     >
-      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-violet-600/20 text-violet-400 light:bg-violet-100 light:text-violet-600">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-sky-500/20 text-sky-400 light:bg-sky-100 light:text-sky-500">
         <File className="h-7 w-7" />
       </div>
       <div>
@@ -801,7 +829,7 @@ function UniversalFallbackPreview({
         <button
           type="button"
           onClick={onDownload}
-          className="mt-2 inline-flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2 text-xs font-semibold text-white transition hover:bg-violet-500"
+          className="mt-2 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-500"
         >
           <Download className="h-4 w-4" />
           <span>Download File</span>

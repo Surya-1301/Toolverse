@@ -35,7 +35,7 @@ const blogJsonLd = {
 
 const categoryColors: Record<string, string> = {
   Guides: "bg-cyan-500/15 text-cyan-300 ring-cyan-400/20",
-  "Developer Tips": "bg-violet-500/15 text-violet-300 ring-violet-400/20",
+  "Developer Tips": "bg-sky-500/15 text-sky-300 ring-sky-400/20",
   Comparisons: "bg-fuchsia-500/15 text-fuchsia-300 ring-fuchsia-400/20",
   Security: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/20",
 };
@@ -57,7 +57,7 @@ export default function BlogIndexPage() {
       </div>
 
       <div className="mx-auto max-w-3xl text-center">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-violet-300">
+        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-sky-400">
           Toolverse Blog
         </p>
         <h1 className="mt-4 text-4xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
@@ -72,15 +72,16 @@ export default function BlogIndexPage() {
       {featured ? (
         <Link
           href={`/blog/${featured.slug}`}
-          className="group mt-12 block rounded-3xl border border-white/10 bg-white/[0.03] p-8 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+          className="apple-glass group relative mt-12 block overflow-hidden rounded-3xl p-8 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15"
         >
+          <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-500/15 px-3 py-1 font-semibold text-violet-300 ring-1 ring-violet-400/20">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-sky-500/15 px-3 py-1 font-semibold text-sky-300 border border-sky-400/20">
               <BookOpen className="h-3.5 w-3.5" />
               Featured
             </span>
             <span
-              className={`inline-flex items-center rounded-full px-3 py-1 font-semibold ring-1 ${
+              className={`inline-flex items-center rounded-full px-3 py-1 font-semibold border ${
                 categoryColors[featured.category] || categoryColors.Guides
               }`}
             >
@@ -88,7 +89,7 @@ export default function BlogIndexPage() {
             </span>
           </div>
 
-          <h2 className="mt-4 text-2xl font-bold tracking-tight text-white transition group-hover:text-violet-200 sm:text-3xl light:text-slate-900">
+          <h2 className="mt-4 text-2xl font-bold tracking-tight text-white transition group-hover:text-sky-300 sm:text-3xl light:text-slate-900">
             {featured.title}
           </h2>
           <p className="mt-3 text-base leading-7 text-slate-400 light:text-slate-600">
@@ -105,7 +106,7 @@ export default function BlogIndexPage() {
               })}
             </span>
             <span>{featured.readTime}</span>
-            <span className="inline-flex items-center gap-1 font-semibold text-violet-300">
+            <span className="inline-flex items-center gap-1 font-semibold text-sky-400 group-hover:text-sky-300">
               Read article
               <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
             </span>
@@ -118,11 +119,12 @@ export default function BlogIndexPage() {
           <Link
             key={post.slug}
             href={`/blog/${post.slug}`}
-            className="group flex flex-col rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+            className="apple-glass group relative flex flex-col overflow-hidden rounded-3xl p-6 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15"
           >
+            <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
             <div className="flex flex-wrap items-center gap-2">
               <span
-                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold ring-1 ${
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold border ${
                   categoryColors[post.category] || categoryColors.Guides
                 }`}
               >
@@ -130,7 +132,7 @@ export default function BlogIndexPage() {
               </span>
             </div>
 
-            <h2 className="mt-3 text-lg font-bold leading-6 text-white transition group-hover:text-violet-200 light:text-slate-900">
+            <h2 className="mt-3 text-lg font-bold leading-6 text-white transition group-hover:text-sky-300 light:text-slate-900">
               {post.title}
             </h2>
             <p className="mt-2 line-clamp-3 flex-1 text-sm leading-6 text-slate-400 light:text-slate-600">

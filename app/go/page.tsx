@@ -129,7 +129,7 @@ function GoContent() {
 
             <a
               href={targetUrl}
-              className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+              className="mt-6 inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
             >
               Continue
               <ExternalLink className="h-4 w-4" />

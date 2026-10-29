@@ -96,7 +96,7 @@ export default function FaviconGeneratorPage() {
   const [source, setSource] = useState<HTMLImageElement | null>(null);
   const [imageName, setImageName] = useState("");
   const [backgroundEnabled, setBackgroundEnabled] = useState(false);
-  const [background, setBackground] = useState("#7c3aed");
+  const [background, setBackground] = useState("#0ea5e9");
   const [padding, setPadding] = useState(10);
   const [generated, setGenerated] = useState<{ size: number; dataUrl: string }[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -198,7 +198,7 @@ export default function FaviconGeneratorPage() {
     const manifest = {
       name: imageName,
       icons,
-      theme_color: backgroundEnabled ? background : "#7c3aed",
+      theme_color: backgroundEnabled ? background : "#0ea5e9",
       background_color: backgroundEnabled ? background : "#0f172a",
       display: "standalone",
     };
@@ -299,7 +299,7 @@ export default function FaviconGeneratorPage() {
                 type="checkbox"
                 checked={backgroundEnabled}
                 onChange={(event) => setBackgroundEnabled(event.target.checked)}
-                className="h-4 w-4 accent-violet-600"
+                className="h-4 w-4 accent-sky-500"
               />
               Fill background color
             </label>
@@ -337,7 +337,7 @@ export default function FaviconGeneratorPage() {
                 step="1"
                 value={padding}
                 onChange={(event) => setPadding(Number(event.target.value))}
-                className="mt-4 w-full accent-violet-500"
+                className="mt-4 w-full accent-sky-500"
               />
             </div>
 
@@ -345,7 +345,7 @@ export default function FaviconGeneratorPage() {
               <button
                 onClick={generate}
                 disabled={!source || isGenerating}
-                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+                className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {isGenerating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -406,7 +406,7 @@ export default function FaviconGeneratorPage() {
                             downloadDataUrl(dataUrl, `${imageName}-${size}.png`)
                           }
                           title={`Download ${size}×${size}`}
-                          className="group flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] p-2 transition hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
+                          className="group flex flex-col items-center gap-1.5 rounded-xl border border-white/10 bg-white/[0.02] p-2 transition hover:border-sky-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
                         >
                           <span
                             className="flex w-full items-center justify-center overflow-hidden rounded-lg"
@@ -463,7 +463,7 @@ export default function FaviconGeneratorPage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+                  <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
                     <p className="px-6 text-sm leading-6 text-slate-500 light:text-slate-500">
                       Click &quot;Generate favicons&quot; to create every size.
                     </p>
@@ -471,7 +471,7 @@ export default function FaviconGeneratorPage() {
                 )}
               </>
             ) : (
-              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/10 text-center light:border-slate-900/10">
+              <div className="flex min-h-[220px] items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.015] text-center light:border-slate-900/15 light:bg-white">
                 <div className="flex flex-col items-center gap-3 px-8">
                   <Sparkles className="h-8 w-8 text-slate-600 light:text-slate-500" />
                   <p className="text-sm leading-6 text-slate-500 light:text-slate-500">

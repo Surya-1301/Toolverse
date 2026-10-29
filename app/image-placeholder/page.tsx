@@ -23,7 +23,7 @@ import { copyTextNative } from "@/lib/capacitor";
    ========================================================================== */
 
 const PRESET_BG = [
-  { bg: "#7c3aed", label: "Violet" },
+  { bg: "#0ea5e9", label: "Sky" },
   { bg: "#0ea5e9", label: "Sky" },
   { bg: "#10b981", label: "Emerald" },
   { bg: "#f59e0b", label: "Amber" },
@@ -127,7 +127,7 @@ function BackToToolsLink() {
 export default function ImagePlaceholderPage() {
   const [width, setWidth] = useState(800);
   const [height, setHeight] = useState(600);
-  const [bg, setBg] = useState("#7c3aed");
+  const [bg, setBg] = useState("#0ea5e9");
   const [fg, setFg] = useState("#ffffff");
   const [text, setText] = useState("");
   const [showText, setShowText] = useState(true);
@@ -198,7 +198,7 @@ export default function ImagePlaceholderPage() {
                   max="8192"
                   value={width}
                   onChange={(event) => setWidth(Number(event.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
                 <input
                   type="number"
@@ -206,7 +206,7 @@ export default function ImagePlaceholderPage() {
                   max="8192"
                   value={height}
                   onChange={(event) => setHeight(Number(event.target.value))}
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
                 />
               </div>
               <div className="mt-2 flex flex-wrap gap-2">
@@ -285,14 +285,14 @@ export default function ImagePlaceholderPage() {
                 value={text}
                 onChange={(event) => setText(event.target.value)}
                 placeholder="Optional label"
-                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-slate-950 px-3 py-2.5 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
               />
               <label className="mt-2 flex items-center gap-2.5 text-sm text-slate-400 light:text-slate-600">
                 <input
                   type="checkbox"
                   checked={showText}
                   onChange={(event) => setShowText(event.target.checked)}
-                  className="h-4 w-4 accent-violet-600"
+                  className="h-4 w-4 accent-sky-500"
                 />
                 Show label (falls back to &quot;W × H&quot;)
               </label>

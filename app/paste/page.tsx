@@ -357,7 +357,7 @@ export default function PastePage() {
           </label>
 
           <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-slate-950 focus-within:border-violet-500 light:border-slate-900/10 light:bg-white">
+            <div className="flex min-w-0 flex-1 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] focus-within:border-sky-500 light:border-slate-900/10 light:bg-white">
               <span className="flex items-center border-r border-white/10 bg-white/[0.03] px-4 py-3 text-base font-bold text-slate-200 sm:text-lg light:border-slate-900/10 light:bg-white light:text-slate-800">
                 /paste/
               </span>
@@ -398,7 +398,7 @@ export default function PastePage() {
             onChange={(event) => setContent(event.target.value)}
             placeholder="Paste your text or code here..."
             spellCheck={false}
-            className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+            className="min-h-[420px] w-full resize-y rounded-2xl border border-white/10 bg-white/[0.02] p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
         </div>
 
@@ -411,7 +411,7 @@ export default function PastePage() {
             <select
               value={language}
               onChange={(event) => setLanguage(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {languageOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -429,7 +429,7 @@ export default function PastePage() {
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -459,7 +459,7 @@ export default function PastePage() {
                 <input
                   value={pasteUrl}
                   readOnly
-                  className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
+                  className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                 />
               </div>
               <div>
@@ -484,7 +484,7 @@ export default function PastePage() {
               <button
                 type="button"
                 onClick={() => copyValue("page")}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 light:border-slate-900/10 light:text-slate-900"
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 light:border-slate-900/10 light:text-slate-900"
               >
                 {copied === "page" ? (
                   <Check className="h-4 w-4" />
@@ -502,7 +502,7 @@ export default function PastePage() {
             type="button"
             onClick={createPaste}
             disabled={isCreating}
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {isCreating ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -527,7 +527,7 @@ export default function PastePage() {
         <div className="mx-auto mt-5 max-w-6xl">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <div className="mb-4 flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-violet-400" />
+              <BarChart3 className="h-5 w-5 text-sky-400" />
               <h3 className="text-sm font-semibold text-white light:text-slate-900">
                 Recent Pastes
               </h3>
@@ -545,7 +545,7 @@ export default function PastePage() {
                 <tbody className="divide-y divide-white/5">
                   {recentPastes.map((paste, i) => (
                     <tr key={i} className="text-slate-300 light:text-slate-700">
-                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300 light:text-violet-700">
+                      <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-sky-300 light:text-sky-700">
                         {paste.id}
                       </td>
                       <td className="hidden px-3 py-2 text-center sm:table-cell">

@@ -135,7 +135,7 @@ export default function ContactPage() {
       <div className="rounded-3xl border border-white/10 bg-gradient-to-b from-white/[0.06] to-white/[0.025] p-6 shadow-2xl shadow-black/10 sm:p-8 light:border-slate-900/10 light:from-slate-100 light:to-slate-100 light:shadow-slate-900/10">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <p className="mb-4 inline-flex rounded-full border border-violet-400/20 bg-violet-500/10 px-3 py-1 text-sm font-medium text-violet-200">
+            <p className="mb-4 inline-flex rounded-full border border-sky-400/20 bg-sky-500/10 px-3 py-1 text-sm font-medium text-sky-200">
               Support
             </p>
 
@@ -164,7 +164,7 @@ export default function ContactPage() {
                 key={item.title}
                 className="rounded-2xl border border-white/10 bg-slate-950/50 p-5 light:border-slate-900/10 light:bg-slate-100"
               >
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-violet-600/15 text-violet-300 ring-1 ring-violet-400/20">
+                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500/15 text-sky-300 ring-1 ring-sky-400/20">
                   <Icon className="h-5 w-5" />
                 </div>
 
@@ -183,7 +183,7 @@ export default function ContactPage() {
 
       <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
         <div className="mb-5 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:text-violet-700">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-sky-300 ring-1 ring-white/10 light:text-sky-700">
             <Mail className="h-5 w-5" />
           </div>
 
@@ -217,7 +217,7 @@ export default function ContactPage() {
               key={item.title}
               className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 light:border-slate-900/10 light:bg-white"
             >
-              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:text-violet-700">
+              <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-white/[0.04] text-sky-300 ring-1 ring-white/10 light:text-sky-700">
                 <Icon className="h-5 w-5" />
               </div>
 
@@ -235,7 +235,7 @@ export default function ContactPage() {
 
       <section className="mt-8 rounded-3xl border border-white/10 bg-white/[0.03] p-6 sm:p-7 light:border-slate-900/10 light:bg-white">
         <div className="mb-6 flex items-center gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-violet-300 ring-1 ring-white/10 light:text-violet-700">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white/[0.04] text-sky-300 ring-1 ring-white/10 light:text-sky-700">
             <Mail className="h-5 w-5" />
           </div>
 
@@ -279,7 +279,7 @@ export default function ContactPage() {
                 onChange={(e) =>
                   setForm({ ...form, name: e.target.value })
                 }
-                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-sky-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
                 placeholder="Your name"
               />
             </div>
@@ -299,7 +299,7 @@ export default function ContactPage() {
                 onChange={(e) =>
                   setForm({ ...form, email: e.target.value })
                 }
-                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
+                className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-sky-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
                 placeholder="you@example.com"
               />
             </div>
@@ -319,7 +319,7 @@ export default function ContactPage() {
               onChange={(e) =>
                 setForm({ ...form, subject: e.target.value })
               }
-              className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-600 focus:border-sky-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
               placeholder="How can we help?"
             />
           </div>
@@ -339,14 +339,14 @@ export default function ContactPage() {
               onChange={(e) =>
                 setForm({ ...form, message: e.target.value })
               }
-              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 focus:border-violet-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm leading-6 text-white outline-none placeholder:text-slate-600 focus:border-sky-400/50 light:border-slate-900/10 light:bg-slate-100 light:text-slate-900 light:placeholder:text-slate-400"
               placeholder="Describe your question, feedback, or issue..."
             />
           </div>
 
           <button
             type="submit"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             <Mail className="h-4 w-4" />
             Send Message
@@ -354,10 +354,10 @@ export default function ContactPage() {
         </form>
       </section>
 
-      <div className="mt-8 rounded-3xl border border-violet-400/20 bg-violet-500/10 p-6 text-sm leading-6 text-violet-100">
+      <div className="mt-8 rounded-3xl border border-sky-400/20 bg-sky-500/10 p-6 text-sm leading-6 text-sky-100">
         <p className="font-semibold text-white light:text-slate-900">Need to report abuse?</p>
 
-        <p className="mt-2 text-violet-100/80">
+        <p className="mt-2 text-sky-100/80">
           If your message involves harmful content, phishing, malware,
           impersonation, copyright concerns, or private information exposed in
           a public link, use the abuse report flow.

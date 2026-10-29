@@ -72,10 +72,11 @@ function RelatedToolCard({
   return (
     <Link
       href={href}
-      className="group rounded-3xl border border-white/10 bg-white/[0.03] p-6 transition hover:-translate-y-1 hover:border-violet-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:bg-white light:hover:bg-slate-100"
+      className="apple-glass group relative overflow-hidden rounded-3xl p-6 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15"
     >
+      <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
       <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-violet-500/15 text-violet-200 ring-1 ring-violet-400/20">
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10 transition group-hover:scale-105 group-hover:text-sky-200 light:text-sky-600 light:border-sky-500/20">
           {icon}
         </div>
 
@@ -88,7 +89,7 @@ function RelatedToolCard({
             {description}
           </p>
 
-          <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-violet-300">
+          <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-sky-400 group-hover:text-sky-300">
             Open tool
             <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
           </div>

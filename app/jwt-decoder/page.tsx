@@ -204,7 +204,7 @@ export default function JwtDecoderPage() {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Paste JWT here..."
-          className="min-h-[180px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+          className="min-h-[180px] w-full rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
         />
 
         {error ? (
@@ -216,7 +216,7 @@ export default function JwtDecoderPage() {
         <div className="mt-5 grid grid-cols-2 gap-3">
           <button
             onClick={handleDecode}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
           >
             <KeyRound className="h-4 w-4" />
             Decode JWT

@@ -319,10 +319,10 @@ export default function CaseConverterPage() {
                 ${
                   mode === name
                     ? `
-                      bg-violet-600
+                      bg-sky-500
                       text-white
                       shadow-lg
-                      shadow-violet-600/20
+                      shadow-sky-500/20
                     `
                     : `
                       border
@@ -361,7 +361,7 @@ export default function CaseConverterPage() {
                 setInput(event.target.value)
               }
               placeholder="Type or paste text here..."
-              className="min-h-[320px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 text-base leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 sm:min-h-[360px] light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="min-h-[320px] w-full resize-y rounded-2xl border border-white/10 bg-slate-950 p-4 text-base leading-7 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 sm:min-h-[360px] light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
@@ -396,7 +396,7 @@ export default function CaseConverterPage() {
             type="button"
             onClick={convert}
             disabled={!input}
-            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200"
+            className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:bg-slate-700 disabled:text-slate-400 light:disabled:bg-slate-200"
           >
             <Sparkles className="h-4 w-4" />
             Convert text

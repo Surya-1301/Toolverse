@@ -233,7 +233,7 @@ export default function ImageUpscalerPage() {
                     className={[
                       "inline-flex min-w-16 items-center justify-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-semibold transition",
                       factor === option.factor
-                        ? "border-violet-500 bg-violet-600/20 text-white"
+                        ? "border-sky-500 bg-sky-500/20 text-white"
                         : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10",
                     ].join(" ")}
                   >
@@ -255,7 +255,7 @@ export default function ImageUpscalerPage() {
                 step="1"
                 value={sharpen}
                 onChange={(event) => setSharpen(Number(event.target.value))}
-                className="w-full accent-violet-500"
+                className="w-full accent-sky-500"
               />
             </div>
 
@@ -263,7 +263,7 @@ export default function ImageUpscalerPage() {
               <button
                 onClick={process}
                 disabled={!source || isProcessing}
-                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-violet-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
+                className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-sky-500 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40 sm:px-4 sm:text-sm"
               >
                 {isProcessing ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

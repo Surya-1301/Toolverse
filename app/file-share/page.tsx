@@ -349,7 +349,8 @@ export default function FileSharePage() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="apple-glass relative overflow-hidden rounded-3xl p-4 sm:p-6">
+          <div className="apple-specular opacity-50" />
           <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Upload image, PDF, or file
           </label>
@@ -367,9 +368,9 @@ export default function FileSharePage() {
                 openPicker();
               }
             }}
-            className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-slate-950 p-6 text-center transition hover:border-violet-500/60 hover:bg-white/[0.03] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
+            className="flex min-h-[240px] cursor-pointer flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center transition hover:border-sky-400/60 hover:bg-white/[0.04] light:border-slate-900/15 light:bg-white light:hover:bg-slate-50"
           >
-            <Upload className="mb-3 h-8 w-8 text-violet-300" />
+            <Upload className="mb-3 h-8 w-8 text-sky-400" />
 
             <span className="font-medium text-white light:text-slate-900">
               Click to choose image, PDF, or file
@@ -390,14 +391,14 @@ export default function FileSharePage() {
           </div>
 
           {file ? (
-            <div className="mt-4 rounded-2xl border border-white/10 bg-slate-950 p-4 light:border-slate-900/10 light:bg-white">
+            <div className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 light:border-slate-900/10 light:bg-white">
               <div className="flex items-start gap-3">
                 {uploadKind === "image" ? (
-                  <ImageIcon className="mt-0.5 h-5 w-5 text-violet-300" />
+                  <ImageIcon className="mt-0.5 h-5 w-5 text-sky-300" />
                 ) : uploadKind === "pdf" ? (
-                  <FileText className="mt-0.5 h-5 w-5 text-violet-300" />
+                  <FileText className="mt-0.5 h-5 w-5 text-sky-300" />
                 ) : (
-                  <FileUp className="mt-0.5 h-5 w-5 text-violet-300" />
+                  <FileUp className="mt-0.5 h-5 w-5 text-sky-300" />
                 )}
 
                 <div className="min-w-0">
@@ -425,7 +426,7 @@ export default function FileSharePage() {
             <select
               value={expiry}
               onChange={(event) => setExpiry(event.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-white outline-none transition focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
+              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900"
             >
               {expiryOptions.map((item) => (
                 <option key={item.value} value={item.value}>
@@ -446,7 +447,7 @@ export default function FileSharePage() {
               type="button"
               onClick={uploadSelectedFile}
               disabled={!file || isUploading}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isUploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -469,7 +470,8 @@ export default function FileSharePage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="apple-glass relative overflow-hidden rounded-3xl p-4 sm:p-6">
+          <div className="apple-specular opacity-50" />
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-semibold">
               {result ? "Share links ready" : "Upload output"}
@@ -477,17 +479,17 @@ export default function FileSharePage() {
 
             <div className="flex items-center gap-2">
               {isUploading ? (
-                <span className="hidden items-center gap-2 rounded-full bg-violet-500/10 px-2.5 py-1 text-xs text-violet-300 md:inline-flex">
+                <span className="hidden items-center gap-2 rounded-full bg-sky-500/15 px-2.5 py-1 text-xs text-sky-300 md:inline-flex border border-sky-400/20">
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                   {uploadStep || "Working…"}
                 </span>
               ) : null}
 
               <span
-                className={`rounded-full px-2.5 py-1 text-xs ${
+                className={`rounded-full px-2.5 py-1 text-xs font-medium border ${
                   result
-                    ? "bg-emerald-500/10 text-emerald-300"
-                    : "bg-slate-500/10 text-slate-400"
+                    ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
+                    : "bg-slate-500/10 text-slate-400 border-slate-500/20"
                 }`}
               >
                 {result ? "Encrypted" : "Waiting"}
@@ -505,7 +507,7 @@ export default function FileSharePage() {
                   <input
                     value={ownerUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
 
@@ -516,7 +518,7 @@ export default function FileSharePage() {
                   <input
                     value={userUrl}
                     readOnly
-                    className="w-full rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
+                    className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-slate-200 outline-none light:border-slate-900/10 light:bg-white light:text-slate-800"
                   />
                 </div>
               </div>
@@ -558,7 +560,7 @@ export default function FileSharePage() {
                 
             </div>
           ) : (
-            <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-950/60 p-6 text-center text-sm text-slate-500 light:border-slate-900/10 light:bg-slate-100 light:text-slate-500">
+            <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.015] p-6 text-center text-sm text-slate-500 light:border-slate-900/15 light:bg-white light:text-slate-500">
               Your encrypted share link appears here after upload.
             </div>
           )}
@@ -567,13 +569,13 @@ export default function FileSharePage() {
           {recentFiles.length > 0 ? (
             <div className="mt-6">
               <div className="mb-4 flex items-center gap-2">
-                <BarChart3 className="h-5 w-5 text-violet-400" />
+                <BarChart3 className="h-5 w-5 text-sky-400" />
                 <h3 className="text-sm font-semibold text-white light:text-slate-900">
                   Recent Uploads
                 </h3>
               </div>
 
-              <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-slate-950 light:border-slate-900/10 light:bg-white">
+              <div className="max-h-[300px] overflow-auto rounded-xl border border-white/10 bg-white/[0.02] light:border-slate-900/10 light:bg-white">
                 <table className="w-full text-left text-xs">
                   <thead>
                     <tr className="border-b border-white/10 text-slate-500 light:border-slate-900/10 light:text-slate-500">
@@ -587,7 +589,7 @@ export default function FileSharePage() {
                   <tbody className="divide-y divide-white/5">
                     {recentFiles.map((r) => (
                       <tr key={r.id} className="text-slate-300 light:text-slate-700">
-                        <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-violet-300 light:text-violet-700">
+                        <td className="whitespace-nowrap px-3 py-2 font-mono text-[11px] text-sky-300 light:text-sky-700">
                           {r.id}
                         </td>
                         <td className="hidden px-3 py-2 text-center text-slate-500 sm:table-cell light:text-slate-500">

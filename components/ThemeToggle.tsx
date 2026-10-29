@@ -50,22 +50,25 @@ export function ThemeToggle() {
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className="
         inline-flex
-        h-11
-        w-11
+        h-10
+        w-10
         shrink-0
         items-center
         justify-center
-        rounded-xl
+        rounded-full
         border
-        border-white/10
+        border-white/[0.10]
         bg-white/[0.03]
         text-slate-200
-        transition
-        hover:bg-white/10
+        transition-all
+        duration-150
+        hover:bg-white/[0.08]
+        hover:border-white/[0.18]
         hover:text-white
+        active:scale-95
         focus:outline-none
         focus-visible:ring-2
-        focus-visible:ring-violet-400/50
+        focus-visible:ring-sky-400/50
         light:border-slate-900/10
         light:bg-slate-900/[0.04]
         light:text-slate-700

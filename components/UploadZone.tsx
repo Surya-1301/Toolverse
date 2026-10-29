@@ -48,10 +48,10 @@ export default function UploadZone({
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
       className={[
-        "flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition",
+        "apple-glass flex cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-6 py-10 text-center transition-all duration-200",
         isDragging
-          ? "border-violet-400 bg-violet-500/10"
-          : "border-white/15 light:border-slate-900/15 bg-slate-950 light:bg-white hover:border-violet-400/50 hover:bg-white/[0.03]",
+          ? "border-sky-400 bg-sky-500/15 scale-[1.01]"
+          : "border-white/15 light:border-slate-900/15 hover:border-sky-400/50 hover:bg-white/[0.06]",
         fileName ? "border-solid" : "",
       ].join(" ")}
     >
@@ -68,7 +68,7 @@ export default function UploadZone({
 
       {fileName ? (
         <>
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 text-violet-200 ring-1 ring-violet-400/20">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10">
             <FileImage className="h-6 w-6" />
           </div>
           <p className="mt-3 text-sm font-semibold text-white light:text-slate-900">{fileName}</p>
@@ -78,7 +78,7 @@ export default function UploadZone({
         </>
       ) : (
         <>
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-500/15 text-violet-200 ring-1 ring-violet-400/20">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500/20 to-cyan-500/20 text-sky-300 border border-sky-400/20 shadow-md shadow-sky-500/10">
             <Upload className="h-6 w-6" />
           </div>
           <p className="mt-3 text-sm font-semibold text-white light:text-slate-900">

@@ -40,7 +40,7 @@ type AgentRule = {
 };
 
 const inputClass =
-  "min-h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
+  "min-h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
 
 let nextId = 1;
 
@@ -172,7 +172,7 @@ export default function RobotsTxtGeneratorPage() {
         {/* Builder */}
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
-            <Bot className="h-5 w-5 text-violet-300" />
+            <Bot className="h-5 w-5 text-sky-300" />
             Crawl rules
           </h2>
 
@@ -182,7 +182,7 @@ export default function RobotsTxtGeneratorPage() {
                 key={preset.name}
                 type="button"
                 onClick={() => setRules(preset.build())}
-                className="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-violet-500/60 hover:text-white light:border-slate-900/15 light:text-slate-700 light:hover:text-slate-900"
+                className="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-500/60 hover:text-white light:border-slate-900/15 light:text-slate-700 light:hover:text-slate-900"
               >
                 {preset.name}
               </button>
@@ -297,7 +297,7 @@ export default function RobotsTxtGeneratorPage() {
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
-              <FileText className="h-5 w-5 text-violet-300" />
+              <FileText className="h-5 w-5 text-sky-300" />
               robots.txt
             </h2>
             <span className="text-xs text-slate-500">
@@ -311,7 +311,7 @@ export default function RobotsTxtGeneratorPage() {
             <button
               type="button"
               onClick={copyTxt}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied!" : "Copy robots.txt"}

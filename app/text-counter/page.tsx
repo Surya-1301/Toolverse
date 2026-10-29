@@ -255,7 +255,7 @@ export default function TextCounterPage() {
                   rounded-xl px-3 py-2 text-xs font-semibold transition-all duration-200
                   sm:px-4 sm:py-2.5 sm:text-sm
                   ${active
-                    ? "bg-violet-600 text-white shadow-lg shadow-violet-600/20"
+                    ? "bg-sky-500 text-white shadow-lg shadow-sky-500/20"
                     : "border border-white/10 bg-white/[0.03] text-slate-400 hover:bg-white/10 hover:text-white"}
                   max-[480px]:flex-1 max-[480px]:text-[11px]
                 `}
@@ -277,13 +277,13 @@ export default function TextCounterPage() {
               rows={14}
               placeholder="Paste or type your text here..."
               spellCheck={false}
-              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-violet-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
+              className="w-full resize-y rounded-xl border border-white/10 bg-slate-950 p-4 font-mono text-sm leading-6 text-slate-100 outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
             />
           </div>
 
           <div className="space-y-4">
-            <div className="rounded-2xl border border-violet-500/30 bg-violet-600/10 p-5 text-center">
-              <p className="text-xs font-semibold uppercase tracking-wide text-violet-300">
+            <div className="rounded-2xl border border-sky-500/30 bg-sky-500/10 p-5 text-center">
+              <p className="text-xs font-semibold uppercase tracking-wide text-sky-300">
                 {selectedResult}
               </p>
               <p className="mt-2 break-all font-mono text-4xl font-bold text-white light:text-slate-900">
@@ -294,7 +294,7 @@ export default function TextCounterPage() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={copyResult}
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
               >
                 {copied ? <Check className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
                 {copied ? "Copied" : "Copy result"}
