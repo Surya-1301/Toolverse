@@ -1,6 +1,8 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Braces, Code2, Database, FileCode2, FileType2 } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
+
+import { ArrowRight, Braces, Code2, Database, FileCode2, FileType2 } from "lucide-react";
 import Link from "next/link";
 import { Container } from "@/components/Container";
 
@@ -85,13 +87,9 @@ function RelatedToolCard({
 export default function FormatterToolsPage() {
   return (
     <Container className="py-12 sm:py-16">
-      <Link
-        href="/tools"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to tools
-      </Link>
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools" />
+      </div>
 
       <div className="mx-auto mt-8 max-w-3xl text-center">
 

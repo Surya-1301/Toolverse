@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
+
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import QRCode from "qrcode";
 import {
-  ArrowLeft,
   Check,
   Copy,
   Download,
@@ -20,18 +20,6 @@ import { HowToUse } from "@/components/HowToUse";
 import { formatFileSize } from "@/lib/formatFileSize";
 import { fetchApi } from "@/lib/apiBase";
 import { copyTextNative, getFrontendOrigin } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 const uploadExpiry = "never";
 
@@ -232,7 +220,9 @@ function QrGeneratorContent() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools" />
+      </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           QR Generator
@@ -318,9 +308,6 @@ function QrGeneratorContent() {
         <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="flex items-center justify-between">
             <h2 className="font-semibold">Preview</h2>
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-300">
-              Live
-            </span>
           </div>
 
           <div className="mt-5 flex min-h-[300px] items-center justify-center rounded-2xl bg-white p-4">

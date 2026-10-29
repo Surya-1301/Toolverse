@@ -1,9 +1,9 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   BadgeCheck,
   BadgeDollarSign,
   BadgeX,
@@ -155,14 +155,14 @@ const PRIMARY_LENGTHS: Record<Brand, number> = {
   UnionPay: 16,
 };
 
-const BIN_PRESETS: { label: string; bin: string }[] = [
-  { label: "Visa · 411111", bin: "411111" },
-  { label: "Mastercard · 555555", bin: "555555" },
-  { label: "Mastercard 2-series · 222300", bin: "222300" },
-  { label: "Amex · 378282", bin: "378282" },
-  { label: "Discover · 601111", bin: "601111" },
-  { label: "JCB · 353011", bin: "353011" },
-  { label: "UnionPay · 621843", bin: "621843" },
+const BIN_PRESETS: { brand: string; bin: string; label: string }[] = [
+  { brand: "Visa", bin: "411111", label: "Visa · 411111" },
+  { brand: "Mastercard", bin: "555555", label: "Mastercard · 555555" },
+  { brand: "Mastercard 2-series", bin: "222300", label: "Mastercard 2-series · 222300" },
+  { brand: "Amex", bin: "378282", label: "Amex · 378282" },
+  { brand: "Discover", bin: "601111", label: "Discover · 601111" },
+  { brand: "JCB", bin: "353011", label: "JCB · 353011" },
+  { brand: "UnionPay", bin: "621843", label: "UnionPay · 621843" },
 ];
 
 function sanitizeBin(value: string): string {
@@ -290,18 +290,6 @@ const BRAND_ACCENTS: Record<CardBrand, string> = {
   Unknown: "from-slate-600 via-slate-700 to-slate-900",
 };
 
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
-
 export default function CreditCardGeneratorPage() {
   const [tab, setTab] = useState<"generate" | "validate">("generate");
   const [brandChoice, setBrandChoice] = useState<Brand | "random">("random");
@@ -389,7 +377,9 @@ export default function CreditCardGeneratorPage() {
 
   return (
     <Container className="py-8 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/developer-tools" />
+      </div>
 
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
@@ -397,8 +387,7 @@ export default function CreditCardGeneratorPage() {
         </h1>
 
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-          Generate realistic test cards from any BIN/IIN prefix, or validate any
-          number&apos;s checksum — for testing forms and checkouts.
+          Generate test cards from any BIN, or validate any checksum — for testing checkouts.
         </p>
       </div>
 
@@ -477,12 +466,6 @@ export default function CreditCardGeneratorPage() {
             placeholder="411111"
             className="mt-2 w-full rounded-xl border border-white/10 bg-slate-900 px-4 py-3 font-mono text-lg tracking-widest text-slate-100 outline-none transition placeholder:font-sans placeholder:text-base placeholder:tracking-normal placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
           />
-
-          <p className="mt-2 text-xs leading-5 text-slate-500 light:text-slate-500">
-            Enter an issuer prefix to generate cards on that exact BIN. Leave it
-            empty to use the selected network.
-          </p>
-
           {binInfo ? (
             <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-xs text-slate-400 light:border-slate-900/10 light:bg-white light:text-slate-600">
               <span className="inline-flex items-center gap-1.5 font-semibold text-slate-300 light:text-slate-700">
@@ -506,21 +489,27 @@ export default function CreditCardGeneratorPage() {
             </p>
           ) : null}
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {BIN_PRESETS.map((preset) => (
               <button
                 key={preset.bin}
                 type="button"
                 onClick={() => applyBin(preset.bin)}
                 className={[
-                  "inline-flex items-center gap-1.5 rounded-xl border px-3 py-2 text-xs font-semibold transition",
+                  "flex flex-col items-start justify-center rounded-xl border p-2.5 text-left transition sm:inline-flex sm:flex-row sm:items-center sm:gap-1.5 sm:px-3 sm:py-2",
+                  preset.bin === "222300" ? "col-span-2 sm:col-span-1" : "col-span-1",
                   bin === preset.bin
                     ? "border-sky-500 bg-sky-500/20 text-white"
-                    : "border-white/10 light:border-slate-900/10 bg-white/[0.03] light:bg-white text-slate-400 light:text-slate-600 hover:bg-white/10 light:hover:bg-slate-900/10 hover:text-white light:hover:text-slate-900",
+                    : "border-white/10 light:border-slate-900/10 bg-white/[0.03] light:bg-white text-slate-300 light:text-slate-700 hover:bg-white/10 light:hover:bg-slate-900/10",
                 ].join(" ")}
               >
-                <ScanLine className="h-3.5 w-3.5" />
-                {preset.label}
+                <span className="text-[11px] font-medium text-slate-400 light:text-slate-500 sm:text-xs sm:text-inherit">
+                  {preset.brand}
+                </span>
+                <span className="hidden text-slate-500 sm:inline">·</span>
+                <span className="font-mono text-xs font-bold tracking-wide text-white light:text-slate-900 sm:font-semibold sm:text-inherit">
+                  {preset.bin}
+                </span>
               </button>
             ))}
 
@@ -528,23 +517,36 @@ export default function CreditCardGeneratorPage() {
               <button
                 type="button"
                 onClick={() => applyBin("")}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-red-500/30 px-3 py-2 text-xs font-semibold text-red-300 transition hover:bg-red-500/10"
+                className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-500/30 p-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:hidden"
               >
-                <Eraser className="h-3.5 w-3.5" />
+                <Eraser className="h-3.5 w-3.5 shrink-0" />
                 Clear BIN
               </button>
             ) : null}
           </div>
         </div>
 
-        {/* Generate button */}
-        <button
-          onClick={regenerate}
-          className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-sky-500 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-sky-500 sm:w-auto sm:py-3"
-        >
-          <Wand2 className="h-4 w-4" />
-          {card ? "Generate another" : "Generate card"}
-        </button>
+        {/* Actions row */}
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          {bin ? (
+            <button
+              type="button"
+              onClick={() => applyBin("")}
+              className="hidden h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-5 text-sm font-semibold text-red-300 transition hover:border-red-500/50 hover:bg-red-500/10 sm:inline-flex sm:w-44"
+            >
+              <Eraser className="h-4 w-4 shrink-0" />
+              Clear BIN
+            </button>
+          ) : null}
+
+          <button
+            onClick={regenerate}
+            className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent bg-sky-500 px-5 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 sm:w-44"
+          >
+            <Wand2 className="h-4 w-4 shrink-0" />
+            {card ? "Generate another" : "Generate card"}
+          </button>
+        </div>
 
         {card ? (
           <>

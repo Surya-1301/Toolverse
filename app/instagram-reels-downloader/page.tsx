@@ -1,9 +1,10 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   Check,
   ClipboardPaste,
   Download,
@@ -17,18 +18,6 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
 import { downloadFile, isNative } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/download-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 const inputClass =
   "min-h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-pink-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
@@ -218,7 +207,9 @@ export default function InstagramReelsDownloaderPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/download-tools" />
+      </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Instagram Reels Downloader

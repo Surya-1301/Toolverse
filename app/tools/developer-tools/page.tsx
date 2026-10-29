@@ -1,7 +1,8 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import {
-  ArrowLeft,
   ArrowRight,
   Bot,
   Braces,
@@ -180,13 +181,9 @@ function RelatedToolCard({
 export default function DeveloperToolsPage() {
   return (
     <Container className="py-12 sm:py-16">
-      <Link
-        href="/tools"
-        className="inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to tools
-      </Link>
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools" />
+      </div>
 
       <div className="mx-auto mt-8 max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">

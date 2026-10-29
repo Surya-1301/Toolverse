@@ -89,13 +89,13 @@ export function ToolCard({
         {/* Mobile title + description */}
 
         <div
-          className="
-            hidden
-            min-w-0
-            flex-1
-            max-sm:block
-            max-sm:pr-14
-          "
+          className={cn(
+            "hidden",
+            "min-w-0",
+            "flex-1",
+            "max-sm:block",
+            !isLive && "max-sm:pr-14",
+          )}
         >
           <h3
             className="
@@ -126,26 +126,26 @@ export function ToolCard({
 
         {/* Status */}
 
-        <span
-          className={cn(
-            "rounded-full px-2.5 py-1 text-xs border font-medium",
+        {!isLive && (
+          <span
+            className={cn(
+              "rounded-full px-2.5 py-1 text-xs border font-medium",
 
-            "max-sm:absolute",
-            "max-sm:right-0",
-            "max-sm:top-0",
-            "max-sm:z-10",
-            "max-sm:px-2.5",
-            "max-sm:py-0.5",
-            "max-sm:text-xs",
-            "max-sm:font-semibold",
+              "max-sm:absolute",
+              "max-sm:right-0",
+              "max-sm:top-0",
+              "max-sm:z-10",
+              "max-sm:px-2.5",
+              "max-sm:py-0.5",
+              "max-sm:text-xs",
+              "max-sm:font-semibold",
 
-            isLive
-              ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/25"
-              : "bg-amber-500/15 text-amber-300 border-amber-500/25",
-          )}
-        >
-          {isLive ? "Live" : "Coming soon"}
-        </span>
+              "bg-amber-500/15 text-amber-300 border-amber-500/25",
+            )}
+          >
+            Coming soon
+          </span>
+        )}
       </div>
 
       {/* ============================================================

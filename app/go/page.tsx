@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ExternalLink, Loader2 } from "lucide-react";
@@ -117,7 +118,10 @@ function GoContent() {
           <GoLoading />
         ) : error ? (
           <div className="rounded-3xl border border-red-500/30 bg-red-500/10 p-6 text-red-200">
-            {error}
+            <p>{error}</p>
+            <div className="mt-4">
+              <BackButton fallbackHref="/url-shortener" />
+            </div>
           </div>
         ) : link ? (
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 text-center light:border-slate-900/10 light:bg-white">

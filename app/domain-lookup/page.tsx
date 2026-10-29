@@ -1,9 +1,9 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Building2,
   CalendarDays,
   Check,
@@ -27,18 +27,6 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { fetchApi } from "@/lib/apiBase";
 import { copyTextNative } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 /* ==========================================================================
    HOW TO USE
@@ -579,7 +567,9 @@ export default function DomainLookupPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/developer-tools" />
+      </div>
 
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
@@ -821,7 +811,7 @@ export default function DomainLookupPage() {
                       className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 sm:p-5 light:border-slate-900/10"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-3">
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="break-all text-sm font-bold text-white light:text-slate-900">
                             {cert.common_name}
                           </p>
@@ -840,8 +830,8 @@ export default function DomainLookupPage() {
                         </span>
                       </div>
 
-                      <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                      <div className="mt-4 grid min-w-0 gap-3 sm:grid-cols-2">
+                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <Building2 className="h-3.5 w-3.5" />
                             Issuer
@@ -850,34 +840,35 @@ export default function DomainLookupPage() {
                             {cert.issuer_name || "—"}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             Valid from
                           </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-200 light:text-slate-800">
+                          <p className="mt-1 break-words text-xs font-semibold text-slate-200 light:text-slate-800">
                             {sslFormatDate(cert.not_before)}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <CalendarDays className="h-3.5 w-3.5" />
                             Expires
                           </p>
-                          <p className="mt-1 text-xs font-semibold text-slate-200 light:text-slate-800">
+                          <p className="mt-1 break-words text-xs font-semibold text-slate-200 light:text-slate-800">
                             {sslFormatDate(cert.not_after)}
                           </p>
                         </div>
-                        <div className="rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
+                        <div className="min-w-0 rounded-xl border border-white/10 bg-slate-950 p-3 light:border-slate-900/10 light:bg-white">
                           <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-500 light:text-slate-500">
                             <Fingerprint className="h-3.5 w-3.5" />
                             Serial
                           </p>
                           <button
+                            type="button"
                             onClick={() => copySsl(cert.serial_number)}
-                            className="mt-1 inline-flex max-w-full items-center gap-1.5 text-xs font-semibold text-slate-300 transition hover:text-white light:text-slate-700 light:hover:text-slate-900"
+                            className="mt-1 flex w-full min-w-0 items-center justify-between gap-1.5 text-left text-xs font-semibold text-slate-300 transition hover:text-white light:text-slate-700 light:hover:text-slate-900"
                           >
-                            <span className="truncate">
+                            <span className="min-w-0 truncate font-mono">
                               {sslCopied === cert.serial_number ? "Copied!" : cert.serial_number || "—"}
                             </span>
                             {sslCopied !== cert.serial_number ? (

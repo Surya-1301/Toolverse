@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -458,6 +459,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
     return (
       <Container className="min-h-[calc(100vh-180px)] py-8 sm:py-16">
         <div className="mx-auto max-w-[800px]">
+          <div className="mb-6">
+            <BackButton fallbackHref="/file-share" />
+          </div>
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
@@ -570,6 +574,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
     return (
       <Container className="min-h-[calc(100vh-180px)] py-8 sm:py-16">
         <div className="mx-auto max-w-[800px]">
+          <div className="mb-6">
+            <BackButton fallbackHref="/file-share" />
+          </div>
           {isLoading ? (
             <ViewerLoading />
           ) : error ? (
@@ -807,6 +814,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           ) : record ? (
             <>
               <div className="mx-auto max-w-[800px]">
+                <div className="mb-6">
+                  <BackButton fallbackHref="/file-share" />
+                </div>
                 <section
                   className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
                   aria-label="Hosted image details"
@@ -1094,6 +1104,9 @@ export function SharedViewer({ mode }: SharedViewerProps) {
         ) : record ? (
           <>
             <div className="mx-auto max-w-[800px]">
+              <div className="mb-6">
+                <BackButton fallbackHref="/file-share" />
+              </div>
               <section
                 className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
                 aria-label={mode === "owner" ? "Hosted file details" : "Shared file details"}

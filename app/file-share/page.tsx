@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
+
 import { useEffect, useRef, useState } from "react";
 import {
-  ArrowLeft,
   BarChart3,
   Check,
   Copy,
@@ -23,18 +23,6 @@ import { fetchApi, getApiBaseUrl } from "@/lib/apiBase";
 import { encryptFileWithRandomKey } from "@/lib/clientEncryption";
 import { getUploadKind, validateUploadForSharing } from "@/lib/uploadValidators";
 import { copyTextNative } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 const expiryOptions = [
   { label: "Never", value: "never" },
@@ -337,7 +325,9 @@ export default function FileSharePage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools" />
+      </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Upload & Share
@@ -349,7 +339,7 @@ export default function FileSharePage() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="apple-glass relative overflow-hidden rounded-3xl p-4 sm:p-6">
+        <div className="min-w-0 apple-glass relative overflow-hidden rounded-3xl p-4 sm:p-6">
           <div className="apple-specular opacity-50" />
           <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Upload image, PDF, or file
@@ -470,7 +460,7 @@ export default function FileSharePage() {
           </div>
         </div>
 
-        <div className="apple-glass relative overflow-hidden rounded-3xl p-4 sm:p-6">
+        <div className="min-w-0 apple-glass relative overflow-hidden rounded-3xl p-4 sm:p-6">
           <div className="apple-specular opacity-50" />
           <div className="flex items-center justify-between gap-3">
             <h2 className="font-semibold">

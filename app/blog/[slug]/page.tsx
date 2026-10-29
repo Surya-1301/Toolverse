@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import {
-  ArrowLeft,
   ArrowRight,
   CalendarDays,
   Clock,
@@ -212,12 +212,9 @@ export default async function BlogArticlePage({
     return (
       <Container className="py-20 text-center">
         <h1 className="text-3xl font-bold text-white light:text-slate-900">Post not found</h1>
-        <Link
-          href="/blog"
-          className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sky-300 hover:text-sky-200"
-        >
-          <ArrowLeft className="h-4 w-4" /> Back to blog
-        </Link>
+        <div className="mt-6 flex justify-center">
+          <BackButton fallbackHref="/blog" label="Back to blog" />
+        </div>
       </Container>
     );
   }
@@ -283,13 +280,9 @@ export default async function BlogArticlePage({
       />
 
       <article className="mx-auto max-w-3xl">
-        <Link
-          href="/blog"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to blog
-        </Link>
+        <div className="mb-6">
+          <BackButton fallbackHref="/blog" label="Back to blog" />
+        </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <span

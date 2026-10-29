@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { fetchApi } from "@/lib/apiBase";
 
@@ -212,13 +212,7 @@ function PasteEditor() {
             <div className="apple-specular opacity-40" />
             <div className="relative">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <Link
-                  href="/paste"
-                  className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3.5 py-1.5 text-xs font-semibold text-slate-300 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-700 light:hover:bg-slate-900/10"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Link>
+                <BackButton fallbackHref="/paste" label="Back" />
 
                 <div className="flex min-w-0 shrink items-center gap-2">
                   <span className="min-w-0 truncate rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-slate-400 light:border-slate-900/10 light:bg-slate-100 light:text-slate-600">

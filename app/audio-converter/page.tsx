@@ -1,9 +1,9 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useCallback, useRef, useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Check,
   Copy,
   Download,
@@ -19,18 +19,6 @@ import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { Mp3Encoder } from "@breezystack/lamejs";
 import { isNative, saveBlobNative } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/download-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 const howToUseSteps = [
   {
@@ -441,7 +429,9 @@ export default function AudioConverterPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/download-tools" />
+      </div>
 
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">

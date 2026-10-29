@@ -1,5 +1,6 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
 import { useState } from "react";
 import {
   BarChart3,
@@ -211,6 +212,10 @@ export default function ImageHostPage() {
 
   return (
     <Container className="py-12 sm:py-16">
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/image-tools" />
+      </div>
+
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Image Host
@@ -222,7 +227,7 @@ export default function ImageHostPage() {
       </div>
 
       <div className="mx-auto mt-10 grid max-w-5xl gap-6 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <label className="mb-2 block text-sm font-medium text-slate-300 light:text-slate-700">
             Upload image
           </label>
@@ -312,7 +317,7 @@ export default function ImageHostPage() {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold">Preview</h2>
 

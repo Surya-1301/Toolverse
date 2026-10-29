@@ -1,9 +1,9 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Bot,
   Check,
   Clock,
@@ -18,18 +18,6 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { copyTextNative } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 type AgentRule = {
   id: number;
@@ -157,7 +145,9 @@ export default function RobotsTxtGeneratorPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/developer-tools" />
+      </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           robots.txt Generator
@@ -170,19 +160,19 @@ export default function RobotsTxtGeneratorPage() {
 
       <div className="mx-auto mt-10 grid max-w-6xl gap-6 lg:grid-cols-2">
         {/* Builder */}
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
             <Bot className="h-5 w-5 text-sky-300" />
             Crawl rules
           </h2>
 
-          <div className="mb-4 flex flex-wrap gap-2">
+          <div className="mb-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {PRESETS.map((preset) => (
               <button
                 key={preset.name}
                 type="button"
                 onClick={() => setRules(preset.build())}
-                className="rounded-xl border border-white/15 px-3 py-1.5 text-xs font-semibold text-slate-300 transition hover:border-sky-500/60 hover:text-white light:border-slate-900/15 light:text-slate-700 light:hover:text-slate-900"
+                className="inline-flex min-h-[42px] items-center justify-center rounded-xl border border-white/15 px-2.5 py-2 text-center text-xs font-semibold text-slate-300 transition hover:border-sky-500/60 hover:text-white light:border-slate-900/15 light:text-slate-700 light:hover:text-slate-900 sm:min-h-0 sm:px-3 sm:py-1.5"
               >
                 {preset.name}
               </button>
@@ -294,7 +284,7 @@ export default function RobotsTxtGeneratorPage() {
         </div>
 
         {/* Output */}
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <div className="mb-3 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
               <FileText className="h-5 w-5 text-sky-300" />
@@ -304,24 +294,24 @@ export default function RobotsTxtGeneratorPage() {
               {robotsTxt.split("\n").length} lines
             </span>
           </div>
-          <pre className="max-h-[480px] min-h-64 overflow-auto rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-5 text-slate-300 light:border-slate-900/10 light:bg-slate-950 light:text-slate-300">
+          <pre className="max-h-[480px] min-h-64 w-full overflow-x-auto rounded-2xl border border-white/10 bg-slate-950 p-4 font-mono text-xs leading-5 text-slate-300 light:border-slate-900/10 light:bg-slate-950 light:text-slate-300">
             {robotsTxt}
           </pre>
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 flex flex-wrap gap-3 sm:flex-nowrap">
             <button
               type="button"
               onClick={copyTxt}
-              className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
+              className="inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent bg-sky-500 px-4 text-xs font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 sm:flex-1 sm:text-sm"
             >
-              {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+              {copied ? <Check className="h-4 w-4 shrink-0" /> : <Copy className="h-4 w-4 shrink-0" />}
               {copied ? "Copied!" : "Copy robots.txt"}
             </button>
             <button
               type="button"
               onClick={downloadTxt}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-6 py-2.5 text-sm font-semibold transition border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/10"
+              className="inline-flex h-11 flex-none items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-emerald-500/30 px-4 text-xs font-semibold text-emerald-300 transition hover:bg-emerald-500/10 sm:flex-1 sm:text-sm"
             >
-              <Download className="h-4 w-4" />
+              <Download className="h-4 w-4 shrink-0" />
               Download
             </button>
           </div>

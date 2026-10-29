@@ -202,15 +202,11 @@ function CategoryToolCard({
               {icon}
             </div>
 
-            <span
-              className={
-                isLive
-                  ? "rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-500/25"
-                  : "rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25"
-              }
-            >
-              {isLive ? "Live" : "Coming soon"}
-            </span>
+            {!isLive && (
+              <span className="rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25">
+                Coming soon
+              </span>
+            )}
           </div>
 
           {/* Title */}
@@ -254,7 +250,7 @@ function CategoryToolCard({
           
           ┌────────────────────────────────────┐
           │                                    │
-          │  ┌─────────┐             Live      │
+          │  ┌─────────┐                       │
           │  │         │                       │
           │  │  ICON   │  Background Remover   │
           │  │         │                       │
@@ -288,7 +284,7 @@ function CategoryToolCard({
           ============================================================ */}
 
           <div
-            className="min-w-0 flex-1 pr-14"
+            className={`min-w-0 flex-1 ${!isLive ? "pr-14" : ""}`}
           >
             {/* Title */}
 
@@ -308,18 +304,14 @@ function CategoryToolCard({
           </div>
 
           {/* ============================================================
-              LIVE STATUS
+              STATUS (Only when not live)
           ============================================================ */}
 
-          <span
-            className={
-              isLive
-                ? "absolute right-0 top-0 rounded-full bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-300 border border-emerald-500/25"
-                : "absolute right-0 top-0 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25"
-            }
-          >
-            {isLive ? "Live" : "Coming soon"}
-          </span>
+          {!isLive && (
+            <span className="absolute right-0 top-0 rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-300 border border-amber-500/25">
+              Coming soon
+            </span>
+          )}
         </div>
 
         {/* ==============================================================

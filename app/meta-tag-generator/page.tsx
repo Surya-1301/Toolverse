@@ -1,9 +1,9 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useMemo, useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Check,
   Copy,
   Download,
@@ -16,18 +16,6 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { copyTextNative } from "@/lib/capacitor";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/developer-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 function escapeAttr(value: string) {
   return value
@@ -62,10 +50,10 @@ function Field({
 }
 
 const inputClass =
-  "min-h-10 w-full rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
+  "min-h-10 w-full min-w-0 rounded-xl border border-white/10 bg-white/[0.03] px-3 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
 
 const selectClass =
-  "min-h-10 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900";
+  "min-h-10 w-full min-w-0 rounded-xl border border-white/10 bg-slate-950 px-3 text-sm font-medium text-white outline-none transition focus:border-sky-500 light:border-slate-900/10 light:bg-white light:text-slate-900";
 
 export default function MetaTagGeneratorPage() {
   const [title, setTitle] = useState("");
@@ -242,20 +230,21 @@ export default function MetaTagGeneratorPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/developer-tools" />
+      </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Meta Tag Generator
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-          Generate SEO meta tags, Open Graph and Twitter cards. Preview how
-          your page looks on Google and social — then copy the snippet.
+          Generate SEO, Open Graph & Twitter meta tags — preview on Google and social, then copy.
         </p>
       </div>
 
       <div className="mx-auto mt-10 grid max-w-6xl gap-6 lg:grid-cols-2">
         {/* Form */}
-        <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+        <div className="min-w-0 rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
           <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
             <Tags className="h-5 w-5 text-sky-300" />
             Basic meta tags
@@ -449,7 +438,7 @@ export default function MetaTagGeneratorPage() {
         </div>
 
         {/* Preview + output */}
-        <div className="space-y-6">
+        <div className="min-w-0 space-y-6">
           <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
             <h2 className="mb-4 flex items-center gap-2 text-base font-semibold text-white light:text-slate-900">
               <Eye className="h-5 w-5 text-sky-300" />
@@ -513,7 +502,7 @@ export default function MetaTagGeneratorPage() {
                 {snippet.split("\n").length} lines
               </span>
             </div>
-            <pre className="max-h-96 overflow-auto rounded-2xl border border-white/10 bg-slate-950 p-4 text-xs leading-5 text-slate-300 light:border-slate-900/10 light:bg-slate-950 light:text-slate-300">
+            <pre className="max-h-96 w-full overflow-x-auto rounded-2xl border border-white/10 bg-slate-950 p-4 text-xs leading-5 text-slate-300 light:border-slate-900/10 light:bg-slate-950 light:text-slate-300">
               {snippet || "<!-- Fill in the form to generate meta tags -->"}
             </pre>
             <div className="mt-4 flex flex-wrap gap-3">

@@ -1,9 +1,10 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useRef, useState } from "react";
 import Link from "next/link";
 import {
-  ArrowLeft,
   AudioLines,
   Check,
   ClipboardPaste,
@@ -23,18 +24,6 @@ import {
 
 function isYouTube(u: string): boolean {
   return /(?:youtube\.com|youtu\.be)/i.test(u);
-}
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/download-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
 }
 
 const inputClass =
@@ -165,7 +154,9 @@ export default function MusicDownloaderPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/download-tools" />
+      </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
           Audio Downloader

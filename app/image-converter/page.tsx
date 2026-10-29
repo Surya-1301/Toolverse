@@ -1,9 +1,9 @@
 "use client";
 
+import { BackButton } from "@/components/BackButton";
+
 import { useRef, useState } from "react";
-import Link from "next/link";
 import {
-  ArrowLeft,
   Download,
   Eraser,
   FileImage,
@@ -42,18 +42,6 @@ type OutputFormat =
   | "image/png"
   | "image/jpeg"
   | "image/webp";
-
-function BackToToolsLink() {
-  return (
-    <Link
-      href="/tools/image-tools"
-      className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      Back to tools
-    </Link>
-  );
-}
 
 /* ==========================================================================
    HOW TO USE
@@ -491,7 +479,9 @@ export default function ImageConverterPage() {
 
   return (
     <Container className="py-12 sm:py-16">
-      <BackToToolsLink />
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/image-tools" />
+      </div>
 
       {/* ====================================================================
           HEADER

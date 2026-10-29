@@ -294,6 +294,16 @@ footer {
   box-sizing: border-box;
 }
 
+/* Ensure all grid items can shrink properly on mobile without blowing out the viewport */
+.grid > * {
+  min-width: 0;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
 html {
   scroll-behavior: smooth;
   overflow-x: hidden;

@@ -1,9 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Link from "next/link";
+import { BackButton } from "@/components/BackButton";
 import {
-  ArrowLeft,
   Check,
   Clipboard,
   Clock3,
@@ -224,13 +223,9 @@ export default function TextCounterPage() {
 
   return (
     <Container className="py-10 sm:py-12 lg:py-16">
-      <Link
-        href="/tools/text-tools"
-        className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white light:text-slate-600 light:hover:text-slate-900"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to tools
-      </Link>
+      <div className="mb-8">
+        <BackButton fallbackHref="/tools/text-tools" />
+      </div>
 
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight text-white sm:text-5xl light:text-slate-900">
