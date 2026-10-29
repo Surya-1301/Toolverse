@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, ChevronRight } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Container } from "./Container";
@@ -434,78 +434,80 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
-            <div className="col-span-2 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-md light:border-slate-900/10 light:bg-slate-900/[0.03]">
-              <button
-                type="button"
-                onClick={() => setIsMobileToolsOpen((open) => !open)}
-                className="
-                  flex
-                  w-full
-                  items-center
-                  justify-between
-                  px-4
-                  py-3.5
-                  text-sm
-                  font-medium
-                  text-slate-200
-                  transition-colors
-                  hover:bg-white/[0.05]
-                  active:bg-white/[0.08]
-                  focus:outline-none
-                  focus-visible:outline-none
-                  light:text-slate-700
-                  light:hover:bg-slate-900/5
-                  light:hover:text-slate-900
-                "
-                aria-expanded={isMobileToolsOpen}
-                aria-haspopup="true"
-              >
-                <span>Tools</span>
-                <ChevronDown
-                  className={`h-4 w-4 text-slate-400 transition-transform duration-200 ${
-                    isMobileToolsOpen ? "rotate-180 text-sky-400" : ""
-                  }`}
-                />
-              </button>
-              {isMobileToolsOpen ? (
-                <div className="flex flex-col border-t border-white/[0.08] p-1.5 light:border-slate-900/[0.08]">
-                  {toolLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      onClick={() => {
-                        setIsMobileToolsOpen(false);
-                        setIsMenuOpen(false);
-                      }}
-                      className="
-                        flex
-                        items-center
-                        justify-between
-                        rounded-xl
-                        px-3.5
-                        py-3
-                        text-sm
-                        font-medium
-                        text-slate-200
-                        transition-colors
-                        hover:bg-white/[0.08]
-                        hover:text-white
-                        active:bg-white/[0.14]
-                        focus:outline-none
-                        focus-visible:outline-none
-                        light:text-slate-700
-                        light:hover:bg-slate-900/5
-                        light:hover:text-slate-900
-                      "
-                      role="menuitem"
-                    >
-                      <span>{link.label}</span>
-                      <ChevronRight className="h-4 w-4 text-slate-500 opacity-60 light:text-slate-400" />
-                    </Link>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            <button
+              type="button"
+              onClick={() => setIsMobileToolsOpen((open) => !open)}
+              className="
+                col-span-2
+                flex
+                items-center
+                justify-center
+                gap-2
+                rounded-2xl
+                border
+                border-white/20
+                bg-white/[0.04]
+                px-4
+                py-3.5
+                text-sm
+                font-medium
+                text-slate-200
+                transition-colors
+                hover:bg-white/[0.08]
+                hover:text-white
+                active:bg-white/[0.12]
+                focus:outline-none
+                focus-visible:outline-none
+                light:border-slate-900/15
+                light:bg-slate-900/[0.04]
+                light:text-slate-700
+                light:hover:bg-slate-900/10
+                light:hover:text-slate-900
+              "
+              aria-expanded={isMobileToolsOpen}
+              aria-haspopup="true"
+            >
+              <span>Tools</span>
+              <ChevronDown
+                className={`h-4 w-4 transition-transform duration-200 ${
+                  isMobileToolsOpen ? "rotate-180 text-sky-400" : ""
+                }`}
+              />
+            </button>
+
+            {isMobileToolsOpen
+              ? toolLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => {
+                      setIsMobileToolsOpen(false);
+                      setIsMenuOpen(false);
+                    }}
+                    className="
+                      rounded-xl
+                      px-3
+                      py-3.5
+                      text-center
+                      text-sm
+                      font-medium
+                      text-slate-200
+                      transition-colors
+                      hover:bg-white/10
+                      hover:text-white
+                      active:bg-white/[0.12]
+                      focus:outline-none
+                      focus-visible:outline-none
+                      light:text-slate-700
+                      light:hover:bg-slate-900/5
+                      light:hover:text-slate-900
+                    "
+                    role="menuitem"
+                  >
+                    {link.label}
+                  </Link>
+                ))
+              : null}
           </nav>
         </Container>
       ) : null}
