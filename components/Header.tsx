@@ -235,7 +235,6 @@ export function Header() {
             {isToolsOpen ? (
               <div
                 className="
-                  apple-glass
                   absolute
                   right-0
                   top-full
@@ -246,12 +245,13 @@ export function Header() {
                   rounded-2xl
                   border
                   border-white/[0.12]
+                  bg-[#070a14]/95
                   p-1.5
                   text-sm
                   text-slate-200
                   backdrop-blur-2xl
                   shadow-2xl
-                  shadow-black/60
+                  shadow-black/80
                   light:border-slate-900/10
                   light:bg-white/95
                   light:text-slate-700
