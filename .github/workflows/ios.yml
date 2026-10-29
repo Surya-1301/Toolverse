@@ -74,6 +74,13 @@ jobs:
           name: toolverse-ipa
           path: toolverse-*.ipa
 
+      - name: Delete existing IPA asset if present
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete-asset "${{ github.ref_name }}" "toolverse-${{ github.ref_name }}.ipa" --yes || true
+
       - name: Attach IPA to Release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2

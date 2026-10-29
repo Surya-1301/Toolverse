@@ -115,6 +115,13 @@ jobs:
           name: toolverse-apk
           path: toolverse-*.apk
 
+      - name: Delete existing APK asset if present
+        if: startsWith(github.ref, 'refs/tags/v')
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release delete-asset "${{ github.ref_name }}" "toolverse-${{ github.ref_name }}.apk" --yes || true
+
       - name: Attach APK to release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
