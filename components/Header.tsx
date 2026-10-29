@@ -236,14 +236,13 @@ export function Header() {
               <div
                 className="
                   apple-glass
-                  relative
-                  overflow-hidden
                   absolute
                   right-0
                   top-full
-                  z-50
-                  mt-2
-                  w-52
+                  z-[100]
+                  mt-2.5
+                  w-56
+                  overflow-hidden
                   rounded-2xl
                   border
                   border-white/[0.12]
@@ -252,11 +251,11 @@ export function Header() {
                   text-slate-200
                   backdrop-blur-2xl
                   shadow-2xl
-                  shadow-black/50
+                  shadow-black/60
                   light:border-slate-900/10
                   light:bg-white/95
                   light:text-slate-700
-                  light:shadow-slate-900/10
+                  light:shadow-slate-900/15
                 "
                 role="menu"
               >
