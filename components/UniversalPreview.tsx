@@ -701,7 +701,7 @@ function UniversalAudioPreview({
         <button
           type="button"
           onClick={onDownload}
-          className="inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-500"
+          className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-500"
         >
           <Download className="h-4 w-4" />
           <span>Download Audio</span>
@@ -769,7 +769,7 @@ function UniversalTextPreview({
           <button
             type="button"
             onClick={onDownload}
-            className="inline-flex h-6 items-center gap-1 rounded bg-sky-500 px-2 text-[10px] font-semibold text-white hover:bg-sky-500"
+            className="inline-flex h-6 items-center gap-1 rounded bg-emerald-600 px-2 text-[10px] font-semibold text-white shadow-sm transition hover:bg-emerald-500"
           >
             <Download className="h-3 w-3" />
             <span>Save</span>
@@ -829,7 +829,7 @@ function UniversalFallbackPreview({
         <button
           type="button"
           onClick={onDownload}
-          className="mt-2 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-500"
+          className="mt-2 inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-emerald-500"
         >
           <Download className="h-4 w-4" />
           <span>Download File</span>

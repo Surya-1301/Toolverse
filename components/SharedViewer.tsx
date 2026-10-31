@@ -551,7 +551,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     type="button"
                     onClick={decryptAndDownloadFile}
                     disabled={!encryptionKey || isDecrypting}
-                    className="mt-3.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="mt-3.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isDecrypting ? (
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -784,7 +784,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         type="button"
                         onClick={downloadImage}
                         disabled={!decryptedImageUrl}
-                        className="apple-pill-btn inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <Download className="h-5 w-5" />
                         Download image
@@ -947,7 +947,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                           type="button"
                           onClick={downloadImage}
                           disabled={!decryptedImageUrl}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <Download className="h-5 w-5" />
                           Download image
@@ -958,7 +958,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                         <button
                           type="button"
                           onClick={downloadImage}
-                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)]"
+                          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
                         >
                           <Download className="h-5 w-5" />
                           Download image
@@ -1073,7 +1073,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                             <button
                               type="button"
                               onClick={() => setRecentFiles([])}
-                              className="rounded-lg border border-red-500/30 bg-red-500/[0.06] px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/15"
+                              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-500"
                             >
                               Clear all
                             </button>
@@ -1187,7 +1187,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       <button
                         type="button"
                         onClick={downloadFile}
-                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)]"
+                        className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
                       >
                         <Download className="h-4 w-4" />
                         {isPdf ? "Open / Download PDF" : "Download file"}
@@ -1220,7 +1220,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                   type="button"
                   onClick={decryptAndDownloadFile}
                   disabled={!encryptionKey || isDecrypting}
-                  className="mt-3.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-5 text-sm font-semibold text-white shadow-[0_4px_16px_rgba(16,185,129,0.3)] transition hover:from-emerald-400 hover:to-teal-500 hover:shadow-[0_6px_20px_rgba(16,185,129,0.4)] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="mt-3.5 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Download className="h-4 w-4" />
                   {isDecrypting ? "Decrypting..." : "Decrypt & download"}
@@ -1307,7 +1307,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       <button
                         type="button"
                         onClick={() => setRecentFiles([])}
-                        className="rounded-lg border border-red-500/30 bg-red-500/[0.06] px-3 py-1.5 text-xs font-medium text-red-300 transition hover:bg-red-500/15"
+                        className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition hover:bg-red-500"
                       >
                         Clear all
                       </button>

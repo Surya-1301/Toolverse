@@ -691,7 +691,7 @@ function UrlShortenerContent() {
               <button
                 type="button"
                 onClick={() => setRecentUrls([])}
-                className="rounded-lg border border-red-500/30 px-3 py-1.5 text-[11px] font-medium text-red-300 hover:bg-red-500/10"
+                className="rounded-lg bg-red-600 px-3 py-1.5 text-[11px] font-semibold text-white shadow-sm transition hover:bg-red-500"
               >
                 Clear all
               </button>

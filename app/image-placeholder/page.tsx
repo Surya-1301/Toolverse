@@ -315,7 +315,7 @@ export default function ImagePlaceholderPage() {
                 <button
                   onClick={() => downloadRaster("png")}
                   disabled={isRasterizing !== null}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 px-3 py-2.5 text-sm font-semibold text-emerald-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/10 disabled:opacity-40 light:border-emerald-600/30 light:text-emerald-700 light:hover:bg-emerald-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {isRasterizing === "png" ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />
@@ -327,7 +327,7 @@ export default function ImagePlaceholderPage() {
                 <button
                   onClick={() => downloadRaster("webp")}
                   disabled={isRasterizing !== null}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 px-3 py-2.5 text-sm font-semibold text-emerald-300 transition hover:border-emerald-500/50 hover:bg-emerald-500/10 disabled:opacity-40 light:border-emerald-600/30 light:text-emerald-700 light:hover:bg-emerald-50"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500 transition disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {isRasterizing === "webp" ? (
                     <RefreshCw className="h-4 w-4 animate-spin" />

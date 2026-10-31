@@ -232,6 +232,14 @@
 [data-theme="light"] [class*="bg-emerald-600"][class*="text-white"] {
   color: white !important;
 }
+
+/* ── Solid red backgrounds keep white text ──────────────────────────────
+ *  Clear and reset buttons keep crisp white text in light mode.
+ */
+[data-theme="light"] [class*="bg-red-500"][class*="text-white"],
+[data-theme="light"] [class*="bg-red-600"][class*="text-white"] {
+  color: white !important;
+}
 [data-theme="light"] .text-red-100,
 [data-theme="light"] .text-red-200,
 [data-theme="light"] .text-red-300,

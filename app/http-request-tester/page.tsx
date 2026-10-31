@@ -749,7 +749,7 @@ Build API requests with params, headers, auth, and body, inspect responses, and 
                     {history.length > 0 && (
                       <button
                         onClick={clearHistory}
-                        className="mb-2 text-xs font-medium text-slate-600 transition hover:text-red-400 light:text-slate-500"
+                        className="mb-2 inline-flex items-center rounded-lg bg-red-600 px-2.5 py-1 text-xs font-semibold text-white shadow-sm transition hover:bg-red-500"
                       >
                         Clear all
                       </button>

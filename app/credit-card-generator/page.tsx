@@ -517,7 +517,7 @@ export default function CreditCardGeneratorPage() {
               <button
                 type="button"
                 onClick={() => applyBin("")}
-                className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-500/30 p-2.5 text-xs font-semibold text-red-300 transition hover:bg-red-500/10 sm:hidden"
+                className="col-span-2 inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-600 p-2.5 text-xs font-semibold text-white shadow-sm hover:bg-red-500 transition sm:hidden"
               >
                 <Eraser className="h-3.5 w-3.5 shrink-0" />
                 Clear BIN
@@ -532,7 +532,7 @@ export default function CreditCardGeneratorPage() {
             <button
               type="button"
               onClick={() => applyBin("")}
-              className="hidden h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-red-500/30 px-5 text-sm font-semibold text-red-300 transition hover:border-red-500/50 hover:bg-red-500/10 sm:inline-flex sm:w-44"
+              className="hidden h-11 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-red-600 px-5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition sm:inline-flex sm:w-44"
             >
               <Eraser className="h-4 w-4 shrink-0" />
               Clear BIN
@@ -660,7 +660,7 @@ export default function CreditCardGeneratorPage() {
               </button>
               <button
                 onClick={() => setCard(null)}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1 sm:py-2.5"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition sm:col-span-1 sm:py-2.5"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -763,7 +763,7 @@ export default function CreditCardGeneratorPage() {
 
               <button
                 onClick={() => setValidateInput("")}
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:py-2.5"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition sm:py-2.5"
               >
                 <Eraser className="h-4 w-4" />
                 Clear

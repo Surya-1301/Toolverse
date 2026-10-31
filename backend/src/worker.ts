@@ -146,6 +146,253 @@ async function route(request: Request, env: Env) {
     });
   }
 
+const VOICE_MAP: Record<string, string> = {
+  // English US Male
+  "en-US-GuyNeural": "en_us_006",
+  "en-US-ChristopherNeural": "en_us_007",
+  "en-US-EricNeural": "en_us_009",
+  "en-US-DavidNeural": "en_us_010",
+  // English US Female
+  "en-US-JennyNeural": "en_us_001",
+  "en-US-AriaNeural": "en_us_002",
+  "en-US-MichelleNeural": "en_us_001",
+  // English UK
+  "en-GB-RyanNeural": "en_uk_001",
+  "en-GB-SoniaNeural": "en_uk_003",
+  // English Australia
+  "en-AU-WilliamNeural": "en_au_002",
+  "en-AU-ChloeNeural": "en_au_001",
+  // Spanish
+  "es-ES-AlvaroNeural": "es_002",
+  "es-ES-ElviraNeural": "es_002",
+  // French
+  "fr-FR-HenriNeural": "fr_001",
+  "fr-FR-DeniseNeural": "fr_001",
+  // German
+  "de-DE-ConradNeural": "de_001",
+  "de-DE-KatjaNeural": "de_002",
+  // Japanese
+  "ja-JP-KeitaNeural": "jp_006",
+  "ja-JP-NanamiNeural": "jp_001",
+};
+
+async function synthesizeNeuralTTSFull(
+  text: string,
+  voiceKey: string,
+): Promise<Uint8Array | null> {
+  const ttsVoice = VOICE_MAP[voiceKey] || voiceKey || "en_us_006";
+
+  const sentences = text.match(/[^.!?\n]+[.!?\n]+|[^.!?\n]+/g) || [text];
+  const chunks: string[] = [];
+  let currentChunk = "";
+
+  for (const s of sentences) {
+    const trimmed = s.trim();
+    if (!trimmed) continue;
+    if ((currentChunk + " " + trimmed).trim().length <= 250) {
+      currentChunk = (currentChunk + " " + trimmed).trim();
+    } else {
+      if (currentChunk) chunks.push(currentChunk);
+      if (trimmed.length <= 250) {
+        currentChunk = trimmed;
+      } else {
+        const words = trimmed.split(/\s+/);
+        currentChunk = "";
+        for (const w of words) {
+          if ((currentChunk + " " + w).trim().length <= 250) {
+            currentChunk = (currentChunk + " " + w).trim();
+          } else {
+            if (currentChunk) chunks.push(currentChunk);
+            currentChunk = w.slice(0, 250);
+          }
+        }
+      }
+    }
+  }
+  if (currentChunk) chunks.push(currentChunk);
+
+  const buffers: Uint8Array[] = [];
+  for (const chunk of chunks.slice(0, 15)) {
+    try {
+      const res = await fetch("https://ottsy.weilbyte.dev/api/generation", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent":
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
+        },
+        body: JSON.stringify({ text: chunk, voice: ttsVoice }),
+      });
+      if (res.ok) {
+        const data = (await res.json()) as { success?: boolean; data?: string };
+        if (data.success && data.data) {
+          const binString = atob(data.data);
+          const bytes = new Uint8Array(binString.length);
+          for (let i = 0; i < binString.length; i++) {
+            bytes[i] = binString.charCodeAt(i);
+          }
+          buffers.push(bytes);
+        }
+      }
+    } catch (e) {
+      console.warn("Chunk TTS error:", e);
+    }
+  }
+
+  if (!buffers.length) return null;
+
+  const totalLength = buffers.reduce((sum, b) => sum + b.byteLength, 0);
+  const combined = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const buf of buffers) {
+    combined.set(buf, offset);
+    offset += buf.byteLength;
+  }
+  return combined;
+}
+
+  /**
+   * TEXT TO SPEECH (TTS) AUDIO GENERATOR & DOWNLOAD
+   */
+  if (pathname === "/api/tts" && (request.method === "GET" || request.method === "POST")) {
+    let text = "";
+    let lang = "en";
+    let voice = "";
+    let rate = 1;
+    let pitch = 1;
+
+    if (request.method === "POST") {
+      try {
+        const body = await request.json<{
+          text?: string;
+          lang?: string;
+          voice?: string;
+          rate?: number;
+          pitch?: number;
+        }>();
+        text = String(body.text || "").trim();
+        lang = String(body.lang || "en").trim();
+        voice = String(body.voice || "").trim();
+        if (typeof body.rate === "number") rate = body.rate;
+        if (typeof body.pitch === "number") pitch = body.pitch;
+      } catch {}
+    }
+    if (!text) {
+      text = String(url.searchParams.get("text") || "").trim();
+    }
+    if (!lang || lang === "en") {
+      lang = String(url.searchParams.get("lang") || "en").trim();
+    }
+    if (!voice) {
+      voice = String(url.searchParams.get("voice") || "").trim();
+    }
+
+    if (!text) {
+      return error("Text is required for speech synthesis.");
+    }
+
+    // Default to Guy (Male) if voice not specified
+    const selectedVoice = voice || "en-US-GuyNeural";
+
+    // 1. Try high-quality Neural Male/Female synthesis
+    const neuralAudio = await synthesizeNeuralTTSFull(text, selectedVoice);
+    if (neuralAudio && neuralAudio.byteLength > 0) {
+      return new Response(neuralAudio as unknown as BodyInit, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "audio/mpeg",
+          "Content-Disposition": 'attachment; filename="speech.mp3"',
+          "Cache-Control": "public, max-age=86400",
+        },
+      });
+    }
+
+    // 2. Fallback to Google Translate TTS chunks
+    const dialectLang = lang.replace("_", "-");
+    const primaryLang = dialectLang.split("-")[0].toLowerCase() || "en";
+
+    const sentences = text.match(/[^.!?\n]+[.!?\n]+|[^.!?\n]+/g) || [text];
+    const chunks: string[] = [];
+    let currentChunk = "";
+
+    for (const s of sentences) {
+      const trimmed = s.trim();
+      if (!trimmed) continue;
+      if ((currentChunk + " " + trimmed).trim().length <= 180) {
+        currentChunk = (currentChunk + " " + trimmed).trim();
+      } else {
+        if (currentChunk) chunks.push(currentChunk);
+        if (trimmed.length <= 180) {
+          currentChunk = trimmed;
+        } else {
+          const words = trimmed.split(/\s+/);
+          currentChunk = "";
+          for (const w of words) {
+            if ((currentChunk + " " + w).trim().length <= 180) {
+              currentChunk = (currentChunk + " " + w).trim();
+            } else {
+              if (currentChunk) chunks.push(currentChunk);
+              currentChunk = w.slice(0, 180);
+            }
+          }
+        }
+      }
+    }
+    if (currentChunk) chunks.push(currentChunk);
+
+    const audioBuffers: ArrayBuffer[] = [];
+    for (const chunk of chunks.slice(0, 30)) {
+      try {
+        let ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${encodeURIComponent(dialectLang)}&q=${encodeURIComponent(chunk)}`;
+        let res = await fetch(ttsUrl, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Referer: "https://translate.google.com/",
+          },
+        });
+        if (!res.ok && dialectLang !== primaryLang) {
+          ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${encodeURIComponent(primaryLang)}&q=${encodeURIComponent(chunk)}`;
+          res = await fetch(ttsUrl, {
+            headers: {
+              "User-Agent":
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+              Referer: "https://translate.google.com/",
+            },
+          });
+        }
+        if (res.ok) {
+          audioBuffers.push(await res.arrayBuffer());
+        }
+      } catch (e) {
+        console.warn("TTS chunk fetch error:", e);
+      }
+    }
+
+    if (!audioBuffers.length) {
+      return error("Failed to generate speech audio.", 502);
+    }
+
+    const totalLength = audioBuffers.reduce((sum, b) => sum + b.byteLength, 0);
+    const combined = new Uint8Array(totalLength);
+    let offset = 0;
+    for (const buf of audioBuffers) {
+      combined.set(new Uint8Array(buf), offset);
+      offset += buf.byteLength;
+    }
+
+    return new Response(combined, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "audio/mpeg",
+        "Content-Disposition": 'attachment; filename="speech.mp3"',
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  }
+
   /**
    * PASTE COUNT
    */

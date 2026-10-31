@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import {
   AlertTriangle,
   Check,
-  CheckCircle2,
   Copy,
   Eraser,
   Eye,
@@ -18,7 +17,6 @@ import {
   SlidersHorizontal,
   Sparkles,
   Wand2,
-  X,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
@@ -424,35 +422,6 @@ export default function PasswordGeneratorPage() {
               </p>
             </div>
           )}
-
-          {/* Checks */}
-          {password ? (
-            <div className="mt-6">
-              <p className="mb-3 text-sm font-semibold text-slate-300 light:text-slate-700">
-                Requirements
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {analysis.checks.map((check) => (
-                  <div
-                    key={check.label}
-                    className={[
-                      "flex items-center gap-2.5 rounded-xl border px-3 py-2.5 text-sm",
-                      check.passed
-                        ? "border-emerald-500/20 bg-emerald-500/[0.06] text-emerald-200"
-                        : "border-white/10 light:border-slate-900/10 bg-slate-950 light:bg-white text-slate-400 light:text-slate-600",
-                    ].join(" ")}
-                  >
-                    {check.passed ? (
-                      <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    ) : (
-                      <X className="h-4 w-4 shrink-0 text-red-400" />
-                    )}
-                    {check.label}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : null}
 
           {/* Suggestions */}
           {password && analysis.suggestions.length ? (

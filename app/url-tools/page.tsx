@@ -378,7 +378,7 @@ export default function UrlToolsPage() {
               </button>
               <button
                 onClick={() => { setParseInput(""); setParsed(null); setParseError(""); }}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition sm:col-span-1"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
@@ -515,7 +515,7 @@ export default function UrlToolsPage() {
               </button>
               <button
                 onClick={() => { setEncInput(""); setEncOutput(""); setEncError(""); }}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-300 transition hover:bg-red-500/10 sm:col-span-1"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-red-500 transition sm:col-span-1"
               >
                 <Eraser className="h-4 w-4" />
                 Clear
