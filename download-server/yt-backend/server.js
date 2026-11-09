@@ -335,6 +335,7 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
       "--force-ipv4",
       "--js-runtimes",
       "node",
+      ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       "--geo-bypass",
       "--geo-bypass-country",
