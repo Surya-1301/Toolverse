@@ -170,8 +170,7 @@ function getSapisidHash(cookieHeader, origin = "https://www.youtube.com") {
 
 const COOKIES_PATH = path.join(__dirname, "cookies.txt");
 
-// Cookies can also arrive via env var (base64) — the safe way on Render,
-// so the file never has to live in a public git repo.
+// Cookies can also arrive via env var (base64 or plain IG_SESSIONID) — safe on Render
 if (process.env.COOKIES_B64) {
   try {
     const cleanB64 = process.env.COOKIES_B64.trim().replace(/^["']|["']$/g, "");
@@ -180,6 +179,23 @@ if (process.env.COOKIES_B64) {
     console.log(`[cookies] wrote ${decoded.length} bytes to ${COOKIES_PATH}`);
   } catch (e) {
     console.error("[cookies] could not write COOKIES_B64:", String(e).slice(0, 120));
+  }
+}
+
+if (process.env.IG_SESSIONID || process.env.IG_COOKIES) {
+  try {
+    const raw = (process.env.IG_SESSIONID || process.env.IG_COOKIES || "").trim().replace(/^["']|["']$/g, "");
+    const netscape = formatAsNetscapeCookies(raw, true);
+    if (netscape) {
+      if (fs.existsSync(COOKIES_PATH)) {
+        fs.appendFileSync(COOKIES_PATH, "\n" + netscape, { mode: 0o600 });
+      } else {
+        fs.writeFileSync(COOKIES_PATH, netscape, { mode: 0o600 });
+      }
+      console.log(`[cookies] appended Instagram session cookies to ${COOKIES_PATH}`);
+    }
+  } catch (e) {
+    console.error("[cookies] could not write IG_SESSIONID:", String(e).slice(0, 120));
   }
 }
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
