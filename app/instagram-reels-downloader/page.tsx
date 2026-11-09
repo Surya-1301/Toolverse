@@ -511,7 +511,7 @@ export default function InstagramReelsDownloaderPage() {
 
       <div className="mt-10">
         <HowToUse
-          title="How to download Instagram reels, videos, photos & stories"
+          title="How to use Instagram Downloader"
           subtitle=""
           steps={[
             {

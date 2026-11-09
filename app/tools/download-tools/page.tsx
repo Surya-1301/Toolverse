@@ -28,7 +28,7 @@ const tools = [
     icon: <Music className="h-6 w-6" />,
   },
   {
-    title: "Instagram Reels Downloader",
+    title: "Instagram Downloader",
     description: "Download Instagram reels, posts and carousels in HD.",
     href: "/instagram-reels-downloader",
     icon: <Film className="h-6 w-6" />,
