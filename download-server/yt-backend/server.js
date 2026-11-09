@@ -137,10 +137,49 @@ function formatAsNetscapeCookies(rawInput, isInstagram = false) {
     } catch {}
   }
 
-  // Key-value pairs or single sessionid
+  if (isInstagram) {
+    const igDomains = [".instagram.com", "i.instagram.com", "www.instagram.com"];
+    const rows = ["# Netscape HTTP Cookie File"];
+    const cookieMap = new Map();
+    if (!text.includes("=") && text.length > 8) {
+      cookieMap.set("sessionid", text.trim());
+    } else {
+      const pairs = text.split(";");
+      for (const pair of pairs) {
+        const eq = pair.indexOf("=");
+        if (eq > 0) {
+          const k = pair.slice(0, eq).trim();
+          const v = pair.slice(eq + 1).trim();
+          if (k && v) cookieMap.set(k, v);
+        }
+      }
+    }
+
+    const sessionVal = cookieMap.get("sessionid");
+    if (sessionVal && !cookieMap.has("ds_user_id")) {
+      try {
+        const uid = decodeURIComponent(sessionVal).split(":")[0];
+        if (uid && /^\d+$/.test(uid)) {
+          cookieMap.set("ds_user_id", uid);
+        }
+      } catch {}
+    }
+
+    if (!cookieMap.has("csrftoken")) {
+      cookieMap.set("csrftoken", crypto.randomBytes(16).toString("hex"));
+    }
+
+    for (const d of igDomains) {
+      for (const [k, v] of cookieMap.entries()) {
+        rows.push(`${d}\tTRUE\t/\tTRUE\t2147483647\t${k}\t${v}`);
+      }
+    }
+    return rows.join("\n") + "\n";
+  }
+
+  // Key-value pairs or single sessionid for other domains
   const rows = ["# Netscape HTTP Cookie File"];
   if (!text.includes("=") && text.length > 8) {
-    // Single session id passed directly
     rows.push(`${domain}\tTRUE\t/\tTRUE\t2147483647\tsessionid\t${text}`);
   } else {
     const pairs = text.split(";");
@@ -301,6 +340,8 @@ function runYtDlp(args, timeoutMs, customCookiesPath) {
       "--geo-bypass-country",
       "IN",
       "--no-check-certificates",
+      "--user-agent",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
       "--socket-timeout",
       "12",
       ...args,
@@ -1029,6 +1070,8 @@ app.get("/api/debug-ytdlp", async (req, res) => {
       "--geo-bypass-country",
       "IN",
       "--no-check-certificates",
+      "--user-agent",
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
       "--socket-timeout",
       "8",
       "--dump-json",
@@ -1189,17 +1232,15 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
 
     const isInstagramStory = /instagram\.com\/stories\//i.test(key);
     const errText = String((e && e.message) || e);
-    const isLoginRequired = /log in to access this content|login_required|sign in/i.test(errText);
+    const isLoginRequired = /log in to access this content|login_required|sign in|auth/i.test(errText);
 
     if (isInstagramStory || isLoginRequired) {
-      if (!hasIgSession) {
-        return res.status(403).json({
-          error: "Instagram Stories require an active login session.",
-          detail: "Meta restricts all Instagram Stories to authenticated accounts. Please set 'IG_SESSIONID' in your Render Environment Variables to enable story downloads.",
-          needsCookies: true,
-          isStory: true,
-        });
-      }
+      return res.status(403).json({
+        error: "Instagram Stories require an active login session.",
+        detail: "Meta restricts all Instagram Stories to authenticated accounts. Ensure your IG_SESSIONID in Render is active and can view this story.",
+        needsCookies: true,
+        isStory: true,
+      });
     }
 
     const isInstagram = /instagram\.com|instagr\.am/i.test(key);

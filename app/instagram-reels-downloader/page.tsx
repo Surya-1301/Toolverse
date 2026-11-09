@@ -179,7 +179,7 @@ export default function InstagramReelsDownloaderPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data?.detail || data?.error || `Server returned ${res.status}`);
+        throw new Error(data?.error || data?.detail || `Server returned ${res.status}`);
       }
 
       setDetails({
@@ -196,9 +196,9 @@ export default function InstagramReelsDownloaderPage() {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
-        } else if (isStory || /log in|login|session|auth/i.test(msg)) {
+        } else if (isStory || /log in|login|session|auth|yt-dlp|cookies-from-browser/i.test(msg)) {
           setError(
-            "This story cannot be accessed without an active Instagram session (Meta restricts stories to logged-in accounts). Please set 'IG_SESSIONID' in your Render Environment Variables to enable story downloads."
+            "This story cannot be accessed without an active Instagram session (Meta restricts stories to logged-in accounts). Please ensure your 'IG_SESSIONID' in Render is valid and from an account that can view this story."
           );
         } else {
           setError(
