@@ -883,18 +883,32 @@ async function fetchInstagramDirect(url) {
   const m = String(url).match(/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
   if (!m) return null;
   const shortcode = m[1];
-  try {
+
+  const fetchEmbedHtml = async (useProxy) => {
     const res = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
-      signal: AbortSignal.timeout(8000),
-      ...(proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
+      signal: AbortSignal.timeout(6000),
+      ...(useProxy && proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
     });
     if (!res.ok) return null;
-    const html = await res.text();
+    return await res.text();
+  };
+
+  try {
+    let html = null;
+    try {
+      html = await fetchEmbedHtml(false);
+    } catch {}
+    if (!html && proxyDispatcher) {
+      try {
+        html = await fetchEmbedHtml(true);
+      } catch {}
+    }
+    if (!html) return null;
 
     let videoUrl = null;
     const vm = html.match(/"video_url"\s*:\s*"([^"]+)"/);
@@ -1010,7 +1024,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.0",
+    version: "2.5.1",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
