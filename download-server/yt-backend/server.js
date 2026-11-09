@@ -914,6 +914,16 @@ async function fetchInstagramDirect(url) {
       } catch {}
     }
 
+    if (!thumbnail) {
+      const im = html.match(/class="EmbeddedMediaImage"[^>]+src="([^"]+)"/);
+      if (im) thumbnail = im[1].replace(/&amp;/g, "&");
+    }
+
+    if (!thumbnail) {
+      const fallbackIm = html.match(/<img[^>]+src="([^"]+fbcdn\.net[^"]+)"/);
+      if (fallbackIm) thumbnail = fallbackIm[1].replace(/&amp;/g, "&");
+    }
+
     if (!videoUrl && !thumbnail) return null;
 
     let title = videoUrl ? "Instagram Video" : "Instagram Photo";
@@ -924,8 +934,11 @@ async function fetchInstagramDirect(url) {
     }
 
     let uploader = null;
-    const um = html.match(/class="EmbeddedMediaUser-username"[^>]*>([^<]+)</);
+    const um = html.match(/class="EmbeddedMediaUser-username"[^>]*>([^<]+)</) || html.match(/class="UsernameText"[^>]*>([^<]+)</);
     if (um) uploader = um[1].trim();
+
+    // Extract all photos if carousel
+    const allImgs = [...html.matchAll(/class="EmbeddedMediaImage"[^>]+src="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
 
     const resources = [];
     if (videoUrl) {
@@ -941,7 +954,21 @@ async function fetchInstagramDirect(url) {
       });
     }
 
-    if (thumbnail) {
+    if (allImgs.length > 1) {
+      allImgs.forEach((img, idx) => {
+        resources.push({
+          id: `ig_img_${shortcode}_${idx + 1}`,
+          quality: 1080,
+          ext: "jpg",
+          size: 0,
+          sizeLabel: `Photo ${idx + 1} (JPG)`,
+          hasAudio: false,
+          fps: null,
+          directUrl: img,
+          isImage: true,
+        });
+      });
+    } else if (thumbnail) {
       resources.push({
         id: `ig_img_${shortcode}`,
         quality: 1080,
