@@ -13,15 +13,16 @@ if (dns.setDefaultResultOrder) {
   dns.setDefaultResultOrder("ipv4first");
 }
 
+const PROXY_URL = (process.env.PROXY_URL || "").trim();
 let proxyDispatcher = undefined;
 let proxyInitError = null;
-if (process.env.PROXY_URL) {
+if (PROXY_URL) {
   try {
     const { ProxyAgent } = require("undici");
-    proxyDispatcher = new ProxyAgent(process.env.PROXY_URL);
+    proxyDispatcher = new ProxyAgent(PROXY_URL);
     console.log(
       "[proxy] Fetch proxy enabled:",
-      process.env.PROXY_URL.replace(/:[^:@]+@/, ":***@"),
+      PROXY_URL.replace(/:[^:@]+@/, ":***@"),
     );
   } catch (err) {
     proxyInitError = err.message;
@@ -381,16 +382,22 @@ setInterval(() => {
 function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
   return new Promise((resolve, reject) => {
     const cookiesToUse = customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null);
-    const useProxy = options.noProxy ? false : Boolean(process.env.PROXY_URL);
+    const useProxy = options.noProxy ? false : Boolean(PROXY_URL);
+    const isIg = Boolean(options.isIg) || args.some((a) => /instagram\.com|instagr\.am/i.test(a));
+    const geoArgs = (!isIg && !options.noGeo) ? ["--geo-bypass", "--geo-bypass-country", "IN"] : [];
+    const uaArgs = (!options.noUserAgent && !isIg)
+      ? ["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"]
+      : [];
+
     const fullArgs = [
       "--force-ipv4",
       "--js-runtimes",
       "node",
-      ...(useProxy ? ["--proxy", process.env.PROXY_URL] : []),
+      ...(useProxy ? ["--proxy", PROXY_URL] : []),
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
-      ...(!options.noGeo ? ["--geo-bypass", "--geo-bypass-country", "IN"] : []),
+      ...geoArgs,
       "--no-check-certificates",
-      ...(!options.noUserAgent ? ["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"] : []),
+      ...uaArgs,
       "--socket-timeout",
       "15",
       ...args,
@@ -500,16 +507,16 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   }
 
   if (isIg) {
-    const tryProxyFirst = Boolean(process.env.PROXY_URL);
+    const tryProxyFirst = Boolean(PROXY_URL);
     const attempts = tryProxyFirst
       ? [
-          { noProxy: false, noUserAgent: false },
-          { noProxy: true, noUserAgent: false },
-          { noProxy: true, noUserAgent: true },
+          { noProxy: false, noUserAgent: true, isIg: true },
+          { noProxy: true, noUserAgent: true, isIg: true },
+          { noProxy: false, noUserAgent: false, isIg: true },
         ]
       : [
-          { noProxy: true, noUserAgent: false },
-          { noProxy: true, noUserAgent: true },
+          { noProxy: true, noUserAgent: true, isIg: true },
+          { noProxy: true, noUserAgent: false, isIg: true },
         ];
 
     let lastErr = null;
