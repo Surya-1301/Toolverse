@@ -206,15 +206,48 @@ function getSapisidHash(cookieHeader, origin = "https://www.youtube.com") {
 
 const COOKIES_PATH = path.join(__dirname, "cookies.txt");
 
-// Cookies can also arrive via env var (base64 or plain IG_SESSIONID) — safe on Render
+// Cookies can arrive via Render Secret Files, base64 env vars, or plain IG_SESSIONID
+const RENDER_SECRET_COOKIES = "/etc/secrets/cookies.txt";
+if (fs.existsSync(RENDER_SECRET_COOKIES)) {
+  try {
+    const raw = fs.readFileSync(RENDER_SECRET_COOKIES, "utf8");
+    fs.writeFileSync(COOKIES_PATH, raw, { mode: 0o600 });
+    console.log(`[cookies] loaded Render secret file from ${RENDER_SECRET_COOKIES}`);
+  } catch (e) {
+    console.error("[cookies] could not load Render secret file:", e.message);
+  }
+}
+
 if (process.env.COOKIES_B64) {
   try {
     const cleanB64 = process.env.COOKIES_B64.trim().replace(/^["']|["']$/g, "");
     const decoded = Buffer.from(cleanB64, "base64");
-    fs.writeFileSync(COOKIES_PATH, decoded, { mode: 0o600 });
-    console.log(`[cookies] wrote ${decoded.length} bytes to ${COOKIES_PATH}`);
+    if (fs.existsSync(COOKIES_PATH)) {
+      fs.appendFileSync(COOKIES_PATH, "\n" + decoded.toString("utf8"), { mode: 0o600 });
+    } else {
+      fs.writeFileSync(COOKIES_PATH, decoded, { mode: 0o600 });
+    }
+    console.log(`[cookies] wrote COOKIES_B64 bytes to ${COOKIES_PATH}`);
   } catch (e) {
     console.error("[cookies] could not write COOKIES_B64:", String(e).slice(0, 120));
+  }
+}
+
+if (process.env.IG_COOKIES_B64) {
+  try {
+    const cleanB64 = process.env.IG_COOKIES_B64.trim().replace(/^["']|["']$/g, "");
+    const decoded = Buffer.from(cleanB64, "base64").toString("utf8");
+    const netscape = formatAsNetscapeCookies(decoded, true);
+    if (netscape) {
+      if (fs.existsSync(COOKIES_PATH)) {
+        fs.appendFileSync(COOKIES_PATH, "\n" + netscape, { mode: 0o600 });
+      } else {
+        fs.writeFileSync(COOKIES_PATH, netscape, { mode: 0o600 });
+      }
+      console.log(`[cookies] appended IG_COOKIES_B64 to ${COOKIES_PATH}`);
+    }
+  } catch (e) {
+    console.error("[cookies] could not write IG_COOKIES_B64:", String(e).slice(0, 120));
   }
 }
 
