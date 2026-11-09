@@ -3,18 +3,15 @@
 import { BackButton } from "@/components/BackButton";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  AlertCircle,
   Check,
   ClipboardPaste,
   Download,
   Eraser,
   Film,
   Image as ImageIcon,
-  KeyRound,
   Link2,
   Loader2,
   Music,
-  ShieldCheck,
 } from "lucide-react";
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
@@ -72,9 +69,7 @@ export default function InstagramReelsDownloaderPage() {
   const [serverResources, setServerResources] = useState<ServerResource[] | null>(
     null
   );
-  // Visitor's own Instagram cookies (required for Stories and private content)
   const [cookiesText, setCookiesText] = useState("");
-  const [showCookies, setShowCookies] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -103,23 +98,6 @@ export default function InstagramReelsDownloaderPage() {
       // storage unavailable
     }
   }, []);
-
-  const cookieStatus = useMemo(() => {
-    const text = cookiesText.trim();
-    if (!text) return null;
-    const hasAuth = /(sessionid|ds_user_id|csrftoken)/i.test(text);
-    if (hasAuth || (text.length > 20 && !text.includes(" "))) {
-      return {
-        valid: true,
-        message: "Instagram session detected (sessionid / credentials active).",
-      };
-    }
-    return {
-      valid: false,
-      message:
-        "No sessionid or ds_user_id found. If downloading Stories or private posts, paste your cookies.txt or sessionid.",
-    };
-  }, [cookiesText]);
 
   // Split resources into Videos, Photos, and Audio
   const videoResources = useMemo(() => {
@@ -201,9 +179,6 @@ export default function InstagramReelsDownloaderPage() {
 
       const data = await res.json();
       if (!res.ok) {
-        if (data?.needsCookies || clean.includes("/stories/")) {
-          setShowCookies(true);
-        }
         throw new Error(data?.detail || data?.error || `Server returned ${res.status}`);
       }
 
@@ -216,23 +191,14 @@ export default function InstagramReelsDownloaderPage() {
     } catch (e: unknown) {
       if ((e as Error).name !== "AbortError") {
         const msg = (e as Error).message || "";
-        const isStory = /stories\//i.test(clean);
-        if (isStory && !cookiesText.trim()) {
-          setShowCookies(true);
-          setError(
-            "Instagram Stories require an active Instagram session because Meta blocks unauthenticated access to stories. Please paste your Instagram cookies (or sessionid) below to download this story."
-          );
-        } else if (/failed to fetch/i.test(msg)) {
+        if (/failed to fetch/i.test(msg)) {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
         } else {
-          if (/login|cookie|auth|session|story|stories|private/i.test(msg)) {
-            setShowCookies(true);
-          }
           setError(
             msg ||
-              "Could not fetch Instagram info. The post/story may be private, restricted, or expired. Try adding cookies below."
+              "Could not fetch Instagram info. The post/story may be private, restricted, or expired."
           );
         }
       }
@@ -351,14 +317,6 @@ export default function InstagramReelsDownloaderPage() {
               <ClipboardPaste className="h-5 w-5" />
             </button>
           </div>
-          {url.includes("/stories/") ? (
-            <div className="mt-2.5 flex items-start gap-2 rounded-xl border border-pink-500/30 bg-pink-500/10 p-2.5 text-xs text-pink-200 light:text-pink-800">
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-pink-400" />
-              <span>
-                <strong>Instagram Story Link:</strong> Active 24-hour stories are restricted by Meta to logged-in accounts. If this story is from a private account or requires login, expand <strong>&quot;Instagram Cookies / Session&quot;</strong> below.
-              </span>
-            </div>
-          ) : null}
         </label>
 
         <div className="mt-5 flex flex-wrap gap-3">
@@ -383,133 +341,6 @@ export default function InstagramReelsDownloaderPage() {
             <Eraser className="h-4 w-4" />
             Clear
           </button>
-        </div>
-
-        {/* Visitor's own Instagram cookies accordion */}
-        <div className="mt-4 border-t border-white/10 pt-3 light:border-slate-900/10">
-          <button
-            type="button"
-            onClick={() => setShowCookies((v) => !v)}
-            className="flex items-center gap-2 text-xs font-medium text-slate-400 underline-offset-4 hover:underline hover:text-pink-400 light:text-slate-600 light:hover:text-pink-600 transition"
-          >
-            <KeyRound className="h-3.5 w-3.5" />
-            {showCookies
-              ? "Hide Instagram Cookies / Session"
-              : "Downloading Stories or Private posts? Add your Instagram session (optional)"}
-          </button>
-          {showCookies ? (
-            <div className="mt-3 rounded-2xl border border-white/10 bg-white/[0.02] p-4 light:border-slate-900/10 light:bg-slate-50">
-              <div className="text-xs leading-5 text-slate-300 light:text-slate-700">
-                <p className="font-semibold text-white light:text-slate-900 flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-pink-400" /> How to download Stories and private content:
-                </p>
-                <p className="mt-1 text-slate-400 light:text-slate-600">
-                  Meta strictly gates Instagram Stories and private posts so only logged-in sessions can view them. You can easily authenticate by providing your browser&apos;s session:
-                </p>
-                <ol className="mt-2.5 space-y-2 list-none pl-0">
-                  <li className="flex items-start gap-2.5">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink-500/20 text-[11px] font-bold text-pink-400">
-                      1
-                    </span>
-                    <span>
-                      <strong>Option A (Easiest - Single Session ID):</strong> Open{" "}
-                      <a
-                        href="https://www.instagram.com"
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="underline decoration-pink-400/40 underline-offset-2 hover:text-pink-300"
-                      >
-                        instagram.com
-                      </a>{" "}
-                      logged in &rarr; Press <kbd className="rounded bg-white/10 px-1 py-0.5 font-mono text-[11px]">F12</kbd> (or Right-click &rarr; Inspect) &rarr; Go to <strong>Application</strong> &rarr; <strong>Cookies</strong> &rarr; Copy the <strong>sessionid</strong> cookie value and paste it below.
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink-500/20 text-[11px] font-bold text-pink-400">
-                      2
-                    </span>
-                    <span>
-                      <strong>Option B (Full cookies.txt):</strong> Install the browser extension{" "}
-                      <a
-                        href="https://chromewebstore.google.com/detail/get-cookiestxt-locally/cclelndahbckbenkjhflpdbgdldlbecc"
-                        target="_blank"
-                        rel="noreferrer noopener"
-                        className="underline decoration-pink-400/40 underline-offset-2 hover:text-pink-300"
-                      >
-                        Get cookies.txt LOCALLY
-                      </a>
-                      , open instagram.com, click &quot;Export&quot;, and drop the file below.
-                    </span>
-                  </li>
-                </ol>
-                <p className="mt-3 border-t border-white/5 pt-2 text-[11px] text-slate-400 light:border-slate-900/5 light:text-slate-500">
-                  🔒 <strong>Privacy note:</strong> Cookies are stored only in your local browser and sent exclusively to fetch your requested media. They are never saved to any database.
-                </p>
-              </div>
-
-              <textarea
-                value={cookiesText}
-                onChange={(e) => setCookiesText(e.target.value)}
-                placeholder="Paste your Instagram sessionid or cookies.txt content here…"
-                rows={4}
-                spellCheck={false}
-                className="mt-3 min-h-24 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 font-mono text-xs text-white outline-none transition placeholder:text-slate-600 focus:border-pink-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400"
-              />
-
-              {cookieStatus ? (
-                <div
-                  className={`mt-2 flex items-start gap-2 rounded-xl p-3 text-xs leading-5 ${
-                    cookieStatus.valid
-                      ? "border border-emerald-500/30 bg-emerald-500/10 text-emerald-300 light:text-emerald-800"
-                      : "border border-amber-500/30 bg-amber-500/10 text-amber-200 light:text-amber-800"
-                  }`}
-                >
-                  {cookieStatus.valid ? (
-                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" />
-                  ) : (
-                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
-                  )}
-                  <span>{cookieStatus.message}</span>
-                </div>
-              ) : null}
-
-              <div className="mt-3 flex flex-wrap items-center gap-3">
-                <label className="inline-flex min-h-10 cursor-pointer items-center gap-2 rounded-xl border border-white/15 px-4 text-xs font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900">
-                  Drop cookies.txt file
-                  <input
-                    type="file"
-                    accept=".txt,text/plain"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (!file) return;
-                      file
-                        .text()
-                        .then((text) => setCookiesText(text))
-                        .catch(() => {});
-                      e.target.value = "";
-                    }}
-                  />
-                </label>
-                {cookiesText.trim() ? (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCookiesText("");
-                      try {
-                        localStorage.removeItem(IG_COOKIES_KEY);
-                      } catch {
-                        /* ignore */
-                      }
-                    }}
-                    className="text-xs font-medium text-slate-400 underline-offset-4 hover:underline hover:text-red-400 light:text-slate-600"
-                  >
-                    Forget saved cookies
-                  </button>
-                ) : null}
-              </div>
-            </div>
-          ) : null}
         </div>
 
         {error ? (
