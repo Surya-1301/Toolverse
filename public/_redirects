@@ -1,0 +1,19 @@
+# Cloudflare Pages 301 Redirects for moved/deleted routes
+
+# Renamed & split categories
+/tools/text-developer-tools /tools/developer-tools/ 301
+/tools/text-developer-tools/ /tools/developer-tools/ 301
+/download /tools/download-tools/ 301
+/download/ /tools/download-tools/ 301
+
+# Merged tools
+/image-cropper /image-resizer-cropper/ 301
+/image-cropper/ /image-resizer-cropper/ 301
+/image-resizer /image-resizer-cropper/ 301
+/image-resizer/ /image-resizer-cropper/ 301
+
+# Deleted tools redirected to catalog
+/pdf-editor /tools/ 301
+/pdf-editor/ /tools/ 301
+/pdf-to-markdown /tools/ 301
+/pdf-to-markdown/ /tools/ 301

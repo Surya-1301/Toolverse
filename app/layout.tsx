@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
   alternates: {
-    canonical: siteUrl,
+    canonical: `${siteUrl}/`,
   },
   openGraph: {
     type: "website",
@@ -112,27 +112,27 @@ const jsonLd = {
 const footerLinks = [
   {
     label: "Blog",
-    href: "/blog",
+    href: "/blog/",
     icon: Newspaper,
   },
   {
     label: "Privacy",
-    href: "/privacy",
+    href: "/privacy/",
     icon: ShieldCheck,
   },
   {
     label: "Terms",
-    href: "/terms",
+    href: "/terms/",
     icon: FileText,
   },
   {
     label: "Contact",
-    href: "/contact",
+    href: "/contact/",
     icon: Mail,
   },
   {
     label: "Abuse",
-    href: "/report-abuse",
+    href: "/report-abuse/",
     icon: Flag,
   },
   {

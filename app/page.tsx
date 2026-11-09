@@ -111,7 +111,7 @@ export default function Home() {
 
         <div className="mt-6 flex justify-center">
           <Link
-            href="/tools"
+            href="/tools/"
             className="apple-pill-btn inline-flex min-h-11 items-center justify-center rounded-full px-8 py-3 text-sm font-semibold text-white shadow-lg shadow-sky-500/25 hover:shadow-sky-500/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 transition-all duration-200 active:scale-[0.98]"
           >
             Explore all tools

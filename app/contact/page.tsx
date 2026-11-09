@@ -364,7 +364,7 @@ export default function ContactPage() {
         </p>
 
         <Link
-          href="/report-abuse"
+          href="/report-abuse/"
           className="mt-4 inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm font-semibold text-slate-300 transition hover:bg-white/[0.06] hover:text-white light:border-slate-900/10 light:bg-white light:text-slate-700 light:hover:bg-slate-100 light:hover:text-slate-900"
         >
           <Flag className="h-4 w-4" />

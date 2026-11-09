@@ -23,7 +23,7 @@ export default function FileShareLayout({
       {children}
       <SeoFaq
         faq={seo.faq}
-        pageUrl="https://toolversee.pages.dev/file-share"
+        pageUrl="https://toolversee.pages.dev/file-share/"
       />
     </>
   );

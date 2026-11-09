@@ -71,25 +71,32 @@ export default function SeoFaq({ faq, pageUrl, crumbs, pageName, heading, subhea
   // BreadcrumbList schema — tool pages get "Home > Tools > {parent} > {tool}".
   // Uses the passed trail, or derives one from the tool-slug mapping above.
   // Tools not listed in a category page get a 2-level "Home > Tools > {tool}".
+  const withSlash = (url: string) => (url.endsWith("/") ? url : `${url}/`);
+  const normalizedPageUrl = pageUrl ? withSlash(pageUrl) : "";
+
   const trail =
-    crumbs ??
+    crumbs?.map((crumb) => ({ ...crumb, url: withSlash(crumb.url) })) ??
     (() => {
-      const segments = pageUrl.replace("https://toolversee.pages.dev/", "").split("/");
+      const segments = pageUrl
+        .replace("https://toolversee.pages.dev/", "")
+        .replace("https://toolversee.pages.dev", "")
+        .split("/")
+        .filter(Boolean);
       const slug = segments[0] || "";
       const category = TOOL_CATEGORY[slug];
 
       const base: { name: string; url: string }[] = category
         ? [
             { name: "Home", url: "https://toolversee.pages.dev/" },
-            { name: "Tools", url: "https://toolversee.pages.dev/tools" },
+            { name: "Tools", url: "https://toolversee.pages.dev/tools/" },
             {
               name: category.parent,
-              url: `https://toolversee.pages.dev${category.parentUrl}`,
+              url: withSlash(`https://toolversee.pages.dev${category.parentUrl}`),
             },
           ]
         : [
             { name: "Home", url: "https://toolversee.pages.dev/" },
-            { name: "Tools", url: "https://toolversee.pages.dev/tools" },
+            { name: "Tools", url: "https://toolversee.pages.dev/tools/" },
           ];
 
       return [
@@ -99,7 +106,7 @@ export default function SeoFaq({ faq, pageUrl, crumbs, pageName, heading, subhea
             pageName ||
             (slug ? toolSeo[slug]?.title?.split(" - ")[0] : undefined) ||
             segments[segments.length - 1],
-          url: pageUrl,
+          url: normalizedPageUrl,
         },
       ];
     })();
@@ -118,7 +125,7 @@ export default function SeoFaq({ faq, pageUrl, crumbs, pageName, heading, subhea
   const faqSchema = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
-    "@id": pageUrl ? `${pageUrl}#faq` : undefined,
+    "@id": normalizedPageUrl ? `${normalizedPageUrl}#faq` : undefined,
     mainEntity: faq.map((item) => ({
       "@type": "Question",
       name: item.q,

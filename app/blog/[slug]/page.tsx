@@ -38,11 +38,11 @@ export async function generateMetadata({
     description: post.description,
     keywords: post.keywords,
     alternates: {
-      canonical: `https://toolversee.pages.dev/blog/${post.slug}`,
+      canonical: `https://toolversee.pages.dev/blog/${post.slug}/`,
     },
     openGraph: {
       type: "article",
-      url: `https://toolversee.pages.dev/blog/${post.slug}`,
+      url: `https://toolversee.pages.dev/blog/${post.slug}/`,
       title: post.title,
       description: post.description,
       publishedTime: post.date,
@@ -235,9 +235,9 @@ export default async function BlogArticlePage({
     publisher: {
       "@type": "Organization",
       name: "Toolverse",
-      url: "https://toolversee.pages.dev",
+      url: "https://toolversee.pages.dev/",
     },
-    mainEntityOfPage: `https://toolversee.pages.dev/blog/${post.slug}`,
+    mainEntityOfPage: `https://toolversee.pages.dev/blog/${post.slug}/`,
     keywords: post.keywords.join(", "),
   };
 
@@ -255,13 +255,13 @@ export default async function BlogArticlePage({
         "@type": "ListItem",
         position: 2,
         name: "Blog",
-        item: "https://toolversee.pages.dev/blog",
+        item: "https://toolversee.pages.dev/blog/",
       },
       {
         "@type": "ListItem",
         position: 3,
         name: post.title,
-        item: `https://toolversee.pages.dev/blog/${post.slug}`,
+        item: `https://toolversee.pages.dev/blog/${post.slug}/`,
       },
     ],
   };

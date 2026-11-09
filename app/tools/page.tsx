@@ -41,7 +41,7 @@ const popularTools = [
     title: "Upload & Share",
     description:
       "Upload images or files and get temporary shareable links.",
-    href: "/file-share",
+    href: "/file-share/",
     icon: <FileUp className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -49,7 +49,7 @@ const popularTools = [
     title: "Image & PDF Compressor",
     description:
       "Compress images and PDF files with simple quality controls.",
-    href: "/image-compressor",
+    href: "/image-compressor/",
     icon: <ImageDown className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -57,7 +57,7 @@ const popularTools = [
     title: "Paste",
     description:
       "Share text and code snippets with quick, clean links.",
-    href: "/paste",
+    href: "/paste/",
     icon: <Text className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -65,7 +65,7 @@ const popularTools = [
     title: "URL Shortener",
     description:
       "Turn long URLs into short, memorable links.",
-    href: "/url-shortener",
+    href: "/url-shortener/",
     icon: <Link2 className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -73,7 +73,7 @@ const popularTools = [
     title: "Background Remover",
     description:
       "Remove image backgrounds and download transparent PNG files.",
-    href: "/background-remover",
+    href: "/background-remover/",
     icon: <ImagePlus className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -81,14 +81,14 @@ const popularTools = [
     title: "YouTube Downloader",
     description:
       "Download YouTube videos and audio in multiple resolutions and formats.",
-    href: "/youtube-downloader",
+    href: "/youtube-downloader/",
     icon: <Clapperboard className="h-6 w-6" />,
   },
   {
     title: "Fake Address Generator",
     description:
       "Generate realistic fake addresses with user profiles (name, email, phone) for testing.",
-    href: "/fake-address-generator",
+    href: "/fake-address-generator/",
     icon: <MapPin className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -96,7 +96,7 @@ const popularTools = [
     title: "QR Generator",
     description:
       "Create downloadable QR codes for links, text, and files.",
-    href: "/qr-generator",
+    href: "/qr-generator/",
     icon: <QrCode className="h-6 w-6" />,
     status: "live" as const,
   },
@@ -112,7 +112,7 @@ const categoryCards = [
     title: "Download Tools",
     description:
       "Download YouTube videos, music, Instagram reels, and convert audio — all from your browser.",
-    href: "/tools/download-tools",
+    href: "/tools/download-tools/",
     icon: <Download className="h-7 w-7" />,
     status: "live" as const,
   },
@@ -120,7 +120,7 @@ const categoryCards = [
     title: "Image Tools",
     description:
       "Convert, resize, crop, watermark, blur, upscale, and remove image backgrounds.",
-    href: "/tools/image-tools",
+    href: "/tools/image-tools/",
     icon: <Images className="h-7 w-7" />,
     status: "live" as const,
   },
@@ -129,7 +129,7 @@ const categoryCards = [
     title: "Conversion Tools",
     description:
       "Convert Markdown, HTML, YAML, JSON, CSV, and Excel-compatible files.",
-    href: "/tools/conversion-tools",
+    href: "/tools/conversion-tools/",
     icon: <FileCode2 className="h-7 w-7" />,
     status: "live" as const,
   },
@@ -138,7 +138,7 @@ const categoryCards = [
     title: "Formatter & Minifier Tools",
     description:
       "Format, validate, minify, clean, and copy developer-friendly code outputs.",
-    href: "/tools/formatter-tools",
+    href: "/tools/formatter-tools/",
     icon: <Sparkles className="h-7 w-7" />,
     status: "live" as const,
   },
@@ -147,7 +147,7 @@ const categoryCards = [
     title: "Text Tools",
     description:
       "Count, transform, compare, convert, and generate placeholder text with ease.",
-    href: "/tools/text-tools",
+    href: "/tools/text-tools/",
     icon: <Type className="h-7 w-7" />,
     status: "live" as const,
   },
@@ -156,7 +156,7 @@ const categoryCards = [
     title: "Developer Tools",
     description:
       "Generate UUIDs, passwords, hashes, Base64, JWTs, validate data, test APIs, and more.",
-    href: "/tools/developer-tools",
+    href: "/tools/developer-tools/",
     icon: <Wrench className="h-7 w-7" />,
     status: "live" as const,
   },

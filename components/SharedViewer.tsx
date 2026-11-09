@@ -460,7 +460,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
       <Container className="min-h-[calc(100vh-180px)] py-8 sm:py-16">
         <div className="mx-auto max-w-[800px]">
           <div className="mb-6">
-            <BackButton fallbackHref="/file-share" />
+            <BackButton fallbackHref="/file-share/" />
           </div>
           {isLoading ? (
             <ViewerLoading />
@@ -575,7 +575,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
       <Container className="min-h-[calc(100vh-180px)] py-8 sm:py-16">
         <div className="mx-auto max-w-[800px]">
           <div className="mb-6">
-            <BackButton fallbackHref="/file-share" />
+            <BackButton fallbackHref="/file-share/" />
           </div>
           {isLoading ? (
             <ViewerLoading />
@@ -815,7 +815,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
             <>
               <div className="mx-auto max-w-[800px]">
                 <div className="mb-6">
-                  <BackButton fallbackHref="/file-share" />
+                  <BackButton fallbackHref="/file-share/" />
                 </div>
                 <section
                   className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
@@ -837,7 +837,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                       {mode === "owner" ? (
                         <div className="grid w-full shrink-0 grid-cols-2 items-center gap-3 sm:flex sm:w-auto sm:flex-row sm:justify-end">
                           <Link
-                            href="/file-share"
+                            href="/file-share/"
                             className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                           >
                             <Plus className="h-4 w-4" />
@@ -1105,7 +1105,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
           <>
             <div className="mx-auto max-w-[800px]">
               <div className="mb-6">
-                <BackButton fallbackHref="/file-share" />
+                <BackButton fallbackHref="/file-share/" />
               </div>
               <section
                 className="apple-glass relative overflow-hidden rounded-3xl p-7 sm:p-8"
@@ -1129,7 +1129,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                     {mode === "owner" ? (
                       <div className="grid w-full shrink-0 grid-cols-2 items-center gap-3 sm:flex sm:w-auto sm:flex-row sm:justify-end">
                         <Link
-                          href="/file-share"
+                          href="/file-share/"
                           className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-4 py-2.5 text-sm font-medium text-slate-200 backdrop-blur-md transition hover:border-sky-400/40 hover:bg-white/[0.1] hover:text-white light:border-slate-900/10 light:bg-slate-900/5 light:text-slate-800 light:hover:bg-slate-900/10"
                         >
                           <Plus className="h-4 w-4" />

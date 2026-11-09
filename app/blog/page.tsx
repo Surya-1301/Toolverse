@@ -10,13 +10,13 @@ export const metadata: Metadata = {
   description:
     "Practical guides and developer tips on image compression, JSON vs YAML, UUIDs, password strength, Base64, background removal, and more — from the Toolverse team.",
   alternates: {
-    canonical: "https://toolversee.pages.dev/blog",
+    canonical: "https://toolversee.pages.dev/blog/",
   },
   openGraph: {
     title: "Blog - Guides, Tips & Comparisons | Toolverse",
     description:
       "Practical guides and developer tips on image compression, JSON vs YAML, UUIDs, password strength, Base64, background removal, and more.",
-    url: "https://toolversee.pages.dev/blog",
+    url: "https://toolversee.pages.dev/blog/",
   },
 };
 
@@ -24,12 +24,12 @@ const blogJsonLd = {
   "@context": "https://schema.org",
   "@type": "Blog",
   name: "Toolverse Blog",
-  url: "https://toolversee.pages.dev/blog",
+  url: "https://toolversee.pages.dev/blog/",
   description: metadata.description,
   publisher: {
     "@type": "Organization",
     name: "Toolverse",
-    url: "https://toolversee.pages.dev",
+    url: "https://toolversee.pages.dev/",
   },
 };
 

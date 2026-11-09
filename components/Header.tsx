@@ -11,20 +11,20 @@ import { ThemeToggle } from "./ThemeToggle";
 
 const mainLinks = [
   { href: "https://pdfverse.pages.dev/", label: "PDF" },
-  { href: "/file-share", label: "Upload" },
-  { href: "/image-compressor", label: "Compress" },
-  { href: "/paste", label: "Paste" },
-  { href: "/qr-generator", label: "QR" },
-  { href: "/url-shortener", label: "Shorten" },
+  { href: "/file-share/", label: "Upload" },
+  { href: "/image-compressor/", label: "Compress" },
+  { href: "/paste/", label: "Paste" },
+  { href: "/qr-generator/", label: "QR" },
+  { href: "/url-shortener/", label: "Shorten" },
 ];
 
 const toolLinks = [
-  { href: "/tools/download-tools", label: "Download tools" },
-  { href: "/tools/image-tools", label: "Image tools" },
-  { href: "/tools/conversion-tools", label: "Conversion tools" },
-  { href: "/tools/formatter-tools", label: "Formatter tools" },
-  { href: "/tools/text-tools", label: "Text tools" },
-  { href: "/tools/developer-tools", label: "Developer tools" },
+  { href: "/tools/download-tools/", label: "Download tools" },
+  { href: "/tools/image-tools/", label: "Image tools" },
+  { href: "/tools/conversion-tools/", label: "Conversion tools" },
+  { href: "/tools/formatter-tools/", label: "Formatter tools" },
+  { href: "/tools/text-tools/", label: "Text tools" },
+  { href: "/tools/developer-tools/", label: "Developer tools" },
 ];
 
 export function Header() {
