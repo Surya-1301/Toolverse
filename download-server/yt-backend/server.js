@@ -419,7 +419,10 @@ function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
     });
     proc.on("error", reject);
     proc.on("close", (code, signal) => {
-      if (code === 0) {
+      const hasValidJsonStdout =
+        Boolean(stdout && stdout.trim().length > 0) &&
+        /"id":|"thumbnail":|"formats":|"entries":|"display_url":/.test(stdout);
+      if (code === 0 || hasValidJsonStdout) {
         resolve({ stdout, stderr });
       } else {
         const tail = stderr.trim().split("\n").slice(-3).join(" ").slice(0, 300);
@@ -1024,7 +1027,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.1",
+    version: "2.5.2",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -1378,23 +1381,29 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       info = JSON.parse(stdout);
     } catch {
       const lines = stdout.trim().split("\n").filter(Boolean);
+      const parsedLines = [];
+      for (const l of lines) {
+        try {
+          parsedLines.push(JSON.parse(l));
+        } catch {}
+      }
+
       const storyIdMatch = key.match(/\/stories\/[^/]+\/(\d+)/);
       if (storyIdMatch) {
         const targetId = storyIdMatch[1];
-        for (const l of lines) {
-          try {
-            const parsed = JSON.parse(l);
-            if (parsed.id === targetId || String(parsed.id).includes(targetId)) {
-              info = parsed;
-              break;
-            }
-          } catch {}
-        }
+        info = parsedLines.find((p) => p.id === targetId || String(p.id).includes(targetId));
       }
-      if (!info && lines.length > 0) {
-        try {
-          info = JSON.parse(lines[lines.length - 1]);
-        } catch {}
+
+      if (!info && parsedLines.length > 1) {
+        // Multi-item carousel!
+        info = {
+          title: parsedLines[0].title || "Instagram Post",
+          thumbnail: parsedLines[0].thumbnail || parsedLines[0].url,
+          uploader: parsedLines[0].uploader || null,
+          entries: parsedLines,
+        };
+      } else if (!info && parsedLines.length === 1) {
+        info = parsedLines[0];
       }
     }
 
