@@ -1174,26 +1174,44 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       }
     }
 
+    const hasIgSession = Boolean(
+      tempCookiePath ||
+      process.env.IG_SESSIONID ||
+      process.env.IG_COOKIES ||
+      (HAS_COOKIES && (() => {
+        try {
+          return fs.readFileSync(COOKIES_PATH, "utf8").includes("instagram.com");
+        } catch {
+          return false;
+        }
+      })())
+    );
+
     const isInstagramStory = /instagram\.com\/stories\//i.test(key);
-    if (isInstagramStory && !tempCookiePath && !HAS_COOKIES) {
-      return res.status(403).json({
-        error: "Instagram Stories require login cookies.",
-        detail: "Meta restricts all Instagram Stories to authenticated accounts. Please provide your Instagram cookies or session ID below to download.",
-        needsCookies: true,
-        isStory: true,
-      });
+    const errText = String((e && e.message) || e);
+    const isLoginRequired = /log in to access this content|login_required|sign in/i.test(errText);
+
+    if (isInstagramStory || isLoginRequired) {
+      if (!hasIgSession) {
+        return res.status(403).json({
+          error: "Instagram Stories require an active login session.",
+          detail: "Meta restricts all Instagram Stories to authenticated accounts. Please set 'IG_SESSIONID' in your Render Environment Variables to enable story downloads.",
+          needsCookies: true,
+          isStory: true,
+        });
+      }
     }
 
     const isInstagram = /instagram\.com|instagr\.am/i.test(key);
     res.status(502).json({
       error: isInstagram ? "Could not fetch Instagram media info." : "Could not fetch video info.",
       detail: String((e && e.message) || e).slice(0, 200),
-      hint: HAS_COOKIES || tempCookiePath
+      hint: hasIgSession
         ? undefined
         : isInstagram
-        ? "Instagram blocks datacenter servers from accessing private posts and stories without login. Paste your cookies or session ID below."
+        ? "Instagram blocks datacenter servers from accessing private posts and stories without login. Set IG_SESSIONID in Render."
         : "Try adding your cookies in 'Blocked? Use your own YouTube cookies' below.",
-      needsCookies: isInstagram && (/login|story|stories|sign in/i.test(String((e && e.message) || "")) || isInstagramStory),
+      needsCookies: isInstagram && (/login|story|stories|sign in/i.test(errText) || isInstagramStory),
     });
   } finally {
     if (tempCookiePath) {

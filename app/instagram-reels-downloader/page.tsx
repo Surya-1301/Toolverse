@@ -191,14 +191,19 @@ export default function InstagramReelsDownloaderPage() {
     } catch (e: unknown) {
       if ((e as Error).name !== "AbortError") {
         const msg = (e as Error).message || "";
+        const isStory = /stories\//i.test(clean);
         if (/failed to fetch/i.test(msg)) {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
+        } else if (isStory || /log in|login|session|auth/i.test(msg)) {
+          setError(
+            "This story cannot be accessed without an active Instagram session (Meta restricts stories to logged-in accounts). Please set 'IG_SESSIONID' in your Render Environment Variables to enable story downloads."
+          );
         } else {
           setError(
             msg ||
-              "Could not fetch Instagram info. The post/story may be private, restricted, or expired."
+              "Could not fetch Instagram info. The post or story may be private, restricted, or expired."
           );
         }
       }
