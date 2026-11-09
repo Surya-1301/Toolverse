@@ -575,8 +575,8 @@ function buildResources(info) {
   let bestAudio = null;
 
   for (const f of formats) {
-    const hasVideo = f.vcodec && f.vcodec !== "none";
-    const hasAudio = f.acodec && f.acodec !== "none";
+    const hasVideo = (f.vcodec && f.vcodec !== "none") || (!f.vcodec && (f.video_ext !== "none" || f.ext === "mp4" || f.height));
+    const hasAudio = (f.acodec && f.acodec !== "none") || (!f.acodec && (f.audio_ext !== "none" || f.ext === "m4a" || f.ext === "mp3"));
     const size = f.filesize || f.filesize_approx || 0;
 
     if (hasVideo && f.height) {
@@ -610,20 +610,21 @@ function buildResources(info) {
   // ladder as well as odd heights like Instagram's 960p).
   const video = resources;
 
-  // Support for photo posts and carousels
+  // Support for direct video or photo posts when formats table is minimal
   if (video.length === 0 && (info.url || info.thumbnail || (info.thumbnails && info.thumbnails.length))) {
-    const imgUrl = info.url || info.thumbnail || info.thumbnails[info.thumbnails.length - 1]?.url;
-    if (imgUrl) {
+    const directMediaUrl = info.url || info.thumbnail || info.thumbnails[info.thumbnails.length - 1]?.url;
+    const isDirectVid = Boolean(info.is_video || info.ext === "mp4" || info.video_ext === "mp4" || (info.url && /\.mp4(?:\?|$)/i.test(info.url)));
+    if (directMediaUrl) {
       video.push({
-        id: "ig_img_full",
-        quality: info.height || 1080,
-        ext: "jpg",
-        size: 0,
-        sizeLabel: "Full HD Photo",
-        hasAudio: false,
-        fps: null,
-        isImage: true,
-        directUrl: imgUrl,
+        id: isDirectVid ? "ig_vid_direct" : "ig_img_full",
+        quality: info.height || (isDirectVid ? 720 : 1080),
+        ext: isDirectVid ? "mp4" : "jpg",
+        size: info.filesize || info.filesize_approx || 0,
+        sizeLabel: isDirectVid ? "HD Video (MP4)" : "Full HD Photo",
+        hasAudio: isDirectVid,
+        fps: info.fps || null,
+        isImage: !isDirectVid,
+        directUrl: directMediaUrl,
       });
     }
   }
@@ -883,6 +884,7 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
 async function fetchInstagramDirect(url) {
   if (String(url).includes("/stories/")) return null;
+  const isReelOrVideo = /(?:reel|reels|tv)\//i.test(String(url));
   const m = String(url).match(/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
   if (!m) return null;
   const shortcode = m[1];
@@ -919,6 +921,18 @@ async function fetchInstagramDirect(url) {
       try {
         videoUrl = JSON.parse(`"${vm[1]}"`);
       } catch {}
+    }
+
+    const isVideoEmbed =
+      isReelOrVideo ||
+      /\\"is_video\\":\s*true|"is_video"\s*:\s*true|\\\\"is_video\\\\":\s*true|"product_type"\s*:\s*"clips"/i.test(
+        html
+      );
+
+    // If this is a reel/video post but embed did not provide the video stream,
+    // NEVER degrade it to a photo - return null so yt-dlp extracts the full MP4 video!
+    if (isVideoEmbed && !videoUrl) {
+      return null;
     }
 
     let thumbnail = null;
@@ -1026,7 +1040,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.3",
+    version: "2.5.4",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
@@ -1383,12 +1397,16 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     }
   }
 
-  // Fast direct fallback for Instagram
+  // Fast direct fallback for Instagram photos/carousels
+  // (Reels and videos prioritize yt-dlp first so full MP4 video qualities + audio formats are returned!)
   if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
-    const ig = await fetchInstagramDirect(key);
-    if (ig) {
-      if (!tempCookiePath) parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
-      return res.json(ig);
+    const isReelOrVideo = /(?:reel|reels|tv)\//i.test(key);
+    if (!isReelOrVideo) {
+      const ig = await fetchInstagramDirect(key);
+      if (ig) {
+        if (!tempCookiePath) parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
+        return res.json(ig);
+      }
     }
   }
 
