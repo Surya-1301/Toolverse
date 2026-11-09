@@ -167,6 +167,15 @@ function formatAsNetscapeCookies(rawInput, isInstagram = false) {
     if (!cookieMap.has("csrftoken")) {
       cookieMap.set("csrftoken", crypto.randomBytes(16).toString("hex"));
     }
+    if (!cookieMap.has("mid")) {
+      cookieMap.set("mid", crypto.randomBytes(16).toString("base64url"));
+    }
+    if (!cookieMap.has("ig_did")) {
+      cookieMap.set("ig_did", crypto.randomUUID().toUpperCase());
+    }
+    if (!cookieMap.has("rur")) {
+      cookieMap.set("rur", '"NAO"');
+    }
 
     for (const [k, v] of cookieMap.entries()) {
       rows.push(`.instagram.com\tTRUE\t/\tTRUE\t2147483647\t${k}\t${v}`);
@@ -251,10 +260,21 @@ if (process.env.IG_COOKIES_B64) {
   }
 }
 
-if (process.env.IG_SESSIONID || process.env.IG_COOKIES) {
+const DEFAULT_IG_SESSION = "26746336962%3Aa9pwQq3SnBsDQN%3A21%3AAYkNh5jlqiuMMVgF1ySmLrj8tCOYZcLQLo7ikCPGcQ";
+const rawIgInput = (process.env.IG_SESSIONID || process.env.IG_COOKIES || DEFAULT_IG_SESSION).trim().replace(/^["']|["']$/g, "");
+
+let existingCookieContent = "";
+try {
+  if (fs.existsSync(COOKIES_PATH)) {
+    existingCookieContent = fs.readFileSync(COOKIES_PATH, "utf8");
+  }
+} catch {}
+
+const hasActiveIgInCookies = existingCookieContent.includes(".instagram.com") && existingCookieContent.includes("sessionid");
+
+if (!hasActiveIgInCookies && rawIgInput) {
   try {
-    const raw = (process.env.IG_SESSIONID || process.env.IG_COOKIES || "").trim().replace(/^["']|["']$/g, "");
-    const netscape = formatAsNetscapeCookies(raw, true);
+    const netscape = formatAsNetscapeCookies(rawIgInput, true);
     if (netscape) {
       if (fs.existsSync(COOKIES_PATH)) {
         fs.appendFileSync(COOKIES_PATH, "\n" + netscape, { mode: 0o600 });
@@ -264,7 +284,7 @@ if (process.env.IG_SESSIONID || process.env.IG_COOKIES) {
       console.log(`[cookies] appended Instagram session cookies to ${COOKIES_PATH}`);
     }
   } catch (e) {
-    console.error("[cookies] could not write IG_SESSIONID:", String(e).slice(0, 120));
+    console.error("[cookies] could not write IG session:", String(e).slice(0, 120));
   }
 }
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
@@ -358,23 +378,21 @@ setInterval(() => {
 }, 60000).unref();
 
 // ---- helpers ----
-function runYtDlp(args, timeoutMs, customCookiesPath) {
+function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
   return new Promise((resolve, reject) => {
     const cookiesToUse = customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null);
+    const useProxy = options.noProxy ? false : Boolean(process.env.PROXY_URL);
     const fullArgs = [
       "--force-ipv4",
       "--js-runtimes",
       "node",
-      ...(process.env.PROXY_URL ? ["--proxy", process.env.PROXY_URL] : []),
+      ...(useProxy ? ["--proxy", process.env.PROXY_URL] : []),
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
-      "--geo-bypass",
-      "--geo-bypass-country",
-      "IN",
+      ...(!options.noGeo ? ["--geo-bypass", "--geo-bypass-country", "IN"] : []),
       "--no-check-certificates",
-      "--user-agent",
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+      ...(!options.noUserAgent ? ["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"] : []),
       "--socket-timeout",
-      "12",
+      "15",
       ...args,
     ];
     const proc = spawn("yt-dlp", fullArgs, {
@@ -442,8 +460,10 @@ function normalizeUrl(rawUrl) {
 
 async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint = "") {
   const isYt = /youtube\.com|youtu\.be/i.test(urlHint || args.join(" "));
+  const isIg = /instagram\.com|instagr\.am/i.test(urlHint || args.join(" "));
+  const isStory = /stories\//i.test(urlHint || args.join(" "));
   const isDump = args.includes("--dump-json");
-  const effectiveTimeout = isDump ? Math.min(timeoutMs || 25000, 25000) : (timeoutMs || MAX_MS);
+  const effectiveTimeout = isStory ? Math.min(timeoutMs || 50000, 50000) : isDump ? Math.min(timeoutMs || 25000, 25000) : (timeoutMs || MAX_MS);
 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
@@ -479,7 +499,32 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
     }
   }
 
-  // Non-YouTube (e.g. Instagram)
+  if (isIg) {
+    const tryProxyFirst = Boolean(process.env.PROXY_URL);
+    const attempts = tryProxyFirst
+      ? [
+          { noProxy: false, noUserAgent: false },
+          { noProxy: true, noUserAgent: false },
+          { noProxy: true, noUserAgent: true },
+        ]
+      : [
+          { noProxy: true, noUserAgent: false },
+          { noProxy: true, noUserAgent: true },
+        ];
+
+    let lastErr = null;
+    for (const opts of attempts) {
+      try {
+        return await runYtDlp(args, effectiveTimeout, customCookiesPath, opts);
+      } catch (e) {
+        lastErr = e;
+        console.warn(`[yt-dlp ig attempt failed (noProxy=${opts.noProxy})]:`, (e && e.message) || e);
+      }
+    }
+    throw lastErr;
+  }
+
+  // Non-YouTube, non-Instagram
   return await runYtDlp(args, effectiveTimeout, customCookiesPath);
 }
 
@@ -947,6 +992,56 @@ app.get(["/", "/health"], (req, res) => {
 app.all("/api/clear-cache", (req, res) => {
   parseCache.clear();
   res.json({ ok: true, cleared: true });
+});
+
+app.get("/api/diag", async (req, res) => {
+  try {
+    let rawCookies = "";
+    if (fs.existsSync(COOKIES_PATH)) {
+      rawCookies = fs.readFileSync(COOKIES_PATH, "utf8");
+    }
+    const lines = rawCookies.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
+    const domains = [...new Set(lines.map((l) => l.split("\t")[0]?.trim()).filter(Boolean))];
+    const igLines = lines.filter((l) => l.includes("instagram.com"));
+    const igCookieNames = igLines.map((l) => l.split("\t")[5]?.trim()).filter(Boolean);
+
+    let testResult = null;
+    if (req.query.test_url) {
+      const testUrl = String(req.query.test_url);
+      const withProxy = req.query.no_proxy !== "1";
+      const args = ["--dump-json", "--no-warnings", testUrl];
+      const t0 = Date.now();
+      try {
+        const out = await runYtDlp(args, 45000, null, { noProxy: !withProxy });
+        testResult = {
+          success: true,
+          ms: Date.now() - t0,
+          stdoutLen: out.stdout.length,
+          preview: out.stdout.slice(0, 300),
+        };
+      } catch (err) {
+        testResult = {
+          success: false,
+          ms: Date.now() - t0,
+          error: (err && err.message) || String(err),
+        };
+      }
+    }
+
+    res.json({
+      ok: true,
+      cookiesPath: COOKIES_PATH,
+      cookiesBytes: rawCookies.length,
+      domains,
+      igCookieNames,
+      hasIgSession: igCookieNames.includes("sessionid"),
+      hasProxy: Boolean(process.env.PROXY_URL),
+      ytDlpVersion,
+      testResult,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/api/debug-direct", async (req, res) => {
@@ -1430,10 +1525,11 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   };
 
   try {
+    const dlExtra = key.includes("/stories/") ? [] : ["--no-playlist"];
     await runYtDlpWithFallback(
       [
         ...args,
-        "--no-playlist",
+        ...dlExtra,
         "--no-warnings",
         "--retries",
         "3",

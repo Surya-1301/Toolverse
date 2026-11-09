@@ -196,9 +196,13 @@ export default function InstagramReelsDownloaderPage() {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
-        } else if (isStory || /log in|login|session|auth|yt-dlp|cookies-from-browser/i.test(msg)) {
+        } else if (isStory) {
           setError(
-            "This story cannot be accessed without an active Instagram session (Meta restricts stories to logged-in accounts). Please ensure your 'IG_SESSIONID' in Render is valid and from an account that can view this story."
+            "Could not fetch this story. It may have expired (stories expire after 24 hours), be from a private account, or be restricted by Instagram."
+          );
+        } else if (/log in|login|session|auth|yt-dlp|cookies-from-browser/i.test(msg)) {
+          setError(
+            "This post or story requires login or is restricted by Instagram."
           );
         } else {
           setError(
