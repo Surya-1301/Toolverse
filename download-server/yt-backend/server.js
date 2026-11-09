@@ -174,7 +174,7 @@ function formatAsNetscapeCookies(rawInput, isInstagram = false) {
       cookieMap.set("ig_did", crypto.randomUUID().toUpperCase());
     }
     if (!cookieMap.has("rur")) {
-      cookieMap.set("rur", '"NAO"');
+      cookieMap.set("rur", "NAO");
     }
 
     for (const [k, v] of cookieMap.entries()) {
@@ -1009,10 +1009,11 @@ app.get("/api/diag", async (req, res) => {
     if (req.query.test_url) {
       const testUrl = String(req.query.test_url);
       const withProxy = req.query.no_proxy !== "1";
+      const noUserAgent = req.query.no_ua === "1";
       const args = ["--dump-json", "--no-warnings", testUrl];
       const t0 = Date.now();
       try {
-        const out = await runYtDlp(args, 45000, null, { noProxy: !withProxy });
+        const out = await runYtDlp(args, 45000, null, { noProxy: !withProxy, noUserAgent });
         testResult = {
           success: true,
           ms: Date.now() - t0,
@@ -1028,12 +1029,24 @@ app.get("/api/diag", async (req, res) => {
       }
     }
 
+    // Inspect the exact instagram lines in cookies.txt (mask values)
+    const igLinesMasked = igLines.map((l) => {
+      const parts = l.split("\t");
+      if (parts.length >= 7) {
+        const val = parts[6];
+        const masked = val.length > 8 ? `${val.slice(0, 4)}...${val.slice(-4)} (${val.length} chars)` : val;
+        return `${parts[0]}\t${parts[5]}=${masked}`;
+      }
+      return l.slice(0, 50);
+    });
+
     res.json({
       ok: true,
       cookiesPath: COOKIES_PATH,
       cookiesBytes: rawCookies.length,
       domains,
       igCookieNames,
+      igLinesMasked,
       hasIgSession: igCookieNames.includes("sessionid"),
       hasProxy: Boolean(process.env.PROXY_URL),
       ytDlpVersion,
