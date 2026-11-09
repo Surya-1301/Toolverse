@@ -138,7 +138,6 @@ function formatAsNetscapeCookies(rawInput, isInstagram = false) {
   }
 
   if (isInstagram) {
-    const igDomains = [".instagram.com", "i.instagram.com", "www.instagram.com"];
     const rows = ["# Netscape HTTP Cookie File"];
     const cookieMap = new Map();
     if (!text.includes("=") && text.length > 8) {
@@ -169,10 +168,8 @@ function formatAsNetscapeCookies(rawInput, isInstagram = false) {
       cookieMap.set("csrftoken", crypto.randomBytes(16).toString("hex"));
     }
 
-    for (const d of igDomains) {
-      for (const [k, v] of cookieMap.entries()) {
-        rows.push(`${d}\tTRUE\t/\tTRUE\t2147483647\t${k}\t${v}`);
-      }
+    for (const [k, v] of cookieMap.entries()) {
+      rows.push(`.instagram.com\tTRUE\t/\tTRUE\t2147483647\t${k}\t${v}`);
     }
     return rows.join("\n") + "\n";
   }
