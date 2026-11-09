@@ -1045,6 +1045,37 @@ app.all("/api/clear-cache", (req, res) => {
   res.json({ ok: true, cleared: true });
 });
 
+app.get("/api/test-embed", async (req, res) => {
+  const shortcode = req.query.s || "DDPw7hYTirA";
+  const results = {};
+  try {
+    const r1 = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
+      headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" },
+      signal: AbortSignal.timeout(6000),
+    });
+    const t1 = await r1.text();
+    results.direct = { status: r1.status, len: t1.length, title: t1.match(/<title>(.*?)<\/title>/)?.[1] };
+  } catch (e) {
+    results.direct = { error: e.message };
+  }
+
+  if (proxyDispatcher) {
+    try {
+      const r2 = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36" },
+        signal: AbortSignal.timeout(6000),
+        dispatcher: proxyDispatcher,
+      });
+      const t2 = await r2.text();
+      results.proxy = { status: r2.status, len: t2.length, title: t2.match(/<title>(.*?)<\/title>/)?.[1] };
+    } catch (e) {
+      results.proxy = { error: e.message };
+    }
+  }
+
+  res.json(results);
+});
+
 app.get("/api/diag", async (req, res) => {
   try {
     let rawCookies = "";
