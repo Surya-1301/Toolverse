@@ -141,6 +141,24 @@ function UrlShortenerContent() {
     if (searchParams.get("error") === "expired") {
       setError("That short URL has expired.");
     }
+
+    const prefill =
+      searchParams.get("url") ||
+      searchParams.get("text") ||
+      (typeof window !== "undefined"
+        ? sessionStorage.getItem("toolverse_prefill_url") ||
+          sessionStorage.getItem("toolverse_prefill_input")
+        : null);
+
+    if (prefill) {
+      setLongUrl(prefill);
+      try {
+        sessionStorage.removeItem("toolverse_prefill_url");
+        sessionStorage.removeItem("toolverse_prefill_input");
+      } catch {
+        // ignore
+      }
+    }
   }, [searchParams]);
 
   async function createShortUrl() {

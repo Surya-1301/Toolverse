@@ -100,6 +100,17 @@ export default function YoutubeDownloaderPage() {
     try {
       const saved = localStorage.getItem(YT_COOKIES_KEY);
       if (saved) setCookiesText(saved);
+
+      const params = new URLSearchParams(window.location.search);
+      const prefill =
+        params.get("url") ||
+        sessionStorage.getItem("toolverse_prefill_url") ||
+        sessionStorage.getItem("toolverse_prefill_input");
+      if (prefill) {
+        setUrl(prefill);
+        sessionStorage.removeItem("toolverse_prefill_url");
+        sessionStorage.removeItem("toolverse_prefill_input");
+      }
     } catch {
       /* storage unavailable (private mode etc.) */
     }

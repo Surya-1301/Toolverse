@@ -407,6 +407,7 @@ export function Header() {
               "
             >
             <div className="apple-specular opacity-40" />
+
             {mainLinks.map((link) => (
               <Link
                 key={link.href}

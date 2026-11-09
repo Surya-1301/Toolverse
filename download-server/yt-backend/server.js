@@ -285,9 +285,13 @@ function normalizeUrl(rawUrl) {
       }
     }
     if (u.hostname.includes("instagram.com") || u.hostname.includes("instagr.am")) {
-      const m = u.pathname.match(/(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i);
+      const m = u.pathname.match(/(?:reel|reels|p|tv|stories|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
       if (m) {
-        return `https://www.instagram.com/reel/${m[1]}/`;
+        const type = u.pathname.includes("/reel") ? "reel" : u.pathname.includes("/tv/") ? "tv" : "p";
+        if (u.pathname.includes("/stories/")) {
+          return `https://www.instagram.com${u.pathname}`;
+        }
+        return `https://www.instagram.com/${type}/${m[1]}/`;
       }
     }
   } catch {}
@@ -408,6 +412,42 @@ function buildResources(info) {
   // Show every distinct quality the source actually has (YouTube's standard
   // ladder as well as odd heights like Instagram's 960p).
   const video = resources;
+
+  // Support for photo posts and carousels
+  if (video.length === 0 && (info.url || info.thumbnail || (info.thumbnails && info.thumbnails.length))) {
+    const imgUrl = info.url || info.thumbnail || info.thumbnails[info.thumbnails.length - 1]?.url;
+    if (imgUrl) {
+      video.push({
+        id: "ig_img_full",
+        quality: info.height || 1080,
+        ext: "jpg",
+        size: 0,
+        sizeLabel: "Full HD Photo",
+        hasAudio: false,
+        fps: null,
+        isImage: true,
+        directUrl: imgUrl,
+      });
+    }
+  }
+
+  if (info.entries && Array.isArray(info.entries) && info.entries.length) {
+    info.entries.forEach((entry, idx) => {
+      const eUrl = entry.url || entry.thumbnail;
+      const isVid = Boolean(entry.formats && entry.formats.length);
+      video.push({
+        id: isVid ? `slide_vid_${idx + 1}` : `slide_img_${idx + 1}`,
+        quality: entry.height || 1080,
+        ext: isVid ? "mp4" : "jpg",
+        size: 0,
+        sizeLabel: `Slide ${idx + 1} (${isVid ? "Video" : "Photo"})`,
+        hasAudio: isVid,
+        fps: entry.fps || null,
+        isImage: !isVid,
+        directUrl: eUrl,
+      });
+    });
+  }
 
   if (bestAudio) {
     video.push({
@@ -645,7 +685,7 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
 async function fetchInstagramDirect(url) {
-  const m = String(url).match(/(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i);
+  const m = String(url).match(/(?:reel|reels|p|tv|stories|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
   if (!m) return null;
   const shortcode = m[1];
   try {
@@ -660,20 +700,28 @@ async function fetchInstagramDirect(url) {
     });
     if (!res.ok) return null;
     const html = await res.text();
+
+    let videoUrl = null;
     const vm = html.match(/"video_url"\s*:\s*"([^"]+)"/);
-    if (!vm) return null;
-    let videoUrl = vm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
-    try {
-      videoUrl = JSON.parse(`"${vm[1]}"`);
-    } catch {}
+    if (vm) {
+      videoUrl = vm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
+      try {
+        videoUrl = JSON.parse(`"${vm[1]}"`);
+      } catch {}
+    }
 
     let thumbnail = null;
     const tm = html.match(/"display_url"\s*:\s*"([^"]+)"/);
     if (tm) {
       thumbnail = tm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
+      try {
+        thumbnail = JSON.parse(`"${tm[1]}"`);
+      } catch {}
     }
 
-    let title = "Instagram Reel";
+    if (!videoUrl && !thumbnail) return null;
+
+    let title = videoUrl ? "Instagram Video" : "Instagram Photo";
     const cm = html.match(/<div[^>]+class="EmbeddedMediaCaption"[^>]*>(.*?)<\/div>/s);
     if (cm) {
       const clean = cm[1].replace(/<[^>]+>/g, " ").trim();
@@ -684,27 +732,45 @@ async function fetchInstagramDirect(url) {
     const um = html.match(/class="EmbeddedMediaUser-username"[^>]*>([^<]+)</);
     if (um) uploader = um[1].trim();
 
+    const resources = [];
+    if (videoUrl) {
+      resources.push({
+        id: `ig_vid_${shortcode}`,
+        quality: 720,
+        ext: "mp4",
+        size: 0,
+        sizeLabel: "HD Video (MP4)",
+        hasAudio: true,
+        fps: 30,
+        directUrl: videoUrl,
+      });
+    }
+
+    if (thumbnail) {
+      resources.push({
+        id: `ig_img_${shortcode}`,
+        quality: 1080,
+        ext: "jpg",
+        size: 0,
+        sizeLabel: videoUrl ? "Cover Image (JPG)" : "HD Photo (JPG)",
+        hasAudio: false,
+        fps: null,
+        isImage: true,
+        directUrl: thumbnail,
+      });
+    }
+
     return {
       title,
       thumbnail,
       duration: null,
       uploader,
       isLive: false,
-      resources: [
-        {
-          id: `ig_${shortcode}`,
-          quality: 720,
-          ext: "mp4",
-          size: 0,
-          sizeLabel: "HD",
-          hasAudio: true,
-          fps: 30,
-        },
-      ],
-      qualities: [720],
-      hasAudio: true,
+      resources,
+      qualities: resources.map((r) => r.quality),
+      hasAudio: Boolean(videoUrl),
       cookies: false,
-      directUrl: videoUrl,
+      directUrl: videoUrl || thumbnail,
     };
   } catch {
     return null;
@@ -1086,13 +1152,16 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   }
 
   // Direct stream fallback for Instagram
-  if (format_id && String(format_id).startsWith("ig_")) {
-    let directUrl = parseCache.get(key)?.data?.directUrl;
-    let title = parseCache.get(key)?.data?.title || "instagram_reel";
+  if (format_id && (String(format_id).startsWith("ig_") || String(format_id).startsWith("slide_"))) {
+    const isImg = String(format_id).includes("_img_") || String(format_id).startsWith("slide_img_");
+    const cachedItem = parseCache.get(key)?.data?.resources?.find((r) => r.id === format_id);
+    let directUrl = cachedItem?.directUrl || parseCache.get(key)?.data?.directUrl;
+    let title = parseCache.get(key)?.data?.title || (isImg ? "instagram_photo" : "instagram_reel");
     if (!directUrl) {
       const ig = await fetchInstagramDirect(key);
-      if (ig?.directUrl) {
-        directUrl = ig.directUrl;
+      const resItem = ig?.resources?.find((r) => r.id === format_id);
+      if (resItem?.directUrl || ig?.directUrl) {
+        directUrl = resItem?.directUrl || ig.directUrl;
         title = ig.title || title;
       }
     }
@@ -1100,9 +1169,11 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       try {
         const streamRes = await fetch(directUrl);
         if (streamRes.ok) {
-          const filename = `${sanitizeFilename(title)}.mp4`;
+          const ext = isImg ? "jpg" : "mp4";
+          const contentType = isImg ? "image/jpeg" : "video/mp4";
+          const filename = `${sanitizeFilename(title)}.${ext}`;
           res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
-          res.setHeader("Content-Type", "video/mp4");
+          res.setHeader("Content-Type", contentType);
           const { Readable } = require("stream");
           Readable.fromWeb(streamRes.body).pipe(res);
           if (tempCookiePath) fsp.unlink(tempCookiePath).catch(() => {});

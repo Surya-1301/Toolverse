@@ -6,6 +6,8 @@ import { Header } from "@/components/Header";
 import { BackButtonHandler } from "@/components/BackButtonHandler";
 import { DownloadInterceptor } from "@/components/DownloadInterceptor";
 import { StatusBarHandler } from "@/components/StatusBarHandler";
+import { CommandPalette } from "@/components/CommandPalette";
+import { PwaRegister } from "@/components/PwaRegister";
 import "./globals.css";
 
 const siteUrl = "https://toolversee.pages.dev";
@@ -173,6 +175,8 @@ export default function RootLayout({
         />
 
         <div className="flex min-h-screen flex-col">
+          <PwaRegister />
+          <CommandPalette />
           <BackButtonHandler />
           <DownloadInterceptor />
           <StatusBarHandler />

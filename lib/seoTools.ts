@@ -932,29 +932,29 @@ export const toolSeo: Record<string, ToolSeo> = {
   },
   "instagram-reels-downloader": {
     slug: "instagram-reels-downloader",
-    title: "Instagram Reels Downloader - Download Reels in HD",
+    title: "Instagram Downloader - Download Reels, Videos, Posts, Photos & Stories in HD",
     description:
-      "Download Instagram reels, posts and carousels in HD online for free. Paste the link and save the video with Toolverse — no signup.",
+      "Download Instagram reels, videos, posts, photos, carousels, and stories in HD online for free. Fast, watermark-free download with Toolverse.",
     faq: [
       {
-        q: "How do I download an Instagram reel?",
-        a: "Copy the reel link from Instagram, paste it into the tool, and hit Get download link to save the video in HD.",
+        q: "Can I download Instagram photos and carousels?",
+        a: "Yes, paste the link of any Instagram post or carousel to download full-resolution JPG photos.",
       },
       {
-        q: "Does it work with carousels?",
-        a: "Yes, carousel posts show one download button per item.",
+        q: "How do I download an Instagram reel or video?",
+        a: "Copy the link from Instagram, paste it into the tool, and click Get download links to download the video in HD MP4.",
       },
       {
-        q: "Is the Instagram reels downloader free?",
-        a: "Yes, downloading reels is completely free with no signup.",
+        q: "Does it support Instagram stories?",
+        a: "Yes, you can download public stories and videos with audio.",
       },
       {
-        q: "What video quality can I download?",
-        a: "Reels download in the highest quality available, up to full HD when the source supports it.",
+        q: "Is the Instagram downloader free?",
+        a: "Yes, downloading reels, posts, photos, and stories is completely free with no limits and no signup required.",
       },
       {
-        q: "Do I need an Instagram account to download reels?",
-        a: "No, just paste the public reel or post link — no login or account needed.",
+        q: "What format are downloads saved in?",
+        a: "Videos and reels save as high-definition MP4 files, while photos save as full-resolution JPG images.",
       },
     ],
   },

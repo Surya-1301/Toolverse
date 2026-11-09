@@ -2,7 +2,7 @@
 
 import { BackButton } from "@/components/BackButton";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -164,6 +164,28 @@ export default function UrlToolsPage() {
   const [parsed, setParsed] = useState<ParsedUrl | null>(null);
   const [parseError, setParseError] = useState("");
   const [parseCopied, setParseCopied] = useState(false);
+
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const prefill =
+        params.get("url") ||
+        sessionStorage.getItem("toolverse_prefill_url") ||
+        sessionStorage.getItem("toolverse_prefill_input");
+      if (prefill) {
+        setParseInput(prefill);
+        try {
+          setParsed(parseUrl(prefill));
+        } catch {
+          // ignore parse error on init
+        }
+        sessionStorage.removeItem("toolverse_prefill_url");
+        sessionStorage.removeItem("toolverse_prefill_input");
+      }
+    } catch {
+      // storage unavailable
+    }
+  }, []);
 
   const formattedOutput = useMemo(() => (parsed ? formatParsedUrl(parsed) : ""), [parsed]);
 

@@ -1,15 +1,14 @@
 "use client";
 
 import { BackButton } from "@/components/BackButton";
-
-import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Check,
   ClipboardPaste,
   Download,
   Eraser,
   Film,
+  Image as ImageIcon,
   Link2,
   Loader2,
   Music,
@@ -31,6 +30,7 @@ type ServerResource = {
   hasAudio: boolean;
   fps: number | null;
   audioOnly?: boolean;
+  isImage?: boolean;
 };
 
 type MediaDetails = {
@@ -40,7 +40,7 @@ type MediaDetails = {
 };
 
 function sanitizeForFilename(title: string): string {
-  return (title || "instagram_reel")
+  return (title || "instagram_media")
     .replace(/[/\\?%*:|"<>#]/g, "-")
     .replace(/\s+/g, " ")
     .trim()
@@ -51,7 +51,7 @@ function looksLikeInstagramUrl(input: string): boolean {
   const s = input.trim();
   return (
     (s.includes("instagram.com/") || s.includes("instagr.am/")) &&
-    /(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i.test(s)
+    /(?:reel|reels|p|tv|stories|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i.test(s)
   );
 }
 
@@ -65,12 +65,39 @@ export default function InstagramReelsDownloaderPage() {
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<MediaDetails | null>(null);
   const [serverResources, setServerResources] = useState<ServerResource[] | null>(
-    null,
+    null
   );
   const abortRef = useRef<AbortController | null>(null);
 
+  // Auto prefill from searchParams or sessionStorage (e.g. from SmartInput)
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const prefill =
+        params.get("url") ||
+        sessionStorage.getItem("toolverse_prefill_url") ||
+        sessionStorage.getItem("toolverse_prefill_input");
+      if (prefill && looksLikeInstagramUrl(prefill)) {
+        setUrl(prefill);
+        sessionStorage.removeItem("toolverse_prefill_url");
+        sessionStorage.removeItem("toolverse_prefill_input");
+      }
+    } catch {
+      // storage unavailable
+    }
+  }, []);
+
+  // Split resources into Videos, Photos, and Audio
   const videoResources = useMemo(() => {
-    return (serverResources || []).filter((r) => !r.audioOnly);
+    return (serverResources || []).filter(
+      (r) => !r.audioOnly && !r.isImage && r.ext !== "jpg" && r.ext !== "png"
+    );
+  }, [serverResources]);
+
+  const photoResources = useMemo(() => {
+    return (serverResources || []).filter(
+      (r) => r.isImage || r.ext === "jpg" || r.ext === "png" || r.ext === "webp"
+    );
   }, [serverResources]);
 
   const audioResources = useMemo(() => {
@@ -84,7 +111,7 @@ export default function InstagramReelsDownloaderPage() {
       return;
     }
     if (!looksLikeInstagramUrl(clean)) {
-      setError("Please enter a valid Instagram reel or post link.");
+      setError("Please enter a valid Instagram reel, video, post, photo, or story link.");
       return;
     }
 
@@ -104,11 +131,20 @@ export default function InstagramReelsDownloaderPage() {
       if (ytKey) headers["x-api-key"] = ytKey;
 
       const m = clean.match(
-        /(?:reel|reels|p|share\/reel|share\/p)\/([A-Za-z0-9_-]+)/i,
+        /(?:reel|reels|p|tv|stories|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i
       );
-      const normalizedUrl = m
-        ? `https://www.instagram.com/reel/${m[1]}/`
-        : clean;
+      let normalizedUrl = clean;
+      if (m) {
+        if (clean.includes("/stories/")) {
+          normalizedUrl = clean.split("?")[0];
+        } else if (clean.includes("/p/")) {
+          normalizedUrl = `https://www.instagram.com/p/${m[1]}/`;
+        } else if (clean.includes("/tv/")) {
+          normalizedUrl = `https://www.instagram.com/tv/${m[1]}/`;
+        } else {
+          normalizedUrl = `https://www.instagram.com/reel/${m[1]}/`;
+        }
+      }
 
       const res = await fetch(`${base}/api/info`, {
         method: "POST",
@@ -123,7 +159,7 @@ export default function InstagramReelsDownloaderPage() {
       }
 
       setDetails({
-        title: data?.title || "Instagram Reel",
+        title: data?.title || "Instagram Post",
         thumbnail: data?.thumbnail || null,
         uploader: data?.uploader || null,
       });
@@ -133,12 +169,12 @@ export default function InstagramReelsDownloaderPage() {
         const msg = (e as Error).message || "";
         if (/failed to fetch/i.test(msg)) {
           setError(
-            "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again.",
+            "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
         } else {
           setError(
             msg ||
-              "Could not fetch reel info. The post may be private, restricted, or unavailable.",
+              "Could not fetch Instagram info. The post/story may be private, restricted, or expired."
           );
         }
       }
@@ -148,9 +184,17 @@ export default function InstagramReelsDownloaderPage() {
   }
 
   function getResourceFilename(r: ServerResource): string {
-    const safeTitle = sanitizeForFilename(details?.title || "instagram_reel");
-    const ext = r.ext || (r.audioOnly ? "mp3" : "mp4");
-    return r.audioOnly ? `${safeTitle}.${ext}` : `${safeTitle}-${r.quality || "hd"}p.${ext}`;
+    const isPhoto = r.isImage || r.ext === "jpg" || r.ext === "png";
+    const defaultName = isPhoto
+      ? "instagram_photo"
+      : r.audioOnly
+      ? "instagram_audio"
+      : "instagram_video";
+    const safeTitle = sanitizeForFilename(details?.title || defaultName);
+    const ext = r.ext || (r.audioOnly ? "mp3" : isPhoto ? "jpg" : "mp4");
+    if (r.audioOnly) return `${safeTitle}.mp3`;
+    if (isPhoto) return `${safeTitle}.${ext}`;
+    return `${safeTitle}-${r.quality || "hd"}p.${ext}`;
   }
 
   function serverDownloadHref(r: ServerResource): string {
@@ -212,15 +256,15 @@ export default function InstagramReelsDownloaderPage() {
       </div>
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-          Instagram Reels Downloader
+          Instagram Downloader
         </h1>
         <p className="mt-4 text-base leading-7 text-slate-400 light:text-slate-600">
-          Download Instagram reels, videos, and posts in high definition.
+          Download Instagram reels, videos, posts, photos, carousels, and stories in full HD quality.
           Fast, free, and watermark-free.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white">
+      <div className="mx-auto mt-10 max-w-3xl rounded-3xl border border-white/10 bg-white/[0.03] p-4 sm:p-6 light:border-slate-900/10 light:bg-white shadow-xl">
         <label className="block">
           <span className="mb-1.5 block text-sm font-medium text-slate-300 light:text-slate-700">
             Instagram URL
@@ -231,7 +275,7 @@ export default function InstagramReelsDownloaderPage() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && fetchInfo()}
-              placeholder="https://www.instagram.com/reel/..."
+              placeholder="https://www.instagram.com/reel/... or /p/... or /stories/..."
               className={inputClass}
               inputMode="url"
             />
@@ -252,14 +296,14 @@ export default function InstagramReelsDownloaderPage() {
             type="button"
             onClick={fetchInfo}
             disabled={loading || !url.trim()}
-            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-pink-500/20"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
             ) : (
               <Download className="h-5 w-5" />
             )}
-            {loading ? "Fetching Reel…" : "Get download links"}
+            {loading ? "Fetching Media…" : "Get download links"}
           </button>
           <button
             type="button"
@@ -298,36 +342,37 @@ export default function InstagramReelsDownloaderPage() {
                   <span className="truncate">{details.title}</span>
                 </p>
                 {details.uploader ? (
-                  <p className="mt-1 text-xs font-medium text-slate-300">
+                  <p className="mt-1 text-xs font-medium text-slate-300 light:text-slate-600">
                     @{details.uploader}
                   </p>
                 ) : null}
               </div>
             </div>
 
+            {/* 1. Video / Reel Downloads */}
             {videoResources.length > 0 ? (
               <div className="mt-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                  Video Downloads
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-300 light:text-slate-700 flex items-center gap-1.5">
+                  <Film className="h-3.5 w-3.5 text-pink-400" /> Video & Reel Downloads
                 </p>
                 <div className="mt-2 space-y-2">
                   {videoResources.map((r) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/5 light:bg-slate-50"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-slate-50"
                     >
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-pink-600/20 text-sm font-bold text-pink-300">
+                        <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-pink-600/20 text-sm font-bold text-pink-300 light:bg-pink-100 light:text-pink-700">
                           {r.quality ? `${r.quality}p` : "HD"}
                         </span>
-                        <p className="text-xs text-slate-400">
+                        <p className="text-xs text-slate-400 light:text-slate-600 truncate">
                           {[
                             r.sizeLabel,
                             r.hasAudio ? "with audio" : "video only",
                             r.fps ? `${r.fps}fps` : null,
                           ]
                             .filter(Boolean)
-                            .join(" • ") || "MP4"}
+                            .join(" • ") || "MP4 Video"}
                         </p>
                       </div>
                       <button
@@ -341,7 +386,7 @@ export default function InstagramReelsDownloaderPage() {
                         ) : (
                           <Download className="h-4 w-4" />
                         )}
-                        {downloadingId === r.id ? "Downloading…" : "Download"}
+                        {downloadingId === r.id ? "Downloading…" : "Download MP4"}
                       </button>
                     </div>
                   ))}
@@ -349,23 +394,63 @@ export default function InstagramReelsDownloaderPage() {
               </div>
             ) : null}
 
+            {/* 2. Photo & Carousel Downloads */}
+            {photoResources.length > 0 ? (
+              <div className="mt-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-300 light:text-slate-700 flex items-center gap-1.5">
+                  <ImageIcon className="h-3.5 w-3.5 text-sky-400" /> Photo & Image Downloads
+                </p>
+                <div className="mt-2 space-y-2">
+                  {photoResources.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-slate-50"
+                    >
+                      <div className="flex min-w-0 items-center gap-3">
+                        <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-sky-600/20 text-sm font-bold text-sky-300 light:bg-sky-100 light:text-sky-700">
+                          <ImageIcon className="h-4 w-4" />
+                        </span>
+                        <p className="text-xs text-slate-400 light:text-slate-600 truncate">
+                          {[r.sizeLabel, "JPG Image"].filter(Boolean).join(" • ")}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleDownload(r)}
+                        disabled={downloadingId === r.id}
+                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                      >
+                        {downloadingId === r.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Download className="h-4 w-4" />
+                        )}
+                        {downloadingId === r.id ? "Downloading…" : "Download Photo"}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {/* 3. Audio Only Downloads */}
             {audioResources.length > 0 ? (
               <div className="mt-5">
-                <p className="text-xs font-semibold uppercase tracking-wider text-slate-300">
-                  Audio Only
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-300 light:text-slate-700 flex items-center gap-1.5">
+                  <Music className="h-3.5 w-3.5 text-purple-400" /> Audio Only
                 </p>
                 <div className="mt-2 space-y-2">
                   {audioResources.map((r) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/5 light:bg-slate-50"
+                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-slate-50"
                     >
                       <div className="flex min-w-0 items-center gap-3">
-                        <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-purple-600/20 text-sm font-bold text-purple-300">
+                        <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-purple-600/20 text-sm font-bold text-purple-300 light:bg-purple-100 light:text-purple-700">
                           <Music className="h-4 w-4" />
                         </span>
-                        <p className="text-xs text-slate-400">
-                          {[r.sizeLabel, "MP3"].filter(Boolean).join(" • ") || "Audio"}
+                        <p className="text-xs text-slate-400 light:text-slate-600">
+                          {[r.sizeLabel, "MP3 Audio"].filter(Boolean).join(" • ")}
                         </p>
                       </div>
                       <button
@@ -392,13 +477,13 @@ export default function InstagramReelsDownloaderPage() {
 
       <div className="mt-10">
         <HowToUse
-          title="How to download Instagram reels"
+          title="How to download Instagram reels, videos, photos & stories"
           subtitle=""
           steps={[
             {
-              title: "Find the reel or video",
+              title: "Find the content",
               description:
-                "Open the Instagram app and navigate to the reel, post or video you want to save.",
+                "Open Instagram and find the reel, post, video, carousel photo, or story you want to save.",
               icon: <Film className="h-5 w-5" />,
             },
             {
@@ -410,25 +495,19 @@ export default function InstagramReelsDownloaderPage() {
             {
               title: "Paste the URL",
               description:
-                "Paste the copied link into the input field above — or tap the clipboard button to paste it automatically.",
+                "Paste the copied link into the field above — or tap the clipboard button to paste automatically.",
               icon: <ClipboardPaste className="h-5 w-5" />,
             },
             {
-              title: "Fetch the reel",
+              title: "Get download links",
               description:
-                "Click Get download links and wait a moment while yt-dlp fetches the preview and qualities.",
+                "Click Get download links to fetch high definition video, full-res photos, or MP3 audio.",
               icon: <Download className="h-5 w-5" />,
             },
             {
-              title: "Download to device",
+              title: "Save to your device",
               description:
-                "Choose your preferred video quality or MP3 and tap Download to save it directly to your device.",
-              icon: <Check className="h-5 w-5" />,
-            },
-            {
-              title: "Watch offline anytime",
-              description:
-                "The video saves directly to your device — watch it anytime without internet, or share it with friends.",
+                "Choose your preferred video quality or photo and tap Download to save it immediately.",
               icon: <Check className="h-5 w-5" />,
             },
           ]}
