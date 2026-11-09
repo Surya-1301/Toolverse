@@ -196,18 +196,15 @@ export default function InstagramReelsDownloaderPage() {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
+        } else if (msg && !/\[yt-dlp|\[instagram|status\s*\d+/i.test(msg)) {
+          setError(msg);
         } else if (isStory) {
           setError(
             "Could not fetch this story. It may have expired (stories expire after 24 hours), be from a private account, or be restricted by Instagram."
           );
-        } else if (/log in|login|session|auth|yt-dlp|cookies-from-browser/i.test(msg)) {
-          setError(
-            "This post or story requires login or is restricted by Instagram."
-          );
         } else {
           setError(
-            msg ||
-              "Could not fetch Instagram info. The post or story may be private, restricted, or expired."
+            "Could not fetch Instagram media. The post or reel may be private, restricted, or expired."
           );
         }
       }

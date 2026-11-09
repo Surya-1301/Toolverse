@@ -1410,9 +1410,13 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
 
     if (isLoginRequired) {
       return res.status(403).json({
-        error: "Instagram Stories require an active login session.",
-        detail: "Meta restricts all Instagram Stories to authenticated accounts. Ensure your IG_SESSIONID in Render is active and can view this story.",
-        needsCookies: true,
+        error: hasIgSession
+          ? "This story is unavailable or may have expired."
+          : "Instagram Stories require an active login session.",
+        detail: hasIgSession
+          ? "The story may have expired (stories expire after 24 hours), been deleted, or is from an account not accessible to this session."
+          : "Meta restricts Instagram Stories to authenticated accounts.",
+        needsCookies: !hasIgSession,
         isStory: true,
       });
     }
