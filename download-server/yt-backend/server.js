@@ -1174,13 +1174,48 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   }
 
   try {
+    const ytDlpArgs = ["--dump-json", "--no-warnings"];
+    if (!key.includes("/stories/")) {
+      ytDlpArgs.push("--no-playlist");
+    }
+    ytDlpArgs.push(key);
+
     const { stdout } = await runYtDlpWithFallback(
-      ["--dump-json", "--no-playlist", "--no-warnings", key],
+      ytDlpArgs,
       60000,
       tempCookiePath,
       key,
     );
-    const info = JSON.parse(stdout);
+
+    let info = null;
+    try {
+      info = JSON.parse(stdout);
+    } catch {
+      const lines = stdout.trim().split("\n").filter(Boolean);
+      const storyIdMatch = key.match(/\/stories\/[^/]+\/(\d+)/);
+      if (storyIdMatch) {
+        const targetId = storyIdMatch[1];
+        for (const l of lines) {
+          try {
+            const parsed = JSON.parse(l);
+            if (parsed.id === targetId || String(parsed.id).includes(targetId)) {
+              info = parsed;
+              break;
+            }
+          } catch {}
+        }
+      }
+      if (!info && lines.length > 0) {
+        try {
+          info = JSON.parse(lines[lines.length - 1]);
+        } catch {}
+      }
+    }
+
+    if (!info) {
+      throw new Error("Could not parse media details from output.");
+    }
+
     const resources = buildResources(info);
 
     const data = {
@@ -1197,8 +1232,9 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     if (!tempCookiePath) {
       parseCache.set(key, { data, expires: Date.now() + CACHE_MS });
     }
-    res.json(data);
+    return res.json(data);
   } catch (e) {
+    console.error("[yt-dlp info error]:", (e && e.message) || e);
     if (directFallback) {
       if (!tempCookiePath) parseCache.set(key, { data: directFallback, expires: Date.now() + CACHE_MS });
       return res.json(directFallback);
@@ -1231,11 +1267,10 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       })())
     );
 
-    const isInstagramStory = /instagram\.com\/stories\//i.test(key);
     const errText = String((e && e.message) || e);
-    const isLoginRequired = /log in to access this content|login_required|sign in|auth/i.test(errText);
+    const isLoginRequired = /log in to access this content|login_required|sign in|only available to logged in users/i.test(errText);
 
-    if (isInstagramStory || isLoginRequired) {
+    if (isLoginRequired) {
       return res.status(403).json({
         error: "Instagram Stories require an active login session.",
         detail: "Meta restricts all Instagram Stories to authenticated accounts. Ensure your IG_SESSIONID in Render is active and can view this story.",
@@ -1247,13 +1282,13 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     const isInstagram = /instagram\.com|instagr\.am/i.test(key);
     res.status(502).json({
       error: isInstagram ? "Could not fetch Instagram media info." : "Could not fetch video info.",
-      detail: String((e && e.message) || e).slice(0, 200),
+      detail: errText.slice(0, 200),
       hint: hasIgSession
         ? undefined
         : isInstagram
         ? "Instagram blocks datacenter servers from accessing private posts and stories without login. Set IG_SESSIONID in Render."
         : "Try adding your cookies in 'Blocked? Use your own YouTube cookies' below.",
-      needsCookies: isInstagram && (/login|story|stories|sign in/i.test(errText) || isInstagramStory),
+      needsCookies: isInstagram && isLoginRequired,
     });
   } finally {
     if (tempCookiePath) {
