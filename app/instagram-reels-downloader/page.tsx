@@ -539,9 +539,15 @@ export default function InstagramReelsDownloaderPage() {
               icon: <Download className="h-5 w-5" />,
             },
             {
+              title: "Pick quality or audio",
+              description:
+                "Select your preferred HD video resolution, choose individual carousel photos, or extract audio as MP3.",
+              icon: <Music className="h-5 w-5" />,
+            },
+            {
               title: "Save to your device",
               description:
-                "Choose your preferred video quality or photo and tap Download to save it immediately.",
+                "Choose your preferred video quality or photo and tap Download to save it immediately to your gallery.",
               icon: <Check className="h-5 w-5" />,
             },
           ]}
