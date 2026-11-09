@@ -104,6 +104,60 @@ function netscapeToCookieHeader(text) {
   return pairs.length ? pairs.join("; ") : null;
 }
 
+function formatAsNetscapeCookies(rawInput, isInstagram = false) {
+  if (!rawInput || typeof rawInput !== "string") return null;
+  let text = rawInput.trim();
+  try {
+    const decoded = Buffer.from(text, "base64").toString("utf8");
+    if (decoded.includes("\t") || decoded.startsWith("#") || decoded.includes("=")) {
+      text = decoded.trim();
+    }
+  } catch {}
+
+  if (text.startsWith("#") || text.includes("\t")) {
+    return text.replace(/\r\n/g, "\n").trim() + "\n";
+  }
+
+  const domain = isInstagram ? ".instagram.com" : ".youtube.com";
+
+  // Check if JSON array (exported by some browser extensions)
+  if (text.startsWith("[") && text.endsWith("]")) {
+    try {
+      const arr = JSON.parse(text);
+      if (Array.isArray(arr)) {
+        const rows = ["# Netscape HTTP Cookie File"];
+        for (const item of arr) {
+          if (item && item.name && item.value) {
+            const d = item.domain || domain;
+            rows.push(`${d}\tTRUE\t${item.path || "/"}\t${item.secure ? "TRUE" : "FALSE"}\t2147483647\t${item.name}\t${item.value}`);
+          }
+        }
+        return rows.join("\n") + "\n";
+      }
+    } catch {}
+  }
+
+  // Key-value pairs or single sessionid
+  const rows = ["# Netscape HTTP Cookie File"];
+  if (!text.includes("=") && text.length > 8) {
+    // Single session id passed directly
+    rows.push(`${domain}\tTRUE\t/\tTRUE\t2147483647\tsessionid\t${text}`);
+  } else {
+    const pairs = text.split(";");
+    for (const pair of pairs) {
+      const eq = pair.indexOf("=");
+      if (eq > 0) {
+        const k = pair.slice(0, eq).trim();
+        const v = pair.slice(eq + 1).trim();
+        if (k && v) {
+          rows.push(`${domain}\tTRUE\t/\tTRUE\t2147483647\t${k}\t${v}`);
+        }
+      }
+    }
+  }
+  return rows.length > 1 ? rows.join("\n") + "\n" : (text.replace(/\r\n/g, "\n").trim() + "\n");
+}
+
 function getSapisidHash(cookieHeader, origin = "https://www.youtube.com") {
   if (!cookieHeader || typeof cookieHeader !== "string") return null;
   const match = cookieHeader.match(/(?:^|;\s*)(?:__Secure-3PAPISID|SAPISID)=([^;]+)/);
@@ -685,7 +739,8 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
 async function fetchInstagramDirect(url) {
-  const m = String(url).match(/(?:reel|reels|p|tv|stories|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
+  if (String(url).includes("/stories/")) return null;
+  const m = String(url).match(/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
   if (!m) return null;
   const shortcode = m[1];
   try {
@@ -1008,20 +1063,14 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   let cookieHeader = null;
   if (cookies && typeof cookies === "string" && cookies.trim()) {
     try {
-      let rawText = cookies.trim();
-      if (!rawText.startsWith("#") && !rawText.includes("\t")) {
-        try {
-          const decoded = Buffer.from(rawText, "base64").toString("utf8");
-          if (decoded.includes("\t") || decoded.includes("youtube.com")) {
-            rawText = decoded;
-          }
-        } catch {}
+      const isIg = /instagram\.com|instagr\.am/i.test(key);
+      const rawText = formatAsNetscapeCookies(cookies.trim(), isIg);
+      if (rawText) {
+        cookieHeader = netscapeToCookieHeader(rawText);
+        tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
+        await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
+        console.log(`[cookies] wrote ${rawText.length} bytes to ${tempCookiePath}`);
       }
-      cookieHeader = netscapeToCookieHeader(rawText);
-      rawText = rawText.replace(/\r\n/g, "\n").trim() + "\n";
-      tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
-      await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
-      console.log(`[cookies] wrote ${rawText.length} bytes to ${tempCookiePath}`);
     } catch (cookieErr) {
       console.error("[cookies] failed to write temp cookies:", cookieErr);
     }
@@ -1108,12 +1157,27 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
         return res.json(ig);
       }
     }
+
+    const isInstagramStory = /instagram\.com\/stories\//i.test(key);
+    if (isInstagramStory && !tempCookiePath && !HAS_COOKIES) {
+      return res.status(403).json({
+        error: "Instagram Stories require login cookies.",
+        detail: "Meta restricts all Instagram Stories to authenticated accounts. Please provide your Instagram cookies or session ID below to download.",
+        needsCookies: true,
+        isStory: true,
+      });
+    }
+
+    const isInstagram = /instagram\.com|instagr\.am/i.test(key);
     res.status(502).json({
-      error: "Could not fetch video info.",
+      error: isInstagram ? "Could not fetch Instagram media info." : "Could not fetch video info.",
       detail: String((e && e.message) || e).slice(0, 200),
       hint: HAS_COOKIES || tempCookiePath
         ? undefined
+        : isInstagram
+        ? "Instagram blocks datacenter servers from accessing private posts and stories without login. Paste your cookies or session ID below."
         : "Try adding your cookies in 'Blocked? Use your own YouTube cookies' below.",
+      needsCookies: isInstagram && (/login|story|stories|sign in/i.test(String((e && e.message) || "")) || isInstagramStory),
     });
   } finally {
     if (tempCookiePath) {
@@ -1135,19 +1199,13 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
   let cookieHeader = null;
   if (cookies && typeof cookies === "string" && cookies.trim()) {
     try {
-      let rawText = cookies.trim();
-      if (!rawText.startsWith("#") && !rawText.includes("\t")) {
-        try {
-          const decoded = Buffer.from(rawText, "base64").toString("utf8");
-          if (decoded.includes("\t") || decoded.includes("youtube.com")) {
-            rawText = decoded;
-          }
-        } catch {}
+      const isIg = /instagram\.com|instagr\.am/i.test(key);
+      const rawText = formatAsNetscapeCookies(cookies.trim(), isIg);
+      if (rawText) {
+        cookieHeader = netscapeToCookieHeader(rawText);
+        tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
+        await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
       }
-      cookieHeader = netscapeToCookieHeader(rawText);
-      rawText = rawText.replace(/\r\n/g, "\n").trim() + "\n";
-      tempCookiePath = path.join(TMPDIR, `cookies-${crypto.randomBytes(6).toString("hex")}.txt`);
-      await fsp.writeFile(tempCookiePath, rawText, { mode: 0o600 });
     } catch {}
   }
 
