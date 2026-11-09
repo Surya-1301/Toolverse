@@ -890,8 +890,7 @@ async function fetchInstagramDirect(url) {
   const fetchEmbedHtml = async (useProxy) => {
     const res = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+        "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
       signal: AbortSignal.timeout(6000),
@@ -1027,7 +1026,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.2",
+    version: "2.5.3",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
