@@ -398,7 +398,7 @@ export default function InstagramReelsDownloaderPage() {
             type="button"
             onClick={fetchInfo}
             disabled={loading || !url.trim()}
-            className="inline-flex min-h-12 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 sm:px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-pink-500/20"
+            className="inline-flex min-h-12 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl bg-sky-500 px-4 sm:px-6 text-sm font-semibold text-white shadow-sm shadow-sky-500/20 transition hover:bg-sky-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? (
               <Loader2 className="h-5 w-5 animate-spin shrink-0" />
