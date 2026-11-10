@@ -465,12 +465,17 @@ function normalizeUrl(rawUrl) {
       }
     }
     if (u.hostname.includes("instagram.com") || u.hostname.includes("instagr.am")) {
-      const m = u.pathname.match(/(?:reel|reels|p|tv|stories|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
+      const m = u.pathname.match(/(?:reel|reels|p|tv|stories|story|s|share\/(?:reel|p|story|stories))\/([A-Za-z0-9_.-]+)/i);
       if (m) {
-        const type = u.pathname.includes("/reel") ? "reel" : u.pathname.includes("/tv/") ? "tv" : "p";
-        if (u.pathname.includes("/stories/")) {
-          return `https://www.instagram.com${u.pathname}`;
+        if (
+          u.pathname.includes("/stories/") ||
+          u.pathname.includes("/story/") ||
+          u.pathname.includes("/share/story") ||
+          u.pathname.includes("/s/")
+        ) {
+          return `https://www.instagram.com${u.pathname.replace(/\/+$/, "")}/`;
         }
+        const type = u.pathname.includes("/reel") ? "reel" : u.pathname.includes("/tv/") ? "tv" : "p";
         return `https://www.instagram.com/${type}/${m[1]}/`;
       }
     }
@@ -1521,17 +1526,13 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     );
 
     const errText = String((e && e.message) || e);
-    const isLoginRequired = /log in to access this content|login_required|sign in|only available to logged in users/i.test(errText);
+    const isLoginRequired = /log in to access this content|login_required|sign in|only available to logged in users|login required|checkpoint_required/i.test(errText);
 
     if (isLoginRequired) {
       return res.status(403).json({
-        error: hasIgSession
-          ? "This story is unavailable or may have expired."
-          : "Instagram Stories require an active login session.",
-        detail: hasIgSession
-          ? "The story may have expired (stories expire after 24 hours), been deleted, or is from an account not accessible to this session."
-          : "Meta restricts Instagram Stories to authenticated accounts.",
-        needsCookies: !hasIgSession,
+        error: "Instagram Stories require an active login session.",
+        detail: "Meta restricts Instagram Stories to authenticated accounts. Provide your Instagram sessionid or cookies to unlock story downloads.",
+        needsCookies: true,
         isStory: true,
       });
     }
