@@ -270,14 +270,22 @@ export default function InstagramReelsDownloaderPage() {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
+        } else if (/no active stories|there are no active stories/i.test(msg)) {
+          setError("No active stories found for this user. Stories expire after 24 hours.");
         } else if (
           isStory ||
           /login_required|active login session|stories require/i.test(msg)
         ) {
           setShowCookies(true);
-          setError(
-            "Instagram Stories require an active Instagram session (Meta restricts anonymous access to stories). Paste your session ID or cookies below to unlock story downloads."
-          );
+          if (cookiesText.trim()) {
+            setError(
+              "Your Instagram session appears to be expired or challenged by Meta. Please paste a fresh sessionid below to retry."
+            );
+          } else {
+            setError(
+              "Instagram Stories require an active Instagram session (Meta restricts anonymous access to stories). Paste your session ID or cookies below to unlock story downloads."
+            );
+          }
         } else if (msg && !/\[yt-dlp|\[instagram|status\s*\d+/i.test(msg)) {
           setError(msg);
         } else {

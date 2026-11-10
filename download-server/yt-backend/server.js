@@ -262,30 +262,51 @@ if (process.env.IG_COOKIES_B64) {
 }
 
 const DEFAULT_IG_SESSION = "26746336962%3Aa9pwQq3SnBsDQN%3A21%3AAYkNh5jlqiuMMVgF1ySmLrj8tCOYZcLQLo7ikCPGcQ";
-const rawIgInput = (process.env.IG_SESSIONID || process.env.IG_COOKIES || DEFAULT_IG_SESSION).trim().replace(/^["']|["']$/g, "");
+const rawIgInput = (process.env.IG_SESSIONID || process.env.IG_COOKIES || "").trim().replace(/^["']|["']$/g, "");
 
-let existingCookieContent = "";
-try {
-  if (fs.existsSync(COOKIES_PATH)) {
-    existingCookieContent = fs.readFileSync(COOKIES_PATH, "utf8");
-  }
-} catch {}
-
-const hasActiveIgInCookies = existingCookieContent.includes(".instagram.com") && existingCookieContent.includes("sessionid");
-
-if (!hasActiveIgInCookies && rawIgInput) {
+// If the user specified an explicit IG_SESSIONID or IG_COOKIES in Render, prioritize it over any stale/default cookies
+if (rawIgInput) {
   try {
     const netscape = formatAsNetscapeCookies(rawIgInput, true);
     if (netscape) {
-      if (fs.existsSync(COOKIES_PATH)) {
-        fs.appendFileSync(COOKIES_PATH, "\n" + netscape, { mode: 0o600 });
-      } else {
-        fs.writeFileSync(COOKIES_PATH, netscape, { mode: 0o600 });
-      }
-      console.log(`[cookies] appended Instagram session cookies to ${COOKIES_PATH}`);
+      let current = fs.existsSync(COOKIES_PATH) ? fs.readFileSync(COOKIES_PATH, "utf8") : "";
+      // Strip any older/stale instagram.com cookies so the newly configured session takes precedence
+      current = current
+        .split("\n")
+        .filter((l) => !l.includes(".instagram.com"))
+        .join("\n")
+        .trim();
+      const combined = current ? `${current}\n\n# User-provided Instagram Session\n${netscape}` : netscape;
+      fs.writeFileSync(COOKIES_PATH, combined, { mode: 0o600 });
+      console.log(`[cookies] updated Instagram session cookies in ${COOKIES_PATH} from environment`);
     }
   } catch (e) {
-    console.error("[cookies] could not write IG session:", String(e).slice(0, 120));
+    console.error("[cookies] could not write IG session from env:", String(e).slice(0, 120));
+  }
+} else {
+  // If no explicit IG session in env, check if COOKIES_PATH already has Instagram cookies
+  let existingCookieContent = "";
+  try {
+    if (fs.existsSync(COOKIES_PATH)) {
+      existingCookieContent = fs.readFileSync(COOKIES_PATH, "utf8");
+    }
+  } catch {}
+
+  const hasActiveIgInCookies = existingCookieContent.includes(".instagram.com") && existingCookieContent.includes("sessionid");
+  if (!hasActiveIgInCookies && DEFAULT_IG_SESSION) {
+    try {
+      const netscape = formatAsNetscapeCookies(DEFAULT_IG_SESSION, true);
+      if (netscape) {
+        if (fs.existsSync(COOKIES_PATH)) {
+          fs.appendFileSync(COOKIES_PATH, "\n" + netscape, { mode: 0o600 });
+        } else {
+          fs.writeFileSync(COOKIES_PATH, netscape, { mode: 0o600 });
+        }
+        console.log(`[cookies] appended fallback Instagram session cookies to ${COOKIES_PATH}`);
+      }
+    } catch (e) {
+      console.error("[cookies] could not write fallback IG session:", String(e).slice(0, 120));
+    }
   }
 }
 const HAS_COOKIES = fs.existsSync(COOKIES_PATH);
@@ -1047,19 +1068,27 @@ async function fetchInstagramDirect(url) {
 // ---- routes ----
 app.get(["/", "/health"], (req, res) => {
   let cookiesFileBytes = 0;
+  let hasIgCookies = false;
+  let hasYtCookies = false;
   try {
     if (fs.existsSync(COOKIES_PATH)) {
+      const content = fs.readFileSync(COOKIES_PATH, "utf8");
       cookiesFileBytes = fs.statSync(COOKIES_PATH).size;
+      hasIgCookies = content.includes(".instagram.com") && content.includes("sessionid");
+      hasYtCookies = content.includes(".youtube.com") || content.includes(".google.com");
     }
   } catch {}
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.4",
+    version: "2.5.5",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
     cookiesFileBytes,
+    hasIgCookies,
+    hasYtCookies,
+    igEnvConfigured: Boolean(process.env.IG_SESSIONID || process.env.IG_COOKIES || process.env.IG_COOKIES_B64),
     hasServerCookieHeader: !!SERVER_COOKIE_HEADER,
     cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
     hasProxy: !!process.env.PROXY_URL,
@@ -1532,6 +1561,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       return res.status(403).json({
         error: "Instagram Stories require an active login session.",
         detail: "Meta restricts Instagram Stories to authenticated accounts. Provide your Instagram sessionid or cookies to unlock story downloads.",
+        rawError: errText.slice(0, 300),
         needsCookies: true,
         isStory: true,
       });
