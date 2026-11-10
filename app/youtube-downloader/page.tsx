@@ -22,7 +22,7 @@ import {
   PRIVATE_YE_BACKEND,
   PRIVATE_YT_KEY,
 } from "@/lib/downloadServers";
-import { downloadFile, isNative } from "@/lib/capacitor";
+import { apiFetch, downloadFile, isNative, readTextNative } from "@/lib/capacitor";
 
 const inputClass =
   "min-h-12 w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 text-sm text-white outline-none transition placeholder:text-slate-600 focus:border-red-500 light:border-slate-900/10 light:bg-white light:text-slate-900 light:placeholder:text-slate-400";
@@ -168,7 +168,7 @@ export default function YoutubeDownloaderPage() {
         /* storage unavailable */
       }
     }
-    const res = await fetch(`${base}/api/info`, {
+    const res = await apiFetch(`${base}/api/info`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -290,8 +290,8 @@ export default function YoutubeDownloaderPage() {
 
   async function pasteFromClipboard() {
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) setUrl(text.trim());
+      const text = await readTextNative();
+      if (text && text.trim()) setUrl(text.trim());
     } catch {
       /* clipboard unavailable */
     }

@@ -21,6 +21,7 @@ import {
   PRIVATE_YE_BACKEND,
   PRIVATE_YT_KEY,
 } from "@/lib/downloadServers";
+import { apiFetch, readTextNative } from "@/lib/capacitor";
 
 function isYouTube(u: string): boolean {
   return /(?:youtube\.com|youtu\.be)/i.test(u);
@@ -62,7 +63,7 @@ export default function MusicDownloaderPage() {
       "Content-Type": "application/json",
     };
     if (ytKey) headers["x-api-key"] = ytKey;
-    const res = await fetch(`${base}/api/info`, {
+    const res = await apiFetch(`${base}/api/info`, {
       method: "POST",
       headers,
       body: JSON.stringify({ url: mediaUrl }),
@@ -137,8 +138,8 @@ export default function MusicDownloaderPage() {
 
   async function pasteFromClipboard() {
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) setUrl(text.trim());
+      const text = await readTextNative();
+      if (text && text.trim()) setUrl(text.trim());
     } catch {
       /* clipboard unavailable */
     }

@@ -16,7 +16,7 @@ import {
 import { Container } from "@/components/Container";
 import { HowToUse } from "@/components/HowToUse";
 import { PRIVATE_YT_BACKEND, PRIVATE_YT_KEY } from "@/lib/downloadServers";
-import { downloadFile, isNative } from "@/lib/capacitor";
+import { apiFetch, downloadFile, isNative, readTextNative } from "@/lib/capacitor";
 
 const IG_COOKIES_KEY = "ig-visitor-cookies";
 
@@ -63,6 +63,7 @@ export default function InstagramReelsDownloaderPage() {
   const ytKey = PRIVATE_YT_KEY;
 
   const [loading, setLoading] = useState(false);
+  const [loadingStatus, setLoadingStatus] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<MediaDetails | null>(null);
@@ -70,6 +71,7 @@ export default function InstagramReelsDownloaderPage() {
     null
   );
   const [cookiesText, setCookiesText] = useState("");
+  const [clipboardFeedback, setClipboardFeedback] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function InstagramReelsDownloaderPage() {
     }
   }, []);
 
-  // Auto prefill from searchParams or sessionStorage (e.g. from SmartInput)
+  // Auto prefill from searchParams, sessionStorage, or clipboard in native app
   useEffect(() => {
     try {
       const params = new URLSearchParams(window.location.search);
@@ -93,9 +95,21 @@ export default function InstagramReelsDownloaderPage() {
         setUrl(prefill);
         sessionStorage.removeItem("toolverse_prefill_url");
         sessionStorage.removeItem("toolverse_prefill_input");
+        return;
       }
     } catch {
       // storage unavailable
+    }
+
+    // In native mobile APK, check if clipboard contains an Instagram URL
+    if (isNative() && !url) {
+      readTextNative()
+        .then((text) => {
+          if (text && looksLikeInstagramUrl(text)) {
+            setUrl(text.trim());
+          }
+        })
+        .catch(() => {});
     }
   }, []);
 
@@ -131,6 +145,7 @@ export default function InstagramReelsDownloaderPage() {
     const controller = new AbortController();
     abortRef.current = controller;
     setLoading(true);
+    setLoadingStatus("Connecting to downloader server…");
     setError(null);
     setDetails(null);
     setServerResources(null);
@@ -167,19 +182,53 @@ export default function InstagramReelsDownloaderPage() {
         }
       }
 
-      const res = await fetch(`${base}/api/info`, {
-        method: "POST",
-        headers,
-        body: JSON.stringify({
-          url: normalizedUrl,
-          ...(cookies ? { cookies } : {}),
-        }),
-        signal: controller.signal,
-      });
+      let data: any = null;
+      let lastErr: Error | null = null;
 
-      const data = await res.json();
-      if (!res.ok) {
-        throw new Error(data?.error || data?.detail || `Server returned ${res.status}`);
+      // Make request with automatic retry if cold server is waking up
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        try {
+          if (attempt === 2) {
+            setLoadingStatus("Server is waking up, retrying connection…");
+            await new Promise((r) => setTimeout(r, 2000));
+          }
+
+          const res = await apiFetch(`${base}/api/info`, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              url: normalizedUrl,
+              ...(cookies ? { cookies } : {}),
+            }),
+            signal: controller.signal,
+          });
+
+          data = await res.json();
+          if (!res.ok) {
+            throw new Error(data?.error || data?.detail || `Server returned ${res.status}`);
+          }
+          lastErr = null;
+          break;
+        } catch (fetchErr: any) {
+          lastErr = fetchErr;
+          if (fetchErr?.name === "AbortError") throw fetchErr;
+          const msg = (fetchErr?.message || "").toLowerCase();
+          const isConnectionError =
+            msg.includes("failed to fetch") ||
+            msg.includes("network") ||
+            msg.includes("timeout") ||
+            msg.includes("connection") ||
+            msg.includes("502") ||
+            msg.includes("503") ||
+            msg.includes("504");
+          if (!isConnectionError || attempt >= 2) {
+            break;
+          }
+        }
+      }
+
+      if (lastErr) {
+        throw lastErr;
       }
 
       setDetails({
@@ -192,7 +241,7 @@ export default function InstagramReelsDownloaderPage() {
       if ((e as Error).name !== "AbortError") {
         const msg = (e as Error).message || "";
         const isStory = /stories\//i.test(clean);
-        if (/failed to fetch/i.test(msg)) {
+        if (/failed to fetch|network|timeout|connection/i.test(msg)) {
           setError(
             "Connection issue (server may be waking up from sleep). Please wait a few seconds and try again."
           );
@@ -210,6 +259,7 @@ export default function InstagramReelsDownloaderPage() {
       }
     } finally {
       setLoading(false);
+      setLoadingStatus(null);
     }
   }
 
@@ -266,10 +316,19 @@ export default function InstagramReelsDownloaderPage() {
 
   async function pasteFromClipboard() {
     try {
-      const text = await navigator.clipboard.readText();
-      if (text) setUrl(text.trim());
+      const text = await readTextNative();
+      if (text && text.trim()) {
+        setUrl(text.trim());
+        setError(null);
+        setClipboardFeedback("Pasted!");
+        setTimeout(() => setClipboardFeedback(null), 2000);
+      } else {
+        setClipboardFeedback("Empty");
+        setTimeout(() => setClipboardFeedback(null), 1500);
+      }
     } catch {
-      /* clipboard unavailable */
+      setClipboardFeedback("Unavailable");
+      setTimeout(() => setClipboardFeedback(null), 1500);
     }
   }
 
@@ -318,9 +377,18 @@ export default function InstagramReelsDownloaderPage() {
               onClick={pasteFromClipboard}
               aria-label="Paste from clipboard"
               title="Paste from clipboard"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900"
+              className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900"
             >
-              <ClipboardPaste className="h-5 w-5" />
+              {clipboardFeedback === "Pasted!" ? (
+                <Check className="h-5 w-5 text-emerald-400" />
+              ) : (
+                <ClipboardPaste className="h-5 w-5" />
+              )}
+              {clipboardFeedback ? (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-slate-900/90 backdrop-blur-md px-2 py-0.5 text-[11px] font-semibold text-emerald-300 shadow-md border border-white/10 whitespace-nowrap">
+                  {clipboardFeedback}
+                </span>
+              ) : null}
             </button>
           </div>
         </label>
@@ -337,7 +405,7 @@ export default function InstagramReelsDownloaderPage() {
             ) : (
               <Download className="h-5 w-5" />
             )}
-            {loading ? "Fetching Media…" : "Get download links"}
+            {loading ? (loadingStatus || "Fetching Media…") : "Get download links"}
           </button>
           <button
             type="button"
@@ -350,8 +418,18 @@ export default function InstagramReelsDownloaderPage() {
         </div>
 
         {error ? (
-          <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-200 light:text-red-700">
-            {error}
+          <div className="mt-4 rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm leading-6 text-red-200 light:text-red-700 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <span>{error}</span>
+            {error.includes("Connection issue") || error.includes("waking up") ? (
+              <button
+                type="button"
+                onClick={fetchInfo}
+                disabled={loading}
+                className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-lg bg-red-600/40 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-600/60 transition border border-red-400/40"
+              >
+                Retry now
+              </button>
+            ) : null}
           </div>
         ) : null}
 

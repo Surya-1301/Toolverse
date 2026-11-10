@@ -320,11 +320,18 @@ try {
   ytDlpVersion = String(vErr.message);
 }
 
-// ---- CORS (the Toolverse site calls this from the browser) ----
+// ---- CORS (the Toolverse site and mobile apps call this) ----
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  if (!origin || allowedOrigins.includes("*")) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
+  const isLocalOrigin =
+    !origin ||
+    origin === "null" ||
+    /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin) ||
+    /^capacitor:\/\/localhost$/i.test(origin) ||
+    /^ionic:\/\/localhost$/i.test(origin);
+
+  if (!origin || allowedOrigins.includes("*") || isLocalOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", origin || "*");
   } else {
     const cleanOrigin = origin.replace(/\/+$/, "");
     if (allowedOrigins.some((o) => o === cleanOrigin || o === origin)) {
@@ -333,7 +340,10 @@ app.use((req, res, next) => {
       res.setHeader("Access-Control-Allow-Origin", allowedOrigins[0] || "*");
     }
   }
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Api-Key");
+  res.setHeader(
+    "Access-Control-Allow-Headers",
+    "Content-Type, X-Api-Key, X-Requested-With, Accept, Authorization"
+  );
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();

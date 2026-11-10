@@ -133,13 +133,33 @@ async function blobToBase64(blob: Blob): Promise<string> {
 
 /**
  * Copy text on web AND in the APK WebView.
- * navigator.clipboard requires a secure context + focus — both can be
- * missing on device — so fall back to execCommand and finally the native
- * Share sheet (which always lets the user copy the text).
- * Returns true if the text is on the clipboard (or was handed to Share).
+ * Tries @capacitor/clipboard, Android WebView ToolverseClipboard interface,
+ * navigator.clipboard, execCommand fallback, and native Share sheet.
  */
 export async function copyTextNative(text: string): Promise<boolean> {
   if (!text) return false;
+
+  // 1. Try native @capacitor/clipboard
+  try {
+    const { Clipboard } = await import("@capacitor/clipboard");
+    await Clipboard.write({ string: text });
+    return true;
+  } catch {
+    // fall through
+  }
+
+  // 2. Try Android WebView native interface
+  if (typeof window !== "undefined") {
+    const win = window as any;
+    if (win?.ToolverseClipboard?.writeText) {
+      try {
+        const ok = win.ToolverseClipboard.writeText(text);
+        if (ok) return true;
+      } catch {}
+    }
+  }
+
+  // 3. Try standard navigator.clipboard
   try {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(text);
@@ -148,6 +168,8 @@ export async function copyTextNative(text: string): Promise<boolean> {
   } catch {
     // fall through to legacy + native fallbacks
   }
+
+  // 4. Fallback to execCommand
   try {
     const area = document.createElement("textarea");
     area.value = text;
@@ -163,6 +185,8 @@ export async function copyTextNative(text: string): Promise<boolean> {
   } catch {
     // fall through
   }
+
+  // 5. Native Share sheet fallback
   if (isNative()) {
     try {
       const { Share } = await import("@capacitor/share");
@@ -179,16 +203,118 @@ export async function copyTextNative(text: string): Promise<boolean> {
   return false;
 }
 
-/** Read text from the clipboard (paste buttons). Null when unavailable. */
+/**
+ * Read text from the clipboard (paste buttons).
+ * Works reliably on Web and inside Android / iOS Capacitor APKs.
+ * Null when unavailable or empty.
+ */
 export async function readTextNative(): Promise<string | null> {
+  // 1. Try native @capacitor/clipboard
   try {
-    if (navigator.clipboard?.readText) {
-      return await navigator.clipboard.readText();
+    const { Clipboard } = await import("@capacitor/clipboard");
+    const result = await Clipboard.read();
+    if (result && typeof result.value === "string" && result.value.trim().length > 0) {
+      return result.value.trim();
     }
   } catch {
-    // clipboard read blocked — caller shows a manual-paste hint
+    // fall through
   }
+
+  // 2. Try native Android WebView ToolverseClipboard interface
+  if (typeof window !== "undefined") {
+    const win = window as any;
+    if (win?.ToolverseClipboard?.readText) {
+      try {
+        const text = win.ToolverseClipboard.readText();
+        if (text && typeof text === "string" && text.trim().length > 0) {
+          return text.trim();
+        }
+      } catch {}
+    }
+  }
+
+  // 3. Fall back to standard browser navigator.clipboard
+  try {
+    if (typeof navigator !== "undefined" && navigator.clipboard?.readText) {
+      const text = await navigator.clipboard.readText();
+      if (text && text.trim().length > 0) return text.trim();
+    }
+  } catch {
+    // clipboard read blocked
+  }
+
   return null;
+}
+
+/**
+ * Fetch API calls safely in Web and native APK.
+ * In native Capacitor APK, uses native HTTP requests via CapacitorHttp
+ * to avoid CORS restrictions, local-origin blocking, and WebView preflight errors.
+ */
+export async function apiFetch(url: string, options?: RequestInit): Promise<Response> {
+  if (isNative()) {
+    try {
+      const { CapacitorHttp } = await import("@capacitor/core");
+      const method = (options?.method || "GET").toUpperCase();
+      let data: any = undefined;
+      if (options?.body) {
+        if (typeof options.body === "string") {
+          try {
+            data = JSON.parse(options.body);
+          } catch {
+            data = options.body;
+          }
+        } else {
+          data = options.body;
+        }
+      }
+
+      const headers: Record<string, string> = {};
+      if (options?.headers) {
+        if (options.headers instanceof Headers) {
+          options.headers.forEach((v, k) => {
+            headers[k] = v;
+          });
+        } else if (Array.isArray(options.headers)) {
+          for (const [k, v] of options.headers) {
+            headers[k] = v;
+          }
+        } else {
+          Object.assign(headers, options.headers);
+        }
+      }
+
+      const res = await CapacitorHttp.request({
+        url,
+        method,
+        headers,
+        data,
+      });
+
+      const responseBody =
+        typeof res.data === "string"
+          ? res.data
+          : typeof res.data === "object" && res.data !== null
+          ? JSON.stringify(res.data)
+          : String(res.data ?? "");
+
+      const responseHeaders = new Headers();
+      if (res.headers) {
+        for (const [k, v] of Object.entries(res.headers)) {
+          if (v != null) responseHeaders.set(k, String(v));
+        }
+      }
+
+      return new Response(responseBody, {
+        status: res.status || 200,
+        headers: responseHeaders,
+      });
+    } catch (e) {
+      console.warn("CapacitorHttp native request failed, falling back to window.fetch:", e);
+    }
+  }
+
+  return fetch(url, options);
 }
 
 /**

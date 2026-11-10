@@ -16,6 +16,9 @@ const config: CapacitorConfig = {
     scheme: 'Toolverse',
   },
   plugins: {
+    CapacitorHttp: {
+      enabled: true,
+    },
     StatusBar: {
       backgroundColor: '#070a14',
     },

@@ -4,6 +4,8 @@ import android.app.DownloadManager;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -202,6 +204,36 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    public class ClipboardInterface {
+        @JavascriptInterface
+        public String readText() {
+            try {
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                if (cm != null && cm.hasPrimaryClip()) {
+                    ClipData clip = cm.getPrimaryClip();
+                    if (clip != null && clip.getItemCount() > 0) {
+                        CharSequence text = clip.getItemAt(0).coerceToText(getApplicationContext());
+                        return text != null ? text.toString() : "";
+                    }
+                }
+            } catch (Exception ignored) {}
+            return "";
+        }
+
+        @JavascriptInterface
+        public boolean writeText(String text) {
+            try {
+                ClipboardManager cm = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                if (cm != null) {
+                    ClipData clip = ClipData.newPlainText("Toolverse", text != null ? text : "");
+                    cm.setPrimaryClip(clip);
+                    return true;
+                }
+            } catch (Exception ignored) {}
+            return false;
+        }
+    }
+
     public void requestPermissionsOnFirstLaunch() {
         List<String> permissions = new ArrayList<>();
 
@@ -281,6 +313,9 @@ public class MainActivity extends BridgeActivity {
             BlobDownloadInterface blobInterface = new BlobDownloadInterface();
             webView.addJavascriptInterface(blobInterface, "ToolverseBlobDownloader");
             webView.addJavascriptInterface(blobInterface, "PDFVerseBlobDownloader");
+
+            ClipboardInterface clipboardInterface = new ClipboardInterface();
+            webView.addJavascriptInterface(clipboardInterface, "ToolverseClipboard");
 
             webView.setDownloadListener((url, userAgent, contentDisposition, mimetype, contentLength) -> {
                 try {
