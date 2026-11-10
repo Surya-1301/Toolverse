@@ -471,13 +471,13 @@ export default function InstagramReelsDownloaderPage() {
                   {videoResources.map((r) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-slate-50"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 p-3.5 sm:px-4 sm:py-3 light:border-slate-900/10 light:bg-slate-50"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-pink-600/20 text-sm font-bold text-pink-300 light:bg-pink-100 light:text-pink-700">
                           {r.quality ? `${r.quality}p` : "HD"}
                         </span>
-                        <p className="text-xs text-slate-400 light:text-slate-600 truncate">
+                        <p className="text-xs text-slate-300 light:text-slate-600 font-medium">
                           {[
                             r.sizeLabel,
                             r.hasAudio ? "with audio" : "video only",
@@ -491,7 +491,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -516,13 +516,13 @@ export default function InstagramReelsDownloaderPage() {
                   {photoResources.map((r) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-slate-50"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 p-3.5 sm:px-4 sm:py-3 light:border-slate-900/10 light:bg-slate-50"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-sky-600/20 text-sm font-bold text-sky-300 light:bg-sky-100 light:text-sky-700">
                           <ImageIcon className="h-4 w-4" />
                         </span>
-                        <p className="text-xs text-slate-400 light:text-slate-600 truncate">
+                        <p className="text-xs text-slate-300 light:text-slate-600 font-medium">
                           {[r.sizeLabel, "JPG Image"].filter(Boolean).join(" • ")}
                         </p>
                       </div>
@@ -530,7 +530,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -555,13 +555,13 @@ export default function InstagramReelsDownloaderPage() {
                   {audioResources.map((r) => (
                     <div
                       key={r.id}
-                      className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 px-4 py-3 light:border-slate-900/10 light:bg-slate-50"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-white/10 bg-slate-950 p-3.5 sm:px-4 sm:py-3 light:border-slate-900/10 light:bg-slate-50"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-purple-600/20 text-sm font-bold text-purple-300 light:bg-purple-100 light:text-purple-700">
                           <Music className="h-4 w-4" />
                         </span>
-                        <p className="text-xs text-slate-400 light:text-slate-600">
+                        <p className="text-xs text-slate-300 light:text-slate-600 font-medium">
                           {[r.sizeLabel, "MP3 Audio"].filter(Boolean).join(" • ")}
                         </p>
                       </div>
@@ -569,7 +569,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

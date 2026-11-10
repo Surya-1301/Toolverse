@@ -552,13 +552,13 @@ export default function YoutubeDownloaderPage() {
                   {videoResources.map((v) => (
                     <div
                       key={v.id}
-                      className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3 last:border-0 light:border-slate-900/5"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 p-3.5 sm:px-4 sm:py-3 last:border-0 light:border-slate-900/5"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-white light:bg-slate-900/5 light:text-slate-900">
                           {v.quality}p
                         </span>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-300 light:text-slate-600 font-medium">
                           {[
                             v.sizeLabel,
                             v.hasAudio ? "with audio" : null,
@@ -572,7 +572,7 @@ export default function YoutubeDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(v)}
                         disabled={downloadingId === v.id}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                       >
                         {downloadingId === v.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -597,13 +597,13 @@ export default function YoutubeDownloaderPage() {
                   {audioResources.map((a) => (
                     <div
                       key={a.id}
-                      className="flex items-center justify-between gap-3 border-b border-white/5 px-4 py-3 last:border-0 light:border-slate-900/5"
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-white/5 p-3.5 sm:px-4 sm:py-3 last:border-0 light:border-slate-900/5"
                     >
                       <div className="flex min-w-0 items-center gap-3">
                         <span className="inline-flex h-9 w-16 shrink-0 items-center justify-center rounded-lg bg-white/5 text-sm font-bold text-white light:bg-slate-900/5 light:text-slate-900">
                           <Music className="h-4 w-4" />
                         </span>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-slate-300 light:text-slate-600 font-medium">
                           {[a.sizeLabel, "MP3 audio"]
                             .filter(Boolean)
                             .join(" • ")}
@@ -613,7 +613,7 @@ export default function YoutubeDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(a)}
                         disabled={downloadingId === a.id}
-                        className="inline-flex min-h-10 shrink-0 items-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                       >
                         {downloadingId === a.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
