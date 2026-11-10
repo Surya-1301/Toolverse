@@ -1714,18 +1714,22 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     if (!files.length) throw new Error("download produced no file");
     const filePath = path.join(TMPDIR, files[0]);
 
-    let title = "download";
-    try {
-      const r = await runYtDlpWithFallback(
-        ["--print", "%(title)s", "--no-playlist", "--no-warnings", key],
-        30000,
-        tempCookiePath,
-        key,
-      );
-      const t = r.stdout.trim().split("\n")[0];
-      if (t) title = t;
-    } catch {
-      /* non-fatal */
+    let title = (req.query.title && String(req.query.title).trim()) ||
+      parseCache.get(key)?.data?.title ||
+      "download";
+    if (title === "download") {
+      try {
+        const r = await runYtDlpWithFallback(
+          ["--print", "%(title)s", "--no-playlist", "--no-warnings", key],
+          15000,
+          tempCookiePath,
+          key,
+        );
+        const t = r.stdout.trim().split("\n")[0];
+        if (t) title = t;
+      } catch {
+        /* non-fatal */
+      }
     }
 
     const ext = audioOnly ? "mp3" : "mp4";

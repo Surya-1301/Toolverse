@@ -133,6 +133,7 @@ export default function MusicDownloaderPage() {
       audio: "1",
       audio_format: format,
     });
+    if (details?.title) params.set("title", details.title);
     if (ytKey) params.set("api_key", ytKey);
     return `${activeServer.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
   }

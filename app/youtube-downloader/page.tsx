@@ -259,6 +259,7 @@ export default function YoutubeDownloaderPage() {
       format_id: r.id,
       audio: r.audioOnly ? "1" : "0",
     });
+    if (details?.title) params.set("title", details.title);
     if (ytKey) params.set("api_key", ytKey);
     const cookies = cookiesText.trim();
     if (cookies) {
