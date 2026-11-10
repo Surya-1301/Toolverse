@@ -182,13 +182,19 @@ export default function YoutubeDownloaderPage() {
     if (!res.ok) {
       const detail =
         data?.detail || data?.error || `Server error ${res.status}`;
-      if (/bot|sign in|login_required|timed out/i.test(detail)) {
+      const isLoginOrBot = /bot|sign in|login_required/i.test(detail);
+      const isTimeout = /timed out/i.test(detail);
+      if (isLoginOrBot) {
         setShowCookies(true);
       }
       throw new Error(
         cookies
           ? `${detail} (your cookies were sent but YouTube rejected them — try freshly exported cookies)`
-          : `${detail}${/bot|sign in|timed out/i.test(detail) ? ". YouTube blocks cloud servers without login — use the 'Blocked? Use your own YouTube cookies' option below." : ""}`,
+          : isTimeout
+          ? "Extraction timed out while contacting YouTube. Please try fetching again in a moment."
+          : isLoginOrBot
+          ? `${detail}. YouTube blocks cloud servers without login — use the 'Blocked? Use your own YouTube cookies' option below.`
+          : detail,
       );
     }
     setDetails({

@@ -497,7 +497,11 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   const isIg = /instagram\.com|instagr\.am/i.test(urlHint || args.join(" "));
   const isStory = /stories\//i.test(urlHint || args.join(" "));
   const isDump = args.includes("--dump-json");
-  const effectiveTimeout = isStory ? Math.min(timeoutMs || 50000, 50000) : isDump ? Math.min(timeoutMs || 25000, 25000) : (timeoutMs || MAX_MS);
+  const effectiveTimeout = isStory
+    ? Math.min(timeoutMs || 55000, 55000)
+    : isDump
+    ? Math.min(timeoutMs || 55000, 55000)
+    : (timeoutMs || MAX_MS);
 
   if (isYt) {
     if (customCookiesPath || HAS_COOKIES) {
@@ -512,6 +516,9 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
           return await runYtDlp([...extra, ...args], effectiveTimeout, customCookiesPath);
         } catch (e) {
           lastErr = e;
+          if (String(e?.message || "").includes("timed out")) {
+            break;
+          }
         }
       }
       throw lastErr;
@@ -527,6 +534,9 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
           return await runYtDlp([...extra, ...args], effectiveTimeout, customCookiesPath);
         } catch (e) {
           lastErr = e;
+          if (String(e?.message || "").includes("timed out")) {
+            break;
+          }
         }
       }
       throw lastErr;
@@ -1069,7 +1079,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.6",
+    version: "2.5.7",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
