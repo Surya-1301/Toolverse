@@ -463,6 +463,20 @@ export async function downloadFile(
     return out;
   }
 
+  // 1. Direct WebView Java interface downloadDirectUrl (streaming with status bar progress)
+  const win = typeof window !== "undefined" ? (window as any) : null;
+  const downloader = win?.ToolverseBlobDownloader || win?.PDFVerseBlobDownloader;
+  if (downloader?.downloadDirectUrl) {
+    try {
+      downloader.downloadDirectUrl(fullUrl, safeName, guessMime(safeName));
+      onProgress?.(100);
+      return { path: safeName, downloaded: true };
+    } catch (e) {
+      console.warn("downloadDirectUrl failed, trying ToolverseDownload plugin:", e);
+    }
+  }
+
+  // 2. ToolverseDownload Capacitor plugin (native thread streaming to MediaStore Downloads with status bar progress)
   try {
     const result = await ToolverseDownload.downloadUrl({
       url: fullUrl,
@@ -470,22 +484,15 @@ export async function downloadFile(
       mimeType: guessMime(safeName),
     });
     onProgress?.(100);
-    await showDownloadNotification("Download started", safeName);
-    return { path: safeName, id: result.id, downloaded: true };
+    return { path: safeName, downloaded: true };
   } catch (err) {
-    console.warn("DownloadManager unavailable, fallback:", err);
-    const response = await fetch(fullUrl);
+    console.warn("ToolverseDownload.downloadUrl failed, streaming via fetch:", err);
+    const response = await apiFetch(fullUrl);
     if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`);
     const blob = await response.blob();
     onProgress?.(80);
-    const base64 = await blobToBase64(blob);
-    const saved = await Filesystem.writeFile({
-      path: safeName,
-      data: base64,
-      directory: Directory.Cache,
-    });
+    const out = await saveBlobNative(blob, safeName);
     onProgress?.(100);
-    await showDownloadNotification("Download complete", safeName);
-    return { path: saved.uri ?? safeName, downloaded: true };
+    return out;
   }
 }

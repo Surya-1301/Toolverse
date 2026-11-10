@@ -33,7 +33,10 @@ import com.getcapacitor.BridgeActivity;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -68,6 +71,208 @@ public class MainActivity extends BridgeActivity {
             insetsController.hide(WindowInsetsCompat.Type.statusBars());
             insetsController.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
         }
+    }
+
+    public static String formatBytes(long bytes) {
+        if (bytes <= 0) return "0 B";
+        final String[] units = new String[] { "B", "KB", "MB", "GB", "TB" };
+        int digitGroups = (int) (Math.log10(bytes) / Math.log10(1024));
+        if (digitGroups >= units.length) digitGroups = units.length - 1;
+        return String.format(java.util.Locale.US, "%.1f %s", bytes / Math.pow(1024, digitGroups), units[digitGroups]);
+    }
+
+    public static void showDownloadCompleteNotification(
+        Context context,
+        NotificationManagerCompat notificationManager,
+        int notificationId,
+        Uri fileUri,
+        String absoluteFilePath,
+        String filename,
+        String mimeType
+    ) {
+        Intent viewIntent = new Intent(Intent.ACTION_VIEW);
+        if (mimeType != null && !mimeType.isEmpty()) {
+            viewIntent.setDataAndType(fileUri, mimeType);
+        } else {
+            viewIntent.setDataAndType(fileUri, "application/octet-stream");
+        }
+        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        PendingIntent viewPendingIntent = PendingIntent.getActivity(
+            context,
+            notificationId,
+            viewIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        Intent deleteIntent = new Intent(context, DownloadActionReceiver.class);
+        deleteIntent.setAction(DownloadActionReceiver.ACTION_DELETE);
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_NOTIFICATION_ID, notificationId);
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILE_URI, fileUri != null ? fileUri.toString() : "");
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILE_PATH, absoluteFilePath != null ? absoluteFilePath : "");
+        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILENAME, filename);
+
+        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationId + 1,
+            deleteIntent,
+            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
+        );
+
+        try {
+            NotificationCompat.Builder completeBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.stat_sys_download_done)
+                .setContentTitle(filename)
+                .setContentText("Download complete. Tap to open.")
+                .setContentIntent(viewPendingIntent)
+                .setAutoCancel(true)
+                .setOngoing(false)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .addAction(0, "Open", viewPendingIntent)
+                .addAction(android.R.drawable.ic_menu_delete, "Delete", deletePendingIntent);
+
+            notificationManager.notify(notificationId, completeBuilder.build());
+        } catch (SecurityException ignored) {
+        }
+    }
+
+    public static Uri downloadUrlToDownloads(Context context, String urlString, String filename, String mimeType) throws Exception {
+        createNotificationChannel(context);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        int notificationId = (int) (System.currentTimeMillis() & 0xfffffff);
+
+        NotificationCompat.Builder progressBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.stat_sys_download)
+            .setContentTitle("Downloading " + filename)
+            .setContentText("Connecting...")
+            .setProgress(0, 0, true)
+            .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_LOW);
+
+        try {
+            notificationManager.notify(notificationId, progressBuilder.build());
+        } catch (SecurityException ignored) {}
+
+        Uri fileUri = null;
+        String absoluteFilePath = null;
+        OutputStream os = null;
+        InputStream is = null;
+        HttpURLConnection conn = null;
+
+        try {
+            URL url = new URL(urlString);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setInstanceFollowRedirects(true);
+            conn.setConnectTimeout(30000);
+            conn.setReadTimeout(90000);
+            conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Toolverse) AppleWebKit/537.36");
+            String cookies = CookieManager.getInstance().getCookie(urlString);
+            if (cookies != null) {
+                conn.setRequestProperty("Cookie", cookies);
+            }
+
+            int status = conn.getResponseCode();
+            if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == 307 || status == 308) {
+                String newUrl = conn.getHeaderField("Location");
+                if (newUrl != null && !newUrl.isEmpty()) {
+                    conn.disconnect();
+                    url = new URL(newUrl);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setInstanceFollowRedirects(true);
+                    conn.setConnectTimeout(30000);
+                    conn.setReadTimeout(90000);
+                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Toolverse) AppleWebKit/537.36");
+                    if (cookies != null) conn.setRequestProperty("Cookie", cookies);
+                    status = conn.getResponseCode();
+                }
+            }
+
+            if (status >= 400) {
+                throw new Exception("HTTP " + status + ": " + conn.getResponseMessage());
+            }
+
+            long totalBytes = conn.getContentLengthLong();
+            if (mimeType == null || mimeType.isEmpty() || mimeType.equals("application/octet-stream")) {
+                String serverMime = conn.getContentType();
+                if (serverMime != null && !serverMime.isEmpty()) {
+                    mimeType = serverMime.split(";")[0].trim();
+                }
+            }
+
+            is = conn.getInputStream();
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.MediaColumns.DISPLAY_NAME, filename);
+                if (mimeType != null && !mimeType.isEmpty()) {
+                    values.put(MediaStore.MediaColumns.MIME_TYPE, mimeType);
+                }
+                values.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS);
+
+                fileUri = context.getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values);
+                if (fileUri == null) {
+                    throw new Exception("Could not allocate file in MediaStore Downloads");
+                }
+                os = context.getContentResolver().openOutputStream(fileUri);
+            } else {
+                File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                if (!dir.exists()) dir.mkdirs();
+                File file = new File(dir, filename);
+                os = new FileOutputStream(file);
+                absoluteFilePath = file.getAbsolutePath();
+                context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+                try {
+                    fileUri = FileProvider.getUriForFile(context, context.getPackageName() + ".fileprovider", file);
+                } catch (Exception ex) {
+                    fileUri = Uri.fromFile(file);
+                }
+            }
+
+            if (os == null) {
+                throw new Exception("Could not open destination output stream");
+            }
+
+            byte[] buffer = new byte[16384];
+            int read;
+            long downloadedBytes = 0;
+            long lastNotificationTime = System.currentTimeMillis();
+
+            while ((read = is.read(buffer)) != -1) {
+                os.write(buffer, 0, read);
+                downloadedBytes += read;
+
+                long now = System.currentTimeMillis();
+                if (now - lastNotificationTime > 400) {
+                    lastNotificationTime = now;
+                    try {
+                        if (totalBytes > 0) {
+                            int percent = (int) ((downloadedBytes * 100) / totalBytes);
+                            progressBuilder.setProgress(100, percent, false)
+                                .setContentText(percent + "% (" + formatBytes(downloadedBytes) + " / " + formatBytes(totalBytes) + ")");
+                        } else {
+                            progressBuilder.setProgress(0, 0, true)
+                                .setContentText(formatBytes(downloadedBytes) + " downloaded");
+                        }
+                        notificationManager.notify(notificationId, progressBuilder.build());
+                    } catch (SecurityException ignored) {}
+                }
+            }
+
+            os.flush();
+
+        } catch (Exception e) {
+            try {
+                notificationManager.cancel(notificationId);
+            } catch (SecurityException ignored) {}
+            throw e;
+        } finally {
+            if (is != null) try { is.close(); } catch (Exception ignored) {}
+            if (os != null) try { os.close(); } catch (Exception ignored) {}
+            if (conn != null) try { conn.disconnect(); } catch (Exception ignored) {}
+        }
+
+        showDownloadCompleteNotification(context, notificationManager, notificationId, fileUri, absoluteFilePath, filename, mimeType);
+        return fileUri;
     }
 
     public static void saveBytesToDownloads(Context context, byte[] bytes, String filename, String mimeType) throws Exception {
@@ -131,66 +336,35 @@ public class MainActivity extends BridgeActivity {
             }
         }
 
-        // 2. Intent to open the downloaded file when user clicks the notification or "Open" action
-        Intent viewIntent = new Intent(Intent.ACTION_VIEW);
-        if (mimeType != null && !mimeType.isEmpty()) {
-            viewIntent.setDataAndType(fileUri, mimeType);
-        } else {
-            viewIntent.setDataAndType(fileUri, "application/octet-stream");
-        }
-        viewIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        PendingIntent viewPendingIntent = PendingIntent.getActivity(
-            context,
-            notificationId,
-            viewIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-
-        // 3. Intent to delete the downloaded file and move to recycle bin
-        Intent deleteIntent = new Intent(context, DownloadActionReceiver.class);
-        deleteIntent.setAction(DownloadActionReceiver.ACTION_DELETE);
-        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_NOTIFICATION_ID, notificationId);
-        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILE_URI, fileUri != null ? fileUri.toString() : "");
-        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILE_PATH, absoluteFilePath != null ? absoluteFilePath : "");
-        deleteIntent.putExtra(DownloadActionReceiver.EXTRA_FILENAME, filename);
-
-        PendingIntent deletePendingIntent = PendingIntent.getBroadcast(
-            context,
-            notificationId + 1,
-            deleteIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ? PendingIntent.FLAG_IMMUTABLE : 0)
-        );
-
-        // 4. Update notification with Left action: Open, Right action: Delete
-        try {
-            NotificationCompat.Builder completeBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(android.R.drawable.stat_sys_download_done)
-                .setContentTitle(filename)
-                .setContentText("Download complete. Tap to open.")
-                .setContentIntent(viewPendingIntent)
-                .setAutoCancel(true)
-                .setOngoing(false)
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .addAction(0, "Open", viewPendingIntent)
-                .addAction(android.R.drawable.ic_menu_delete, "Delete", deletePendingIntent);
-
-            notificationManager.notify(notificationId, completeBuilder.build());
-        } catch (SecurityException ignored) {
-        }
+        showDownloadCompleteNotification(context, notificationManager, notificationId, fileUri, absoluteFilePath, filename, mimeType);
     }
 
     public class BlobDownloadInterface {
         @JavascriptInterface
         public void processBlobData(String base64Data, String filename, String mimeType) {
-            try {
-                markDownloadIntent();
-                byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
-                saveBytesToDownloads(getApplicationContext(), bytes, filename, mimeType);
-                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Downloaded " + filename + " to Downloads", Toast.LENGTH_SHORT).show());
-            } catch (Exception e) {
-                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Failed to save file: " + e.getMessage(), Toast.LENGTH_LONG).show());
-            }
+            new Thread(() -> {
+                try {
+                    markDownloadIntent();
+                    byte[] bytes = Base64.decode(base64Data, Base64.DEFAULT);
+                    saveBytesToDownloads(getApplicationContext(), bytes, filename, mimeType);
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Downloaded " + filename + " to Downloads", Toast.LENGTH_SHORT).show());
+                } catch (Exception e) {
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Failed to save file: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            }).start();
+        }
+
+        @JavascriptInterface
+        public void downloadDirectUrl(String url, String filename, String mimeType) {
+            new Thread(() -> {
+                try {
+                    markDownloadIntent();
+                    downloadUrlToDownloads(getApplicationContext(), url, filename, mimeType);
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Downloaded " + filename + " to Downloads", Toast.LENGTH_SHORT).show());
+                } catch (Exception e) {
+                    runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Download failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                }
+            }).start();
         }
 
         @JavascriptInterface
@@ -382,30 +556,22 @@ public class MainActivity extends BridgeActivity {
                         return;
                     }
 
-                    // Handle standard HTTP and HTTPS URLs via system DownloadManager
+                    // Handle standard HTTP and HTTPS URLs via native background streamer with status bar notifications
                     if (url.startsWith("http://") || url.startsWith("https://")) {
-                        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                        if (mimetype != null && !mimetype.isEmpty()) {
-                            request.setMimeType(mimetype);
-                        }
-                        String cookies = CookieManager.getInstance().getCookie(url);
-                        if (cookies != null) {
-                            request.addRequestHeader("cookie", cookies);
-                        }
-                        if (userAgent != null) {
-                            request.addRequestHeader("User-Agent", userAgent);
-                        }
-                        request.setDescription("Downloading file...");
                         String filename = URLUtil.guessFileName(url, contentDisposition, mimetype);
-                        request.setTitle(filename);
-                        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename);
-
-                        DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                        if (dm != null) {
-                            dm.enqueue(request);
-                            Toast.makeText(getApplicationContext(), "Downloading " + filename + "...", Toast.LENGTH_SHORT).show();
+                        if (filename == null || filename.isEmpty() || filename.endsWith(".bin")) {
+                            filename = "toolverse_download";
                         }
+                        String finalSafeFilename = filename;
+                        String finalMime = mimetype != null && !mimetype.isEmpty() ? mimetype : "application/octet-stream";
+                        new Thread(() -> {
+                            try {
+                                downloadUrlToDownloads(getApplicationContext(), url, finalSafeFilename, finalMime);
+                                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Downloaded " + finalSafeFilename + " to Downloads", Toast.LENGTH_SHORT).show());
+                            } catch (Exception e) {
+                                runOnUiThread(() -> Toast.makeText(getApplicationContext(), "Download failed: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                            }
+                        }).start();
                     } else {
                         Toast.makeText(getApplicationContext(), "Unsupported download URL scheme", Toast.LENGTH_SHORT).show();
                     }

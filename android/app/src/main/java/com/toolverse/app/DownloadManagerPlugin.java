@@ -1,11 +1,7 @@
 package com.toolverse.app;
 
-import android.app.DownloadManager;
 import android.content.Context;
-import android.net.Uri;
-import android.os.Environment;
 import android.util.Base64;
-import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 
 import com.getcapacitor.JSObject;
@@ -14,11 +10,10 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 
-import java.io.File;
-
 /**
  * Native download bridge — saves files to the device's public Downloads
- * collection matching the PDFVerse download architecture.
+ * with real-time download status bar progress and completion notifications
+ * with "Open" and "Delete" actions.
  */
 @CapacitorPlugin(name = "ToolverseDownload")
 public class DownloadManagerPlugin extends Plugin {
@@ -34,48 +29,28 @@ public class DownloadManagerPlugin extends Plugin {
       return;
     }
 
-    try {
-      Context ctx = getContext();
-      DownloadManager dm =
-        (DownloadManager) ctx.getSystemService(Context.DOWNLOAD_SERVICE);
-
-      String guessed = URLUtil.guessFileName(url, null, mimeType);
-      if (filename == null || filename.trim().isEmpty()) {
-        filename = guessed;
-      }
-      filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
-      if (filename.isEmpty()) filename = "download";
-
-      File destDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-      if (!destDir.exists()) {
-        destDir.mkdirs();
-      }
-
-      DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-      request.setTitle(filename);
-      request.setDescription("Downloading " + filename);
-      request.setNotificationVisibility(
-        DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-      request.setDestinationInExternalPublicDir(
-        Environment.DIRECTORY_DOWNLOADS, filename);
-      request.allowScanningByMediaScanner();
-      if (mimeType != null && !mimeType.isEmpty()) {
-        request.setMimeType(mimeType);
-      }
-      String cookies = CookieManager.getInstance().getCookie(url);
-      if (cookies != null) {
-        request.addRequestHeader("cookie", cookies);
-      }
-
-      long id = dm.enqueue(request);
-
-      JSObject ret = new JSObject();
-      ret.put("id", id);
-      ret.put("filename", filename);
-      call.resolve(ret);
-    } catch (Exception e) {
-      call.reject("Download failed: " + e.getMessage());
+    String guessed = URLUtil.guessFileName(url, null, mimeType);
+    if (filename == null || filename.trim().isEmpty()) {
+      filename = guessed;
     }
+    filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+    if (filename.isEmpty()) filename = "download";
+    final String finalFilename = filename;
+    final String finalMime = mimeType;
+
+    new Thread(() -> {
+      try {
+        Context ctx = getContext();
+        MainActivity.downloadUrlToDownloads(ctx, url, finalFilename, finalMime);
+        JSObject ret = new JSObject();
+        ret.put("id", System.currentTimeMillis());
+        ret.put("filename", finalFilename);
+        ret.put("path", finalFilename);
+        call.resolve(ret);
+      } catch (Exception e) {
+        call.reject("Download failed: " + e.getMessage());
+      }
+    }).start();
   }
 
   @PluginMethod
@@ -89,16 +64,23 @@ public class DownloadManagerPlugin extends Plugin {
       return;
     }
 
-    try {
-      byte[] bytes = Base64.decode(data, Base64.DEFAULT);
-      MainActivity.saveBytesToDownloads(getContext(), bytes, filename, mimeType);
+    filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+    if (filename.isEmpty()) filename = "download";
+    final String finalFilename = filename;
+    final String finalMime = mimeType;
 
-      JSObject ret = new JSObject();
-      ret.put("filename", filename);
-      ret.put("path", filename);
-      call.resolve(ret);
-    } catch (Exception e) {
-      call.reject("Failed to save: " + e.getMessage());
-    }
+    new Thread(() -> {
+      try {
+        byte[] bytes = Base64.decode(data, Base64.DEFAULT);
+        MainActivity.saveBytesToDownloads(getContext(), bytes, finalFilename, finalMime);
+
+        JSObject ret = new JSObject();
+        ret.put("filename", finalFilename);
+        ret.put("path", finalFilename);
+        call.resolve(ret);
+      } catch (Exception e) {
+        call.reject("Failed to save: " + e.getMessage());
+      }
+    }).start();
   }
 }
