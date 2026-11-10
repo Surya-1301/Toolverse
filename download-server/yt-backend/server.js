@@ -165,21 +165,9 @@ function formatAsNetscapeCookies(rawInput, isInstagram = false) {
       } catch {}
     }
 
-    if (!cookieMap.has("csrftoken")) {
-      cookieMap.set("csrftoken", crypto.randomBytes(16).toString("hex"));
-    }
-    if (!cookieMap.has("mid")) {
-      cookieMap.set("mid", crypto.randomBytes(16).toString("base64url"));
-    }
-    if (!cookieMap.has("ig_did")) {
-      cookieMap.set("ig_did", crypto.randomUUID().toUpperCase());
-    }
-    if (!cookieMap.has("rur")) {
-      cookieMap.set("rur", "NAO");
-    }
-
     for (const [k, v] of cookieMap.entries()) {
       rows.push(`.instagram.com\tTRUE\t/\tTRUE\t2147483647\t${k}\t${v}`);
+      rows.push(`instagram.com\tFALSE\t/\tTRUE\t2147483647\t${k}\t${v}`);
     }
     return rows.join("\n") + "\n";
   }
@@ -1081,7 +1069,7 @@ app.get(["/", "/health"], (req, res) => {
   res.json({
     ok: true,
     service: "toolverse-yt-backend",
-    version: "2.5.5",
+    version: "2.5.6",
     innertubeDirect: true,
     ytDlpVersion,
     cookies: HAS_COOKIES,
