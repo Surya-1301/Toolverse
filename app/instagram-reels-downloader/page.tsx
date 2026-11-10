@@ -405,7 +405,7 @@ export default function InstagramReelsDownloaderPage() {
             ) : (
               <Download className="h-5 w-5" />
             )}
-            {loading ? (loadingStatus || "Fetching Media…") : "Get download links"}
+            {loading ? (loadingStatus || "Fetching Media…") : "Download"}
           </button>
           <button
             type="button"
@@ -434,7 +434,7 @@ export default function InstagramReelsDownloaderPage() {
         ) : null}
 
         {details ? (
-          <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5">
+          <div className="mt-6 rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 sm:p-5 light:border-purple-200 light:bg-purple-50/50">
             <div className="flex gap-4">
               {details.thumbnail ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -449,8 +449,8 @@ export default function InstagramReelsDownloaderPage() {
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
-                  <Check className="h-4 w-4 shrink-0 text-emerald-400" />
+                <p className="flex items-center gap-2 text-sm font-semibold text-pink-200 light:text-pink-700">
+                  <Check className="h-4 w-4 shrink-0 text-pink-400" />
                   <span className="truncate">{details.title}</span>
                 </p>
                 {details.uploader ? (
@@ -491,7 +491,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:opacity-90 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -530,7 +530,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:opacity-90 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -569,7 +569,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:opacity-90 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

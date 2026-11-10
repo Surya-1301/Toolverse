@@ -244,7 +244,7 @@ export default function MusicDownloaderPage() {
         ) : null}
 
         {details ? (
-          <div className="mt-4 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+          <div className="mt-4 rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 light:border-purple-200 light:bg-purple-50/50">
             <div className="flex gap-3">
               {details.thumbnail ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -254,13 +254,13 @@ export default function MusicDownloaderPage() {
                   className="h-20 w-20 shrink-0 rounded-xl object-cover"
                 />
               ) : (
-                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-sky-500/20 text-sky-300">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-purple-500/20 text-purple-300">
                   <Music className="h-8 w-8" />
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
-                  <Check className="h-4 w-4 shrink-0" />
+                <p className="flex items-center gap-2 text-sm font-semibold text-purple-200 light:text-purple-700">
+                  <Check className="h-4 w-4 shrink-0 text-purple-400" />
                   <span className="truncate">{details.title}</span>
                 </p>
                 <p className="mt-1 text-xs text-slate-400">
@@ -275,7 +275,7 @@ export default function MusicDownloaderPage() {
               download={`${(details?.title || "music").replace(/[/\\?%*:|"<>#]/g, "-").slice(0, 80)}.${format}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
+              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 px-6 text-sm font-semibold text-white shadow-md shadow-purple-500/20 transition hover:opacity-90"
             >
               <Download className="h-5 w-5" />
               Download {format.toUpperCase()}

@@ -572,7 +572,7 @@ export default function YoutubeDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(v)}
                         disabled={downloadingId === v.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white shadow-md shadow-red-600/20 transition hover:bg-red-500 disabled:opacity-60"
                       >
                         {downloadingId === v.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -613,7 +613,7 @@ export default function YoutubeDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(a)}
                         disabled={downloadingId === a.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white shadow-md shadow-red-600/20 transition hover:bg-red-500 disabled:opacity-60"
                       >
                         {downloadingId === a.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
