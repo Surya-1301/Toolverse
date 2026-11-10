@@ -349,27 +349,27 @@ export default function YoutubeDownloaderPage() {
           </div>
         </label>
 
-        <div className="mt-4 flex flex-wrap gap-3">
+        <div className="mt-4 flex gap-3">
           <button
             type="button"
             onClick={fetchInfo}
             disabled={loading || !url.trim()}
-            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-red-600 px-6 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
+            className="inline-flex min-h-12 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 sm:px-6 text-sm font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin shrink-0" />
             ) : (
-              <Download className="h-5 w-5" />
+              <Download className="h-5 w-5 shrink-0" />
             )}
-            {loading ? "Fetching…" : "Fetch video"}
+            <span className="truncate">{loading ? "Fetching…" : "Fetch video"}</span>
           </button>
           <button
             type="button"
             onClick={reset}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 text-sm transition"
+            className="inline-flex min-h-12 flex-1 sm:flex-none min-w-0 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 sm:px-6 text-sm transition"
           >
-            <Eraser className="h-4 w-4" />
-            Clear
+            <Eraser className="h-4 w-4 shrink-0" />
+            <span>Clear</span>
           </button>
         </div>
 
@@ -572,7 +572,7 @@ export default function YoutubeDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(v)}
                         disabled={downloadingId === v.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white shadow-md shadow-red-600/20 transition hover:bg-red-500 disabled:opacity-60"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                       >
                         {downloadingId === v.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -613,7 +613,7 @@ export default function YoutubeDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(a)}
                         disabled={downloadingId === a.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-red-600 px-4 text-sm font-semibold text-white shadow-md shadow-red-600/20 transition hover:bg-red-500 disabled:opacity-60"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white transition hover:bg-emerald-500 disabled:opacity-60"
                       >
                         {downloadingId === a.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

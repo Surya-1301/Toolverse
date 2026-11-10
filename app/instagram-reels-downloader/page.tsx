@@ -393,27 +393,29 @@ export default function InstagramReelsDownloaderPage() {
           </div>
         </label>
 
-        <div className="mt-5 flex flex-wrap gap-3">
+        <div className="mt-5 flex gap-3">
           <button
             type="button"
             onClick={fetchInfo}
             disabled={loading || !url.trim()}
-            className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-pink-500/20"
+            className="inline-flex min-h-12 flex-1 min-w-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 sm:px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 shadow-lg shadow-pink-500/20"
           >
             {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <Loader2 className="h-5 w-5 animate-spin shrink-0" />
             ) : (
-              <Download className="h-5 w-5" />
+              <Download className="h-5 w-5 shrink-0" />
             )}
-            {loading ? (loadingStatus || "Fetching Media…") : "Download"}
+            <span className="truncate">
+              {loading ? (loadingStatus || "Fetching Media…") : "Download"}
+            </span>
           </button>
           <button
             type="button"
             onClick={reset}
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 text-sm transition"
+            className="inline-flex min-h-12 flex-1 sm:flex-none min-w-0 items-center justify-center gap-2 rounded-xl bg-red-600 text-white font-semibold shadow-sm hover:bg-red-500 px-4 sm:px-6 text-sm transition"
           >
-            <Eraser className="h-4 w-4" />
-            Clear
+            <Eraser className="h-4 w-4 shrink-0" />
+            <span>Clear</span>
           </button>
         </div>
 
@@ -434,7 +436,7 @@ export default function InstagramReelsDownloaderPage() {
         ) : null}
 
         {details ? (
-          <div className="mt-6 rounded-2xl border border-purple-500/30 bg-purple-950/20 p-4 sm:p-5 light:border-purple-200 light:bg-purple-50/50">
+          <div className="mt-6 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5">
             <div className="flex gap-4">
               {details.thumbnail ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -449,8 +451,8 @@ export default function InstagramReelsDownloaderPage() {
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-2 text-sm font-semibold text-pink-200 light:text-pink-700">
-                  <Check className="h-4 w-4 shrink-0 text-pink-400" />
+                <p className="flex items-center gap-2 text-sm font-semibold text-emerald-200 light:text-emerald-700">
+                  <Check className="h-4 w-4 shrink-0 text-emerald-400" />
                   <span className="truncate">{details.title}</span>
                 </p>
                 {details.uploader ? (
@@ -491,7 +493,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:opacity-90 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -530,7 +532,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:opacity-90 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
@@ -569,7 +571,7 @@ export default function InstagramReelsDownloaderPage() {
                         type="button"
                         onClick={() => handleDownload(r)}
                         disabled={downloadingId === r.id}
-                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:opacity-90 disabled:opacity-50"
+                        className="inline-flex min-h-10 w-full sm:w-auto shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 text-sm font-semibold text-white shadow-lg transition hover:bg-emerald-500 disabled:opacity-50"
                       >
                         {downloadingId === r.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
