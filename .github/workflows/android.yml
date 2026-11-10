@@ -83,8 +83,15 @@ jobs:
 
       - name: Apply Toolverse app icons
         run: |
-          SRC=$(dirname "$(find . -path ./node_modules -prune -o -type d -name 'mipmap-xxxhdpi' -print | head -1)")
-          if [ -z "$SRC" ]; then echo "android-icons folder not found"; exit 1; fi
+          if [ -d "public/resources/android-icons" ]; then
+            SRC="public/resources/android-icons"
+          else
+            SRC=$(find . -path ./node_modules -prune -o -path ./android -prune -o -path ./.next -prune -o -path ./out -prune -o -type d -name 'mipmap-xxxhdpi' -exec dirname {} \; | head -1)
+          fi
+          if [ -z "$SRC" ] || [ ! -d "$SRC" ]; then
+            echo "android-icons folder not found"
+            exit 1
+          fi
           echo "Copying icons from $SRC"
           cp -r "$SRC"/mipmap-* android/app/src/main/res/
 
