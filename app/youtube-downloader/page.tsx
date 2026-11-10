@@ -95,6 +95,7 @@ export default function YoutubeDownloaderPage() {
   // with their requests only, never stored on backend.
   const [cookiesText, setCookiesText] = useState("");
   const [showCookies, setShowCookies] = useState(false);
+  const [clipboardFeedback, setClipboardFeedback] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -291,7 +292,15 @@ export default function YoutubeDownloaderPage() {
   async function pasteFromClipboard() {
     try {
       const text = await readTextNative();
-      if (text && text.trim()) setUrl(text.trim());
+      if (text && text.trim()) {
+        setUrl(text.trim());
+        setError(null);
+        setClipboardFeedback("Pasted!");
+        setTimeout(() => setClipboardFeedback(null), 2000);
+      } else {
+        setClipboardFeedback("Empty");
+        setTimeout(() => setClipboardFeedback(null), 1500);
+      }
     } catch {
       /* clipboard unavailable */
     }
@@ -342,9 +351,18 @@ export default function YoutubeDownloaderPage() {
               onClick={pasteFromClipboard}
               aria-label="Paste from clipboard"
               title="Paste from clipboard"
-              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-indigo-600 text-white font-semibold shadow-sm hover:bg-indigo-500 transition"
+              className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-white/15 text-slate-300 transition hover:bg-white/10 hover:text-white light:border-slate-900/15 light:text-slate-600 light:hover:text-slate-900"
             >
-              <ClipboardPaste className="h-5 w-5" />
+              {clipboardFeedback === "Pasted!" ? (
+                <Check className="h-5 w-5 text-emerald-400" />
+              ) : (
+                <ClipboardPaste className="h-5 w-5" />
+              )}
+              {clipboardFeedback ? (
+                <span className="absolute -top-8 left-1/2 -translate-x-1/2 rounded-md bg-slate-900/90 backdrop-blur-md px-2 py-0.5 text-[11px] font-semibold text-emerald-300 shadow-md border border-white/10 whitespace-nowrap">
+                  {clipboardFeedback}
+                </span>
+              ) : null}
             </button>
           </div>
         </label>
