@@ -249,7 +249,7 @@ if (process.env.IG_COOKIES_B64) {
   }
 }
 
-const DEFAULT_IG_SESSION = "26746336962%3Aa9pwQq3SnBsDQN%3A21%3AAYkNh5jlqiuMMVgF1ySmLrj8tCOYZcLQLo7ikCPGcQ";
+const DEFAULT_IG_SESSION = (process.env.DEFAULT_IG_SESSION || "").trim();
 const rawIgInput = (process.env.IG_SESSIONID || process.env.IG_COOKIES || "").trim().replace(/^["']|["']$/g, "");
 
 // If the user specified an explicit IG_SESSIONID or IG_COOKIES in Render, prioritize it over any stale/default cookies
