@@ -7,9 +7,13 @@ const seo = toolSeo["excel-csv-converter"];
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
+  alternates: {
+    canonical: `https://toolversee.pages.dev/${seo.slug}/`,
+  },
   openGraph: {
     title: seo.title,
     description: seo.description,
+    url: `https://toolversee.pages.dev/${seo.slug}/`,
   },
 };
 
@@ -21,7 +25,7 @@ export default function ExcelCsvConverterLayout({
   return (
     <>
       {children}
-      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/excel-csv-converter" />
+      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/excel-csv-converter/" />
     </>
   );
 }

@@ -19,42 +19,42 @@ const tools = [
     title: "Lorem Ipsum Generator",
     description:
       "Generate classic placeholder text as paragraphs, sentences, or words with optional HTML tags.",
-    href: "/lorem-ipsum-generator",
+    href: "/lorem-ipsum-generator/",
     icon: <TextQuote className="h-6 w-6" />,
   },
   {
     title: "Text Counter",
     description:
       "Count words, characters, letters, numbers, spaces, punctuation, sentences, paragraphs, lines, and reading time — all in one place.",
-    href: "/text-counter",
+    href: "/text-counter/",
     icon: <Hash className="h-6 w-6" />,
   },
   {
     title: "Case Converter",
     description:
       "Convert text to uppercase, lowercase, title case, sentence case, camelCase, snake_case.",
-    href: "/case-converter",
+    href: "/case-converter/",
     icon: <CaseSensitive className="h-6 w-6" />,
   },
   {
     title: "Duplicate Line Remover",
     description:
       "Remove duplicate or blank lines from text and copy the cleaned result.",
-    href: "/duplicate-line-remover",
+    href: "/duplicate-line-remover/",
     icon: <GitMerge className="h-6 w-6" />,
   },
   {
     title: "Text to Speech",
     description:
       "Turn text into spoken audio using your browser's built-in voice engine.",
-    href: "/text-to-speech",
+    href: "/text-to-speech/",
     icon: <AudioLines className="h-6 w-6" />,
   },
   {
     title: "Text Compare / Diff",
     description:
       "Compare two blocks of text side by side and see added, removed, and unchanged lines.",
-    href: "/text-compare",
+    href: "/text-compare/",
     icon: <GitCompare className="h-6 w-6" />,
   },
 ];

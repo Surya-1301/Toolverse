@@ -19,62 +19,62 @@ const tools = [
   {
     title: "Image Converter",
     description: "Convert PNG, JPG, and WebP images directly in your browser.",
-    href: "/image-converter",
+    href: "/image-converter/",
     icon: <ImageDown className="h-6 w-6" />,
   },
   {
     title: "Image Resizer & Cropper",
     description:
       "Resize single or multiple images with aspect ratio and quality controls, or crop by coordinates and aspect ratios.",
-    href: "/image-resizer-cropper",
+    href: "/image-resizer-cropper/",
     icon: <ImageDown className="h-6 w-6" />,
   },
   {
     title: "Image Watermark",
     description:
       "Add text or logo watermarks with position, opacity, and batch support.",
-    href: "/image-watermark-tool",
+    href: "/image-watermark-tool/",
     icon: <ImagePlus className="h-6 w-6" />,
   },
   {
     title: "Background Remover",
     description: "Remove image backgrounds and download transparent PNG files.",
-    href: "/background-remover",
+    href: "/background-remover/",
     icon: <ImagePlus className="h-6 w-6" />,
   },
   {
     title: "Favicon Generator",
     description:
       "Turn any image into every favicon size plus a ready-to-use manifest and HTML.",
-    href: "/favicon-generator",
+    href: "/favicon-generator/",
     icon: <SquareDashedBottom className="h-6 w-6" />,
   },
   {
     title: "OG Image Generator",
     description:
       "Create 1200×630 social share cards with custom text, colors, and logo.",
-    href: "/og-image-generator",
+    href: "/og-image-generator/",
     icon: <RectangleHorizontal className="h-6 w-6" />,
   },
   {
     title: "Blur Image",
     description:
       "Blur an entire photo or just a region to hide faces and sensitive details.",
-    href: "/image-blur",
+    href: "/image-blur/",
     icon: <Sparkles className="h-6 w-6" />,
   },
   {
     title: "Image Upscaler",
     description:
       "Enlarge images up to 8× with smart interpolation and sharpening.",
-    href: "/image-upscaler",
+    href: "/image-upscaler/",
     icon: <ZoomIn className="h-6 w-6" />,
   },
   {
     title: "Image Placeholder",
     description:
       "Generate crisp placeholder images of any size with text and colors.",
-    href: "/image-placeholder",
+    href: "/image-placeholder/",
     icon: <Shapes className="h-6 w-6" />,
   },
 ];

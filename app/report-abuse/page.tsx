@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   title: "Report Abuse | Toolverse",
   description:
     "Report abuse, harmful content, phishing, malware, illegal files, copyright concerns, or exposed private information on Toolverse.",
+  alternates: {
+    canonical: "https://toolversee.pages.dev/report-abuse/",
+  },
 };
 
 const reportTypes = [

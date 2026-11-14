@@ -29,110 +29,110 @@ const tools = [
     title: "IP Address Lookup",
     description:
       "See your public IP address with location, network, and timezone details.",
-    href: "/ip-lookup",
+    href: "/ip-lookup/",
     icon: <Network className="h-6 w-6" />,
   },
   {
     title: "Credit Card Generator",
     description:
       "Generate test cards (number, expiry, name, CVV) or validate any card's checksum and brand.",
-    href: "/credit-card-generator",
+    href: "/credit-card-generator/",
     icon: <WalletCards className="h-6 w-6" />,
   },
   {
     title: "Fake Address Generator",
     description:
       "Generate realistic fake addresses with full user profiles (name, email, phone) for testing with multiple locale presets.",
-    href: "/fake-address-generator",
+    href: "/fake-address-generator/",
     icon: <MapPin className="h-6 w-6" />,
   },
   {
     title: "UUID Generator",
     description: "Generate UUID v4 values in bulk and copy all results.",
-    href: "/uuid-generator",
+    href: "/uuid-generator/",
     icon: <Hash className="h-6 w-6" />,
   },
   {
     title: "Password Generator",
     description:
       "Create secure passwords with length, symbols, ambiguity filtering, and strength checks.",
-    href: "/password-generator",
+    href: "/password-generator/",
     icon: <KeyRound className="h-6 w-6" />,
   },
   {
     title: "Hash Generator",
     description: "Generate MD5, SHA-1, SHA-256, and SHA-512 hashes from text.",
-    href: "/hash-generator",
+    href: "/hash-generator/",
     icon: <Fingerprint className="h-6 w-6" />,
   },
   {
     title: "Random String Generator",
     description:
       "Generate random strings with custom character sets, length, and quantity.",
-    href: "/random-string-generator",
+    href: "/random-string-generator/",
     icon: <Shuffle className="h-6 w-6" />,
   },
   {
     title: "Base64 Encoder / Decoder",
     description:
       "Convert text and files to Base64, or decode Base64 back to text and files.",
-    href: "/base64-encoder-decoder",
+    href: "/base64-encoder-decoder/",
     icon: <Braces className="h-6 w-6" />,
   },
   {
     title: "JWT Decoder",
     description:
       "Decode JWT header and payload locally, inspect expiry, and avoid server upload.",
-    href: "/jwt-decoder",
+    href: "/jwt-decoder/",
     icon: <LockKeyhole className="h-6 w-6" />,
   },
   {
     title: "Timestamp Converter",
     description:
       "Convert Unix timestamps to dates, dates to Unix timestamps, and view timezones.",
-    href: "/timestamp-converter",
+    href: "/timestamp-converter/",
     icon: <Clock className="h-6 w-6" />,
   },
   {
     title: "URL Tools",
     description:
       "Parse URL components, encode or decode text, and trace redirect chains in one place.",
-    href: "/url-tools",
+    href: "/url-tools/",
     icon: <Link2 className="h-6 w-6" />,
   },
   {
     title: "Domain Lookup",
     description:
       "Query DNS records or look up WHOIS ownership, registrar, status, and dates in one place.",
-    href: "/domain-lookup",
+    href: "/domain-lookup/",
     icon: <Globe2 className="h-6 w-6" />,
   },
   {
     title: "API Tester",
     description:
       "Full-featured API client — build requests with params, headers, auth, and body. Save to collections and view history.",
-    href: "/http-request-tester",
+    href: "/http-request-tester/",
     icon: <Send className="h-6 w-6" />,
   },
   {
     title: "Email, Phone & IBAN Validator",
     description:
       "Validate emails, phone numbers, and IBANs in one private, local tool.",
-    href: "/email-phone-iban-validator",
+    href: "/email-phone-iban-validator/",
     icon: <ShieldCheck className="h-6 w-6" />,
   },
   {
     title: "Meta Tag Generator",
     description:
       "Generate SEO meta tags, Open Graph and Twitter cards with live Google and social previews.",
-    href: "/meta-tag-generator",
+    href: "/meta-tag-generator/",
     icon: <Tags className="h-6 w-6" />,
   },
   {
     title: "robots.txt Generator",
     description:
       "Build crawl rules, crawl delays and sitemaps, then download a ready robots.txt file.",
-    href: "/robots-txt-generator",
+    href: "/robots-txt-generator/",
     icon: <Bot className="h-6 w-6" />,
   },
 ];

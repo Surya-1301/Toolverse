@@ -7,9 +7,13 @@ const seo = toolSeo["og-image-generator"];
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
+  alternates: {
+    canonical: `https://toolversee.pages.dev/${seo.slug}/`,
+  },
   openGraph: {
     title: seo.title,
     description: seo.description,
+    url: `https://toolversee.pages.dev/${seo.slug}/`,
   },
 };
 
@@ -21,7 +25,7 @@ export default function OgImageGeneratorLayout({
   return (
     <>
       {children}
-      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/og-image-generator" />
+      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/og-image-generator/" />
     </>
   );
 }

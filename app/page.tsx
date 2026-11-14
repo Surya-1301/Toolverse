@@ -13,6 +13,9 @@ export const metadata: Metadata = {
   title: "Toolverse - All-in-one online utility tools.",
   description:
     "Use free online tools like JSON Formatter, QR Generator, Image Compressor, Paste, URL Shortener, Image Host, and File Share.",
+  alternates: {
+    canonical: "https://toolversee.pages.dev/",
+  },
 };
 
 /* ==========================================================================

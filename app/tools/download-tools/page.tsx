@@ -17,27 +17,27 @@ const tools = [
     title: "YouTube Downloader",
     description:
       "Download YouTube videos and audio in multiple resolutions and formats.",
-    href: "/youtube-downloader",
+    href: "/youtube-downloader/",
     icon: <Clapperboard className="h-6 w-6" />,
   },
   {
     title: "Audio Downloader",
     description:
       "Download audio from YouTube and other platforms as high-quality MP3 audio.",
-    href: "/music-downloader",
+    href: "/music-downloader/",
     icon: <Music className="h-6 w-6" />,
   },
   {
     title: "Instagram Downloader",
     description: "Download Instagram reels, posts and carousels in HD.",
-    href: "/instagram-reels-downloader",
+    href: "/instagram-reels-downloader/",
     icon: <Film className="h-6 w-6" />,
   },
   {
     title: "Audio Converter",
     description:
       "Convert audio between MP3, WAV, and WebM right in your browser.",
-    href: "/audio-converter",
+    href: "/audio-converter/",
     icon: <Waves className="h-6 w-6" />,
   },
 ];

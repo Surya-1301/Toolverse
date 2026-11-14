@@ -10,37 +10,37 @@ const tools = [
   {
     title: "HTML Formatter",
     description: "Format, minify, validate tags, and copy HTML output.",
-    href: "/html-formatter",
+    href: "/html-formatter/",
     icon: <FileCode2 className="h-6 w-6" />,
   },
   {
     title: "CSS Formatter",
     description: "Format CSS, minify styles, remove comments, and copy output.",
-    href: "/css-formatter",
+    href: "/css-formatter/",
     icon: <Code2 className="h-6 w-6" />,
   },
   {
     title: "JavaScript Formatter",
     description: "Beautify, format, minify, and copy JavaScript code.",
-    href: "/javascript-formatter",
+    href: "/javascript-formatter/",
     icon: <Code2 className="h-6 w-6" />,
   },
   {
     title: "JSON Formatter",
     description: "Format, validate, and minify JSON instantly in your browser.",
-    href: "/json-formatter",
+    href: "/json-formatter/",
     icon: <Braces className="h-6 w-6" />,
   },
   {
     title: "SQL Formatter",
     description: "Format, beautify, and minify SQL queries with proper indentation.",
-    href: "/sql-formatter",
+    href: "/sql-formatter/",
     icon: <Database className="h-6 w-6" />,
   },
   {
     title: "TypeScript Formatter",
     description: "Beautify, format, and minify TypeScript code and type definitions.",
-    href: "/typescript-formatter",
+    href: "/typescript-formatter/",
     icon: <FileType2 className="h-6 w-6" />,
   },
 ];

@@ -40,9 +40,6 @@ export const metadata: Metadata = {
   applicationName: "Toolverse",
   generator: "Next.js",
   referrer: "origin-when-cross-origin",
-  alternates: {
-    canonical: `${siteUrl}/`,
-  },
   openGraph: {
     type: "website",
     url: siteUrl,

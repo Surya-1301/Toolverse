@@ -21,6 +21,9 @@ export const metadata: Metadata = {
   title: "Privacy Policy | Toolverse",
   description:
     "Toolverse Privacy Policy explaining how personal data is collected, used, protected, stored, and deleted in accordance with applicable law.",
+  alternates: {
+    canonical: "https://toolversee.pages.dev/privacy/",
+  },
 };
 
 const lastUpdated = "August 10, 2026";

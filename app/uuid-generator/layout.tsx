@@ -7,9 +7,13 @@ const seo = toolSeo["uuid-generator"];
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
+  alternates: {
+    canonical: `https://toolversee.pages.dev/${seo.slug}/`,
+  },
   openGraph: {
     title: seo.title,
     description: seo.description,
+    url: `https://toolversee.pages.dev/${seo.slug}/`,
   },
 };
 
@@ -21,7 +25,7 @@ export default function UuidGeneratorLayout({
   return (
     <>
       {children}
-      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/uuid-generator" />
+      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/uuid-generator/" />
     </>
   );
 }

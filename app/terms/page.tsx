@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Terms of Use | Toolverse",
   description:
     "Terms of Use for Toolverse explaining acceptable use, user responsibilities, uploaded content, intellectual property, service availability, security, and legal terms.",
+  alternates: {
+    canonical: "https://toolversee.pages.dev/terms/",
+  },
 };
 
 const lastUpdated = "August 10, 2026";

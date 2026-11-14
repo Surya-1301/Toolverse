@@ -7,9 +7,13 @@ const seo = toolSeo["image-host"];
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
+  alternates: {
+    canonical: `https://toolversee.pages.dev/${seo.slug}/`,
+  },
   openGraph: {
     title: seo.title,
     description: seo.description,
+    url: `https://toolversee.pages.dev/${seo.slug}/`,
   },
 };
 
@@ -23,7 +27,7 @@ export default function ImageHostLayout({
       {children}
       <SeoFaq
         faq={seo.faq}
-        pageUrl="https://toolversee.pages.dev/image-host"
+        pageUrl="https://toolversee.pages.dev/image-host/"
       />
     </>
   );

@@ -7,9 +7,13 @@ const seo = toolSeo["email-phone-iban-validator"];
 export const metadata: Metadata = {
   title: seo.title,
   description: seo.description,
+  alternates: {
+    canonical: `https://toolversee.pages.dev/${seo.slug}/`,
+  },
   openGraph: {
     title: seo.title,
     description: seo.description,
+    url: `https://toolversee.pages.dev/${seo.slug}/`,
   },
 };
 
@@ -21,7 +25,7 @@ export default function EmailPhoneIbanValidatorLayout({
   return (
     <>
       {children}
-      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/email-phone-iban-validator" />
+      <SeoFaq faq={seo.faq} pageUrl="https://toolversee.pages.dev/email-phone-iban-validator/" />
     </>
   );
 }
