@@ -400,7 +400,7 @@ setInterval(() => {
 // ---- helpers ----
 function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
   return new Promise((resolve, reject) => {
-    const cookiesToUse = customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null);
+    const cookiesToUse = options.noCookies ? null : (customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null));
     const useProxy = options.noProxy ? false : Boolean(PROXY_URL);
     const isIg = Boolean(options.isIg) || args.some((a) => /instagram\.com|instagr\.am/i.test(a));
     const geoArgs = (!isIg && !options.noGeo) ? ["--geo-bypass", "--geo-bypass-country", "IN"] : [];
@@ -550,10 +550,12 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
           { noProxy: false, noUserAgent: true, isIg: true },
           { noProxy: true, noUserAgent: true, isIg: true },
           { noProxy: false, noUserAgent: false, isIg: true },
+          { noProxy: true, noCookies: true, isIg: true },
         ]
       : [
           { noProxy: true, noUserAgent: true, isIg: true },
           { noProxy: true, noUserAgent: false, isIg: true },
+          { noProxy: true, noCookies: true, isIg: true },
         ];
 
     let lastErr = null;
@@ -949,7 +951,9 @@ async function fetchInstagramDirect(url) {
     if (!html) return null;
 
     let videoUrl = null;
-    const vm = html.match(/"video_url"\s*:\s*"([^"]+)"/);
+    const vm =
+      html.match(/"video_url"\s*:\s*"([^"]+)"/) ||
+      html.match(/&quot;video_url&quot;\s*:\s*&quot;([^&]+)&quot;/i);
     if (vm) {
       videoUrl = vm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
       try {
@@ -970,7 +974,9 @@ async function fetchInstagramDirect(url) {
     }
 
     let thumbnail = null;
-    const tm = html.match(/"display_url"\s*:\s*"([^"]+)"/);
+    const tm =
+      html.match(/"display_url"\s*:\s*"([^"]+)"/) ||
+      html.match(/&quot;display_url&quot;\s*:\s*&quot;([^&]+)&quot;/i);
     if (tm) {
       thumbnail = tm[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/");
       try {
