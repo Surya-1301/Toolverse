@@ -2,7 +2,7 @@ const stripSlash = (u: string) => u.trim().replace(/\/+$/, "");
 
 /** yt-dlp backend: YouTube, Instagram Reels, and Music downloaders. */
 export const PRIVATE_YT_BACKEND = stripSlash(
-  process.env.NEXT_PUBLIC_YT_BACKEND || "https://toolverse-yt-api-cyg1.onrender.com",
+  process.env.NEXT_PUBLIC_YT_BACKEND || "https://toolverse-backend.centralindia.cloudapp.azure.com",
 );
 
 /** YoutubeExplode backend (.NET 8): specialized alternative for YouTube. */

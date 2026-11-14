@@ -27,6 +27,7 @@
     "contextMenus"
   ],
   "host_permissions": [
+    "https://toolverse-backend.centralindia.cloudapp.azure.com/*",
     "https://toolverse-yt-api-cyg1.onrender.com/*",
     "https://toolversee.pages.dev/*",
     "https://i.ytimg.com/*",

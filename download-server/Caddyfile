@@ -1,0 +1,15 @@
+{
+    email {$ACME_EMAIL:admin@toolversee.com}
+}
+
+{$DOMAIN:localhost} {
+    encode gzip zstd
+
+    # Forward to yt-backend container
+    reverse_proxy yt-backend:3000 {
+        header_up Host {host}
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+}

@@ -1,0 +1,38 @@
+# Toolverse Download Server on Azure VM
+# Includes yt-backend and Caddy for automatic HTTPS SSL termination.
+
+services:
+  yt-backend:
+    build:
+      context: ./yt-backend
+      dockerfile: Dockerfile
+    container_name: toolverse-yt-backend
+    restart: unless-stopped
+    environment:
+      - PORT=3000
+      - CORS_ORIGIN=${CORS_ORIGIN:-*}
+      - API_KEY=${API_KEY:-}
+      - COOKIES_B64=${COOKIES_B64:-}
+    expose:
+      - "3000"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: toolverse-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+      - ACME_EMAIL=${ACME_EMAIL:-admin@toolversee.com}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - yt-backend
+
+volumes:
+  caddy_data:
+  caddy_config:

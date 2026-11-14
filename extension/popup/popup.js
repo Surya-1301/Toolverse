@@ -1,6 +1,6 @@
 // Toolverse Extension Popup Logic
 
-const BACKEND_BASE = "https://toolverse-yt-api-cyg1.onrender.com";
+const BACKEND_BASE = "https://toolverse-backend.centralindia.cloudapp.azure.com";
 const TOOLVERSE_WEB = "https://toolversee.pages.dev";
 
 document.addEventListener("DOMContentLoaded", () => {
