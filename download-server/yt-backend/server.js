@@ -407,6 +407,7 @@ function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
     const uaArgs = (!options.noUserAgent && !isIg)
       ? ["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"]
       : [];
+    const extraArgs = options.extraArgs || [];
 
     const fullArgs = [
       "--force-ipv4",
@@ -417,6 +418,7 @@ function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
       ...geoArgs,
       "--no-check-certificates",
       ...uaArgs,
+      ...extraArgs,
       "--socket-timeout",
       "15",
       ...args,
@@ -544,19 +546,13 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   }
 
   if (isIg) {
-    const tryProxyFirst = Boolean(PROXY_URL);
-    const attempts = tryProxyFirst
-      ? [
-          { noProxy: false, noUserAgent: true, isIg: true },
-          { noProxy: true, noUserAgent: true, isIg: true },
-          { noProxy: false, noUserAgent: false, isIg: true },
-          { noProxy: true, noCookies: true, isIg: true },
-        ]
-      : [
-          { noProxy: true, noUserAgent: true, isIg: true },
-          { noProxy: true, noUserAgent: false, isIg: true },
-          { noProxy: true, noCookies: true, isIg: true },
-        ];
+    const attempts = [
+      { isIg: true, noProxy: true, noUserAgent: true },
+      { isIg: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
+      { isIg: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=graphql"] },
+      { isIg: true, noProxy: true, noCookies: true },
+      { isIg: true, noProxy: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
+    ];
 
     let lastErr = null;
     for (const opts of attempts) {
@@ -918,7 +914,7 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
 }
 
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
-async function fetchInstagramDirect(url) {
+async function fetchInstagramDirect(url, allowPhotoFallback = false) {
   if (String(url).includes("/stories/")) return null;
   const isReelOrVideo = /(?:reel|reels|tv)\//i.test(String(url));
   const m = String(url).match(/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
@@ -968,8 +964,8 @@ async function fetchInstagramDirect(url) {
       );
 
     // If this is a reel/video post but embed did not provide the video stream,
-    // NEVER degrade it to a photo - return null so yt-dlp extracts the full MP4 video!
-    if (isVideoEmbed && !videoUrl) {
+    // only return null if we don't allow falling back to photo!
+    if (isVideoEmbed && !videoUrl && !allowPhotoFallback) {
       return null;
     }
 
@@ -1538,7 +1534,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       }
     }
     if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
-      const ig = await fetchInstagramDirect(key);
+      const ig = await fetchInstagramDirect(key, true);
       if (ig) {
         if (!tempCookiePath) parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
         return res.json(ig);

@@ -19,6 +19,7 @@ services:
       - "3000"
     volumes:
       - ./yt-backend/cookies.txt:/app/cookies.txt
+      - ./yt-backend/server.js:/app/server.js
 
   caddy:
     image: caddy:2-alpine
