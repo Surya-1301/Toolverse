@@ -13,6 +13,8 @@ services:
       - CORS_ORIGIN=${CORS_ORIGIN:-*}
       - API_KEY=${API_KEY:-}
       - COOKIES_B64=${COOKIES_B64:-}
+      - IG_SESSIONID=${IG_SESSIONID:-}
+      - IG_COOKIES=${IG_COOKIES:-}
     expose:
       - "3000"
     volumes:
