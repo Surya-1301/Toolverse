@@ -1568,6 +1568,15 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       });
     }
 
+    const isMediaUnavailable = /media not found|unavailable|400: bad request/i.test(errText);
+    if (isInstagram && isMediaUnavailable) {
+      return res.status(404).json({
+        error: "Instagram post not found or private.",
+        detail: "This post may be from a private account, deleted, or restricted. Please check that the post link is public and accessible.",
+        rawError: errText.slice(0, 200),
+      });
+    }
+
     if (!isInstagram && isLoginRequired) {
       return res.status(403).json({
         error: "YouTube sign in required.",
