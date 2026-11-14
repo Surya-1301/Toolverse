@@ -39,7 +39,20 @@ Toolverse is available as a native mobile app wrapped with Capacitor 8 — all 5
 
 ## Features
 
-59 tools across 4 categories. Every tool has its own page with step-by-step guidance and FAQs.
+60+ tools across 6 categories. Every tool has its own dedicated page with live controls, step-by-step guidance, and FAQs.
+
+### Media & Download Tools
+
+<div align="center">
+
+| Tool | What it does |
+|---|---|
+| YouTube Downloader | Download YouTube videos up to 4K & MP3 audio with multi-client extraction |
+| Instagram Reels Downloader | Download Instagram Reels, videos, carousels, and photos in high resolution |
+| Music Downloader | Extract high-bitrate audio streams directly to 320kbps MP3 |
+| Audio Converter | Convert MP3, WAV, OGG, and M4A directly in the browser |
+
+</div>
 
 ### Sharing & Hosting
 
@@ -156,7 +169,11 @@ Conversion Tools category.
 
 **Cloudflare Worker API.** Sharing tools (paste, URL shortener, image/file hosting) run on the Toolverse API — Cloudflare Workers with D1 metadata and R2 file storage.
 
+**Download backend.** Media downloaders (YouTube 4K/1080p, Instagram Reels, MP3 audio) are handled by a dedicated Node.js + `yt-dlp` + `ffmpeg` microservice running in Docker on an Azure Linux VM, terminated with automated Let's Encrypt HTTPS via Caddy.
+
 **Image backend.** Background removal and PDF compression run on the Toolverse image API (FastAPI + remove.bg + Ghostscript).
+
+**Chrome Extension.** A Manifest V3 companion extension injects download controls directly into video platforms and connects to Toolverse for rapid media conversion.
 
 **PDF editor.** The standalone PDF editor lives on [PDFVerse](https://pdfverse.pages.dev/); the Toolverse `/pdf-editor` and `/pdf-to-markdown` routes redirect there.
 
@@ -174,6 +191,22 @@ Conversion Tools category.
 - `pdf-lib` — client-side PDF generation
 - `browser-image-compression`, `heic2any` — image workflows
 - `qrcode`, `xlsx`, `lamejs`, `bcryptjs`, `lucide-react`
+
+### Download Backend (`download-server/`)
+
+Deployed in Docker on an Azure Linux VM with Caddy reverse proxy:
+
+- **Node.js 20 + Express** — API orchestration & format stream muxing
+- **yt-dlp** — Multi-client video extraction (Android, iOS, Web client fallback)
+- **ffmpeg** — Audio/video stream muxing & 320kbps MP3 conversion
+- **Caddy 2** — Automatic Let's Encrypt TLS/SSL termination (`toolverse-backend.centralindia.cloudapp.azure.com`)
+- **Docker Compose** — Container orchestration with volume hot-reloading
+
+### Browser Extension (`extension/`)
+
+- **Manifest V3** Chrome & Edge extension
+- **In-page injected controls** for YouTube video player
+- **Auto video detection** & quick download popup
 
 ### Cloudflare API Worker (`backend/`)
 
@@ -198,20 +231,24 @@ Deployed separately on Render (Docker).
 ```txt
 Toolverse/
 ├─ app/                          # Next.js App Router pages & tool routes
-│  ├─ tools/                     # Tool index & category pages
-│  ├─ pdf-editor/                # Redirect to PDFVerse
+│  ├─ tools/                     # Tool index & category directory
+│  ├─ youtube-downloader/        # YouTube video/audio downloader UI
+│  ├─ instagram-reels-downloader/# Instagram Reels & media downloader UI
+│  ├─ music-downloader/          # Music & high-bitrate MP3 extractor
 │  ├─ paste/, paste-view/        # Paste creation & viewing
 │  ├─ file/, file-share/         # File management & sharing
-│  ├─ image-*/                   # Image tools
+│  ├─ image-*/                   # Image processing tools
 │  └─ *-formatter/               # Code & data formatters
-├─ components/                   # Shared React components
+├─ components/                   # Shared React components & UI primitives
 ├─ lib/                          # Shared helpers, apiBase, seoTools
+├─ download-server/              # Media download backend (Node.js + yt-dlp + Caddy)
+├─ extension/                    # Manifest V3 Chrome Extension
 ├─ backend/                      # Cloudflare Worker API + D1 migrations
 ├─ backend-routes/               # Next.js proxy routes for backend APIs
 ├─ image-backend/                # Python image-processing service
-├─ public/                       # Static assets, icons, sitemap, robots
+├─ public/                       # Static assets, icons, sitemap, robots, redirects
 ├─ resources/android-icons/       # Android launcher icons (Capacitor)
-├─ capacitor.config.ts           # Capacitor app config
+├─ capacitor.config.ts           # Capacitor mobile app config
 ├─ .github/workflows/android.yml # GitHub Actions Android APK build
 ├─ wrangler.jsonc                # OpenNext / Cloudflare frontend config
 └─ package.json
@@ -266,10 +303,11 @@ Open http://localhost:3000
 |---|---|---|
 | `NEXT_PUBLIC_API_BASE_URL` | Yes | Base URL of the Cloudflare Worker API (sharing tools) |
 | `NEXT_PUBLIC_IMAGE_API_BASE_URL` | Yes | Base URL of the image backend (background remover, PDF compression) |
+| `NEXT_PUBLIC_YT_BACKEND` | Yes | Base URL of the media download backend (e.g. `https://toolverse-backend.centralindia.cloudapp.azure.com`) |
 
 </div>
 
-> Keep local environment files out of version control. The repository ignores `.env*` files.
+> Keep local environment files out of version control. The repository ignores `.env*` and `*cookies.txt` files.
 
 ---
 
@@ -301,10 +339,22 @@ Open http://localhost:3000
 ### Frontend — Cloudflare Pages
 
 - **Build command:** `npm run build:cloudflare`
-- **Config:** `wrangler.jsonc`, `open-next.config.ts`
-- **Environment variables:** `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_IMAGE_API_BASE_URL`
+- **Config:** `wrangler.jsonc`, `open-next.config.ts`, `next.config.ts` (`output: "export"`, `trailingSlash: true`)
+- **Environment variables:** `NEXT_PUBLIC_API_BASE_URL`, `NEXT_PUBLIC_IMAGE_API_BASE_URL`, `NEXT_PUBLIC_YT_BACKEND`
 
 Or deploy via CLI: `npm run deploy:cloudflare` (requires `wrangler` login).
+
+### Download Backend — Azure Linux VM (Docker + Caddy)
+
+Runs on an Azure Linux VM with Caddy reverse proxy for automated Let's Encrypt HTTPS:
+
+```bash
+cd download-server
+bash deploy-azure.sh toolverse-backend.centralindia.cloudapp.azure.com
+```
+
+- **Health check:** `https://toolverse-backend.centralindia.cloudapp.azure.com/health`
+- **Compose stack:** `docker-compose.azure.yml` mounts live `server.js` and local `cookies.txt`.
 
 ### Cloudflare API — Workers
 
@@ -330,6 +380,13 @@ npm run db:migrate
 - **Dockerfile path:** `./Dockerfile`
 - **Environment variable:** `REMOVEBG_API_KEY`
 
+### Chrome Extension (`extension/`)
+
+- Open `chrome://extensions/` in Chrome.
+- Enable **Developer mode** (top-right).
+- Click **Load unpacked** and select the `Toolverse/extension` folder.
+- Injects quick-download buttons on `youtube.com` and provides instant media extraction via popup.
+
 ### Android App — GitHub Actions
 
 The APK is built in the cloud on tag push — no Android Studio needed.
@@ -344,6 +401,21 @@ The workflow (`.github/workflows/android.yml`) builds the web app, adds the Andr
 ---
 
 ## Backend API Overview
+
+### Download Backend (`download-server/`)
+
+Base URL: `NEXT_PUBLIC_YT_BACKEND`
+
+<div align="center">
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/health` | Health & cookie status check |
+| `POST` | `/api/info` | Extract video/audio details, resolutions, thumbnails |
+| `GET` | `/api/download` | Stream muxed MP4/MP3 media attachment with range requests |
+| `GET` | `/api/stream` | Stream direct video playback |
+
+</div>
 
 ### Cloudflare Worker API
 
@@ -385,17 +457,18 @@ Base URL: `NEXT_PUBLIC_IMAGE_API_BASE_URL`
 
 - **Browser tools:** files never leave the user's device. No upload, no tracking of file contents.
 - **Sharing tools:** pastes, images, and files are uploaded to the Cloudflare API (D1 + R2) so they can be shared via link.
-- **Server processing:** background removal and PDF compression are processed over HTTPS; temporary copies are deleted afterward.
+- **Server processing:** background removal, media extraction, and PDF compression are processed securely over HTTPS; temporary artifacts are deleted immediately after download.
 - Full details: https://toolversee.pages.dev/privacy
 - Report abuse: https://toolversee.pages.dev/report-abuse
 
 ---
 
-## SEO
+## SEO & Indexing
 
-- `public/sitemap.xml` — submitted to Search Console
-- `public/robots.txt` — allows all, references sitemap
-- Per-tool pages emit Open Graph / Twitter cards and `FAQPage` JSON-LD from `lib/seoTools.ts`
+- **Self-referencing Canonical URLs:** Every tool and category page outputs an explicit canonical link (`https://toolversee.pages.dev/[slug]/`) matching the Next.js `trailingSlash: true` specification.
+- **Structured Data:** Automated `FAQPage` and `BreadcrumbList` Schema.org JSON-LD dynamically injected into every tool page via `lib/seoTools.ts` and `components/SeoFaq.tsx`.
+- **Sitemap & Robots:** Clean static `public/sitemap.xml` and `public/robots.txt` referencing all public tools, blog articles, and categories.
+- **Clean 301 Redirects:** Legacy or merged URLs are routed cleanly via `public/_redirects` to avoid redirect chains.
 
 ---
 
