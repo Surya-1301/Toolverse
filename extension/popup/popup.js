@@ -162,34 +162,41 @@ document.addEventListener("DOMContentLoaded", () => {
     qualitiesListEl.innerHTML = "";
 
     const resources = data.resources || [];
-    const videoList = resources.filter((r) => !r.audioOnly).slice(0, 4);
+    const allVideos = resources.filter((r) => !r.audioOnly);
     const audioRes = resources.find((r) => r.audioOnly);
 
-    videoList.forEach((v) => {
+    // Requested quick download tiers: 720p, 1080p, 2K (1440p), 4K (2160p)
+    const targetLevels = [
+      { q: 720, label: "720p MP4" },
+      { q: 1080, label: "1080p MP4" },
+      { q: 1440, label: "2K MP4" },
+      { q: 2160, label: "4K MP4" },
+    ];
+
+    targetLevels.forEach((lvl) => {
+      const matchedRes = allVideos.find((v) => v.quality === lvl.q);
       const row = document.createElement("div");
       row.className = "quality-row";
       row.innerHTML = `
-        <span class="quality-label">${v.quality}p MP4</span>
-        <button class="btn-dl-row" data-id="${v.id}">Download</button>
+        <span class="quality-label">${lvl.label}</span>
+        <button class="btn-dl-row" data-id="${matchedRes?.id || ''}">Download</button>
       `;
       row.querySelector("button").addEventListener("click", () => {
-        triggerDownload(sourceUrl, v.id, "0");
+        triggerDownload(sourceUrl, matchedRes?.id || "", "0", lvl.q);
       });
       qualitiesListEl.appendChild(row);
     });
 
-    if (audioRes) {
-      const row = document.createElement("div");
-      row.className = "quality-row";
-      row.innerHTML = `
-        <span class="quality-label">Audio (MP3)</span>
-        <button class="btn-dl-row" data-id="${audioRes.id}">Download</button>
-      `;
-      row.querySelector("button").addEventListener("click", () => {
-        triggerDownload(sourceUrl, audioRes.id, "1");
-      });
-      qualitiesListEl.appendChild(row);
-    }
+    const audioRow = document.createElement("div");
+    audioRow.className = "quality-row";
+    audioRow.innerHTML = `
+      <span class="quality-label">Audio (MP3)</span>
+      <button class="btn-dl-row" data-id="${audioRes?.id || ''}">Download</button>
+    `;
+    audioRow.querySelector("button").addEventListener("click", () => {
+      triggerDownload(sourceUrl, audioRes?.id || "", "1");
+    });
+    qualitiesListEl.appendChild(audioRow);
 
     btnOpenToolverse.onclick = () => {
       const encoded = encodeURIComponent(sourceUrl);
@@ -233,12 +240,17 @@ document.addEventListener("DOMContentLoaded", () => {
     cardEl.classList.remove("hidden");
   }
 
-  function triggerDownload(url, formatId, isAudio) {
+  function triggerDownload(url, formatId, isAudio, quality) {
     const params = new URLSearchParams({
       url,
-      format_id: formatId,
       audio: isAudio,
     });
+    if (formatId) {
+      params.set("format_id", formatId);
+    }
+    if (quality) {
+      params.set("quality", String(quality));
+    }
     const downloadUrl = `${BACKEND_BASE}/api/download?${params.toString()}`;
     chrome.downloads.download({
       url: downloadUrl,

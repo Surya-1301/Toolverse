@@ -191,10 +191,11 @@
     `;
 
     const items = [
+      { label: "🎬 4K Ultra HD (MP4)", action: () => triggerDownload(2160, false) },
+      { label: "🎬 2K Quad HD (MP4)", action: () => triggerDownload(1440, false) },
       { label: "🎬 1080p Full HD (MP4)", action: () => triggerDownload(1080, false) },
       { label: "🎬 720p HD (MP4)", action: () => triggerDownload(720, false) },
-      { label: "🎬 360p Fast (MP4)", action: () => triggerDownload(360, false) },
-      { label: "🎵 MP3 Audio (HQ)", action: () => triggerDownload(null, true) },
+      { label: "🎵 Audio (MP3)", action: () => triggerDownload(null, true) },
       { divider: true },
       {
         label: "🖼️ Download HD Thumbnail",
