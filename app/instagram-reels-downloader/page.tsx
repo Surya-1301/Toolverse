@@ -165,7 +165,7 @@ export default function InstagramReelsDownloaderPage() {
     const controller = new AbortController();
     abortRef.current = controller;
     setLoading(true);
-    setLoadingStatus("Connecting to downloader server…");
+    setLoadingStatus("Fetching…");
     setError(null);
     setDetails(null);
     setServerResources(null);
