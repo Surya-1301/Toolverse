@@ -546,24 +546,34 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   }
 
   if (isIg) {
+    const hasAnyCookies = Boolean(customCookiesPath || HAS_COOKIES);
     const attempts = [
       { isIg: true, noProxy: true, noUserAgent: true },
       { isIg: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
       { isIg: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=graphql"] },
-      { isIg: true, noProxy: true, noCookies: true },
-      { isIg: true, noProxy: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
+      ...(!hasAnyCookies
+        ? [
+            { isIg: true, noProxy: true, noCookies: true },
+            { isIg: true, noProxy: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
+          ]
+        : []),
     ];
 
     let lastErr = null;
+    let preferredErr = null;
     for (const opts of attempts) {
       try {
         return await runYtDlp(args, effectiveTimeout, customCookiesPath, opts);
       } catch (e) {
         lastErr = e;
+        const msg = String(e?.message || e);
+        if (/400: Bad Request|media not found|unavailable/i.test(msg) && !preferredErr) {
+          preferredErr = e;
+        }
         console.warn(`[yt-dlp ig attempt failed (noProxy=${opts.noProxy})]:`, (e && e.message) || e);
       }
     }
-    throw lastErr;
+    throw preferredErr || lastErr;
   }
 
   // Non-YouTube, non-Instagram
@@ -1556,15 +1566,20 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
 
     const isInstagram = /instagram\.com|instagr\.am/i.test(key);
     const errText = String((e && e.message) || e);
-    const isLoginRequired = /log in to access this content|login_required|sign in|only available to logged in users|login required|checkpoint_required/i.test(errText);
+    const isLoginRequired = /log in to access this content|login_required|sign in|only available to logged in users|login required|checkpoint_required|redirected to the login page|exceeded the rate-limit for accessing posts anonymously/i.test(errText);
 
     if (isInstagram && isLoginRequired) {
+      const isStory = /stories\//i.test(key);
       return res.status(403).json({
-        error: "Instagram Stories require an active login session.",
-        detail: "Meta restricts Instagram Stories to authenticated accounts. Provide your Instagram sessionid or cookies to unlock story downloads.",
+        error: isStory
+          ? "Instagram Stories require an active login session."
+          : "Instagram login or session required.",
+        detail: isStory
+          ? "Meta restricts Instagram Stories to authenticated accounts. Provide your Instagram sessionid or cookies to unlock story downloads."
+          : "Instagram requires authentication or an active session for this media. Add your Instagram sessionid or cookies below.",
         rawError: errText.slice(0, 300),
         needsCookies: true,
-        isStory: true,
+        isStory,
       });
     }
 
