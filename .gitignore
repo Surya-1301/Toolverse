@@ -59,3 +59,10 @@ next-env.d.ts
 
 # skills
 skills-lock.json
+
+# secrets & sensitive files
+*cookies.txt
+!*cookies.README.txt
+*.pem
+*.key
+

@@ -1,2 +1,0 @@
-# Netscape HTTP Cookie File
-# Paste your exported cookies here or leave empty if using client-side cookies
