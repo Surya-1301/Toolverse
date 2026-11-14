@@ -16,7 +16,7 @@ services:
     expose:
       - "3000"
     volumes:
-      - ./yt-backend/cookies.txt:/app/cookies.txt:ro
+      - ./yt-backend/cookies.txt:/app/cookies.txt
 
   caddy:
     image: caddy:2-alpine
