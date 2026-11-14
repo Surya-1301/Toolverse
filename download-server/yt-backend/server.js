@@ -1552,10 +1552,11 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       })())
     );
 
+    const isInstagram = /instagram\.com|instagr\.am/i.test(key);
     const errText = String((e && e.message) || e);
     const isLoginRequired = /log in to access this content|login_required|sign in|only available to logged in users|login required|checkpoint_required/i.test(errText);
 
-    if (isLoginRequired) {
+    if (isInstagram && isLoginRequired) {
       return res.status(403).json({
         error: "Instagram Stories require an active login session.",
         detail: "Meta restricts Instagram Stories to authenticated accounts. Provide your Instagram sessionid or cookies to unlock story downloads.",
@@ -1565,7 +1566,15 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
       });
     }
 
-    const isInstagram = /instagram\.com|instagr\.am/i.test(key);
+    if (!isInstagram && isLoginRequired) {
+      return res.status(403).json({
+        error: "YouTube sign in required.",
+        detail: "YouTube requires authentication or bot verification for this video on cloud servers. Click 'Blocked? Use your own YouTube cookies' below to unlock.",
+        rawError: errText.slice(0, 300),
+        needsCookies: true,
+      });
+    }
+
     res.status(502).json({
       error: isInstagram ? "Could not fetch Instagram media info." : "Could not fetch video info.",
       detail: errText.slice(0, 200),
