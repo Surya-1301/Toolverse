@@ -1,8 +1,8 @@
 {
-    email {$ACME_EMAIL:admin@toolversee.com}
+    email admin@toolversee.com
 }
 
-{$DOMAIN:localhost} {
+toolverse-backend.centralindia.cloudapp.azure.com {
     encode gzip zstd
 
     # Forward to yt-backend container
