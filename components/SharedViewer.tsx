@@ -1042,7 +1042,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                     <td className="w-[32%] px-1.5 py-2.5 text-center sm:w-auto sm:px-2 sm:text-right sm:px-4 lg:px-6">
                                       <div className="flex items-center justify-center gap-1.5 whitespace-nowrap sm:justify-end">
                                         <a
-                                          href={`/file?id=${r.id}`}
+                                          href={`/file/?id=${r.id}`}
                                           target="_blank"
                                           rel="noreferrer"
                                           className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-300 backdrop-blur-sm transition hover:border-sky-400/40 hover:bg-white/[0.08] hover:text-white sm:px-3 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"
@@ -1276,7 +1276,7 @@ export function SharedViewer({ mode }: SharedViewerProps) {
                                 <td className="px-2 py-2.5 text-right sm:px-4 lg:px-6">
                                   <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                                     <a
-                                      href={`/file?id=${r.id}`}
+                                      href={`/file/?id=${r.id}`}
                                       target="_blank"
                                       rel="noreferrer"
                                       className="rounded-lg border border-white/10 bg-white/[0.04] px-2.5 py-1 text-xs font-medium text-slate-300 backdrop-blur-sm transition hover:border-sky-400/40 hover:bg-white/[0.08] hover:text-white sm:px-3 light:border-slate-900/10 light:text-slate-600 light:hover:bg-slate-900/5"

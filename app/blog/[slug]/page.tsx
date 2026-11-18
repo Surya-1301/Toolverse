@@ -150,7 +150,7 @@ function BodyRenderer({ body, tool }: { body: BlogPost["body"]; tool?: ReturnTyp
           return (
             <Link
               key={key}
-              href={`/${tool.slug}`}
+              href={`/${tool.slug}/`}
               className="group inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-sky-500"
             >
               {block.text}
@@ -186,7 +186,7 @@ function ToolCta({ tool }: { tool: ReturnType<typeof getPostTool> }) {
         {tool.description}
       </p>
       <Link
-        href={`/${tool.slug}`}
+        href={`/${tool.slug}/`}
         className="mt-5 inline-flex items-center gap-2 rounded-xl bg-sky-500 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500"
       >
         Open {tool.title.split(" - ")[0]}
@@ -379,7 +379,7 @@ export default async function BlogArticlePage({
                 {shown.map((rel) => (
                   <li key={rel.slug}>
                     <Link
-                      href={`/blog/${rel.slug}`}
+                      href={`/blog/${rel.slug}/`}
                       className="group flex items-center justify-between gap-4 rounded-2xl border border-white/10 px-4 py-3 transition hover:border-sky-400/40 hover:bg-white/[0.05] light:border-slate-900/10 light:hover:bg-slate-100"
                     >
                       <span className="text-sm font-semibold text-white transition group-hover:text-sky-200 light:text-slate-900">

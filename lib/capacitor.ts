@@ -463,20 +463,7 @@ export async function downloadFile(
     return out;
   }
 
-  // 1. Direct WebView Java interface downloadDirectUrl (streaming with status bar progress)
-  const win = typeof window !== "undefined" ? (window as any) : null;
-  const downloader = win?.ToolverseBlobDownloader || win?.PDFVerseBlobDownloader;
-  if (downloader?.downloadDirectUrl) {
-    try {
-      downloader.downloadDirectUrl(fullUrl, safeName, guessMime(safeName));
-      onProgress?.(100);
-      return { path: safeName, downloaded: true };
-    } catch (e) {
-      console.warn("downloadDirectUrl failed, trying ToolverseDownload plugin:", e);
-    }
-  }
-
-  // 2. ToolverseDownload Capacitor plugin (native thread streaming to MediaStore Downloads with status bar progress)
+  // 1. ToolverseDownload Capacitor plugin (native thread streaming to MediaStore Downloads with status bar progress)
   try {
     const result = await ToolverseDownload.downloadUrl({
       url: fullUrl,
@@ -486,13 +473,28 @@ export async function downloadFile(
     onProgress?.(100);
     return { path: safeName, downloaded: true };
   } catch (err) {
-    console.warn("ToolverseDownload.downloadUrl failed, streaming via fetch:", err);
-    const response = await apiFetch(fullUrl);
-    if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`);
-    const blob = await response.blob();
-    onProgress?.(80);
-    const out = await saveBlobNative(blob, safeName);
-    onProgress?.(100);
-    return out;
+    console.warn("ToolverseDownload.downloadUrl failed, trying WebView bridge or fetch:", err);
   }
+
+  // 2. Direct WebView Java interface downloadDirectUrl fallback
+  const win = typeof window !== "undefined" ? (window as any) : null;
+  const downloader = win?.ToolverseBlobDownloader || win?.PDFVerseBlobDownloader;
+  if (downloader?.downloadDirectUrl) {
+    try {
+      downloader.downloadDirectUrl(fullUrl, safeName, guessMime(safeName));
+      onProgress?.(100);
+      return { path: safeName, downloaded: true };
+    } catch (e) {
+      console.warn("downloadDirectUrl failed, trying fetch:", e);
+    }
+  }
+
+  // 3. Fallback: stream via native HTTP and save blob
+  const response = await apiFetch(fullUrl);
+  if (!response.ok) throw new Error(`Download failed: HTTP ${response.status}`);
+  const blob = await response.blob();
+  onProgress?.(80);
+  const out = await saveBlobNative(blob, safeName);
+  onProgress?.(100);
+  return out;
 }

@@ -71,7 +71,7 @@ export default function BlogIndexPage() {
 
       {featured ? (
         <Link
-          href={`/blog/${featured.slug}`}
+          href={`/blog/${featured.slug}/`}
           className="apple-glass group relative mt-12 block overflow-hidden rounded-3xl p-8 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15"
         >
           <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -118,7 +118,7 @@ export default function BlogIndexPage() {
         {rest.map((post) => (
           <Link
             key={post.slug}
-            href={`/blog/${post.slug}`}
+            href={`/blog/${post.slug}/`}
             className="apple-glass group relative flex flex-col overflow-hidden rounded-3xl p-6 transition-all duration-200 hover:-translate-y-1 hover:border-sky-400/50 hover:bg-white/[0.07] hover:shadow-2xl hover:shadow-sky-500/15"
           >
             <div className="apple-specular opacity-60 group-hover:opacity-100 transition-opacity" />

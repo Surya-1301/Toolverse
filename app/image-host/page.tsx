@@ -132,7 +132,7 @@ export default function ImageHostPage() {
       const frontendOrigin = getFrontendOrigin();
       const backendOrigin = getApiBaseUrl();
 
-      const fullPageUrl = `${frontendOrigin}/file?id=${data.id}`;
+      const fullPageUrl = `${frontendOrigin}/file/?id=${data.id}`;
       const fullDirectUrl = `${backendOrigin}/api/image/${data.id}/direct`;
 
       setResult(data);

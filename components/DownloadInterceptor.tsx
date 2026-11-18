@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { Capacitor } from "@capacitor/core";
-import { downloadFile, getFrontendOrigin, saveBlobNative } from "@/lib/capacitor";
+import { downloadFile, getFrontendOrigin, isNative, saveBlobNative } from "@/lib/capacitor";
 
 type PendingBlob = {
   blob: Blob;
@@ -153,7 +152,7 @@ function toastFailed() {
 
 export function DownloadInterceptor() {
   useEffect(() => {
-    if (!Capacitor.isNativePlatform()) return;
+    if (!isNative()) return;
 
     patchUrlApi();
 
@@ -191,7 +190,7 @@ export function DownloadInterceptor() {
       const isDownload = this.hasAttribute("download") || Boolean(dl);
 
       if (
-        Capacitor.isNativePlatform() &&
+        isNative() &&
         href &&
         isDownload
       ) {

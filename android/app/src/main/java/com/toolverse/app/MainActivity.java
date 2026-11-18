@@ -141,6 +141,12 @@ public class MainActivity extends BridgeActivity {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         int notificationId = (int) (System.currentTimeMillis() & 0xfffffff);
 
+        if (filename == null || filename.trim().isEmpty()) {
+            filename = "download";
+        }
+        filename = filename.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        if (filename.isEmpty()) filename = "download";
+
         NotificationCompat.Builder progressBuilder = new NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.stat_sys_download)
             .setContentTitle("Downloading " + filename)
@@ -163,8 +169,8 @@ public class MainActivity extends BridgeActivity {
             URL url = new URL(urlString);
             conn = (HttpURLConnection) url.openConnection();
             conn.setInstanceFollowRedirects(true);
-            conn.setConnectTimeout(30000);
-            conn.setReadTimeout(90000);
+            conn.setConnectTimeout(45000);
+            conn.setReadTimeout(180000);
             conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Toolverse) AppleWebKit/537.36");
             String cookies = CookieManager.getInstance().getCookie(urlString);
             if (cookies != null) {
@@ -172,19 +178,20 @@ public class MainActivity extends BridgeActivity {
             }
 
             int status = conn.getResponseCode();
-            if (status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == 307 || status == 308) {
+            int redirects = 0;
+            while ((status == HttpURLConnection.HTTP_MOVED_TEMP || status == HttpURLConnection.HTTP_MOVED_PERM || status == 303 || status == 307 || status == 308) && redirects < 5) {
+                redirects++;
                 String newUrl = conn.getHeaderField("Location");
-                if (newUrl != null && !newUrl.isEmpty()) {
-                    conn.disconnect();
-                    url = new URL(newUrl);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setInstanceFollowRedirects(true);
-                    conn.setConnectTimeout(30000);
-                    conn.setReadTimeout(90000);
-                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Toolverse) AppleWebKit/537.36");
-                    if (cookies != null) conn.setRequestProperty("Cookie", cookies);
-                    status = conn.getResponseCode();
-                }
+                if (newUrl == null || newUrl.isEmpty()) break;
+                conn.disconnect();
+                url = new URL(newUrl);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setInstanceFollowRedirects(true);
+                conn.setConnectTimeout(45000);
+                conn.setReadTimeout(180000);
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 10; Toolverse) AppleWebKit/537.36");
+                if (cookies != null) conn.setRequestProperty("Cookie", cookies);
+                status = conn.getResponseCode();
             }
 
             if (status >= 400) {

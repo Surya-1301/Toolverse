@@ -21,7 +21,7 @@ import {
   PRIVATE_YE_BACKEND,
   PRIVATE_YT_KEY,
 } from "@/lib/downloadServers";
-import { apiFetch, readTextNative } from "@/lib/capacitor";
+import { apiFetch, downloadFile, isNative, readTextNative } from "@/lib/capacitor";
 
 function isYouTube(u: string): boolean {
   return /(?:youtube\.com|youtu\.be)/i.test(u);
@@ -54,6 +54,7 @@ export default function MusicDownloaderPage() {
   const ytKey = PRIVATE_YT_KEY;
   const [activeServer, setActiveServer] = useState(PRIVATE_YT_BACKEND);
   const [loading, setLoading] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<MediaDetails | null>(null);
   const [clipboardFeedback, setClipboardFeedback] = useState<string | null>(null);
@@ -136,6 +137,31 @@ export default function MusicDownloaderPage() {
     if (details?.title) params.set("title", details.title);
     if (ytKey) params.set("api_key", ytKey);
     return `${activeServer.trim().replace(/\/+$/, "")}/api/download?${params.toString()}`;
+  }
+
+  async function handleDownload() {
+    const href = downloadHref();
+    const safeTitle = (details?.title || "music").replace(/[/\\?%*:|"<>#]/g, "-").slice(0, 80);
+    const filename = `${safeTitle}.${format}`;
+    setDownloading(true);
+    try {
+      if (isNative()) {
+        await downloadFile(href, filename);
+      } else {
+        const a = document.createElement("a");
+        a.href = href;
+        a.download = filename;
+        a.target = "_blank";
+        a.rel = "noopener noreferrer";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (err: unknown) {
+      setError((err as Error).message || "Download failed.");
+    } finally {
+      setDownloading(false);
+    }
   }
 
   async function pasteFromClipboard() {
@@ -289,16 +315,24 @@ export default function MusicDownloaderPage() {
                 </p>
               </div>
             </div>
-            <a
-              href={downloadHref()}
-              download={`${(details?.title || "music").replace(/[/\\?%*:|"<>#]/g, "-").slice(0, 80)}.${format}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500"
+            <button
+              type="button"
+              onClick={handleDownload}
+              disabled={downloading}
+              className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-6 text-sm font-semibold text-white shadow-sm transition hover:bg-emerald-500 disabled:opacity-50"
             >
-              <Download className="h-5 w-5" />
-              Download {format.toUpperCase()}
-            </a>
+              {downloading ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  Downloading {format.toUpperCase()}…
+                </>
+              ) : (
+                <>
+                  <Download className="h-5 w-5" />
+                  Download {format.toUpperCase()}
+                </>
+              )}
+            </button>
           </div>
         ) : null}
       </div>

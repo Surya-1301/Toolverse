@@ -260,7 +260,7 @@ export default function FileSharePage() {
       const backendOrigin = getApiBaseUrl();
       const keyHash = `#key=${encodeURIComponent(encrypted.key)}`;
 
-      const ownerPath = `/file?id=${data.id}`;
+      const ownerPath = `/file/?id=${data.id}`;
 
       const userPath = `/share-file?id=${data.id}`;
 
@@ -593,7 +593,7 @@ export default function FileSharePage() {
                         <td className="px-3 py-2 text-right">
                           <div className="flex items-center justify-end gap-1">
                             <a
-                              href={`/file?id=${r.id}`}
+                              href={`/file/?id=${r.id}`}
                               target="_blank"
                               rel="noreferrer"
                               className="rounded-lg bg-sky-600 text-white font-semibold shadow-sm hover:bg-sky-500 px-2.5 py-1 text-[10px]"
