@@ -34,6 +34,7 @@ type ServerResource = {
   fps: number | null;
   audioOnly?: boolean;
   isImage?: boolean;
+  directUrl?: string;
 };
 
 type MediaDetails = {
@@ -52,6 +53,7 @@ function sanitizeForFilename(title: string): string {
 
 function looksLikeInstagramUrl(input: string): boolean {
   const s = input.trim();
+  if (/^@?[A-Za-z0-9_.-]{1,30}$/.test(s)) return true;
   return (
     (s.includes("instagram.com/") || s.includes("instagr.am/")) &&
     /(?:reel|reels|p|tv|stories|story|s|share\/(?:reel|p|story|stories))\/([A-Za-z0-9_.-]+)/i.test(s)
@@ -181,7 +183,9 @@ export default function InstagramReelsDownloaderPage() {
         /(?:reel|reels|p|tv|stories|story|s|share\/(?:reel|p|story|stories))\/([A-Za-z0-9_.-]+)/i
       );
       let normalizedUrl = clean;
-      if (m) {
+      if (/^@?[A-Za-z0-9_.-]{1,30}$/.test(clean) && !clean.includes("instagram.com")) {
+        normalizedUrl = `https://www.instagram.com/stories/${clean.replace(/^@/, "")}/`;
+      } else if (m) {
         if (
           clean.includes("/stories/") ||
           clean.includes("/story/") ||
@@ -321,6 +325,7 @@ export default function InstagramReelsDownloaderPage() {
       audio: r.audioOnly ? "1" : "0",
     });
     if (details?.title) params.set("title", details.title);
+    if (r.directUrl) params.set("direct_url", r.directUrl);
     if (ytKey) params.set("api_key", ytKey);
     const cookies = cookiesText.trim();
     if (cookies) {
@@ -406,7 +411,7 @@ export default function InstagramReelsDownloaderPage() {
               value={url}
               onChange={(e) => setUrl(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && fetchInfo()}
-              placeholder="https://www.instagram.com/reel/... or /p/... or /stories/..."
+              placeholder="https://www.instagram.com/reel/..., /p/..., /stories/... or @username"
               className={inputClass}
               inputMode="url"
             />

@@ -17,6 +17,7 @@ services:
       - IG_COOKIES=${IG_COOKIES:-}
       - PROXY_URL=${PROXY_URL:-}
       - IG_PROXY_URL=${IG_PROXY_URL:-}
+      - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
     expose:
       - "3000"
     volumes:

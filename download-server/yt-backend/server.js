@@ -1113,6 +1113,123 @@ async function fetchInstagramApi(shortcode) {
   return null;
 }
 
+// ---- Apify Instagram Stories Scraper Integration ----
+const APIFY_API_TOKEN = (process.env.APIFY_API_TOKEN || "").trim();
+
+function extractInstagramStoryUsername(input) {
+  const str = String(input || "").trim();
+  const m = str.match(
+    /(?:https?:\/\/)?(?:www\.)?instagram\.com\/(?:stories|story)\/([a-zA-Z0-9._]+)/i
+  );
+  if (m) return m[1];
+  const atMatch = str.match(/^@?([a-zA-Z0-9._]+)$/);
+  if (atMatch && !str.includes("/")) return atMatch[1];
+  return null;
+}
+
+async function fetchInstagramStoriesViaApify(urlOrUsername) {
+  if (!APIFY_API_TOKEN) return null;
+  const username = extractInstagramStoryUsername(urlOrUsername);
+  if (!username) return null;
+
+  // Check if a specific story ID was in the URL (e.g. /stories/nasa/4032667366343885348/)
+  const storyIdMatch = String(urlOrUsername).match(/\/stories\/[^/]+\/(\d+)/i);
+  const targetStoryId = storyIdMatch ? storyIdMatch[1] : null;
+
+  try {
+    const apifyUrl = `https://api.apify.com/v2/acts/data-slayer~instagram-stories-scraper/run-sync-get-dataset-items?token=${APIFY_API_TOKEN}&timeout=45`;
+    const response = await fetch(apifyUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usernames: [username] }),
+    });
+
+    if (!response.ok) {
+      console.warn(`[apify stories error ${response.status}]:`, await response.text());
+      return null;
+    }
+
+    const items = await response.json();
+    if (!Array.isArray(items) || items.length === 0) {
+      return null;
+    }
+
+    // Check for "no stories" or "user not found" payload
+    const firstItem = items[0];
+    if (
+      firstItem.stories_count === 0 ||
+      firstItem.status === "user_not_found" ||
+      firstItem.status === "no_stories"
+    ) {
+      const err = new Error(
+        `No active stories found for @${username}. Stories expire after 24 hours.`
+      );
+      err.isStoryEmpty = true;
+      throw err;
+    }
+
+    // Filter valid story items
+    const validStories = items.filter(
+      (it) => it.media_url || it.video_url || it.thumbnail_url
+    );
+    if (!validStories.length) {
+      const err = new Error(
+        `No active stories found for @${username}. Stories expire after 24 hours.`
+      );
+      err.isStoryEmpty = true;
+      throw err;
+    }
+
+    // If target story ID was requested, sort it first
+    let sortedStories = validStories;
+    if (targetStoryId) {
+      const target = validStories.find(
+        (it) =>
+          it.id === targetStoryId ||
+          String(it.story_permalink || "").includes(targetStoryId)
+      );
+      if (target) {
+        sortedStories = [target, ...validStories.filter((it) => it !== target)];
+      }
+    }
+
+    const creatorName = firstItem.creator_username || username;
+    const resources = sortedStories.map((item, idx) => {
+      const isVid = Boolean(
+        item.is_video || item.story_type === "video" || item.video_url
+      );
+      const mediaUrl = item.video_url || item.media_url || item.thumbnail_url;
+      return {
+        id: `story_${idx + 1}_${isVid ? "vid" : "img"}`,
+        quality: 1080,
+        ext: isVid ? "mp4" : "jpg",
+        size: 0,
+        sizeLabel: `Story ${idx + 1} (${isVid ? "Video" : "Photo"})`,
+        hasAudio: isVid,
+        fps: null,
+        isImage: !isVid,
+        directUrl: mediaUrl,
+      };
+    });
+
+    return {
+      title: `Story by @${creatorName} (${sortedStories.length} active)`,
+      thumbnail: firstItem.thumbnail_url || firstItem.media_url || null,
+      duration: null,
+      uploader: `@${creatorName}`,
+      isLive: false,
+      resources,
+      qualities: [1080],
+      hasAudio: resources.some((r) => r.hasAudio),
+      cookies: false,
+    };
+  } catch (err) {
+    if (err.isStoryEmpty) throw err;
+    console.error("[apify story fetch error]:", err?.message || err);
+    return null;
+  }
+}
+
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
 async function fetchInstagramDirect(url, allowPhotoFallback = false) {
   if (String(url).includes("/stories/")) return null;
@@ -1343,9 +1460,26 @@ app.get(["/", "/health"], (req, res) => {
     cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
     hasProxy: !!process.env.PROXY_URL,
     hasIgProxy: !!process.env.IG_PROXY_URL,
+    hasApify: Boolean(APIFY_API_TOKEN),
     cachedEntries: parseCache.size,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
+});
+
+app.get("/api/instagram/stories", async (req, res) => {
+  const target = req.query.username || req.query.url;
+  if (!target) {
+    return res.status(400).json({ error: "Missing username or url parameter." });
+  }
+  try {
+    const data = await fetchInstagramStoriesViaApify(target);
+    if (!data) {
+      return res.status(404).json({ error: "No active stories found or could not fetch stories." });
+    }
+    return res.json(data);
+  } catch (err) {
+    return res.status(404).json({ error: err.message || "Failed to fetch stories." });
+  }
 });
 
 app.all("/api/clear-cache", (req, res) => {
@@ -1692,6 +1826,26 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     }
   }
 
+  // Fast Apify Story lookup for Instagram Stories
+  const isIgStory =
+    /instagram\.com\/(?:stories|story)\/|share\/story|\/s\//i.test(key) ||
+    key.startsWith("@");
+  if (isIgStory) {
+    try {
+      const storyData = await fetchInstagramStoriesViaApify(key);
+      if (storyData) {
+        if (!tempCookiePath) {
+          parseCache.set(key, { data: storyData, expires: Date.now() + 15 * 60 * 1000 });
+        }
+        return res.json(storyData);
+      }
+    } catch (storyErr) {
+      if (storyErr.isStoryEmpty) {
+        return res.status(404).json({ error: storyErr.message });
+      }
+    }
+  }
+
   // Fast direct fallback for Instagram photos/carousels
   // (Reels and videos prioritize yt-dlp first so full MP4 video qualities + audio formats are returned!)
   if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
@@ -1886,12 +2040,35 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     } catch {}
   }
 
-  // Direct stream fallback for Instagram
-  if (format_id && (String(format_id).startsWith("ig_") || String(format_id).startsWith("slide_"))) {
-    const isImg = String(format_id).includes("_img_") || String(format_id).startsWith("slide_img_");
+  // Direct stream fallback for Instagram & Stories
+  const isDirectStory = format_id && String(format_id).startsWith("story_");
+  const isDirectIg =
+    format_id &&
+    (String(format_id).startsWith("ig_") ||
+      String(format_id).startsWith("slide_") ||
+      isDirectStory);
+  const queryDirectUrl = (req.query.direct_url || req.query.directUrl || "").trim();
+
+  if (isDirectIg || queryDirectUrl) {
+    const isImg =
+      String(format_id).includes("_img_") ||
+      String(format_id).startsWith("slide_img_") ||
+      String(format_id).endsWith("_img") ||
+      (queryDirectUrl && !queryDirectUrl.includes(".mp4") && !String(format_id).includes("_vid"));
     const cachedItem = parseCache.get(key)?.data?.resources?.find((r) => r.id === format_id);
-    let directUrl = cachedItem?.directUrl || parseCache.get(key)?.data?.directUrl;
+    let directUrl = queryDirectUrl || cachedItem?.directUrl || parseCache.get(key)?.data?.directUrl;
     let title = parseCache.get(key)?.data?.title || (isImg ? "instagram_photo" : "instagram_reel");
+
+    if (!directUrl && isDirectStory) {
+      try {
+        const storyData = await fetchInstagramStoriesViaApify(key);
+        const resItem = storyData?.resources?.find((r) => r.id === format_id);
+        if (resItem?.directUrl) {
+          directUrl = resItem.directUrl;
+          title = storyData.title || title;
+        }
+      } catch {}
+    }
 
     if (!directUrl) {
       const ig = await fetchInstagramDirect(key, true);
