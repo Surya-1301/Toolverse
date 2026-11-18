@@ -689,13 +689,22 @@ function buildResources(info) {
 
   if (info.entries && Array.isArray(info.entries) && info.entries.length) {
     info.entries.forEach((entry, idx) => {
-      const eUrl = entry.url || entry.thumbnail;
-      const isVid = Boolean(entry.formats && entry.formats.length);
+      const eUrl =
+        entry.url ||
+        entry.thumbnail ||
+        (entry.thumbnails && entry.thumbnails.length
+          ? entry.thumbnails[entry.thumbnails.length - 1].url
+          : null);
+      const isVid = Boolean(
+        entry.formats &&
+          entry.formats.length &&
+          entry.formats.some((f) => f.vcodec !== "none")
+      );
       video.push({
         id: isVid ? `slide_vid_${idx + 1}` : `slide_img_${idx + 1}`,
-        quality: entry.height || 1080,
+        quality: entry.height || (isVid ? 720 : 1080),
         ext: isVid ? "mp4" : "jpg",
-        size: 0,
+        size: entry.filesize || entry.filesize_approx || 0,
         sizeLabel: `Slide ${idx + 1} (${isVid ? "Video" : "Photo"})`,
         hasAudio: isVid,
         fps: entry.fps || null,
@@ -1692,9 +1701,13 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
     }
   }
 
+  const isIg = /instagram\.com|instagr\.am/i.test(key);
+
   try {
     const ytDlpArgs = ["--dump-json", "--no-warnings"];
-    if (!key.includes("/stories/")) {
+    if (isIg) {
+      ytDlpArgs.push("--ignore-no-formats-error");
+    } else if (!key.includes("/stories/")) {
       ytDlpArgs.push("--no-playlist");
     }
     ytDlpArgs.push(key);
