@@ -942,6 +942,143 @@ async function fetchYouTubeDirect(videoId, cookieHeader = null) {
   return null;
 }
 
+function shortcodeToMediaId(code) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+  let id = BigInt(0);
+  for (let i = 0; i < code.length; i++) {
+    const c = code[i];
+    const index = alphabet.indexOf(c);
+    if (index === -1) return null;
+    id = id * BigInt(64) + BigInt(index);
+  }
+  return id.toString();
+}
+
+async function fetchInstagramApi(shortcode) {
+  const mediaId = shortcodeToMediaId(shortcode);
+  const activeDispatcher = igProxyDispatcher || proxyDispatcher;
+  const cookieHdr = SERVER_COOKIE_HEADER || "";
+
+  const endpoints = [];
+  if (mediaId) {
+    endpoints.push(`https://www.instagram.com/api/v1/media/${mediaId}/info/`);
+  }
+  endpoints.push(`https://www.instagram.com/p/${shortcode}/?__a=1&__d=dis`);
+
+  for (const endpoint of endpoints) {
+    try {
+      const res = await fetch(endpoint, {
+        headers: {
+          "User-Agent":
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+          "X-IG-App-ID": "936619743392459",
+          "X-ASBD-ID": "359341",
+          Accept: "*/*",
+          ...(cookieHdr ? { Cookie: cookieHdr } : {}),
+        },
+        signal: AbortSignal.timeout(8000),
+        ...(activeDispatcher ? { dispatcher: activeDispatcher } : {}),
+      });
+
+      if (!res.ok) continue;
+      const data = await res.json();
+      const item = data?.items?.[0] || data?.graphql?.shortcode_media;
+      if (!item) continue;
+
+      const title =
+        item.caption?.text ||
+        item.edge_media_to_caption?.edges?.[0]?.node?.text ||
+        "Instagram Post";
+      const uploader = item.user?.username || item.owner?.username || null;
+      const thumbnail =
+        item.image_versions2?.candidates?.[0]?.url ||
+        item.display_url ||
+        null;
+
+      const resources = [];
+
+      // Carousel
+      const carouselItems =
+        item.carousel_media ||
+        item.edge_sidecar_to_children?.edges?.map((e) => e.node);
+      if (carouselItems && carouselItems.length > 0) {
+        carouselItems.forEach((slide, idx) => {
+          const slideVid = slide.video_versions?.[0]?.url || slide.video_url;
+          const slideImg = slide.image_versions2?.candidates?.[0]?.url || slide.display_url;
+          if (slideVid) {
+            resources.push({
+              id: `slide_vid_${shortcode}_${idx + 1}`,
+              quality: 720,
+              ext: "mp4",
+              size: 0,
+              sizeLabel: `Slide ${idx + 1} - Video (MP4)`,
+              hasAudio: true,
+              fps: 30,
+              directUrl: slideVid,
+            });
+          } else if (slideImg) {
+            resources.push({
+              id: `slide_img_${shortcode}_${idx + 1}`,
+              quality: 1080,
+              ext: "jpg",
+              size: 0,
+              sizeLabel: `Slide ${idx + 1} - Photo (JPG)`,
+              hasAudio: false,
+              fps: null,
+              isImage: true,
+              directUrl: slideImg,
+            });
+          }
+        });
+      } else {
+        const vidUrl = item.video_versions?.[0]?.url || item.video_url;
+        if (vidUrl) {
+          resources.push({
+            id: `ig_vid_${shortcode}`,
+            quality: 720,
+            ext: "mp4",
+            size: 0,
+            sizeLabel: "HD Video (MP4)",
+            hasAudio: true,
+            fps: 30,
+            directUrl: vidUrl,
+          });
+        }
+        const imgUrl = item.image_versions2?.candidates?.[0]?.url || item.display_url;
+        if (imgUrl) {
+          resources.push({
+            id: `ig_img_${shortcode}`,
+            quality: 1080,
+            ext: "jpg",
+            size: 0,
+            sizeLabel: vidUrl ? "Cover Image (JPG)" : "HD Photo (JPG)",
+            hasAudio: false,
+            fps: null,
+            isImage: true,
+            directUrl: imgUrl,
+          });
+        }
+      }
+
+      if (resources.length > 0) {
+        return {
+          title: title.slice(0, 100),
+          thumbnail: thumbnail || resources[0]?.directUrl,
+          uploader,
+          resources,
+          qualities: resources.map((r) => r.quality),
+          hasAudio: resources.some((r) => r.hasAudio),
+          cookies: Boolean(cookieHdr),
+        };
+      }
+    } catch (e) {
+      console.warn(`[fetchInstagramApi error for ${endpoint}]:`, (e && e.message) || e);
+    }
+  }
+
+  return null;
+}
+
 // ---- Instagram Direct Fallback (when datacenter IP triggers empty media response) ----
 async function fetchInstagramDirect(url, allowPhotoFallback = false) {
   if (String(url).includes("/stories/")) return null;
@@ -949,6 +1086,16 @@ async function fetchInstagramDirect(url, allowPhotoFallback = false) {
   const m = String(url).match(/(?:reel|reels|p|tv|share\/(?:reel|p))\/([A-Za-z0-9_.-]+)/i);
   if (!m) return null;
   const shortcode = m[1];
+
+  // Try official Instagram Media API first (supports single photos, videos, and multi-slide carousels!)
+  try {
+    const apiResult = await fetchInstagramApi(shortcode);
+    if (apiResult) {
+      return apiResult;
+    }
+  } catch (apiErr) {
+    console.warn("[fetchInstagramApi top error]:", (apiErr && apiErr.message) || apiErr);
+  }
 
   const fetchEmbedHtml = async (useProxy) => {
     const activeDispatcher = igProxyDispatcher || proxyDispatcher;
@@ -1516,7 +1663,7 @@ app.post("/api/info", rateLimit(30), async (req, res) => {
   if (key.includes("instagram.com/") || key.includes("instagr.am/")) {
     const isReelOrVideo = /(?:reel|reels|tv)\//i.test(key);
     if (!isReelOrVideo) {
-      const ig = await fetchInstagramDirect(key);
+      const ig = await fetchInstagramDirect(key, true);
       if (ig) {
         if (!tempCookiePath) parseCache.set(key, { data: ig, expires: Date.now() + CACHE_MS });
         return res.json(ig);
