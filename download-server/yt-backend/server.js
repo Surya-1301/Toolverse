@@ -954,10 +954,11 @@ async function fetchInstagramDirect(url, allowPhotoFallback = false) {
     const activeDispatcher = igProxyDispatcher || proxyDispatcher;
     const res = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
       headers: {
-        "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        ...(SERVER_COOKIE_HEADER ? { Cookie: SERVER_COOKIE_HEADER } : {}),
       },
-      signal: AbortSignal.timeout(6000),
+      signal: AbortSignal.timeout(8000),
       ...(useProxy && activeDispatcher ? { dispatcher: activeDispatcher } : {}),
     });
     if (!res.ok) return null;
@@ -1021,6 +1022,41 @@ async function fetchInstagramDirect(url, allowPhotoFallback = false) {
     if (!thumbnail) {
       const fallbackIm = html.match(/<img[^>]+src="([^"]+fbcdn\.net[^"]+)"/);
       if (fallbackIm) thumbnail = fallbackIm[1].replace(/&amp;/g, "&");
+    }
+
+    if (!videoUrl && !thumbnail) {
+      // Direct GraphQL query fallback (supports photo posts, carousels, and reels)
+      try {
+        const activeDispatcher = igProxyDispatcher || proxyDispatcher;
+        const gqlUrl = `https://www.instagram.com/graphql/query/?doc_id=8845758582119845&variables=${encodeURIComponent(
+          JSON.stringify({ shortcode })
+        )}`;
+        const gqlRes = await fetch(gqlUrl, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            "X-IG-App-ID": "936619743392459",
+            Accept: "*/*",
+            ...(SERVER_COOKIE_HEADER ? { Cookie: SERVER_COOKIE_HEADER } : {}),
+          },
+          signal: AbortSignal.timeout(8000),
+          ...(activeDispatcher ? { dispatcher: activeDispatcher } : {}),
+        });
+        if (gqlRes.ok) {
+          const json = await gqlRes.json();
+          const media = json?.data?.xdt_shortcode_media;
+          if (media) {
+            if (media.is_video && media.video_url) {
+              videoUrl = media.video_url;
+            }
+            if (media.display_url) {
+              thumbnail = media.display_url;
+            }
+          }
+        }
+      } catch (gqlErr) {
+        console.warn("[ig graphql direct fallback error]:", (gqlErr && gqlErr.message) || gqlErr);
+      }
     }
 
     if (!videoUrl && !thumbnail) return null;
