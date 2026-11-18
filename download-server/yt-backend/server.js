@@ -421,9 +421,9 @@ function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
     const cookiesToUse = isIg
       ? null
       : (options.noCookies ? null : (customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null)));
-    const effectiveProxy = isIg
-      ? (IG_PROXY_URL || PROXY_URL)
-      : (options.noProxy ? "" : PROXY_URL);
+    const effectiveProxy = options.noProxy
+      ? ""
+      : (isIg ? (IG_PROXY_URL || PROXY_URL) : PROXY_URL);
     const useProxy = Boolean(effectiveProxy);
     const geoArgs = (!isIg && !options.noGeo) ? ["--geo-bypass", "--geo-bypass-country", "IN"] : [];
     const uaArgs = (!options.noUserAgent && !isIg)
@@ -569,10 +569,13 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
 
   if (isIg) {
     const attempts = [
+      // 1. Direct from Azure first (fastest, lowest latency)
+      { isIg: true, noCookies: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
+      { isIg: true, noCookies: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=graphql"] },
+      { isIg: true, noCookies: true, noProxy: true, noUserAgent: true },
+      // 2. Proxy fallback if direct Azure is blocked or rate-limited
       { isIg: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
       { isIg: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=graphql"] },
-      { isIg: true, noCookies: true, noUserAgent: true },
-      { isIg: true, noCookies: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
     ];
 
     let lastErr = null;
@@ -988,21 +991,22 @@ async function fetchInstagramApi(shortcode) {
   for (const endpoint of endpoints) {
     try {
       let data = null;
-      if (activeDispatcher) {
+      // 1. Direct from Azure first (fastest, lowest latency)
+      try {
+        const res = await fetch(endpoint, {
+          headers: anonymousHeaders,
+          signal: AbortSignal.timeout(6000),
+        });
+        if (res.ok) data = await res.json();
+      } catch {}
+
+      // 2. Proxy fallback if direct Azure fails or is rate-limited
+      if (!data && activeDispatcher) {
         try {
           const res = await fetch(endpoint, {
             headers: anonymousHeaders,
             signal: AbortSignal.timeout(8000),
             dispatcher: activeDispatcher,
-          });
-          if (res.ok) data = await res.json();
-        } catch {}
-      }
-      if (!data) {
-        try {
-          const res = await fetch(endpoint, {
-            headers: anonymousHeaders,
-            signal: AbortSignal.timeout(8000),
           });
           if (res.ok) data = await res.json();
         } catch {}
