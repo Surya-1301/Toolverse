@@ -416,8 +416,11 @@ setInterval(() => {
 // ---- helpers ----
 function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
   return new Promise((resolve, reject) => {
-    const cookiesToUse = options.noCookies ? null : (customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null));
     const isIg = Boolean(options.isIg) || args.some((a) => /instagram\.com|instagr\.am/i.test(a));
+    // Never pass cookies to Instagram to prevent account bans and checkpoints.
+    const cookiesToUse = isIg
+      ? null
+      : (options.noCookies ? null : (customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null)));
     const effectiveProxy = isIg
       ? (IG_PROXY_URL || PROXY_URL)
       : (options.noProxy ? "" : PROXY_URL);
@@ -565,17 +568,11 @@ async function runYtDlpWithFallback(args, timeoutMs, customCookiesPath, urlHint 
   }
 
   if (isIg) {
-    const hasAnyCookies = Boolean(customCookiesPath || HAS_COOKIES);
     const attempts = [
-      { isIg: true, noProxy: true, noUserAgent: true },
-      { isIg: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
-      { isIg: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=graphql"] },
-      ...(!hasAnyCookies
-        ? [
-            { isIg: true, noProxy: true, noCookies: true },
-            { isIg: true, noProxy: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
-          ]
-        : []),
+      { isIg: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
+      { isIg: true, noCookies: true, extraArgs: ["--extractor-args", "instagram:api=graphql"] },
+      { isIg: true, noCookies: true, noUserAgent: true },
+      { isIg: true, noCookies: true, noProxy: true, extraArgs: ["--extractor-args", "instagram:api=iphone"] },
     ];
 
     let lastErr = null;
@@ -957,32 +954,56 @@ function shortcodeToMediaId(code) {
 async function fetchInstagramApi(shortcode) {
   const mediaId = shortcodeToMediaId(shortcode);
   const activeDispatcher = igProxyDispatcher || proxyDispatcher;
-  const cookieHdr = SERVER_COOKIE_HEADER || "";
 
   const endpoints = [];
   if (mediaId) {
     endpoints.push(`https://www.instagram.com/api/v1/media/${mediaId}/info/`);
   }
   endpoints.push(`https://www.instagram.com/p/${shortcode}/?__a=1&__d=dis`);
+  endpoints.push(
+    `https://www.instagram.com/graphql/query/?doc_id=8845758582119845&variables=${encodeURIComponent(
+      JSON.stringify({ shortcode })
+    )}`
+  );
+
+  const anonymousHeaders = {
+    "User-Agent":
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+    "X-IG-App-ID": "936619743392459",
+    "X-ASBD-ID": "359341",
+    Origin: "https://www.instagram.com",
+    Referer: `https://www.instagram.com/p/${shortcode}/`,
+    Accept: "*/*",
+  };
 
   for (const endpoint of endpoints) {
     try {
-      const res = await fetch(endpoint, {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
-          "X-IG-App-ID": "936619743392459",
-          "X-ASBD-ID": "359341",
-          Accept: "*/*",
-          ...(cookieHdr ? { Cookie: cookieHdr } : {}),
-        },
-        signal: AbortSignal.timeout(8000),
-        ...(activeDispatcher ? { dispatcher: activeDispatcher } : {}),
-      });
+      let data = null;
+      if (activeDispatcher) {
+        try {
+          const res = await fetch(endpoint, {
+            headers: anonymousHeaders,
+            signal: AbortSignal.timeout(8000),
+            dispatcher: activeDispatcher,
+          });
+          if (res.ok) data = await res.json();
+        } catch {}
+      }
+      if (!data) {
+        try {
+          const res = await fetch(endpoint, {
+            headers: anonymousHeaders,
+            signal: AbortSignal.timeout(8000),
+          });
+          if (res.ok) data = await res.json();
+        } catch {}
+      }
 
-      if (!res.ok) continue;
-      const data = await res.json();
-      const item = data?.items?.[0] || data?.graphql?.shortcode_media;
+      if (!data) continue;
+      const item =
+        data?.items?.[0] ||
+        data?.graphql?.shortcode_media ||
+        data?.data?.xdt_shortcode_media;
       if (!item) continue;
 
       const title =
