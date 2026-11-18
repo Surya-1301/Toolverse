@@ -1892,14 +1892,49 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
     const cachedItem = parseCache.get(key)?.data?.resources?.find((r) => r.id === format_id);
     let directUrl = cachedItem?.directUrl || parseCache.get(key)?.data?.directUrl;
     let title = parseCache.get(key)?.data?.title || (isImg ? "instagram_photo" : "instagram_reel");
+
     if (!directUrl) {
-      const ig = await fetchInstagramDirect(key);
+      const ig = await fetchInstagramDirect(key, true);
       const resItem = ig?.resources?.find((r) => r.id === format_id);
       if (resItem?.directUrl || ig?.directUrl) {
         directUrl = resItem?.directUrl || ig.directUrl;
         title = ig.title || title;
       }
     }
+
+    // If still no directUrl and it's an image or slide, dump json from yt-dlp to extract the image
+    if (!directUrl && isImg) {
+      try {
+        const out = await runYtDlpWithFallback(
+          ["--dump-json", "--no-warnings", "--ignore-no-formats-error", key],
+          30000,
+          tempCookiePath,
+          key
+        );
+        const lines = (out.stdout || "").trim().split("\n").filter(Boolean);
+        const parsed = [];
+        for (const l of lines) {
+          try {
+            parsed.push(JSON.parse(l));
+          } catch {}
+        }
+        const slideIdxMatch = String(format_id).match(/_(\d+)$/);
+        const slideIdx = slideIdxMatch ? parseInt(slideIdxMatch[1], 10) - 1 : 0;
+        const entry = parsed[slideIdx] || parsed[0];
+        if (entry) {
+          directUrl =
+            entry.url ||
+            entry.thumbnail ||
+            (entry.thumbnails && entry.thumbnails.length
+              ? entry.thumbnails[entry.thumbnails.length - 1].url
+              : null);
+          title = entry.title || title;
+        }
+      } catch (dumpErr) {
+        console.warn("[download image dump error]:", dumpErr?.message || dumpErr);
+      }
+    }
+
     if (directUrl) {
       try {
         const streamRes = await fetch(directUrl);
@@ -1917,6 +1952,14 @@ app.get("/api/download", rateLimit(20), async (req, res) => {
       } catch (streamErr) {
         console.error("Direct stream failed:", streamErr);
       }
+    }
+
+    if (isImg) {
+      // If directUrl failed or could not be found for an image, do NOT spawn yt-dlp video downloader!
+      return res.status(502).json({
+        error: "Could not retrieve photo download stream.",
+        detail: "Instagram image URL expired or unavailable. Please reload and try again.",
+      });
     }
   }
 
