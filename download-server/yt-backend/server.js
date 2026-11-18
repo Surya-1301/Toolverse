@@ -14,19 +14,35 @@ if (dns.setDefaultResultOrder) {
 }
 
 const PROXY_URL = (process.env.PROXY_URL || "").trim();
+const IG_PROXY_URL = (process.env.IG_PROXY_URL || "").trim();
 let proxyDispatcher = undefined;
+let igProxyDispatcher = undefined;
 let proxyInitError = null;
+
 if (PROXY_URL) {
   try {
     const { ProxyAgent } = require("undici");
     proxyDispatcher = new ProxyAgent(PROXY_URL);
     console.log(
-      "[proxy] Fetch proxy enabled:",
+      "[proxy] Global fetch proxy enabled:",
       PROXY_URL.replace(/:[^:@]+@/, ":***@"),
     );
   } catch (err) {
     proxyInitError = err.message;
     console.error("[proxy] Failed to initialize ProxyAgent:", err.message);
+  }
+}
+
+if (IG_PROXY_URL) {
+  try {
+    const { ProxyAgent } = require("undici");
+    igProxyDispatcher = new ProxyAgent(IG_PROXY_URL);
+    console.log(
+      "[proxy] Instagram-specific fetch proxy enabled:",
+      IG_PROXY_URL.replace(/:[^:@]+@/, ":***@"),
+    );
+  } catch (err) {
+    console.error("[proxy] Failed to initialize IG ProxyAgent:", err.message);
   }
 }
 
@@ -401,8 +417,11 @@ setInterval(() => {
 function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
   return new Promise((resolve, reject) => {
     const cookiesToUse = options.noCookies ? null : (customCookiesPath || (HAS_COOKIES ? COOKIES_PATH : null));
-    const useProxy = options.noProxy ? false : Boolean(PROXY_URL);
     const isIg = Boolean(options.isIg) || args.some((a) => /instagram\.com|instagr\.am/i.test(a));
+    const effectiveProxy = isIg
+      ? (IG_PROXY_URL || PROXY_URL)
+      : (options.noProxy ? "" : PROXY_URL);
+    const useProxy = Boolean(effectiveProxy);
     const geoArgs = (!isIg && !options.noGeo) ? ["--geo-bypass", "--geo-bypass-country", "IN"] : [];
     const uaArgs = (!options.noUserAgent && !isIg)
       ? ["--user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"]
@@ -413,7 +432,7 @@ function runYtDlp(args, timeoutMs, customCookiesPath, options = {}) {
       "--force-ipv4",
       "--js-runtimes",
       "node",
-      ...(useProxy ? ["--proxy", PROXY_URL] : []),
+      ...(useProxy ? ["--proxy", effectiveProxy] : []),
       ...(cookiesToUse ? ["--cookies", cookiesToUse] : []),
       ...geoArgs,
       "--no-check-certificates",
@@ -932,13 +951,14 @@ async function fetchInstagramDirect(url, allowPhotoFallback = false) {
   const shortcode = m[1];
 
   const fetchEmbedHtml = async (useProxy) => {
+    const activeDispatcher = igProxyDispatcher || proxyDispatcher;
     const res = await fetch(`https://www.instagram.com/p/${shortcode}/embed/captioned/`, {
       headers: {
         "User-Agent": "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
         Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
       },
       signal: AbortSignal.timeout(6000),
-      ...(useProxy && proxyDispatcher ? { dispatcher: proxyDispatcher } : {}),
+      ...(useProxy && activeDispatcher ? { dispatcher: activeDispatcher } : {}),
     });
     if (!res.ok) return null;
     return await res.text();
@@ -946,12 +966,15 @@ async function fetchInstagramDirect(url, allowPhotoFallback = false) {
 
   try {
     let html = null;
-    try {
-      html = await fetchEmbedHtml(false);
-    } catch {}
-    if (!html && proxyDispatcher) {
+    const hasAnyProxy = Boolean(igProxyDispatcher || proxyDispatcher);
+    if (hasAnyProxy) {
       try {
         html = await fetchEmbedHtml(true);
+      } catch {}
+    }
+    if (!html) {
+      try {
+        html = await fetchEmbedHtml(false);
       } catch {}
     }
     if (!html) return null;
@@ -1102,6 +1125,7 @@ app.get(["/", "/health"], (req, res) => {
     hasServerCookieHeader: !!SERVER_COOKIE_HEADER,
     cookieHeaderLen: SERVER_COOKIE_HEADER ? SERVER_COOKIE_HEADER.length : 0,
     hasProxy: !!process.env.PROXY_URL,
+    hasIgProxy: !!process.env.IG_PROXY_URL,
     cachedEntries: parseCache.size,
     maxMinutes: Number(process.env.MAX_MINUTES || 10),
   });
