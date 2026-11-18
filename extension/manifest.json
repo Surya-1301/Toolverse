@@ -31,7 +31,10 @@
     "https://toolverse-yt-api-cyg1.onrender.com/*",
     "https://toolversee.pages.dev/*",
     "https://i.ytimg.com/*",
-    "*://*.youtube.com/*"
+    "*://*.youtube.com/*",
+    "*://*.instagram.com/*",
+    "*://*.cdninstagram.com/*",
+    "*://*.fbcdn.net/*"
   ],
   "content_scripts": [
     {

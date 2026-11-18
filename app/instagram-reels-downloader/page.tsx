@@ -166,8 +166,17 @@ export default function InstagramReelsDownloaderPage() {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
+    const isStoryRequest =
+      clean.includes("/stories/") ||
+      clean.includes("/story/") ||
+      clean.includes("/share/story") ||
+      (/^@?[A-Za-z0-9_.-]{1,30}$/.test(clean) && !clean.includes("instagram.com"));
     setLoading(true);
-    setLoadingStatus("Fetching…");
+    setLoadingStatus(
+      isStoryRequest
+        ? "Fetching Instagram Stories via secure proxy (takes ~15s)…"
+        : "Fetching…"
+    );
     setError(null);
     setDetails(null);
     setServerResources(null);

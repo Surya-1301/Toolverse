@@ -200,7 +200,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnOpenToolverse.onclick = () => {
       const encoded = encodeURIComponent(sourceUrl);
-      chrome.tabs.create({ url: `${TOOLVERSE_WEB}/youtube-downloader?url=${encoded}` });
+      const isIg = /instagram\.com/i.test(sourceUrl);
+      const targetPage = isIg ? "instagram-reels-downloader" : "youtube-downloader";
+      chrome.tabs.create({ url: `${TOOLVERSE_WEB}/${targetPage}?url=${encoded}` });
     };
 
     const ytId = getYouTubeVideoId(sourceUrl);

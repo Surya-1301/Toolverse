@@ -55,15 +55,17 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (!targetUrl) return;
 
   const ytId = getYouTubeId(targetUrl);
+  const isIg = /instagram\.com/i.test(targetUrl);
+  const webTargetPage = isIg ? "instagram-reels-downloader" : "youtube-downloader";
 
   if (info.menuItemId === "toolverse-open-web") {
     const encoded = encodeURIComponent(targetUrl);
-    chrome.tabs.create({ url: `${TOOLVERSE_WEB}/youtube-downloader?url=${encoded}` });
+    chrome.tabs.create({ url: `${TOOLVERSE_WEB}/${webTargetPage}?url=${encoded}` });
   } else if (info.menuItemId === "toolverse-quick-mp3") {
     const downloadUrl = `${BACKEND_BASE}/api/download?url=${encodeURIComponent(targetUrl)}&audio=1&audio_format=mp3`;
     chrome.downloads.download({
       url: downloadUrl,
-      filename: `toolverse_${ytId || "audio"}.mp3`,
+      filename: `toolverse_${ytId || (isIg ? "instagram" : "audio")}.mp3`,
       saveAs: true,
     });
   } else if (info.menuItemId === "toolverse-quick-thumb") {
@@ -75,7 +77,7 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       });
     } else {
       const encoded = encodeURIComponent(targetUrl);
-      chrome.tabs.create({ url: `${TOOLVERSE_WEB}/youtube-downloader?url=${encoded}` });
+      chrome.tabs.create({ url: `${TOOLVERSE_WEB}/${webTargetPage}?url=${encoded}` });
     }
   }
 });
